@@ -1,0 +1,51 @@
+//
+// SmartMind Theme — Central Override System
+//
+// This file imports all SmartMind customisations in order.
+// Instead of editing the base Boost SCSS files (scss/moodle/*), put ALL
+// your customisations here. This keeps the base theme untouched and
+// makes upgrades painless — just re-copy the base files and your
+// overrides still apply on top.
+//
+// HOW IT WORKS:
+//   moodle.scss loads all base styles first (bootstrap, moodle/*)
+//   then this file loads AFTER, so anything here wins via cascade.
+//
+// HOW TO USE:
+//   1. Find the component you want to change in the file list below
+//   2. Open that file (e.g. _blocks.scss)
+//   3. Add your SCSS — it automatically overrides the base styles
+//
+
+// Variables — must come first so other files can use them
+@import "variables";
+
+// Layout & structure
+@import "layout";
+@import "navbar";
+@import "navigation";
+@import "drawers";
+@import "footer";
+
+// Components
+@import "blocks";
+@import "calendar";
+@import "course";
+@import "modules";
+@import "catalogue";
+@import "forms";
+@import "login";
+@import "dashboard";
+
+// IOMAD company admin pages
+@import "iomad";
+
+// Plugin components (SmartMind Graphics Plugin)
+@import "course_page";
+@import "course_comments";
+@import "course_landing";
+@import "grades_certificates";
+@import "mycourses";
+
+// Utilities — must come last (contains !important helpers)
+@import "utilities";

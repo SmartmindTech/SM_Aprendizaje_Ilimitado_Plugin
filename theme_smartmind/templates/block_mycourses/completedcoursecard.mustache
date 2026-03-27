@@ -1,0 +1,76 @@
+{{!
+    @template block_mycourses/completedcoursecard
+
+    SmartMind override — IOMAD completed course card.
+    Uses the catalogue_card design.
+
+    Original: blocks/mycourses/templates/completedcoursecard.mustache
+}}
+<div class="col" role="listitem" data-region="course-content" data-course-id="{{{id}}}">
+    <article class="course-card" data-courseimage="{{{image}}}">
+        {{! Card Image }}
+        <div class="course-card__image-wrapper">
+            <div class="course-card__image-placeholder">
+                <i class="fa fa-graduation-cap"></i>
+            </div>
+        </div>
+
+        {{! Card Content }}
+        <div class="course-card__content">
+            <h3 class="course-card__title">
+                <a href="{{url}}" class="stretched-link">{{fullname}}</a>
+            </h3>
+
+            <div class="course-card__stats">
+                <div class="w-100">
+                    <div class="progress bg-white border">
+                        <div class="progress-bar bar" role="progressbar" aria-valuenow="{{progress}}" style="width: {{progress}}%" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <div class="small mt-1">
+                        <strong>{{progress}}%</strong> {{#str}}complete, block_mycourses{{/str}}
+                    </div>
+                    {{#timecompleted}}
+                    <div class="small text-muted">
+                        <strong>{{#str}}timecompleted, local_report_completion{{/str}}:</strong> {{timecompleted}}
+                    </div>
+                    {{/timecompleted}}
+                    {{#timeexpires}}
+                    <div class="small text-muted">
+                        <strong>{{#str}}timeexpires, local_report_completion{{/str}}:</strong> {{timeexpires}}
+                    </div>
+                    {{/timeexpires}}
+                    {{#hasgrade}}
+                    <div class="small">
+                        <strong>{{#str}}finalscore, block_mycourses, {{finalscore}}</strong>{{/str}}
+                    </div>
+                    {{/hasgrade}}
+                    {{^hasgrade}}
+                    <div class="small">
+                        <strong>{{#str}}result, block_mycourses, {{finalscore}}</strong>{{/str}}
+                    </div>
+                    {{/hasgrade}}
+                </div>
+            </div>
+
+            {{#certificates}}
+            <div class="small mt-1">
+                <b>{{#str}}downloadcert, block_mycourses{{/str}}:</b>
+                <a href="{{certificateurl}}" title="{{certificatename}}">
+                    <img src="{{certificateimage}}" alt="{{certificatename}}" width="36">
+                </a>
+            </div>
+            {{/certificates}}
+        </div>
+    </article>
+</div>
+{{#js}}
+require(['jquery'], function($) {
+    var card = $('[data-course-id="{{{id}}}"] .course-card');
+    var src = card.attr('data-courseimage');
+    if (src && !src.startsWith('data:')) {
+        card.find('.course-card__image-placeholder').replaceWith(
+            '<img src="' + src + '" class="course-card__image" alt="" loading="lazy">'
+        );
+    }
+});
+{{/js}}

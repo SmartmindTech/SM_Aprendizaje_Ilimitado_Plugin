@@ -1,0 +1,98 @@
+{{!
+    @template theme_smartmind/smartmind/sidemenu_item
+
+    SmartMind — Individual side menu item with icon support.
+
+    This template renders a single navigation item in the side menu.
+    Icons are mapped by the "key" field that Moodle provides for each nav item.
+
+    Known keys (from Moodle core):
+      home           — Site Home
+      myhome         — Dashboard
+      mycourses      — My Courses
+      siteadminnode  — Site Administration
+      calendar       — Calendar
+      privatefiles   — Private Files
+      contentbank    — Content Bank
+
+    To change an icon: find the key below and change the fa-* class.
+    To add a new icon: add a new {{#key\}\} block.
+}}
+{{^haschildren}}
+    <li data-key="{{key}}" class="nav-item {{#disabled}}smartmind-nav-disabled{{/disabled}}" role="none">
+        <a role="menuitem"
+           class="nav-link {{#isactive}}active{{/isactive}} {{#classes}}{{.}} {{/classes}} {{#disabled}}pe-none text-muted{{/disabled}}"
+           href="{{{url}}}{{{action}}}"
+           {{#title}}title="{{.}}"{{/title}}
+           {{#isactive}}aria-current="true"{{/isactive}}
+           {{#disabled}}aria-disabled="true"{{/disabled}}
+           data-disableactive="true"
+           {{^isactive}}tabindex="-1"{{/isactive}}
+        >
+            <span class="smartmind-nav-icon" aria-hidden="true">
+                {{#smicon}}
+                    <i class="fa fa-fw {{smicon}}"></i>
+                {{/smicon}}
+                {{^smicon}}
+                    {{#key}}
+                        <i class="fa fa-fw fa-circle-o smartmind-nav-icon-default"></i>
+                    {{/key}}
+                {{/smicon}}
+            </span>
+            <span class="smartmind-nav-text">
+                {{{text}}}
+                {{#badge}}
+                    <span class="badge bg-secondary ms-1 smartmind-nav-badge">{{.}}</span>
+                {{/badge}}
+            </span>
+        </a>
+    </li>
+{{/haschildren}}
+{{#haschildren}}
+    <li class="dropdown nav-item" role="none">
+        <a class="dropdown-toggle nav-link {{#isactive}}active{{/isactive}} {{#classes}}{{.}} {{/classes}}"
+           id="drop-down-{{moremenuid}}"
+           role="menuitem"
+           data-bs-toggle="dropdown"
+           aria-haspopup="true"
+           aria-expanded="false"
+           href="#"
+           aria-controls="drop-down-menu-{{moremenuid}}"
+           {{#title}}title="{{.}}"{{/title}}
+           {{#isactive}}aria-current="true"{{/isactive}}
+           {{^isactive}}tabindex="-1"{{/isactive}}
+        >
+            <span class="smartmind-nav-icon" aria-hidden="true">
+                <i class="fa fa-fw fa-folder-o"></i>
+            </span>
+            <span class="smartmind-nav-text">{{{text}}}</span>
+        </a>
+        <div class="dropdown-menu" role="menu" id="drop-down-menu-{{moremenuid}}" aria-labelledby="drop-down-{{moremenuid}}">
+            {{#children}}
+                {{^divider}}
+                    <a class="dropdown-item" role="menuitem" href="{{{url}}}{{{action}}}"
+                       {{#title}}title="{{.}}"{{/title}}
+                       data-disableactive="true" tabindex="-1"
+                    >
+                        {{{text}}}
+                    </a>
+                {{/divider}}
+                {{#divider}}
+                    <div class="dropdown-divider"></div>
+                {{/divider}}
+            {{/children}}
+        </div>
+    </li>
+{{/haschildren}}
+
+<style>
+    .nav-link {
+        display: flex !important;
+        gap: 1rem !important;
+        align-items: center !important;
+    }
+
+    .smartmind-nav-icon{
+        margin-bottom: 3% !important;
+    }
+</style>

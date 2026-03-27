@@ -1,0 +1,155 @@
+{{!
+    Template: local_sm_graphics_plugin/createcategory_page
+
+    Form for creating a new SmartMind catalogue category.
+    Includes a live preview that mirrors the category_card component
+    as it would appear in the frontpage catalogue.
+
+    Context variables:
+    - heading:       string  Page heading
+    - sesskey:       string  Moodle session key
+    - default_sort:  int     Default sortorder value
+    - label_name:    string
+    - label_image:   string
+    - label_sort:    string
+    - label_preview: string
+    - label_submit:  string
+    - label_cancel:  string
+    - cancel_url:    string
+    - image_help:    string
+}}
+<div class="sm-createcategory p-4 w-100">
+    <h2 class="mb-4">{{heading}}</h2>
+
+    <div class="row">
+        {{! ===== Form column ===== }}
+        <div class="col-lg-7">
+            <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                <input type="hidden" name="sesskey" value="{{sesskey}}">
+
+                {{! Category name }}
+                <div class="mb-3">
+                    <label for="category_name" class="form-label fw-bold">{{label_name}} <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="category_name" name="category_name"
+                           required maxlength="255" autocomplete="off">
+                </div>
+
+                {{! Image upload }}
+                <div class="mb-3">
+                    <label for="category_image" class="form-label fw-bold">{{label_image}}</label>
+                    <input type="file" class="form-control" id="category_image" name="category_image"
+                           accept="image/jpeg,image/png,image/webp">
+                    <div class="form-text">{{image_help}}</div>
+                </div>
+
+                {{! Buttons }}
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa fa-check me-1"></i> {{label_submit}}
+                    </button>
+                    <a href="{{cancel_url}}" class="btn btn-outline-secondary">{{label_cancel}}</a>
+                </div>
+            </form>
+        </div>
+
+        {{! ===== Live preview column ===== }}
+        <div class="col-lg-5 mt-4 mt-lg-0">
+            <label class="form-label fw-bold d-block mb-2">{{label_preview}}</label>
+            <div class="sm-createcat-preview-wrapper">
+                <div class="sm-createcat-preview" id="sm-createcat-preview">
+                    <article class="category-card card">
+                        <div class="category-card__image" id="sm-preview-image">
+                            <div class="category-card__overlay">
+                                <h3 class="category-card__title" id="sm-preview-title"></h3>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Force Moodle layout chain to full width. */
+    #page,
+    #topofscroll,
+    .main-inner,
+    #page-content,
+    #region-main-box,
+    [role="main"],
+    #region-main,
+    .smartmind-page-banner,
+    .smartmind-page-banner__content {
+        max-width: 100% !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    .main-inner {
+        padding-left: 1.5rem !important;
+        padding-right: 1.5rem !important;
+    }
+    #page-content,
+    #region-main-box,
+    #region-main {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    /* Category card preview (larger version of catalogue card) */
+    .sm-createcat-preview-wrapper {
+        max-width: 500px;
+    }
+    .sm-createcat-preview .category-card {
+        padding: 0;
+        overflow: hidden;
+        border: none;
+    }
+    .sm-createcat-preview .category-card__image {
+        width: 100%;
+        height: 18rem;
+        background-size: cover;
+        background-position: center;
+        background-color: #374151;
+    }
+    .sm-createcat-preview .category-card__overlay {
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.4);
+        display: flex;
+        align-items: end;
+        padding: 1rem;
+    }
+    .sm-createcat-preview .category-card__title {
+        font-size: 1rem;
+        color: #fff;
+        margin: 0;
+        text-transform: uppercase;
+        min-height: 1.2em;
+    }
+</style>
+
+<script>
+(function() {
+    var nameInput  = document.getElementById('category_name');
+    var imageInput = document.getElementById('category_image');
+    var previewTitle = document.getElementById('sm-preview-title');
+    var previewImage = document.getElementById('sm-preview-image');
+
+    // Live name update.
+    nameInput.addEventListener('input', function() {
+        previewTitle.textContent = this.value || '';
+    });
+
+    // Live image preview.
+    imageInput.addEventListener('change', function() {
+        var file = this.files && this.files[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            previewImage.style.backgroundImage = "url('" + e.target.result + "')";
+        };
+        reader.readAsDataURL(file);
+    });
+})();
+</script>

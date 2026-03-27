@@ -1,0 +1,52 @@
+{{!
+    @template theme_smartmind/smartmind/course_banner
+
+    SmartMind — Course header banner with background image.
+
+    Shown on all course-related pages (course view, activities, reports).
+    Displays: category badge, course name, summary, teacher, date, students, last updated.
+
+    Context variables:
+    * coursebanner.fullname       - Course full name
+    * coursebanner.summary        - Course summary (HTML)
+    * coursebanner.courseimage     - URL of course overview image
+    * coursebanner.hascourseimage  - Whether an image is available
+    * coursebanner.categoryname   - Category name
+    * coursebanner.teachername    - Comma-separated teacher names
+    * coursebanner.startdate      - Formatted start date
+    * coursebanner.timemodified   - Formatted last modified date
+    * coursebanner.studentcount   - Number of enrolled students
+}}
+{{#iscoursepage}}
+<div class="smartmind-course-banner {{#coursebanner.hascourseimage}}has-image{{/coursebanner.hascourseimage}}"
+     {{#coursebanner.hascourseimage}}style="background-image: url('{{{coursebanner.courseimage}}}')"{{/coursebanner.hascourseimage}}>
+    <div class="smartmind-course-banner__overlay">
+        <div class="smartmind-course-banner__content">
+            {{#coursebanner.categoryname}}
+                <span class="smartmind-course-banner__category">{{coursebanner.categoryname}}</span>
+            {{/coursebanner.categoryname}}
+            <h1 class="smartmind-course-banner__title">{{coursebanner.fullname}}</h1>
+            <div class="smartmind-course-banner__meta">
+                {{#coursebanner.teachername}}
+                    <span class="smartmind-course-banner__meta-item">
+                        <i class="fa fa-user"></i> {{coursebanner.teachername}}
+                    </span>
+                {{/coursebanner.teachername}}
+                {{#coursebanner.startdate}}
+                    <span class="smartmind-course-banner__meta-item">
+                        <i class="fa fa-calendar"></i> {{coursebanner.startdate}}
+                    </span>
+                {{/coursebanner.startdate}}
+                <span class="smartmind-course-banner__meta-item">
+                    <i class="fa fa-users"></i> {{coursebanner.studentcount}} {{#str}}catalogue_students, theme_smartmind{{/str}}
+                </span>
+                {{#coursebanner.timemodified}}
+                    <span class="smartmind-course-banner__meta-item">
+                        <i class="fa fa-clock"></i> {{#str}}updated, core{{/str}}: {{coursebanner.timemodified}}
+                    </span>
+                {{/coursebanner.timemodified}}
+            </div>
+        </div>
+    </div>
+</div>
+{{/iscoursepage}}

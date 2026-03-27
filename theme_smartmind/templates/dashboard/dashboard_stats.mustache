@@ -1,0 +1,30 @@
+{{!
+    @template theme_smartmind/dashboard/dashboard_stats
+
+    SmartMind Dashboard — Stats row.
+    Displays key learning metrics in a 4-column grid.
+
+    Context variables:
+      * stat_enrolled   - Number of enrolled courses
+      * stat_completed  - Number of completed courses
+      * stat_hours      - Training hours (string, e.g. "48h")
+      * stat_certs      - Number of certificates
+}}
+<div class="catalog-stats">
+    <div class="catalog-stats__card">
+        <div class="catalog-stats__label">{{#str}}stat_enrolled, theme_smartmind{{/str}}</div>
+        <div class="catalog-stats__value">{{stat_enrolled}}</div>
+    </div>
+    <div class="catalog-stats__card">
+        <div class="catalog-stats__label">{{#str}}stat_completed, theme_smartmind{{/str}}</div>
+        <div class="catalog-stats__value">{{stat_completed}}</div>
+    </div>
+    <div class="catalog-stats__card">
+        <div class="catalog-stats__label">{{#str}}stat_hours, theme_smartmind{{/str}}</div>
+        <div class="catalog-stats__value">{{stat_hours}}</div>
+    </div>
+    <div class="catalog-stats__card">
+        <div class="catalog-stats__label">{{#str}}stat_certs, theme_smartmind{{/str}}</div>
+        <div class="catalog-stats__value">{{stat_certs}}</div>
+    </div>
+</div>

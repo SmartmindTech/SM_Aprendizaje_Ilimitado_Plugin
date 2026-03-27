@@ -1,0 +1,29 @@
+{{!
+    @template theme_smartmind/dashboard/dashboard_recommended_courses
+
+    SmartMind Dashboard — Recommended courses section.
+    Catalog-style section with header, "view all" link, and horizontal scroll.
+}}
+<div class="catalog-section catalog-section--recommended">
+    <div class="catalog-section__header">
+        <h5 class="catalog-section__title">{{#str}}dashboard_recommended, theme_smartmind{{/str}}</h5>
+        <a href="{{catalogurl}}" class="catalog-section__viewall">{{#str}}dashboard_viewall, theme_smartmind{{/str}}</a>
+    </div>
+    <div class="catalog-section__content">
+        {{#hasrecommendedcourses}}
+        {{< theme_smartmind/dashboard/dashboard_scrollable_horizontal }}
+            {{$scroll_extra_class}}{{#recommendedcoursesscrollable}}has-overflow{{/recommendedcoursesscrollable}}{{/scroll_extra_class}}
+            {{$scroll_items}}
+                {{#recommendedcourses}}
+                    {{> theme_smartmind/dashboard/dashboard_course_card }}
+                {{/recommendedcourses}}
+            {{/scroll_items}}
+        {{/ theme_smartmind/dashboard/dashboard_scrollable_horizontal }}
+        {{/hasrecommendedcourses}}
+        {{^hasrecommendedcourses}}
+        <div class="catalog-section__empty">
+            {{#str}}dashboard_section_placeholder, theme_smartmind{{/str}}
+        </div>
+        {{/hasrecommendedcourses}}
+    </div>
+</div>

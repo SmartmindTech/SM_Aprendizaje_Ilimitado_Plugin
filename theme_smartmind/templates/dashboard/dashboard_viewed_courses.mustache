@@ -1,0 +1,29 @@
+{{!
+    @template theme_smartmind/dashboard/dashboard_viewed_courses
+
+    SmartMind Dashboard — Viewed/browsed courses section.
+    Catalog-style section with header, "view all" link, and horizontal scroll.
+}}
+<div class="catalog-section catalog-section--viewed">
+    <div class="catalog-section__header">
+        <h5 class="catalog-section__title">{{#str}}dashboard_viewed, theme_smartmind{{/str}}</h5>
+        <a href="{{catalogurl}}" class="catalog-section__viewall">{{#str}}dashboard_viewall, theme_smartmind{{/str}}</a>
+    </div>
+    <div class="catalog-section__content">
+        {{#hasviewedcourses}}
+        {{< theme_smartmind/dashboard/dashboard_scrollable_horizontal }}
+            {{$scroll_extra_class}}{{#viewedcoursesscrollable}}has-overflow{{/viewedcoursesscrollable}}{{/scroll_extra_class}}
+            {{$scroll_items}}
+                {{#viewedcourses}}
+                    {{> theme_smartmind/dashboard/dashboard_course_card }}
+                {{/viewedcourses}}
+            {{/scroll_items}}
+        {{/ theme_smartmind/dashboard/dashboard_scrollable_horizontal }}
+        {{/hasviewedcourses}}
+        {{^hasviewedcourses}}
+        <div class="catalog-section__empty">
+            {{#str}}dashboard_section_placeholder, theme_smartmind{{/str}}
+        </div>
+        {{/hasviewedcourses}}
+    </div>
+</div>

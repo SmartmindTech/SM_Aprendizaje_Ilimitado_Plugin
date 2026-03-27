@@ -1,0 +1,44 @@
+{{!
+    @template block_mycourses/coursecard
+
+    SmartMind override — IOMAD mycourses card.
+    Uses the catalogue_card design.
+
+    Original: blocks/mycourses/templates/coursecard.mustache
+}}
+<div class="col" role="listitem" data-region="course-content" data-course-id="{{{id}}}">
+    <article class="course-card" data-courseimage="{{{image}}}">
+        {{! Card Image }}
+        <div class="course-card__image-wrapper">
+            <div class="course-card__image-placeholder">
+                <i class="fa fa-graduation-cap"></i>
+            </div>
+        </div>
+
+        {{! Card Content }}
+        <div class="course-card__content">
+            <h3 class="course-card__title">
+                <a href="{{url}}" class="stretched-link">{{fullname}}</a>
+            </h3>
+
+            {{#hasprogress}}
+            <div class="course-card__stats">
+                <div class="w-100">
+                    {{> block_mycourses/progress-bar}}
+                </div>
+            </div>
+            {{/hasprogress}}
+        </div>
+    </article>
+</div>
+{{#js}}
+require(['jquery'], function($) {
+    var card = $('[data-course-id="{{{id}}}"] .course-card');
+    var src = card.attr('data-courseimage');
+    if (src && !src.startsWith('data:')) {
+        card.find('.course-card__image-placeholder').replaceWith(
+            '<img src="' + src + '" class="course-card__image" alt="" loading="lazy">'
+        );
+    }
+});
+{{/js}}

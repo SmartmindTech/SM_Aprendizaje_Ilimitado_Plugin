@@ -1,0 +1,39 @@
+//
+// SmartMind — Drawer / Sidebar Overrides
+//
+// Base files: _drawer.scss (313 lines), _courseindex.scss (217 lines)
+//
+
+// Drawer Container
+.drawer .drawercontent {
+    border: 1px solid grey;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+// Drawer Header
+.drawerheader {
+    border: 1px solid grey;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 0.5rem;
+}
+
+// Body States (drawer open/closed)
+body.drawer-open-left #page.drawers {}
+body.drawer-open-right {}
+
+// Course Index (inside left drawer) — softer text + subtle shadow
+.courseindex .courseindex-item {
+    .courseindex-link,
+    .courseindex-chevron {
+        color: $gray-700;
+    }
+
+    background-color: $gray-100;
+    border-radius: 8px;
+    margin-bottom: 2px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.pagelayout-standard #page.drawers .main-inner, body.limitedwidth #page.drawers .main-inner {
+  max-width: 100% !important;
+}

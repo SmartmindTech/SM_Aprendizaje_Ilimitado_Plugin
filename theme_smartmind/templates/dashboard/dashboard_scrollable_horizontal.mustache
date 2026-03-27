@@ -1,0 +1,18 @@
+{{!
+    @template theme_smartmind/dashboard/dashboard_scrollable_horizontal
+
+    SmartMind Dashboard — Reusable horizontal scrollable carousel.
+    Parent template for block inheritance. Override the scroll_items block
+    with your card markup.
+}}
+<div class="smartmind-scroll smartmind-scroll--horizontal {{$scroll_extra_class}}{{/scroll_extra_class}}" data-region="smartmind-scroll">
+    <button class="smartmind-scroll__btn smartmind-scroll__btn--prev" data-action="scroll-prev" aria-label="Previous">
+        <i class="fa fa-chevron-left"></i>
+    </button>
+    <div class="smartmind-scroll__track" data-region="scroll-track">
+        {{$scroll_items}}{{/scroll_items}}
+    </div>
+    <button class="smartmind-scroll__btn smartmind-scroll__btn--next" data-action="scroll-next" aria-label="Next">
+        <i class="fa fa-chevron-right"></i>
+    </button>
+</div>

@@ -1,0 +1,25 @@
+{{!
+    @template theme_smartmind/smartmind/secure_content
+
+    SmartMind — Secure exam page content.
+
+    The main content area for locked-down exam mode.
+    Contains course content header, activity header, main content, and blocks.
+}}
+<div id="page-content" class="row">
+    <div id="region-main-box" class="col-12">
+        <div id="region-main" {{#hasblocks}}class="has-blocks"{{/hasblocks}}>
+            {{{ output.course_content_header }}}
+            {{#headercontent}}
+                {{> core/activity_header }}
+            {{/headercontent}}
+            {{{ output.main_content }}}
+            {{{ output.course_content_footer }}}
+        </div>
+        {{#hasblocks}}
+        <div data-region="blocks-column">
+            {{{ sidepreblocks }}}
+        </div>
+        {{/hasblocks}}
+    </div>
+</div>

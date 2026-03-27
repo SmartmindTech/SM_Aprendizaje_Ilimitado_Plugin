@@ -1,0 +1,54 @@
+{{!
+    @template theme_smartmind/catalogue_card
+
+    Course catalogue card for the frontpage.
+
+    Context variables required for this template:
+    * fullname - Course full name
+    * shortname - Course short name (code)
+    * categoryid - Catalogue category ID
+    * categoryname - Catalogue category name
+    * courseimage - URL of the course image (optional)
+    * viewurl - URL to view the course
+    * activitycount - Number of activities / modules
+
+    Example context (json):
+    {
+        "fullname": "Control de accesos",
+        "shortname": "SEAD0004",
+        "categoryid": "1",
+        "categoryname": "Seguridad",
+        "courseimage": "",
+        "viewurl": "/course/view.php?id=2",
+        "activitycount": 8
+    }
+}}
+<div class="col" data-region="catalogue-card" data-fullname="{{fullname}}" data-categoryid="{{categoryid}}">
+    <a href="{{viewurl}}" class="catalogue-card" data-category="{{categoryname}}">
+        {{! Colored header area }}
+        <div class="catalogue-card__header">
+            {{#courseimage}}
+            <img src="{{courseimage}}" class="catalogue-card__icon" alt="" loading="lazy">
+            {{/courseimage}}
+            {{^courseimage}}
+            <div class="catalogue-card__icon-placeholder">
+                <i class="fa fa-graduation-cap"></i>
+            </div>
+            {{/courseimage}}
+            {{#categoryname}}
+            <span class="catalogue-card__category-badge">{{categoryname}}</span>
+            {{/categoryname}}
+        </div>
+
+        {{! Card body }}
+        <div class="catalogue-card__body">
+            <span class="catalogue-card__code">{{shortname}}</span>
+            <h3 class="catalogue-card__title">{{fullname}}</h3>
+            <div class="catalogue-card__meta">
+                {{#activitycount}}
+                <span>{{activitycount}} {{#str}}catalogue_modules, theme_smartmind{{/str}}</span>
+                {{/activitycount}}
+            </div>
+        </div>
+    </a>
+</div>

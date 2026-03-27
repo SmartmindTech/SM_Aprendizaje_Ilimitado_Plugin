@@ -1,0 +1,48 @@
+{{!
+    @template theme_smartmind/smartmind/sidemenu
+
+    SmartMind — Side menu (primary navigation with icon support).
+
+    This template renders the left sidebar navigation items.
+    Each menu item can have an icon via the data-icon attribute on the key.
+
+    To add icons: use FontAwesome classes in the icon map below.
+    The icon map matches the nav item "key" to a FontAwesome icon.
+
+    Edit this file to customise the side menu.
+}}
+{{#iscompanymanager}}
+    <div class="primary-navigation flex-grow-1 d-flex flex-column justify-content-between align-items-center">
+        <ul class="d-flex flex-column gap-4 list-unstyled">
+            {{#companymanagernav}}
+                {{> theme_smartmind/smartmind/sidemenu_item }}
+            {{/companymanagernav}}
+        </ul>
+        <div class="d-flex align-items-stretch usermenu-container" data-region="usermenu">
+            {{#usermenu}}
+                {{> core/user_menu }}
+            {{/usermenu}}
+        </div>
+    </div>
+{{/iscompanymanager}}
+{{^iscompanymanager}}
+    {{#primarymoremenu}}
+        <div class="primary-navigation flex-grow-1 d-flex flex-column justify-content-between align-items-center">
+            <ul class="d-flex flex-column gap-4 list-unstyled">
+                {{#nodecollection}}
+                    {{#children}}
+                        {{> theme_smartmind/smartmind/sidemenu_item }}
+                    {{/children}}
+                {{/nodecollection}}
+                {{#nodearray}}
+                    {{> theme_smartmind/smartmind/sidemenu_item }}
+                {{/nodearray}}
+            </ul>
+            <div class="d-flex align-items-stretch usermenu-container" data-region="usermenu">
+                {{#usermenu}}
+                    {{> core/user_menu }}
+                {{/usermenu}}
+            </div>
+        </div>
+    {{/primarymoremenu}}
+{{/iscompanymanager}}

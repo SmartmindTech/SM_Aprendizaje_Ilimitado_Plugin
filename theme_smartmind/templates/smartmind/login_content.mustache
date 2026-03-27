@@ -1,0 +1,371 @@
+{{!
+    @template theme_smartmind/smartmind/login_content
+
+    SmartMind — Welcome + Login + Verify Certificate page.
+    Three panels that toggle on the same page:
+      1. Welcome hero (default)
+      2. Login form (click "Sign In")
+      3. Verify certificate (click "Verify a certificate")
+    Back buttons return to the welcome section.
+}}
+<div class="smgp-login-page">
+
+    {{! ── Top-right nav: dark/light toggle + language toggle ── }}
+    <div class="smgp-topnav" id="smgp-topnav">
+        <button type="button" class="smgp-topnav__btn" id="smgp-theme-toggle" aria-label="Toggle theme">
+            <i class="icon-moon" id="smgp-theme-icon"></i>
+        </button>
+        <button type="button" class="smgp-topnav__btn" id="smgp-lang-toggle" aria-label="Change language">
+            <i class="icon-globe"></i>
+            <span id="smgp-lang-code">ES</span>
+        </button>
+    </div>
+
+    {{! ── 1. Welcome Section (hero) ── }}
+    <div class="smgp-welcome smgp-panel" id="smgp-welcome">
+        <div class="smgp-welcome__logo">
+            <img src="{{wwwroot}}/theme/smartmind/pix/smartmind_logo.png" alt="SmartMind" class="smgp-welcome__logo-img">
+        </div>
+
+        <h1 class="smgp-welcome__title">{{#str}}login_title, theme_smartmind{{/str}}</h1>
+        <p class="smgp-welcome__tagline">{{#str}}login_tagline, theme_smartmind{{/str}}</p>
+
+        <div class="smgp-welcome__hero">
+            <h2 class="smgp-welcome__hero-title">{{#str}}login_hero_title, theme_smartmind{{/str}}</h2>
+            <p class="smgp-welcome__hero-subtitle">{{#str}}login_hero_subtitle, theme_smartmind{{/str}}</p>
+        </div>
+
+        <div class="smgp-welcome__features">
+            <div class="smgp-welcome__feature">
+                <div class="smgp-welcome__feature-icon"><i class="icon-graduation-cap"></i></div>
+                <h3>{{#str}}login_feat1_title, theme_smartmind{{/str}}</h3>
+                <p>{{#str}}login_feat1_desc, theme_smartmind{{/str}}</p>
+            </div>
+            <div class="smgp-welcome__feature">
+                <div class="smgp-welcome__feature-icon"><i class="icon-bar-chart"></i></div>
+                <h3>{{#str}}login_feat2_title, theme_smartmind{{/str}}</h3>
+                <p>{{#str}}login_feat2_desc, theme_smartmind{{/str}}</p>
+            </div>
+            <div class="smgp-welcome__feature">
+                <div class="smgp-welcome__feature-icon"><i class="icon-award"></i></div>
+                <h3>{{#str}}login_feat3_title, theme_smartmind{{/str}}</h3>
+                <p>{{#str}}login_feat3_desc, theme_smartmind{{/str}}</p>
+            </div>
+            <div class="smgp-welcome__feature">
+                <div class="smgp-welcome__feature-icon"><i class="icon-phone"></i></div>
+                <h3>{{#str}}login_feat4_title, theme_smartmind{{/str}}</h3>
+                <p>{{#str}}login_feat4_desc, theme_smartmind{{/str}}</p>
+            </div>
+        </div>
+
+        <div class="smgp-welcome__cta">
+            <button type="button" class="btn smgp-welcome__btn smgp-welcome__btn--signin" id="smgp-show-login">
+                <i class="icon-arrow-right"></i>
+                {{#str}}login_signin, theme_smartmind{{/str}}
+            </button>
+            <button type="button" class="btn smgp-welcome__btn smgp-welcome__btn--verify" id="smgp-show-verify">
+                <i class="icon-search"></i>
+                {{#str}}login_verify_cert, theme_smartmind{{/str}}
+            </button>
+        </div>
+
+        <div class="smgp-welcome__footer">
+            {{#str}}login_footer, theme_smartmind{{/str}}
+        </div>
+    </div>
+
+    {{! ── 2. Login Form Card ── }}
+    <div class="smgp-login-card smgp-panel" id="smgp-login-card" style="display: none;">
+        <button type="button" class="smgp-login-back smgp-back-btn" data-target="smgp-welcome">
+            <i class="icon-arrow-left"></i>
+            {{#str}}login_back, theme_smartmind{{/str}}
+        </button>
+        <div class="smgp-login-branding">
+            <h1 class="smgp-login-title">{{#str}}login_title, theme_smartmind{{/str}}</h1>
+            <p class="smgp-login-subtitle">{{#str}}login_subtitle, theme_smartmind{{/str}}</p>
+        </div>
+        <div class="smgp-login-form-area">
+            {{{ output.main_content }}}
+        </div>
+        <div class="smgp-login-verify">
+            <button type="button" class="smgp-verify-link smgp-switch-panel" data-target="smgp-verify-card">
+                <i class="icon-search"></i>
+                {{#str}}login_verify_cert, theme_smartmind{{/str}}
+            </button>
+        </div>
+    </div>
+
+    {{! ── 3. Verify Certificate Card ── }}
+    <div class="smgp-login-card smgp-verify-card smgp-panel" id="smgp-verify-card" style="display: none;">
+        <button type="button" class="smgp-login-back smgp-back-btn" data-target="smgp-welcome">
+            <i class="icon-arrow-left"></i>
+            {{#str}}login_back, theme_smartmind{{/str}}
+        </button>
+        <div class="smgp-login-branding">
+            <h1 class="smgp-login-title">{{#str}}verify_heading, local_sm_graphics_plugin{{/str}}</h1>
+        </div>
+
+        <form id="smgp-verify-form" class="smgp-verify-form">
+            <div class="smgp-input-group mb-3">
+                <i class="icon-search"></i>
+                <input type="text" name="code" id="smgp-verify-code"
+                       class="form-control form-control-lg"
+                       placeholder="{{#str}}verify_placeholder, local_sm_graphics_plugin{{/str}}"
+                       autocomplete="off" maxlength="10">
+            </div>
+            <div class="smgp-verify-submit mb-3">
+                <button type="submit" class="btn btn-primary btn-lg w-100">
+                    <i class="icon-search"></i>
+                    {{#str}}verify_button, local_sm_graphics_plugin{{/str}}
+                </button>
+            </div>
+        </form>
+
+        <div id="smgp-verify-result"></div>
+
+        <div class="smgp-login-verify" style="margin-top: 1rem;">
+            <button type="button" class="smgp-verify-link smgp-switch-panel" data-target="smgp-login-card">
+                <i class="icon-arrow-right"></i>
+                {{#str}}login_signin, theme_smartmind{{/str}}
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+(function() {
+    // Panel switching logic.
+    function showPanel(id) {
+        document.querySelectorAll('.smgp-panel').forEach(function(p) {
+            p.style.display = 'none';
+        });
+        var panel = document.getElementById(id);
+        if (panel) {
+            panel.style.display = '';
+            window.scrollTo(0, 0);
+        }
+    }
+
+    // "Sign In" button on welcome.
+    var showLogin = document.getElementById('smgp-show-login');
+    if (showLogin) {
+        showLogin.addEventListener('click', function() {
+            showPanel('smgp-login-card');
+            var userField = document.getElementById('username');
+            if (userField) userField.focus();
+        });
+    }
+
+    // "Verify" button on welcome.
+    var showVerify = document.getElementById('smgp-show-verify');
+    if (showVerify) {
+        showVerify.addEventListener('click', function() {
+            showPanel('smgp-verify-card');
+            var codeField = document.getElementById('smgp-verify-code');
+            if (codeField) codeField.focus();
+        });
+    }
+
+    // All "Back" buttons → go to welcome.
+    document.querySelectorAll('.smgp-back-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            showPanel(btn.getAttribute('data-target'));
+        });
+    });
+
+    // Switch-panel links (e.g. "Verify cert" from login, "Sign in" from verify).
+    document.querySelectorAll('.smgp-switch-panel').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            showPanel(btn.getAttribute('data-target'));
+        });
+    });
+
+    // If there's a login error, show login form directly.
+    var errorMsg = document.getElementById('loginerrormessage');
+    if (errorMsg) {
+        showPanel('smgp-login-card');
+    }
+
+    // Inline AJAX verification.
+    var verifyForm = document.getElementById('smgp-verify-form');
+    var verifyResult = document.getElementById('smgp-verify-result');
+    var verifyUrl = '{{wwwroot}}/local/sm_graphics_plugin/pages/verify_certificate.php';
+
+    if (verifyForm && verifyResult) {
+        verifyForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            var code = document.getElementById('smgp-verify-code').value.trim().toUpperCase();
+            if (!code) return;
+
+            verifyResult.innerHTML = '<div style="text-align:center;padding:1rem;"><i class="icon-refresh-cw" style="animation:spin .8s linear infinite;font-size:1.5rem;"></i></div>';
+
+            fetch(verifyUrl + '?code=' + encodeURIComponent(code) + '&ajax=1')
+                .then(function(r) { return r.json(); })
+                .catch(function() { return null; })
+                .then(function(data) {
+                    if (!data) {
+                        verifyResult.innerHTML = '<div class="smgp-verify-result smgp-verify-result--error"><i class="icon-circle-x"></i><p>{{#str}}verify_notfound, local_sm_graphics_plugin{{/str}}</p></div>';
+                        return;
+                    }
+                    if (data.found) {
+                        var html = '<div class="smgp-verify-result smgp-verify-result--success">'
+                            + '<div class="smgp-verify-check"><i class="icon-check-circle"></i></div>'
+                            + '<p class="smgp-verify-success-text">{{#str}}verify_success, local_sm_graphics_plugin{{/str}}</p>'
+                            + '<div class="smgp-verify-details">';
+                        html += '<div class="smgp-verify-row"><span class="smgp-verify-label">{{#str}}verify_student, local_sm_graphics_plugin{{/str}}</span><span class="smgp-verify-value">' + data.studentname + '</span></div>';
+                        html += '<div class="smgp-verify-row"><span class="smgp-verify-label">{{#str}}verify_course, local_sm_graphics_plugin{{/str}}</span><span class="smgp-verify-value">' + data.coursename + '</span></div>';
+                        html += '<div class="smgp-verify-row"><span class="smgp-verify-label">{{#str}}verify_date, local_sm_graphics_plugin{{/str}}</span><span class="smgp-verify-value">' + data.completiondate + '</span></div>';
+                        if (data.companyname) {
+                            html += '<div class="smgp-verify-row"><span class="smgp-verify-label">{{#str}}verify_company, local_sm_graphics_plugin{{/str}}</span><span class="smgp-verify-value">' + data.companyname + '</span></div>';
+                        }
+                        html += '<div class="smgp-verify-row"><span class="smgp-verify-label">{{#str}}verify_code, local_sm_graphics_plugin{{/str}}</span><span class="smgp-verify-value smgp-verify-value--code">' + data.code + '</span></div>';
+                        html += '</div></div>';
+                        verifyResult.innerHTML = html;
+                    } else {
+                        verifyResult.innerHTML = '<div class="smgp-verify-result smgp-verify-result--error"><i class="icon-circle-x"></i><p>{{#str}}verify_notfound, local_sm_graphics_plugin{{/str}}</p></div>';
+                    }
+                });
+        });
+    }
+    // ── Dark/Light mode toggle ──
+    var themeBtn = document.getElementById('smgp-theme-toggle');
+    var themeIcon = document.getElementById('smgp-theme-icon');
+    var isDark = localStorage.getItem('smgp-dark') === '1';
+
+    function applyTheme(dark) {
+        document.documentElement.classList.toggle('smgp-dark', dark);
+        if (themeIcon) {
+            themeIcon.className = dark ? 'icon-sun' : 'icon-moon';
+        }
+        localStorage.setItem('smgp-dark', dark ? '1' : '0');
+    }
+    applyTheme(isDark);
+
+    if (themeBtn) {
+        themeBtn.addEventListener('click', function() {
+            isDark = !isDark;
+            applyTheme(isDark);
+        });
+    }
+
+    // ── Language toggle (cycles es → en → pt_br → es) ──
+    var langBtn = document.getElementById('smgp-lang-toggle');
+    var langCode = document.getElementById('smgp-lang-code');
+    var langs = ['es', 'en', 'pt_br'];
+    var langLabels = {'es': 'ES', 'en': 'EN', 'pt_br': 'PT'};
+
+    if (langBtn) {
+        langBtn.addEventListener('click', function() {
+            // Redirect with lang parameter — Moodle handles the switch.
+            var currentLang = document.documentElement.getAttribute('lang') || 'es';
+            // Normalize: Moodle uses "en" not "en_us", "pt-br" not "pt_br" in HTML.
+            currentLang = currentLang.replace('-', '_').toLowerCase();
+            var idx = langs.indexOf(currentLang);
+            var nextLang = langs[(idx + 1) % langs.length];
+            // Moodle language switch URL.
+            window.location.href = '{{wwwroot}}/login/index.php?lang=' + nextLang;
+        });
+
+        // Show current lang code.
+        if (langCode) {
+            var curLang = (document.documentElement.getAttribute('lang') || 'es').replace('-', '_').toLowerCase();
+            langCode.textContent = langLabels[curLang] || curLang.toUpperCase().substring(0, 2);
+        }
+    }
+})();
+</script>
+<style>
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Dark mode overrides */
+.smgp-dark .smgp-login-page { background: transparent; }
+
+/* Welcome section */
+.smgp-dark .smgp-welcome__title,
+.smgp-dark .smgp-welcome__hero-title,
+.smgp-dark .smgp-login-title { color: #f1f5f9; }
+.smgp-dark .smgp-welcome__tagline,
+.smgp-dark .smgp-welcome__hero-subtitle,
+.smgp-dark .smgp-login-subtitle,
+.smgp-dark .smgp-welcome__footer { color: #94a3b8; }
+.smgp-dark .smgp-welcome__feature { background: #1e293b; border-color: rgba(255,255,255,0.08); }
+.smgp-dark .smgp-welcome__feature h3 { color: #e2e8f0; }
+.smgp-dark .smgp-welcome__feature p { color: #94a3b8; }
+.smgp-dark .smgp-welcome__feature-icon { background: #334155; }
+.smgp-dark .smgp-welcome__feature-icon [class^="icon-"] { color: #e2e8f0; }
+.smgp-dark .smgp-welcome__btn--signin { background-color: #e2e8f0; border-color: #e2e8f0; color: #0f172a; }
+.smgp-dark .smgp-welcome__btn--signin:hover { background-color: #fff; color: #000; }
+.smgp-dark .smgp-welcome__btn--verify { border-color: rgba(255,255,255,0.15); color: #e2e8f0; }
+.smgp-dark .smgp-welcome__btn--verify:hover { border-color: #e2e8f0; background: rgba(255,255,255,0.05); color: #f1f5f9; }
+
+/* Cards (login + verify) */
+.smgp-dark .smgp-login-card { background: #1e293b; box-shadow: 0 4px 24px rgba(0,0,0,0.4); }
+.smgp-dark .smgp-login-back,
+.smgp-dark .smgp-verify-link,
+.smgp-dark .smgp-switch-panel { color: #94a3b8; }
+.smgp-dark .smgp-login-back:hover,
+.smgp-dark .smgp-verify-link:hover,
+.smgp-dark .smgp-switch-panel:hover { color: #e2e8f0; }
+
+/* Inputs */
+.smgp-dark .smgp-input-group input.form-control,
+.smgp-dark .smgp-input-group input.form-control.form-control-lg { background: #0f172a; border-color: #334155; color: #e2e8f0; }
+.smgp-dark .smgp-input-group input.form-control:focus { border-color: #e2e8f0; box-shadow: 0 0 0 3px rgba(226,232,240,0.1); }
+.smgp-dark .smgp-input-group input.form-control::placeholder { color: #64748b; }
+.smgp-dark .smgp-input-group > [class^="icon-"] { color: #64748b; }
+
+/* Buttons */
+.smgp-dark .login-form-submit .btn,
+.smgp-dark .login-form-submit .btn.btn-primary,
+.smgp-dark .login-form-submit .btn.btn-primary.btn-lg,
+.smgp-dark .smgp-verify-submit .btn,
+.smgp-dark .smgp-verify-submit .btn.btn-primary { background-color: #e2e8f0; border-color: #e2e8f0; color: #0f172a; }
+.smgp-dark .login-form-submit .btn:hover,
+.smgp-dark .smgp-verify-submit .btn:hover { background-color: #fff; border-color: #fff; color: #000; }
+
+/* Links & dividers */
+.smgp-dark .login-form-forgotpassword a { color: #94a3b8; }
+.smgp-dark .login-form-forgotpassword a:hover { color: #e2e8f0; }
+.smgp-dark .smgp-login-verify { border-top-color: #334155; }
+.smgp-dark .login-divider { border-top-color: #334155; }
+
+/* Guest login & other buttons */
+.smgp-dark .login-signup .btn,
+.smgp-dark #guestlogin .btn { background: transparent; border-color: #334155; color: #e2e8f0; }
+.smgp-dark .login-signup .btn:hover,
+.smgp-dark #guestlogin .btn:hover { border-color: #e2e8f0; }
+.smgp-dark .loginform h2 { color: #e2e8f0; }
+
+/* Language & cookies row */
+.smgp-dark .login-languagemenu .btn,
+.smgp-dark .login-languagemenu .dropdown-toggle,
+.smgp-dark .loginform > .d-flex .btn { color: #94a3b8 !important; border-color: #334155; }
+.smgp-dark .login-languagemenu .btn:hover,
+.smgp-dark .loginform > .d-flex .btn:hover { color: #e2e8f0 !important; border-color: #64748b; }
+.smgp-dark .login-languagemenu .dropdown-menu,
+.smgp-dark .loginform .dropdown-menu { background: #1e293b; border-color: #334155; }
+.smgp-dark .login-languagemenu .dropdown-item,
+.smgp-dark .loginform .dropdown-item { color: #e2e8f0 !important; }
+.smgp-dark .login-languagemenu .dropdown-item:hover,
+.smgp-dark .loginform .dropdown-item:hover { background: #334155; }
+.smgp-dark .login-languagemenu .dropdown-item.active,
+.smgp-dark .loginform .dropdown-item.active { background: #334155; color: #fff !important; }
+.smgp-dark .action-menu .dropdown-toggle { color: #94a3b8 !important; }
+.smgp-dark .action-menu .dropdown-toggle:hover { color: #e2e8f0 !important; }
+
+/* Top nav */
+.smgp-dark .smgp-topnav { border-color: rgba(255,255,255,0.1); }
+.smgp-dark .smgp-topnav__btn { color: #94a3b8; }
+.smgp-dark .smgp-topnav__btn:hover { color: #e2e8f0; background: rgba(255,255,255,0.1); }
+
+/* Verify results */
+.smgp-dark .smgp-verify-result--success { background: #064e3b; border-color: #065f46; }
+.smgp-dark .smgp-verify-success-text { color: #34d399; }
+.smgp-dark .smgp-verify-check [class^="icon-"] { color: #34d399; }
+.smgp-dark .smgp-verify-row { border-bottom-color: #065f46; }
+.smgp-dark .smgp-verify-label { color: #94a3b8; }
+.smgp-dark .smgp-verify-value { color: #e2e8f0; }
+.smgp-dark .smgp-verify-result--error { background: #450a0a; border-color: #7f1d1d; color: #fca5a5; }
+.smgp-dark .smgp-verify-back a { color: #94a3b8; }
+</style>

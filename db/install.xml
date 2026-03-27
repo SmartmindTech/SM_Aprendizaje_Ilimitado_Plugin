@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="local/sm_graphics_plugin/db" VERSION="2026031700" COMMENT="Tables for SM Graphic Layer Plugin">
+  <TABLES>
+    <TABLE NAME="local_smgp_course_meta" COMMENT="Stores course metadata (pricing, level, duration, codes, etc.)">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="FK to course.id"/>
+        <FIELD NAME="amount" TYPE="number" LENGTH="10" DECIMALS="2" NOTNULL="true" DEFAULT="0" COMMENT="Price amount"/>
+        <FIELD NAME="currency" TYPE="char" LENGTH="3" NOTNULL="true" DEFAULT="EUR" COMMENT="ISO 4217 currency code"/>
+        <FIELD NAME="duration_hours" TYPE="number" LENGTH="6" DECIMALS="1" NOTNULL="true" DEFAULT="0" COMMENT="Course duration in hours"/>
+        <FIELD NAME="description" TYPE="text" NOTNULL="false" COMMENT="Course description (optional)"/>
+        <FIELD NAME="course_category" TYPE="char" LENGTH="255" NOTNULL="false" COMMENT="SmartMind course category (not IOMAD company)"/>
+        <FIELD NAME="smartmind_code" TYPE="char" LENGTH="50" NOTNULL="false" COMMENT="SmartMind course ID"/>
+        <FIELD NAME="sepe_code" TYPE="char" LENGTH="255" NOTNULL="false" COMMENT="SEPE code (Servicio Público de Empleo Estatal)"/>
+        <FIELD NAME="level" TYPE="char" LENGTH="20" NOTNULL="false" DEFAULT="beginner" COMMENT="Course level: beginner, medium, advanced"/>
+        <FIELD NAME="completion_percentage" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="100" COMMENT="Percentage of course to be considered completed"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="courseid_unique" UNIQUE="true" FIELDS="courseid"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_smgp_comments" COMMENT="Course comments with threading, mentions, and activity tags">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" COMMENT="course.id"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" COMMENT="user.id of author"/>
+        <FIELD NAME="parentid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" COMMENT="0=top-level, >0=reply to comment id"/>
+        <FIELD NAME="content" TYPE="text" NOTNULL="true" COMMENT="Sanitized HTML content"/>
+        <FIELD NAME="contentformat" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="1" COMMENT="FORMAT_HTML"/>
+        <FIELD NAME="cmid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" COMMENT="course_modules.id, 0=course-level"/>
+        <FIELD NAME="positionindex" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Slide/page/question number (1-based)"/>
+        <FIELD NAME="positiontimestamp" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Video timestamp in seconds"/>
+        <FIELD NAME="activityname" TYPE="char" LENGTH="255" NOTNULL="false" COMMENT="Activity name at time of comment"/>
+        <FIELD NAME="activitytype" TYPE="char" LENGTH="50" NOTNULL="false" COMMENT="quiz, book, scorm, lesson, etc."/>
+        <FIELD NAME="replycount" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" COMMENT="Denormalized reply count"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="ix_courseid" UNIQUE="false" FIELDS="courseid"/>
+        <INDEX NAME="ix_parentid" UNIQUE="false" FIELDS="parentid"/>
+        <INDEX NAME="ix_userid" UNIQUE="false" FIELDS="userid"/>
+        <INDEX NAME="ix_cmid" UNIQUE="false" FIELDS="cmid"/>
+        <INDEX NAME="ix_course_time" UNIQUE="false" FIELDS="courseid, timecreated"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_smgp_company_limits" COMMENT="Maximum student limits per IOMAD company">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="companyid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="FK to company.id"/>
+        <FIELD NAME="maxstudents" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" COMMENT="0 means unlimited"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="companyid_unique" UNIQUE="true" FIELDS="companyid"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_smgp_cert_codes" COMMENT="Persistent verification codes for certificates">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="FK to user.id"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="FK to course.id"/>
+        <FIELD NAME="code" TYPE="char" LENGTH="10" NOTNULL="true" COMMENT="10-char uppercase verification code"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="code_unique" UNIQUE="true" FIELDS="code"/>
+        <INDEX NAME="userid_courseid_unique" UNIQUE="true" FIELDS="userid, courseid"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_smgp_categories" COMMENT="Course catalogue categories (tag-based)">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" COMMENT="Category display name"/>
+        <FIELD NAME="image_url" TYPE="char" LENGTH="1024" NOTNULL="false" COMMENT="Background image URL"/>
+        <FIELD NAME="sortorder" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="ix_sortorder" UNIQUE="false" FIELDS="sortorder"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_smgp_course_category" COMMENT="Links courses to catalogue categories">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="FK to course.id"/>
+        <FIELD NAME="categoryid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="FK to local_smgp_categories.id"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="fk_categoryid" TYPE="foreign" FIELDS="categoryid" REFTABLE="local_smgp_categories" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="courseid_categoryid_unique" UNIQUE="true" FIELDS="courseid, categoryid"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_smgp_course_browsing" COMMENT="Tracks courses browsed by non-enrolled users (landing page visits)">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="FK to user.id"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="FK to course.id"/>
+        <FIELD NAME="timeaccess" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" COMMENT="Last visit timestamp"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="userid_courseid_unique" UNIQUE="true" FIELDS="userid, courseid"/>
+        <INDEX NAME="ix_userid_time" UNIQUE="false" FIELDS="userid, timeaccess"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_smgp_activity_duration" COMMENT="AI-estimated activity durations (cached permanently)">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="cmid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="FK to course_modules.id"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="FK to course.id"/>
+        <FIELD NAME="duration_minutes" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" COMMENT="Estimated duration in minutes"/>
+        <FIELD NAME="estimation_source" TYPE="char" LENGTH="50" NOTNULL="true" DEFAULT="fallback" COMMENT="ai, fallback, or manual"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="cmid_unique" UNIQUE="true" FIELDS="cmid"/>
+        <INDEX NAME="ix_courseid" UNIQUE="false" FIELDS="courseid"/>
+      </INDEXES>
+    </TABLE>
+  </TABLES>
+</XMLDB>

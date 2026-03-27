@@ -1,0 +1,53 @@
+//
+// SmartMind — Block Overrides
+//
+// Base file: scss/moodle/_blocks.scss (410 lines)
+// Templates: block_myoverview/, block_timeline/,
+//            block_recentlyaccessedcourses/, block_recentlyaccesseditems/
+//
+
+// Generic Block Container
+.block {}
+.block .block-controls {}
+
+// Blocks Column (right sidebar container)
+[data-region="blocks-column"] {}
+#region-main-settings-menu {}
+
+// Block Cards Layout
+.block .block-cards {}
+.card-grid {
+}
+.card-carousel {}
+
+// Course Overview Block (My Overview)
+.block_myoverview {}
+
+// Timeline Block
+.block_timeline {}
+
+// Recently Accessed Courses Block
+.block_recentlyaccessedcourses {}
+.course-card, .theme-card {}
+
+// Recently Accessed Items Block
+.block_recentlyaccesseditems {}
+
+// Calendar Blocks
+.block_calendar_month {}
+.block_calendar_upcoming {}
+
+// Navigation & Settings Blocks
+.block_navigation {}
+.block_settings {}
+.block_navigation .block_tree, .block_settings .block_tree {}
+.block_tree .tree_item.branch {}
+
+// Search Forums Block
+.block_search_forums {}
+
+// Add Block Button (editing mode)
+.block-add {}
+
+// Invisible Blocks (admin-hidden)
+.block.invisibleblock .card-title {}

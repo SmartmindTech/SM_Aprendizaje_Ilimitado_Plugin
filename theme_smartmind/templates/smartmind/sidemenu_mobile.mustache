@@ -1,0 +1,74 @@
+{{!
+    @template theme_smartmind/smartmind/sidemenu_mobile
+
+    SmartMind — Mobile side menu items with icon support.
+
+    This template renders the navigation items inside the mobile
+    primary drawer. Edit to customise mobile menu appearance.
+}}
+<div class="list-group">
+    {{#iscompanymanager}}
+        {{#companymanagernav}}
+            <a href="{{url}}"
+               class="list-group-item list-group-item-action d-flex align-items-center gap-2 {{#isactive}}active{{/isactive}} {{#disabled}}pe-none text-muted{{/disabled}}"
+               {{#isactive}}aria-current="true"{{/isactive}}
+               {{#disabled}}aria-disabled="true" tabindex="-1"{{/disabled}}
+            >
+                <span class="smartmind-nav-icon" aria-hidden="true">
+                    <i class="fa fa-fw {{smicon}}"></i>
+                </span>
+                <span class="smartmind-nav-text">
+                    {{{text}}}
+                    {{#badge}}
+                        <span class="badge bg-secondary ms-1 smartmind-nav-badge">{{.}}</span>
+                    {{/badge}}
+                </span>
+            </a>
+        {{/companymanagernav}}
+    {{/iscompanymanager}}
+    {{^iscompanymanager}}
+    {{#mobileprimarynav}}
+        {{#haschildren}}
+            <a id="drop-down-{{sort}}"
+               href="#"
+               class="list-group-item list-group-item-action icons-collapse-expand {{^isopen}}collapsed {{/isopen}}d-flex align-items-center gap-2"
+               data-bs-toggle="collapse"
+               data-bs-target="#drop-down-menu-{{sort}}"
+               aria-expanded="{{#isopen}}true{{/isopen}}{{^isopen}}false{{/isopen}}"
+               aria-controls="drop-down-menu-{{sort}}"
+            >
+                <span class="smartmind-nav-icon" aria-hidden="true">
+                    <i class="fa fa-fw fa-folder-o"></i>
+                </span>
+                <span class="smartmind-nav-text">{{{text}}}</span>
+                <span class="ms-auto expanded-icon icon-no-margin mx-2">
+                    {{#pix}} t/expanded, core {{/pix}}
+                    <span class="visually-hidden">{{#str}} collapse, core {{/str}}</span>
+                </span>
+                <span class="ms-auto collapsed-icon icon-no-margin mx-2">
+                    {{#pix}} t/collapsed, core {{/pix}}
+                    <span class="visually-hidden">{{#str}} expand, core {{/str}}</span>
+                </span>
+            </a>
+            <div class="collapse {{#isopen}}show {{/isopen}}list-group-item p-0 border-0" role="menu" id="drop-down-menu-{{sort}}" aria-labelledby="drop-down-{{sort}}">
+                {{#children}}
+                    {{^divider}}
+                        <a href="{{{url}}}" class="ps-5 {{^isactive}}bg-light{{/isactive}}{{#isactive}}active{{/isactive}} list-group-item list-group-item-action">{{{text}}}</a>
+                    {{/divider}}
+                {{/children}}
+            </div>
+        {{/haschildren}}
+        {{^haschildren}}
+            <a href="{{{url}}}"
+               class="list-group-item list-group-item-action d-flex align-items-center gap-2 {{#isactive}}active{{/isactive}} {{#classes}}{{.}} {{/classes}}"
+               {{#isactive}}aria-current="true"{{/isactive}}
+            >
+                <span class="smartmind-nav-icon" aria-hidden="true">
+                    <i class="fa fa-fw fa-circle-o"></i>
+                </span>
+                <span class="smartmind-nav-text">{{{text}}}</span>
+            </a>
+        {{/haschildren}}
+    {{/mobileprimarynav}}
+    {{/iscompanymanager}}
+</div>

@@ -1,0 +1,465 @@
+//
+// SmartMind — Dashboard Catalog Design
+//
+// Streaming-service inspired layout (Apple TV / Filmin style).
+// Reusable design system: catalog-dashboard, catalog-stats, catalog-section, course-card.
+//
+// Layout: layout/mydashboard.php
+// Template: templates/mydashboard.mustache
+//
+
+// ─── Page-level overrides ────────────────────────────────────────
+body#page-my-index {
+
+    #page.drawers {
+        flex: 1 !important;
+        min-width: 0;
+    }
+
+    .main-inner,
+    .header-maxwidth {
+        max-width: 100% !important;
+    }
+}
+
+// Hide default Moodle dashboard blocks.
+section.block_calendar_month,
+section.block_timeline {
+    display: none !important;
+}
+
+
+// ═══════════════════════════════════════════════════════════════════
+// CATALOG DASHBOARD — Main wrapper
+// ═══════════════════════════════════════════════════════════════════
+.catalog-dashboard {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: $smgp-space-xl 0;
+
+    &__header {
+        margin-bottom: $smgp-space-lg;
+    }
+
+    &__title {
+        font-size: $smgp-font-2xl;
+        font-weight: 700;
+        color: $smgp-gray-900;
+        margin: 0 0 $smgp-space-xs;
+    }
+
+    &__subtitle {
+        font-size: $smgp-font-sm;
+        color: $smgp-gray-500;
+        margin: 0;
+    }
+
+    &__sections {
+        display: flex;
+        flex-direction: column;
+        gap: $smgp-space-2xl;
+    }
+}
+
+
+// ═══════════════════════════════════════════════════════════════════
+// STATS ROW — 4-column metrics grid
+// ═══════════════════════════════════════════════════════════════════
+.catalog-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: $smgp-space-2xl;
+
+    &__card {
+        background: #fff;
+        border: 1px solid $smgp-gray-200;
+        border-radius: 14px;
+        padding: 20px;
+        transition: border-color $smgp-transition-fast;
+
+        &:hover {
+            border-color: $smgp-gray-400;
+        }
+    }
+
+    &__label {
+        font-size: 12px;
+        color: $smgp-gray-400;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 10px;
+    }
+
+    &__value {
+        font-size: 28px;
+        font-weight: 300;
+        color: $smgp-gray-900;
+    }
+}
+
+
+// ═══════════════════════════════════════════════════════════════════
+// CATALOG SECTION — Reusable section wrapper (header + content)
+// ═══════════════════════════════════════════════════════════════════
+.catalog-section {
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: $smgp-space-md;
+    }
+
+    &__title {
+        font-size: $smgp-font-base;
+        font-weight: 600;
+        color: $smgp-gray-800;
+        margin: 0;
+    }
+
+    &__viewall {
+        font-size: 13px;
+        font-weight: 400;
+        color: $smgp-primary;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: color $smgp-transition-fast;
+
+        &:hover {
+            text-decoration: underline;
+            color: $smgp-primary-dark;
+        }
+    }
+
+    &__empty {
+        text-align: center;
+        padding: $smgp-space-xl $smgp-space-md;
+        color: $smgp-gray-400;
+        font-size: $smgp-font-sm;
+    }
+}
+
+
+// ═══════════════════════════════════════════════════════════════════
+// COURSE CARD — Apple TV style (image-dominant)
+// ═══════════════════════════════════════════════════════════════════
+.course-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+
+    &:hover {
+        transform: scale(1.04);
+    }
+
+    // ── Thumbnail — the dominant element ──
+    &__thumb {
+        position: relative;
+        display: block;
+        aspect-ratio: 16 / 9;
+        border-radius: 12px;
+        overflow: hidden;
+        background: $smgp-gray-100;
+        box-shadow: $smgp-shadow-sm;
+        transition: box-shadow 0.3s ease;
+        text-decoration: none;
+
+        .course-card:hover & {
+            box-shadow: $smgp-shadow-lg;
+        }
+    }
+
+    &__thumb-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+
+        .course-card:hover & {
+            transform: scale(1.05);
+        }
+    }
+
+    // ── Hover overlay (shared base) ──
+    &__overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0);
+        transition: background 0.25s ease;
+        z-index: 3;
+        opacity: 0;
+        transition: all 0.25s ease;
+
+        .course-card:hover & {
+            opacity: 1;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        // ── Enrolled: play button + progress bar ──
+        &--resume {
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        // ── Not enrolled: enrol button — centered, on hover ──
+        &--enrol {
+            // inherits opacity:0 → 1 on hover from base
+        }
+    }
+
+    // Play button inside overlay
+    &__play-btn {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(8px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transform: scale(0.85);
+        transition: transform 0.25s ease;
+
+        i {
+            color: #fff;
+            font-size: 16px;
+            margin-left: 3px;
+        }
+
+        .course-card:hover & {
+            transform: scale(1);
+        }
+    }
+
+    // Progress inside overlay (enrolled hover)
+    &__overlay-progress {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 70%;
+        max-width: 200px;
+    }
+
+    &__overlay-bar {
+        flex: 1;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.25);
+        border-radius: 2px;
+        overflow: hidden;
+    }
+
+    &__overlay-fill {
+        height: 100%;
+        background: #fff;
+        border-radius: 2px;
+    }
+
+    &__overlay-pct {
+        font-size: 12px;
+        font-weight: 600;
+        color: #fff;
+        white-space: nowrap;
+    }
+
+    // Enrol button inside overlay
+    &__enrol-btn {
+        padding: 6px 16px;
+        border-radius: $smgp-radius-full;
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(6px);
+        color: $smgp-gray-800;
+        font-size: 12px;
+        font-weight: 500;
+        transform: translateY(4px);
+        transition: all 0.25s ease;
+
+        .course-card:hover & {
+            transform: translateY(0);
+        }
+    }
+
+    // ── Static progress bar at bottom of thumbnail (always visible) ──
+    &__progress {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: rgba(0, 0, 0, 0.2);
+        z-index: 4;
+    }
+
+    &__progress-fill {
+        height: 100%;
+        background: #fff;
+        border-radius: 0 2px 2px 0;
+        transition: width 0.4s ease;
+    }
+
+    // ── Card info — minimal text below thumbnail ──
+    &__info {
+        padding: 10px 0 0 8px;
+    }
+
+    &__title {
+        font-size: 13px;
+        font-weight: 500;
+        color: $smgp-gray-800;
+        line-height: 1.35;
+        margin: 0 0 6px;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+    }
+
+    &__subtitle {
+        display: block;
+        font-size: 12px;
+        color: $smgp-gray-400;
+        margin-bottom: 4px;
+    }
+}
+
+
+// ═══════════════════════════════════════════════════════════════════
+// CONTINUE LEARNING SECTION — kept for backwards compat (hidden hero)
+// ═══════════════════════════════════════════════════════════════════
+.smartmind-dashboard__section {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+
+    h5 {
+        color: $smgp-gray-800;
+        font-size: $smgp-font-base;
+        font-weight: 600;
+        i { display: none; }
+    }
+
+    &--continue {
+        border: none;
+        display: none; // Hero is now merged into enrolled section.
+    }
+}
+
+
+// ═══════════════════════════════════════════════════════════════════
+// SCROLLABLE CAROUSEL — Horizontal track with nav buttons
+// ═══════════════════════════════════════════════════════════════════
+.smartmind-scroll {
+    position: relative;
+
+    &--horizontal {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        .smartmind-scroll__track {
+            display: flex;
+            gap: 1.25rem;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            scroll-snap-type: x mandatory;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            padding: 8px 4px; // Room for card hover scale
+
+            &::-webkit-scrollbar {
+                display: none;
+            }
+        }
+
+        .smartmind-scroll__item {
+            flex: 0 0 300px;
+            scroll-snap-align: start;
+
+            .course-card {
+                height: 100%;
+            }
+        }
+    }
+
+    // Navigation arrows — visible only on overflow.
+    &__btn {
+        flex-shrink: 0;
+        width: 36px;
+        height: 36px;
+        border: 1px solid $smgp-gray-200;
+        border-radius: 50%;
+        background: #fff;
+        color: $smgp-gray-500;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all $smgp-transition-base;
+        padding: 0;
+        visibility: hidden;
+        box-shadow: $smgp-shadow-sm;
+
+        &:hover {
+            background: $smgp-gray-50;
+            color: $smgp-gray-800;
+            border-color: $smgp-gray-300;
+            box-shadow: $smgp-shadow-md;
+        }
+    }
+
+    &.has-overflow .smartmind-scroll__btn {
+        visibility: visible;
+    }
+}
+
+
+// ═══════════════════════════════════════════════════════════════════
+// RESPONSIVE
+// ═══════════════════════════════════════════════════════════════════
+@media (max-width: $smgp-bp-sm) {
+    .catalog-dashboard {
+        padding: $smgp-space-md 0;
+
+        &__title {
+            font-size: $smgp-font-xl;
+        }
+
+        &__sections {
+            gap: $smgp-space-xl;
+        }
+    }
+
+    .catalog-stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+
+        &__card {
+            padding: 14px;
+        }
+
+        &__value {
+            font-size: 22px;
+        }
+    }
+
+    .smartmind-scroll--horizontal .smartmind-scroll__item {
+        flex: 0 0 240px;
+    }
+
+    .catalog-section__header {
+        flex-wrap: wrap;
+        gap: $smgp-space-xs;
+    }
+}

@@ -1,0 +1,53 @@
+{{!
+    @template block_myoverview/view-cards
+
+    SmartMind override — Course cards view for block_myoverview.
+    Uses the catalogue_card design instead of the default Moodle card.
+
+    Original: blocks/myoverview/templates/view-cards.mustache
+}}
+
+<div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3" role="list">
+{{#courses}}
+    <div class="col" role="listitem">
+        <article class="course-card">
+            {{! Card Image }}
+            <div class="course-card__image-wrapper">
+                {{#courseimage}}
+                <img src="{{{courseimage}}}" class="course-card__image" alt="{{fullname}}" loading="lazy">
+                {{/courseimage}}
+                {{^courseimage}}
+                <div class="course-card__image-placeholder">
+                    <i class="fa fa-graduation-cap"></i>
+                </div>
+                {{/courseimage}}
+            </div>
+
+            {{! Card Content }}
+            <div class="course-card__content">
+                <h3 class="course-card__title">
+                    <a href="{{viewurl}}" class="stretched-link">
+                        {{#shortentext}}55, {{{fullname}}} {{/shortentext}}
+                    </a>
+                </h3>
+
+                {{#showcoursecategory}}
+                <p class="course-card__summary">{{{coursecategory}}}</p>
+                {{/showcoursecategory}}
+
+                {{#hasprogress}}
+                <div class="course-card__stats">
+                    <div class="w-100">
+                        {{> block_myoverview/progress-bar}}
+                    </div>
+                </div>
+                {{/hasprogress}}
+            </div>
+
+            <div class="d-flex align-items-center justify-content-end p-2">
+                {{> block_myoverview/course-action-menu }}
+            </div>
+        </article>
+    </div>
+{{/courses}}
+</div>

@@ -1,0 +1,214 @@
+//
+// SmartMind — Course Page Overrides
+//
+// Base files: _course.scss (912 lines), _courselisting.scss (151 lines),
+//             _coursemanagement.scss (315 lines)
+// Template override: templates/core_course/coursecard.mustache
+//
+
+// Course pages — content fills available width
+// body prefix required to match specificity of body.limitedwidth in layout.scss
+body.pagelayout-course,
+body.pagelayout-incourse,
+body.pagelayout-report,
+body.pagelayout-admin {
+    #page.drawers .main-inner {
+        max-width: 100%;
+    }
+
+    // Header: remove the 830px cap, keep centered with content
+    #page-header.header-maxwidth {
+        max-width: 100%;
+    }
+}
+
+// -------------------------------------------------------------------------
+// Course Banner — dark overlay on course image
+// -------------------------------------------------------------------------
+.smartmind-course-banner {
+    position: relative;
+    width: 100%;
+    min-height: 200px;
+    background-color: #0f172a;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: $border-radius-lg;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+
+    &__overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.5) 100%);
+        display: flex;
+        align-items: center;
+    }
+
+    &__content {
+        padding: 1.5rem 2rem;
+        color: #fff;
+        width: 100%;
+    }
+
+    &__category {
+        display: inline-block;
+        background-color: rgba(255, 255, 255, 0.2);
+        color: #fff;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.2rem 0.75rem;
+        border-radius: $border-radius;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+f
+    &__title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #fff;
+        margin: 0 0 0.5rem;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    }
+
+    &__meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    &__meta-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+
+        i {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+    }
+
+    // Fallback when no course image is set.
+    &:not(.has-image) {
+        background: linear-gradient(135deg, #0a0a14 0%, #0e1220 50%, #0a1a30 100%);
+
+        .smartmind-course-banner__overlay {
+            background: none;
+        }
+    }
+}
+
+// -------------------------------------------------------------------------
+// Generic Page Banner — dark banner for non-course pages
+// -------------------------------------------------------------------------
+.smartmind-page-banner {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.0rem;
+    overflow: hidden;
+    color: black;
+    font-family: 'SansSerif', sans-serif;
+
+    &__content {
+        padding: 1.25rem 2rem;
+        width: 100%;
+    }
+
+    &__title {
+        font-weight: bold;
+        color: black;
+        margin: 0;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+}
+
+// Hide the dark banner on the dashboard — use a clean heading instead.
+body#page-my-index .smartmind-page-banner {
+    display: none !important;
+}
+
+// Warm off-white background (matches the cleaner dashboard reference).
+body#page-my-index {
+    background-color: #f5f3ef !important;
+
+    .main-inner,
+    #region-main {
+        background-color: transparent !important;
+    }
+}
+
+// Dashboard welcome: lighter, closer, no separator line.
+body#page-my-index .smartmind-dashboard {
+    > h4 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: $smgp-gray-900;
+        margin-bottom: 0.25rem !important;
+    }
+
+    > hr {
+        display: none;
+    }
+}
+
+// Course Content Container
+.course-content {}
+.course-content ul.section-list {}
+
+// Sections
+.course-section {}
+.course-content .section-item {}
+.section-collapsemenu {}
+
+// Activities
+.activity {}
+.activity-item {}
+.activity-item .activity-icon {}
+.activity-item .activityname {}
+.activity-item .activity-basis {}
+.activity-item .activity-actions {}
+
+// Activity Completion
+.activity-item .activity-completion {}
+.activity-item .completion-info {}
+
+// Drag & Drop (editing mode)
+.section .draggable .activity-item .dragicon {}
+.course-content .section.dropready {}
+
+// Add Content Dividers
+.course-content .divider {}
+.course-content .divider .btn.add-content {}
+
+// Bulk Actions (editing mode)
+.bulkenabled {}
+.sticky-footer-content.bulkactions {}
+
+// Subsections
+.activity.subsection {}
+
+// Indentation
+.mod-indent-outer {}
+.mod-indent {}
+
+// Course Cards (listings)
+.coursebox {}
+.course-card {}
+.coursebox > .info > .coursename {}
+.coursebox .content .courseimage img {}
+
+// Front Page Course Lists
+#frontpage-available-course-list {}
+#frontpage-course-list {}
+
+// Course Category Listings
+.course_category_tree {}
+.course_category_tree .category > .info > .categoryname {}
+
+// Course Management (admin)
+#course-category-listings {}
+#course-listing {}

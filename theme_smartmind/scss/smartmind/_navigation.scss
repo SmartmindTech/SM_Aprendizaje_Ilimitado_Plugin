@@ -1,0 +1,78 @@
+//
+// SmartMind — Navigation Overrides (secondary, tertiary, breadcrumbs, moremenu)
+//
+// Base files: _secondarynavigation.scss, _tertiarynavigation.scss,
+//             _moremenu.scss, _core.scss (breadcrumbs)
+//
+
+// Secondary Navigation (in-course tabs) — centered, full width
+.secondary-navigation .navigation .nav-tabs {
+    max-width: 100%;
+    justify-content: center;
+}
+
+// Tertiary Navigation — grade user report: report selector next to username
+// When a .user-heading sibling exists (single-user view), flex-reorder
+// so the user heading comes first and the report selector sits to its right.
+.pagelayout-report div[role="main"]:has(> .user-heading) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+
+    // Row 1: user heading (left) + report selector (right)
+    > .user-heading {
+        order: 1;
+        flex: 1 1 0;
+        min-width: 0;
+    }
+
+    > .tertiary-navigation {
+        order: 2;
+        flex: 0 0 auto;
+        align-self: center;
+
+        // Strip container styling so it sits inline
+        &.full-width-bottom-border {
+            width: auto;
+            margin: 0;
+            border-bottom: none;
+        }
+        padding: 0;
+        margin-bottom: 0;
+
+        // Show only the report selector (first navitem)
+        > .d-flex > .navitem:not(:first-child),
+        > .d-flex > .navitem-divider,
+        > .d-flex > .d-flex {
+            display: none;
+        }
+
+        > .d-flex > .navitem:first-child {
+            margin-bottom: 0;
+            margin-right: 0;
+        }
+    }
+
+    // Row 2+: everything else takes full width
+    > :not(.user-heading):not(.tertiary-navigation) {
+        order: 3;
+        flex: 0 0 100%;
+    }
+}
+
+// "More" Overflow Menu — disable auto-collapse in secondary navigation
+// The JS (moremenu.js) compares menu.offsetHeight vs parent.offsetHeight.
+// Setting height:auto on the parent prevents the collapse trigger.
+.secondary-navigation .moremenu {
+    height: auto;
+}
+
+// Breadcrumbs
+.breadcrumb {}
+.breadcrumb-item {}
+.breadcrumb-item a {}
+
+// Action Menus (contextual "..." menus)
+.action-menu {}
+.action-menu .dropdown-toggle {}
+.dropdown-item {}

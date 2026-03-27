@@ -1,0 +1,182 @@
+//
+// SmartMind — Navbar Overrides
+//
+// Base files: scss/moodle/_navbar.scss, _primarynavigation.scss
+// Templates: navbar.mustache, navbar_left.mustache,
+//            navbar_right.mustache, core/navbar.mustache
+//
+// ALL sidebar styles live here — do NOT use inline <style> in templates.
+//
+
+// Top Navbar Container
+.navbar.fixed-top {}
+
+// Logo / Brand
+.navbar-brand {}
+
+// Nav Links
+.navbar .nav-link {}
+
+// User Navigation (right side: notifications, messages, user menu)
+#usernavigation {
+    .usermenu .dropdown-toggle {
+        border: none;
+        box-shadow: none;
+    }
+}
+
+// User menu in sidebar — remove focus border around dropdown toggle
+.usermenu-container {
+    .dropdown-toggle,
+    .dropdown-toggle:focus,
+    .dropdown-toggle:active,
+    .dropdown-toggle:focus-visible {
+        border: none;
+        box-shadow: none;
+        outline: none;
+    }
+}
+
+// Primary Navigation (Home, Dashboard, My Courses tabs)
+.primary-navigation {
+}
+.primary-navigation .navigation {}
+.primary-navigation .nav-link {}
+
+// Primary Drawer (mobile nav)
+.drawer-primary .drawercontent {}
+
+// ========================================
+// ICON MAP — Side menu icons
+// ========================================
+
+// Hide the default fallback icon
+.smartmind-nav-icon-default { display: none; }
+
+// Map icons by data-key attribute (Lucide Icons)
+[data-key="home"] .smartmind-nav-icon::before { content: "\e598"; color: #8b5cf6; } // notebook-text (Catalogue)
+[data-key="myhome"] .smartmind-nav-icon::before { content: "\e0f5"; color: #6366f1; } // home
+[data-key="mycourses"] .smartmind-nav-icon::before { content: "\e234"; color: #f59e0b; } // graduation-cap
+[data-key="siteadminnode"] .smartmind-nav-icon::before { content: "\e154"; color: #64748b; } // settings
+[data-key="calendar"] .smartmind-nav-icon::before { content: "\e063"; color: #f59e0b; } // calendar
+[data-key="privatefiles"] .smartmind-nav-icon::before { content: "\e0d7"; color: #f59e0b; } // folder
+[data-key="contentbank"] .smartmind-nav-icon::before { content: "\e0ad"; color: #8b5cf6; } // database
+[data-key="ioaddashboardnode"] .smartmind-nav-icon::before { content: "\e290"; color: #64748b; } // building-2
+
+// SmartMind plugin pages
+[data-key="sm-mycourses"] .smartmind-nav-icon::before { content: "\e234"; color: #f59e0b; } // graduation-cap
+[data-key="sm-gradescerts"] .smartmind-nav-icon::before { content: "\e04f"; color: #f59e0b; } // award
+
+// Company manager sidebar
+[data-key="sm-usermanagement"] .smartmind-nav-icon::before { content: "\e1a4"; color: #8b5cf6; } // users
+[data-key="sm-othermanagement"] .smartmind-nav-icon::before { content: "\e154"; color: #64748b; } // settings
+[data-key="sm-statistics"] .smartmind-nav-icon::before { content: "\e06a"; color: #6366f1; } // bar-chart
+
+// Base style for all nav icons (Lucide Icons)
+.smartmind-nav-icon::before {
+    font-family: "lucide";
+    font-weight: normal;
+    font-size: 1.1rem;
+    width: 1.25em;
+    text-align: center;
+    display: inline-block;
+}
+
+// ========================================
+// COLLAPSIBLE SIDEBAR — applies to ALL pages
+// ========================================
+// Migrated from inline <style> in navbar_left.mustache and drawers.mustache
+// so it applies globally via compiled SCSS.
+
+// Sidebar nav container — fixed 56px collapsed width
+$smartmind-sidebar-selector: 'nav.d-flex.flex-column.vh-100.w-25[aria-label]';
+
+#{$smartmind-sidebar-selector} {
+    width: 56px !important;
+    min-width: 56px;
+    max-width: 56px;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: visible;
+    position: relative;
+    flex-shrink: 0;
+}
+
+// Card inside sidebar — visually expands on hover
+#{$smartmind-sidebar-selector} .card {
+    width: 56px;
+    min-width: 56px;
+    overflow: hidden;
+    white-space: nowrap;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.3s ease;
+    will-change: width;
+    background-color: #f1f5f9;
+    border-radius: 0 !important;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 1050;
+}
+
+// Hover: expand to 240px
+#{$smartmind-sidebar-selector}:hover .card {
+    width: 240px;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.10) !important;
+}
+
+// Logo — hide text, show only icon when collapsed
+#{$smartmind-sidebar-selector} .card > a {
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+}
+
+#{$smartmind-sidebar-selector} .card > a img.logo {
+    max-width: 28px;
+    flex-shrink: 0;
+    transition: max-width 0.3s ease;
+}
+
+#{$smartmind-sidebar-selector}:hover .card > a img.logo {
+    max-width: 140px;
+}
+
+// Menu items — flex row layout
+#{$smartmind-sidebar-selector} .primary-navigation ul li a,
+#{$smartmind-sidebar-selector} .primary-navigation ul li {
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+// Icons — always visible (collapsed & expanded)
+#{$smartmind-sidebar-selector} .primary-navigation ul li a .icon,
+#{$smartmind-sidebar-selector} .primary-navigation ul li a svg,
+#{$smartmind-sidebar-selector} .primary-navigation ul li a img,
+#{$smartmind-sidebar-selector} .primary-navigation ul li a .smartmind-nav-icon {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    opacity: 1 !important;
+    max-width: none !important;
+    overflow: visible !important;
+}
+
+// Text — hidden when collapsed
+#{$smartmind-sidebar-selector} .primary-navigation ul li a .smartmind-nav-text,
+#{$smartmind-sidebar-selector} .primary-navigation ul li a .nav-link-text {
+    opacity: 0;
+    max-width: 0;
+    transition: opacity 0.2s ease 0.05s, max-width 0.3s ease;
+    overflow: hidden;
+}
+
+// Text — visible on hover (expanded)
+#{$smartmind-sidebar-selector}:hover .primary-navigation ul li a .smartmind-nav-text,
+#{$smartmind-sidebar-selector}:hover .primary-navigation ul li a .nav-link-text {
+    opacity: 1;
+    max-width: 180px;
+}
+

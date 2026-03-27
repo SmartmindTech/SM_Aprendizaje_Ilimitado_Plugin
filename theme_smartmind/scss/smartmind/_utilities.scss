@@ -1,0 +1,99 @@
+//
+// SmartMind — Utility Classes & Helpers
+//
+// Reusable utility classes for quick show/hide/spacing/theming.
+// Loaded last so !important overrides win when needed.
+//
+// USE IN TEMPLATES:
+//   Add these classes directly to HTML elements in Mustache templates.
+//
+// USE IN SCSS:
+//   @extend .smartmind-hidden;
+//
+
+// ========================================
+// Visibility Helpers
+// ========================================
+
+// Hide completely
+.smartmind-hidden {
+    display: none !important;
+}
+
+// Hide only on mobile (below 768px)
+.smartmind-hidden-mobile {
+    @media (max-width: 767.98px) {
+        display: none !important;
+    }
+}
+
+// Hide only on desktop (768px and above)
+.smartmind-hidden-desktop {
+    @media (min-width: 768px) {
+        display: none !important;
+    }
+}
+
+// Hide only when printing
+.smartmind-hidden-print {
+    @media print {
+        display: none !important;
+    }
+}
+
+// Show only on mobile
+.smartmind-show-mobile-only {
+    @media (min-width: 768px) {
+        display: none !important;
+    }
+}
+
+// Show only on desktop
+.smartmind-show-desktop-only {
+    @media (max-width: 767.98px) {
+        display: none !important;
+    }
+}
+
+// ========================================
+// Spacing Helpers
+// ========================================
+
+// Remove all padding
+.smartmind-no-padding {
+    padding: 0 !important;
+}
+
+// Remove all margin
+.smartmind-no-margin {
+    margin: 0 !important;
+}
+
+// ========================================
+// Card Helpers
+// ========================================
+
+// Remove card border and shadow
+.smartmind-flat-card {
+    border: none !important;
+    box-shadow: none !important;
+}
+
+// ========================================
+// Text Helpers
+// ========================================
+
+// Force text truncation with ellipsis
+.smartmind-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+// Limit text to N lines (use with style="--lines: 2")
+.smartmind-line-clamp {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: var(--lines, 2);
+    overflow: hidden;
+}

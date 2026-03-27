@@ -1,0 +1,724 @@
+// =============================================================================
+// Lucide Icons - Font Awesome Override for Moodle Theme SmartMind
+// =============================================================================
+// This file replaces Font Awesome icons with Lucide Icons throughout Moodle.
+// It declares the Lucide font, globally redirects all FA font-family references,
+// and maps every FA icon class used by Moodle to its Lucide codepoint equivalent.
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// 1. @font-face declaration
+// -----------------------------------------------------------------------------
+@font-face {
+  font-family: "lucide";
+  font-style: normal;
+  font-weight: normal;
+  font-display: block;
+  src: url("[[font:theme_smartmind|lucide.woff2]]") format("woff2"),
+    url("[[font:theme_smartmind|lucide.woff]]") format("woff");
+}
+
+// -----------------------------------------------------------------------------
+// 2. Base icon class (for direct icon-* usage in templates)
+// -----------------------------------------------------------------------------
+[class^="icon-"]::before,
+[class*=" icon-"]::before {
+  font-family: "lucide" !important;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  vertical-align: -.125em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// -----------------------------------------------------------------------------
+// 3. Global override: redirect ALL FA font references to Lucide
+// -----------------------------------------------------------------------------
+.fa::before,
+.fas::before,
+.far::before,
+.fab::before,
+.fa-solid::before,
+.fa-regular::before,
+.fa-brands::before {
+  font-family: "lucide" !important;
+  font-weight: normal !important;
+}
+
+// -----------------------------------------------------------------------------
+// 4. Icon color palette
+// -----------------------------------------------------------------------------
+$icon-colors: (
+  "arrow-left":        #6366f1,  // indigo
+  "arrow-right":       #6366f1,  // indigo
+  "arrow-right-circle": #818cf8, // indigo light
+  "arrow-down-circle": #818cf8,  // indigo light
+  "refresh-cw":        #14b8a6,  // teal
+  "maximize":          #64748b,  // slate
+  "at-sign":           #f59e0b,  // amber
+  "award":             #f59e0b,  // amber
+  "bell":              #f97316,  // orange
+  "quote":             #8b5cf6,  // violet
+  "bookmark":          #ec4899,  // pink
+  "box":               #78716c,  // stone
+  "log-out":           #ef4444,  // red
+  "external-link":     #3b82f6,  // blue
+  "package":           #a78bfa,  // violet light
+  "video":             #ef4444,  // red
+  "message-circle":    #06b6d4,  // cyan
+  "message-square-text": #06b6d4, // cyan
+  "message-square":    #06b6d4,  // cyan
+  "check-circle":      #10b981,  // green
+  "circle-check":      #10b981,  // green
+  "chevron-down":      #64748b,  // slate
+  "chevron-left":      #64748b,  // slate
+  "chevron-right":     #64748b,  // slate
+  "chevron-up":        #64748b,  // slate
+  "clock":             #f59e0b,  // amber
+  "cloud-upload":      #3b82f6,  // blue
+  "database":          #8b5cf6,  // violet
+  "download":          #10b981,  // emerald
+  "presentation":      #6366f1,  // indigo
+  "triangle-alert":    #f59e0b,  // amber
+  "file":              #64748b,  // slate
+  "file-up":           #3b82f6,  // blue
+  "file-code":         #8b5cf6,  // violet
+  "file-text":         #3b82f6,  // blue
+  "film":              #ef4444,  // red
+  "folder":            #f59e0b,  // amber
+  "type":              #64748b,  // slate
+  "globe":             #06b6d4,  // cyan
+  "layout-grid":       #6366f1,  // indigo
+  "notebook-text":     #8b5cf6,  // violet
+  "layers":            #a78bfa,  // violet light
+  "link":              #3b82f6,  // blue
+  "list-ordered":      #64748b,  // slate
+  "list-checks":       #10b981,  // green
+  "list":              #64748b,  // slate
+  "lock":              #ef4444,  // red
+  "moon":              #6366f1,  // indigo
+  "graduation-cap":    #f59e0b,  // amber
+  "badge-check":       #10b981,  // green
+  "square-pen":        #f59e0b,  // amber
+  "user":              #6366f1,  // indigo
+  "user-plus":         #10b981,  // green
+  "phone":             #10b981,  // emerald
+  "circle-play":       #ef4444,  // red
+  "play":              #ef4444,  // red
+  "circle-plus":       #10b981,  // green
+  "qr-code":           #64748b,  // slate
+  "circle-help":       #3b82f6,  // blue
+  "search":            #6366f1,  // indigo
+  "gauge":             #f97316,  // orange
+  "tag":               #ec4899,  // pink
+  "languages":         #06b6d4,  // cyan
+  "bold":              #64748b,  // slate
+  "italic":            #64748b,  // slate
+  "strikethrough":     #64748b,  // slate
+  "upload":            #3b82f6,  // blue
+  "book-open":         #8b5cf6,  // violet
+  "circle-x":          #ef4444,  // red
+  "x":                 #ef4444,  // red
+  "sun":               #f59e0b,  // amber
+  "bar-chart":         #6366f1,  // indigo
+  "chart-no-axes-column": #6366f1, // indigo
+);
+
+// Generate icon color classes
+@each $name, $color in $icon-colors {
+  .icon-#{$name}::before {
+    color: #{$color};
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 5. Individual icon class definitions (for direct icon-* usage in templates)
+// -----------------------------------------------------------------------------
+.icon-arrow-left::before { content: "\e048"; }
+.icon-arrow-right::before { content: "\e049"; }
+.icon-arrow-right-circle::before { content: "\e07a"; }
+.icon-arrow-down-circle::before { content: "\e078"; }
+.icon-refresh-cw::before { content: "\e145"; }
+.icon-maximize::before { content: "\e112"; }
+.icon-at-sign::before { content: "\e04e"; }
+.icon-award::before { content: "\e04f"; }
+.icon-bell::before { content: "\e059"; }
+.icon-quote::before { content: "\e239"; }
+.icon-bookmark::before { content: "\e060"; }
+.icon-box::before { content: "\e061"; }
+.icon-log-out::before { content: "\e10e"; }
+.icon-external-link::before { content: "\e0b9"; }
+.icon-package::before { content: "\e129"; }
+.icon-video::before { content: "\e1a5"; }
+.icon-message-circle::before { content: "\e116"; }
+.icon-message-square-text::before { content: "\e575"; }
+.icon-message-square::before { content: "\e117"; }
+.icon-check-circle::before { content: "\e07c"; }
+.icon-circle-check::before { content: "\e226"; }
+.icon-chevron-down::before { content: "\e06d"; }
+.icon-chevron-left::before { content: "\e06e"; }
+.icon-chevron-right::before { content: "\e06f"; }
+.icon-chevron-up::before { content: "\e070"; }
+.icon-clock::before { content: "\e087"; }
+.icon-cloud-upload::before { content: "\e091"; }
+.icon-database::before { content: "\e0ad"; }
+.icon-download::before { content: "\e0b2"; }
+.icon-presentation::before { content: "\e4ae"; }
+.icon-triangle-alert::before { content: "\e193"; }
+.icon-file::before { content: "\e0c0"; }
+.icon-file-up::before { content: "\e32a"; }
+.icon-file-code::before { content: "\e0c3"; }
+.icon-file-text::before { content: "\e0cc"; }
+.icon-film::before { content: "\e0d0"; }
+.icon-folder::before { content: "\e0d7"; }
+.icon-type::before { content: "\e198"; }
+.icon-globe::before { content: "\e0e8"; }
+.icon-layout-grid::before { content: "\e0ff"; }
+.icon-notebook-text::before { content: "\e598"; }
+.icon-layers::before { content: "\e529"; }
+.icon-link::before { content: "\e102"; }
+.icon-list-ordered::before { content: "\e1d1"; }
+.icon-list-checks::before { content: "\e1d0"; }
+.icon-list::before { content: "\e106"; }
+.icon-lock::before { content: "\e10b"; }
+.icon-moon::before { content: "\e11e"; }
+.icon-graduation-cap::before { content: "\e234"; }
+.icon-badge-check::before { content: "\e241"; }
+.icon-square-pen::before { content: "\e172"; }
+.icon-user::before { content: "\e19f"; }
+.icon-user-plus::before { content: "\e1a2"; }
+.icon-phone::before { content: "\e133"; }
+.icon-circle-play::before { content: "\e080"; }
+.icon-play::before { content: "\e13c"; }
+.icon-circle-plus::before { content: "\e081"; }
+.icon-qr-code::before { content: "\e1df"; }
+.icon-circle-help::before { content: "\e082"; }
+.icon-search::before { content: "\e151"; }
+.icon-gauge::before { content: "\e0e5"; }
+.icon-tag::before { content: "\e17f"; }
+.icon-languages::before { content: "\e0fe"; }
+.icon-bold::before { content: "\e05d"; }
+.icon-italic::before { content: "\e0fb"; }
+.icon-strikethrough::before { content: "\e177"; }
+.icon-upload::before { content: "\e19e"; }
+.icon-book-open::before { content: "\e05f"; }
+.icon-circle-x::before { content: "\e084"; }
+.icon-x::before { content: "\e1b2"; }
+.icon-sun::before { content: "\e178"; }
+.icon-bar-chart::before { content: "\e06a"; }
+.icon-chart-no-axes-column::before { content: "\e068"; }
+
+// Additional icons used across the app
+.icon-arrow-down::before { content: "\e042"; }
+.icon-arrow-up::before { content: "\e04a"; }
+.icon-repeat::before { content: "\e146"; }
+.icon-pencil::before { content: "\e1f9"; }
+.icon-trash-2::before { content: "\e18e"; }
+.icon-minus::before { content: "\e11c"; }
+.icon-plus::before { content: "\e13d"; }
+.icon-check::before { content: "\e06c"; }
+.icon-settings::before { content: "\e154"; }
+.icon-home::before { content: "\e0f5"; }
+.icon-calendar::before { content: "\e063"; }
+.icon-folder-open::before { content: "\e247"; }
+.icon-image::before { content: "\e0f6"; }
+.icon-eye::before { content: "\e0ba"; }
+.icon-eye-off::before { content: "\e0bb"; }
+.icon-rotate-cw::before { content: "\e149"; }
+.icon-rotate-ccw::before { content: "\e148"; }
+.icon-copy::before { content: "\e09e"; }
+.icon-clipboard::before { content: "\e085"; }
+.icon-clipboard-check::before { content: "\e219"; }
+.icon-eraser::before { content: "\e28f"; }
+.icon-hash::before { content: "\e0ef"; }
+.icon-info::before { content: "\e0f9"; }
+.icon-mail::before { content: "\e10f"; }
+.icon-send::before { content: "\e152"; }
+.icon-share::before { content: "\e155"; }
+.icon-star::before { content: "\e176"; }
+.icon-table::before { content: "\e17d"; }
+.icon-underline::before { content: "\e19a"; }
+.icon-trash::before { content: "\e18d"; }
+.icon-volume-2::before { content: "\e1ab"; }
+.icon-wand-sparkles::before { content: "\e357"; }
+.icon-wrench::before { content: "\e1b1"; }
+.icon-zap::before { content: "\e1b4"; }
+.icon-toggle-left::before { content: "\e18b"; }
+.icon-toggle-right::before { content: "\e18c"; }
+.icon-printer::before { content: "\e141"; }
+.icon-rss::before { content: "\e14a"; }
+.icon-ruler::before { content: "\e14b"; }
+.icon-scale::before { content: "\e212"; }
+.icon-scissors::before { content: "\e14e"; }
+.icon-flag::before { content: "\e0d1"; }
+.icon-newspaper::before { content: "\e348"; }
+.icon-phone-call::before { content: "\e134"; }
+.icon-inbox::before { content: "\e0f7"; }
+.icon-paperclip::before { content: "\e12d"; }
+.icon-thumbs-up::before { content: "\e18a"; }
+.icon-trophy::before { content: "\e373"; }
+.icon-truck::before { content: "\e194"; }
+.icon-cpu::before { content: "\e0a9"; }
+.icon-building-2::before { content: "\e290"; }
+.icon-map-pin::before { content: "\e111"; }
+.icon-smile::before { content: "\e164"; }
+.icon-frown::before { content: "\e0db"; }
+.icon-meh::before { content: "\e114"; }
+.icon-log-in::before { content: "\e10d"; }
+.icon-arrow-left-circle::before { content: "\e079"; }
+.icon-users::before { content: "\e1a4"; }
+.icon-shield-check::before { content: "\e1ff"; }
+.icon-credit-card::before { content: "\e0aa"; }
+.icon-delete::before { content: "\e0ae"; }
+.icon-spell-check::before { content: "\e49a"; }
+.icon-arrow-up-down::before { content: "\e37d"; }
+.icon-arrow-left-right::before { content: "\e24a"; }
+.icon-minimize::before { content: "\e11a"; }
+
+// -----------------------------------------------------------------------------
+// 6. FA utility: spin animation
+// -----------------------------------------------------------------------------
+.fa-spin {
+  animation: lucide-spin 2s infinite linear;
+}
+@keyframes lucide-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// -----------------------------------------------------------------------------
+// 7. FA utility: fixed-width
+// -----------------------------------------------------------------------------
+.fa-fw {
+  display: inline-block;
+  width: 1.25em;
+  text-align: center;
+}
+
+// -----------------------------------------------------------------------------
+// 8. FA-to-Lucide icon mapping
+//    Every Font Awesome icon class used by Moodle mapped to a Lucide codepoint.
+//    Organized alphabetically.
+// -----------------------------------------------------------------------------
+
+// --- A ---
+.fa-address-card::before { content: "\e19f" !important; } // user
+.fa-align-center::before { content: "\e182" !important; } // align-center
+.fa-align-justify::before { content: "\e183" !important; } // align-justify
+.fa-align-left::before { content: "\e185" !important; } // align-left
+.fa-align-right::before { content: "\e184" !important; } // align-right
+.fa-anchor::before { content: "\e102" !important; } // link
+.fa-angles-down::before { content: "\e071" !important; } // chevrons-down
+.fa-angles-left::before { content: "\e06e" !important; } // chevron-left
+.fa-angles-right::before { content: "\e06f" !important; } // chevron-right
+.fa-angles-up::before { content: "\e074" !important; } // chevrons-up
+.fa-arrow-down::before { content: "\e042" !important; } // arrow-down
+.fa-arrow-down-long::before { content: "\e042" !important; } // arrow-down
+.fa-arrow-down-short-wide::before { content: "\e047" !important; } // sort-desc
+.fa-arrow-down-wide-short::before { content: "\e047" !important; } // sort-desc
+.fa-arrow-left::before { content: "\e048" !important; } // arrow-left
+.fa-arrow-right::before { content: "\e049" !important; } // arrow-right
+.fa-arrow-right-from-bracket::before { content: "\e10e" !important; } // log-out
+.fa-arrow-right-to-bracket::before { content: "\e10d" !important; } // log-in
+.fa-arrow-rotate-left::before { content: "\e148" !important; } // rotate-ccw
+.fa-arrow-rotate-right::before { content: "\e149" !important; } // rotate-cw
+.fa-arrow-up::before { content: "\e04a" !important; } // arrow-up
+.fa-arrow-up-from-bracket::before { content: "\e19e" !important; } // upload
+.fa-arrow-up-long::before { content: "\e04a" !important; } // arrow-up
+.fa-arrow-up-right-from-square::before { content: "\e0b9" !important; } // external-link
+.fa-arrow-up-short-wide::before { content: "\e04c" !important; } // sort-asc
+.fa-arrows-left-right::before { content: "\e24a" !important; } // arrow-left-right
+.fa-arrows-left-right-to-line::before { content: "\e24a" !important; } // arrow-left-right
+.fa-arrows-rotate::before { content: "\e145" !important; } // refresh-cw
+.fa-arrows-to-circle::before { content: "\e121" !important; } // move
+.fa-arrows-up-down::before { content: "\e37d" !important; } // arrow-up-down
+.fa-arrows-up-down-left-right::before { content: "\e121" !important; } // move
+.fa-asterisk::before { content: "\e176" !important; } // star
+.fa-audio-description::before { content: "\e0f9" !important; } // info
+.fa-award::before { content: "\e04f" !important; } // award
+
+// --- B ---
+.fa-ban::before { content: "\e084" !important; } // circle-x
+.fa-bars::before { content: "\e106" !important; } // list
+.fa-bell::before { content: "\e059" !important; } // bell
+.fa-bold::before { content: "\e05d" !important; } // bold
+.fa-bolt::before { content: "\e1b4" !important; } // zap
+.fa-book::before { content: "\e05e" !important; } // book
+.fa-bookmark::before { content: "\e060" !important; } // bookmark
+.fa-border-all::before { content: "\e0ff" !important; } // layout-grid
+.fa-briefcase::before { content: "\e062" !important; } // briefcase
+.fa-bullhorn::before { content: "\e235" !important; } // megaphone
+
+// --- C ---
+.fa-calculator::before { content: "\e1bc" !important; } // calculator
+.fa-calendar::before { content: "\e063" !important; } // calendar
+.fa-calendar-check::before { content: "\e063" !important; } // calendar
+.fa-calendar-plus::before { content: "\e063" !important; } // calendar
+.fa-caret-down::before { content: "\e06d" !important; } // chevron-down
+.fa-chart-bar::before { content: "\e06a" !important; } // bar-chart
+.fa-chart-column::before { content: "\e06a" !important; } // bar-chart
+.fa-chart-line::before { content: "\e06a" !important; } // bar-chart
+.fa-check::before { content: "\e06c" !important; } // check
+.fa-check-to-slot::before { content: "\e07c" !important; } // check-circle
+.fa-chevron-down::before { content: "\e06d" !important; } // chevron-down
+.fa-chevron-left::before { content: "\e06e" !important; } // chevron-left
+.fa-chevron-right::before { content: "\e06f" !important; } // chevron-right
+.fa-chevron-up::before { content: "\e070" !important; } // chevron-up
+.fa-circle::before { content: "\e075" !important; } // circle
+.fa-circle-arrow-down::before { content: "\e078" !important; } // arrow-down-circle
+.fa-circle-check::before { content: "\e07c" !important; } // check-circle
+.fa-circle-exclamation::before { content: "\e084" !important; } // circle-x (alert)
+.fa-circle-info::before { content: "\e0f9" !important; } // info
+.fa-circle-minus::before { content: "\e11c" !important; } // minus
+.fa-circle-plus::before { content: "\e081" !important; } // circle-plus
+.fa-circle-question::before { content: "\e082" !important; } // circle-help
+.fa-circle-user::before { content: "\e19f" !important; } // user
+.fa-circle-xmark::before { content: "\e084" !important; } // circle-x
+.fa-clipboard::before { content: "\e085" !important; } // clipboard
+.fa-clipboard-check::before { content: "\e219" !important; } // clipboard-check
+.fa-clipboard-user::before { content: "\e085" !important; } // clipboard
+.fa-clock::before { content: "\e087" !important; } // clock
+.fa-clock-rotate-left::before { content: "\e087" !important; } // clock
+.fa-clone::before { content: "\e09e" !important; } // copy
+.fa-cloud-upload::before { content: "\e091" !important; } // cloud-upload
+.fa-code::before { content: "\e0c3" !important; } // file-code
+.fa-cog::before { content: "\e154" !important; } // settings
+.fa-comment::before { content: "\e116" !important; } // message-circle
+.fa-comments::before { content: "\e116" !important; } // message-circle
+.fa-credit-card::before { content: "\e0aa" !important; } // credit-card
+.fa-crosshairs::before { content: "\e151" !important; } // search
+
+// --- D ---
+.fa-database::before { content: "\e0ad" !important; } // database
+.fa-delete-left::before { content: "\e0ae" !important; } // delete
+.fa-dollar-sign::before { content: "\e0aa" !important; } // credit-card
+.fa-download::before { content: "\e0b2" !important; } // download
+
+// --- E ---
+.fa-ear-listen::before { content: "\e0f9" !important; } // info
+.fa-ellipsis::before { content: "\e121" !important; } // move
+.fa-ellipsis-vertical::before { content: "\e121" !important; } // move
+.fa-envelope::before { content: "\e10f" !important; } // mail
+.fa-eraser::before { content: "\e28f" !important; } // eraser
+.fa-exclamation::before { content: "\e193" !important; } // triangle-alert
+.fa-expand::before { content: "\e112" !important; } // maximize
+.fa-eye::before { content: "\e0ba" !important; } // eye
+.fa-eye-dropper::before { content: "\e0ba" !important; } // eye
+.fa-eye-slash::before { content: "\e0bb" !important; } // eye-off
+
+// --- F ---
+.fa-face-smile::before { content: "\e164" !important; } // smile
+.fa-file::before { content: "\e0c0" !important; } // file
+.fa-file-circle-minus::before { content: "\e0c0" !important; } // file
+.fa-file-circle-plus::before { content: "\e0c0" !important; } // file
+.fa-file-invoice::before { content: "\e0cc" !important; } // file-text
+.fa-file-pen::before { content: "\e0cc" !important; } // file-text
+.fa-file-text::before { content: "\e0cc" !important; } // file-text
+.fa-file-video::before { content: "\e1a5" !important; } // video
+.fa-film::before { content: "\e0d0" !important; } // film
+.fa-filter::before { content: "\e151" !important; } // search
+.fa-flag::before { content: "\e0d1" !important; } // flag
+.fa-floppy-disk::before { content: "\e0b2" !important; } // download
+.fa-folder::before { content: "\e0d7" !important; } // folder
+.fa-folder-open::before { content: "\e247" !important; } // folder-open
+.fa-folder-plus::before { content: "\e0d7" !important; } // folder
+.fa-folder-tree::before { content: "\e0d7" !important; } // folder
+.fa-font::before { content: "\e198" !important; } // type
+.fa-futbol::before { content: "\e198" !important; } // type
+
+// --- G ---
+.fa-gauge::before { content: "\e0e5" !important; } // gauge
+.fa-gear::before { content: "\e154" !important; } // settings
+.fa-globe::before { content: "\e0e8" !important; } // globe
+.fa-graduation-cap::before { content: "\e234" !important; } // graduation-cap
+
+// --- H ---
+.fa-hammer::before { content: "\e1b1" !important; } // wrench
+.fa-hard-drive::before { content: "\e0ad" !important; } // database
+.fa-highlighter::before { content: "\e198" !important; } // type
+.fa-history::before { content: "\e087" !important; } // clock
+.fa-hourglass::before { content: "\e296" !important; } // hourglass
+.fa-house::before { content: "\e0f5" !important; } // home
+
+// --- I ---
+.fa-id-badge::before { content: "\e19f" !important; } // user
+.fa-image::before { content: "\e0f6" !important; } // image
+.fa-indent::before { content: "\e185" !important; } // align-left
+.fa-info::before { content: "\e0f9" !important; } // info
+.fa-italic::before { content: "\e0fb" !important; } // italic
+
+// --- K ---
+.fa-key::before { content: "\e10b" !important; } // lock
+
+// --- L ---
+.fa-language::before { content: "\e0fe" !important; } // languages
+.fa-laptop-file::before { content: "\e1cd" !important; } // laptop
+.fa-layer-group::before { content: "\e529" !important; } // layers
+.fa-leaf::before { content: "\e178" !important; } // sun (nature)
+.fa-life-ring::before { content: "\e101" !important; } // life-buoy
+.fa-link::before { content: "\e102" !important; } // link
+.fa-link-slash::before { content: "\e19c" !important; } // unlink
+.fa-list::before { content: "\e106" !important; } // list
+.fa-list-check::before { content: "\e1d0" !important; } // list-checks
+.fa-list-ol::before { content: "\e1d1" !important; } // list-ordered
+.fa-list-ul::before { content: "\e106" !important; } // list
+.fa-location-dot::before { content: "\e111" !important; } // map-pin
+.fa-lock::before { content: "\e10b" !important; } // lock
+.fa-lock-open::before { content: "\e10b" !important; } // lock
+.fa-low-vision::before { content: "\e0bb" !important; } // eye-off
+
+// --- M ---
+.fa-magnifying-glass::before { content: "\e151" !important; } // search
+.fa-magnifying-glass-plus::before { content: "\e151" !important; } // search
+.fa-maximize::before { content: "\e112" !important; } // maximize
+.fa-message::before { content: "\e116" !important; } // message-circle
+.fa-microphone-slash::before { content: "\e1a5" !important; } // video
+.fa-minus::before { content: "\e11c" !important; } // minus
+
+// --- N ---
+.fa-network-wired::before { content: "\e0ad" !important; } // database
+.fa-newspaper::before { content: "\e348" !important; } // newspaper
+
+// --- O ---
+.fa-outdent::before { content: "\e184" !important; } // align-right
+
+// --- P ---
+.fa-pager::before { content: "\e133" !important; } // phone
+.fa-paper-plane::before { content: "\e152" !important; } // send
+.fa-paste::before { content: "\e085" !important; } // clipboard
+.fa-peace::before { content: "\e164" !important; } // smile
+.fa-pen::before { content: "\e1f9" !important; } // pencil
+.fa-pen-clip::before { content: "\e1f9" !important; } // pencil
+.fa-pen-to-square::before { content: "\e172" !important; } // square-pen
+.fa-people-arrows::before { content: "\e1a4" !important; } // users
+.fa-person::before { content: "\e19f" !important; } // user
+.fa-photo-film::before { content: "\e0d0" !important; } // film
+.fa-pizza-slice::before { content: "\e19f" !important; } // user
+.fa-plane::before { content: "\e152" !important; } // send
+.fa-play::before { content: "\e13c" !important; } // play
+.fa-plus::before { content: "\e13d" !important; } // plus
+.fa-plus-square-o::before { content: "\e081" !important; } // circle-plus
+.fa-print::before { content: "\e141" !important; } // printer
+
+// --- Q ---
+.fa-question::before { content: "\e082" !important; } // circle-help
+.fa-question-circle::before { content: "\e082" !important; } // circle-help
+.fa-quote-left::before { content: "\e239" !important; } // quote
+.fa-quote-right::before { content: "\e239" !important; } // quote
+
+// --- R ---
+.fa-rectangle-list::before { content: "\e106" !important; } // list
+.fa-right-left::before { content: "\e24a" !important; } // arrow-left-right
+.fa-rotate-left::before { content: "\e148" !important; } // rotate-ccw
+.fa-rotate-right::before { content: "\e149" !important; } // rotate-cw
+.fa-rss::before { content: "\e14a" !important; } // rss
+.fa-ruler-horizontal::before { content: "\e14b" !important; } // ruler
+
+// --- S ---
+.fa-scale-balanced::before { content: "\e212" !important; } // scale
+.fa-scissors::before { content: "\e14e" !important; } // scissors
+.fa-shapes::before { content: "\e0d7" !important; } // folder
+.fa-share::before { content: "\e155" !important; } // share
+.fa-share-from-square::before { content: "\e155" !important; } // share
+.fa-sort::before { content: "\e047" !important; } // sort-desc
+.fa-spell-check::before { content: "\e49a" !important; } // spell-check
+.fa-spinner::before { content: "\e145" !important; } // refresh-cw
+.fa-square::before { content: "\e167" !important; } // square
+.fa-square-arrow-up-right::before { content: "\e0b9" !important; } // external-link
+.fa-square-check::before { content: "\e07c" !important; } // check-circle
+.fa-square-plus::before { content: "\e081" !important; } // circle-plus
+.fa-square-root-variable::before { content: "\e1bc" !important; } // calculator
+.fa-star::before { content: "\e176" !important; } // star
+.fa-stop::before { content: "\e083" !important; } // stop-circle
+.fa-strikethrough::before { content: "\e177" !important; } // strikethrough
+.fa-subscript::before { content: "\e198" !important; } // type
+.fa-suitcase-rolling::before { content: "\e062" !important; } // briefcase
+.fa-superscript::before { content: "\e198" !important; } // type
+
+// --- T ---
+.fa-table::before { content: "\e17d" !important; } // table
+.fa-table-list::before { content: "\e106" !important; } // list
+.fa-tags::before { content: "\e17f" !important; } // tag
+.fa-thumbs-up::before { content: "\e18a" !important; } // thumbs-up
+.fa-trash-can::before { content: "\e18e" !important; } // trash-2
+.fa-trash-can-arrow-up::before { content: "\e18e" !important; } // trash-2
+.fa-triangle-exclamation::before { content: "\e193" !important; } // triangle-alert
+.fa-turn-down::before { content: "\e078" !important; } // arrow-down-circle
+.fa-turn-up::before { content: "\e04a" !important; } // arrow-up
+
+// --- U ---
+.fa-underline::before { content: "\e19a" !important; } // underline
+.fa-universal-access::before { content: "\e0f9" !important; } // info
+.fa-unlock::before { content: "\e10b" !important; } // lock
+.fa-unlock-keyhole::before { content: "\e10b" !important; } // lock
+.fa-up-right-and-down-left-from-center::before { content: "\e112" !important; } // maximize
+.fa-upload::before { content: "\e19e" !important; } // upload
+.fa-user::before { content: "\e19f" !important; } // user
+.fa-user-check::before { content: "\e19f" !important; } // user
+.fa-user-group::before { content: "\e1a4" !important; } // users
+.fa-user-lock::before { content: "\e10b" !important; } // lock
+.fa-user-plus::before { content: "\e1a2" !important; } // user-plus
+.fa-user-tag::before { content: "\e17f" !important; } // tag
+.fa-user-tie::before { content: "\e19f" !important; } // user
+.fa-user-xmark::before { content: "\e19f" !important; } // user
+.fa-users::before { content: "\e1a4" !important; } // users
+.fa-users-line::before { content: "\e1a4" !important; } // users
+
+// --- V ---
+.fa-volume-high::before { content: "\e1ab" !important; } // volume-2
+
+// --- W ---
+.fa-wand-magic-sparkles::before { content: "\e357" !important; } // wand-sparkles
+.fa-warning::before { content: "\e193" !important; } // triangle-alert
+.fa-wrench::before { content: "\e1b1" !important; } // wrench
+
+// --- X ---
+.fa-xmark::before { content: "\e1b2" !important; } // x
+
+// =============================================================================
+// 9. FA4 legacy icon names (used by IOMAD and older plugins)
+// =============================================================================
+.fa-bar-chart-o::before { content: "\e06a" !important; } // bar-chart
+.fa-building::before { content: "\e290" !important; } // building-2
+.fa-chevron-circle-left::before { content: "\e079" !important; } // arrow-left-circle
+.fa-chevron-circle-right::before { content: "\e07a" !important; } // arrow-right-circle
+.fa-copy::before { content: "\e09e" !important; } // copy
+.fa-cubes::before { content: "\e061" !important; } // box
+.fa-edit::before { content: "\e172" !important; } // square-pen
+.fa-group::before { content: "\e1a4" !important; } // users
+.fa-info-circle::before { content: "\e0f9" !important; } // info
+.fa-legal::before { content: "\e212" !important; } // scale
+.fa-map-marker::before { content: "\e111" !important; } // map-pin
+.fa-microchip::before { content: "\e0a9" !important; } // cpu
+.fa-plus-square::before { content: "\e081" !important; } // circle-plus
+.fa-trash::before { content: "\e18d" !important; } // trash
+.fa-truck::before { content: "\e194" !important; } // truck
+
+// =============================================================================
+// 10. Additional FA4/FA5 legacy names found across Moodle + IOMAD + plugins
+// =============================================================================
+.fa-address-book::before { content: "\e19f" !important; } // user
+.fa-angle-down::before { content: "\e06d" !important; } // chevron-down
+.fa-angle-up::before { content: "\e070" !important; } // chevron-up
+.fa-area-chart::before { content: "\e06a" !important; } // bar-chart
+.fa-arrow-circle-o-down::before { content: "\e078" !important; } // arrow-down-circle
+.fa-arrow-turn-up::before { content: "\e04a" !important; } // arrow-up
+.fa-arrows::before { content: "\e121" !important; } // move
+.fa-book-bookmark::before { content: "\e060" !important; } // bookmark
+.fa-book-open::before { content: "\e05f" !important; } // book-open
+.fa-calendar-alt::before { content: "\e063" !important; } // calendar
+.fa-caret-up::before { content: "\e070" !important; } // chevron-up
+.fa-chalkboard-teacher::before { content: "\e4ae" !important; } // presentation
+.fa-check-circle::before { content: "\e07c" !important; } // check-circle
+.fa-check-double::before { content: "\e226" !important; } // circle-check
+.fa-check-square-o::before { content: "\e07c" !important; } // check-circle
+.fa-circle-dot::before { content: "\e075" !important; } // circle
+.fa-circle-o::before { content: "\e075" !important; } // circle
+.fa-clock-o::before { content: "\e087" !important; } // clock
+.fa-commenting-o::before { content: "\e116" !important; } // message-circle
+.fa-diagram-project::before { content: "\e0d7" !important; } // folder
+.fa-earth-americas::before { content: "\e0e8" !important; } // globe
+.fa-ellipsis-h::before { content: "\e121" !important; } // move
+.fa-ellipsis-v::before { content: "\e121" !important; } // move
+.fa-envelope-open::before { content: "\e10f" !important; } // mail
+.fa-exclamation-circle::before { content: "\e193" !important; } // triangle-alert
+.fa-face-frown::before { content: "\e0db" !important; } // frown
+.fa-file-alt::before { content: "\e0cc" !important; } // file-text
+.fa-file-pdf::before { content: "\e0cc" !important; } // file-text
+.fa-file-signature::before { content: "\e0cc" !important; } // file-text
+.fa-file-video::before { content: "\e1a5" !important; } // video
+.fa-file-zipper::before { content: "\e0c0" !important; } // file
+.fa-flag-checkered::before { content: "\e0d1" !important; } // flag
+.fa-folder-o::before { content: "\e0d7" !important; } // folder
+.fa-hand-pointer::before { content: "\e1e8" !important; } // pointer
+.fa-hashtag::before { content: "\e0ef" !important; } // hash
+.fa-i-cursor::before { content: "\e264" !important; } // text-cursor
+.fa-inbox::before { content: "\e0f7" !important; } // inbox
+.fa-list-alt::before { content: "\e106" !important; } // list
+.fa-map-signs::before { content: "\e111" !important; } // map-pin
+.fa-meh-o::before { content: "\e114" !important; } // meh
+.fa-mobile-screen::before { content: "\e133" !important; } // phone
+.fa-money::before { content: "\e0aa" !important; } // credit-card
+.fa-paperclip::before { content: "\e12d" !important; } // paperclip
+.fa-pause::before { content: "\e07f" !important; } // pause-circle
+.fa-people-group::before { content: "\e1a4" !important; } // users
+.fa-rectangle-xmark::before { content: "\e1b2" !important; } // x
+.fa-right-to-bracket::before { content: "\e10d" !important; } // log-in
+.fa-rotate-90::before { content: "\e149" !important; } // rotate-cw
+.fa-scroll::before { content: "\e0cc" !important; } // file-text
+.fa-search::before { content: "\e151" !important; } // search
+.fa-search-plus::before { content: "\e151" !important; } // search
+.fa-smile::before { content: "\e164" !important; } // smile
+.fa-sort-desc::before { content: "\e047" !important; } // sort-desc
+.fa-square-pen::before { content: "\e172" !important; } // square-pen
+.fa-table-cells-large::before { content: "\e0ff" !important; } // layout-grid
+.fa-thumbtack::before { content: "\e12d" !important; } // paperclip
+.fa-times::before { content: "\e1b2" !important; } // x
+.fa-toggle-off::before { content: "\e18b" !important; } // toggle-left
+.fa-toggle-on::before { content: "\e18c" !important; } // toggle-right
+.fa-trophy::before { content: "\e373" !important; } // trophy
+.fa-user-secret::before { content: "\e1ff" !important; } // shield-check
+.fa-users-gear::before { content: "\e154" !important; } // settings
+.fa-window-restore::before { content: "\e112" !important; } // maximize
+
+.iomadlink_container .iomadlink .iomadicon .fa-topic, .iomadlink_container .iomadlinkreports .iomadicon .fa-topic {
+  color: black !important;
+}
+
+.iomadlink_container .iomadlink .iomadicon .fa-action, .iomadlink_container .iomadlinkreports .iomadicon .fa-action {
+  background-color: grey !important;
+}
+
+.iomadlink_container .iomadlink .iomadicon .fa-action, .iomadlink_container .iomadlinkreports .iomadicon .fa-action {
+  font-size: 16px !important;
+}
+
+// =============================================================================
+// 11. FA icon colors (apply colors to FA-mapped icons too)
+// =============================================================================
+.fa-bell::before { color: #f97316; }
+.fa-check::before, .fa-check-circle::before, .fa-check-double::before, .fa-circle-check::before, .fa-square-check::before, .fa-check-to-slot::before { color: #10b981; }
+.fa-user::before, .fa-person::before, .fa-circle-user::before { color: #6366f1; }
+.fa-users::before, .fa-user-group::before, .fa-people-arrows::before, .fa-group::before { color: #8b5cf6; }
+.fa-lock::before, .fa-unlock::before { color: #ef4444; }
+.fa-gear::before, .fa-cog::before { color: #64748b; }
+.fa-house::before { color: #6366f1; }
+.fa-calendar::before, .fa-calendar-check::before, .fa-calendar-plus::before, .fa-calendar-alt::before { color: #f59e0b; }
+.fa-folder::before, .fa-folder-open::before { color: #f59e0b; }
+.fa-globe::before, .fa-earth-americas::before { color: #06b6d4; }
+.fa-clock::before, .fa-clock-o::before, .fa-history::before { color: #f59e0b; }
+.fa-book::before, .fa-book-open::before { color: #8b5cf6; }
+.fa-file::before, .fa-file-text::before, .fa-file-alt::before, .fa-file-invoice::before { color: #3b82f6; }
+.fa-trash::before, .fa-trash-can::before { color: #ef4444; }
+.fa-download::before { color: #10b981; }
+.fa-upload::before { color: #3b82f6; }
+.fa-search::before, .fa-magnifying-glass::before { color: #6366f1; }
+.fa-star::before { color: #f59e0b; }
+.fa-comment::before, .fa-comments::before, .fa-message::before { color: #06b6d4; }
+.fa-envelope::before, .fa-envelope-open::before { color: #3b82f6; }
+.fa-pen::before, .fa-pen-to-square::before, .fa-edit::before { color: #f59e0b; }
+.fa-eye::before { color: #6366f1; }
+.fa-flag::before { color: #ef4444; }
+.fa-link::before { color: #3b82f6; }
+.fa-database::before { color: #8b5cf6; }
+.fa-award::before, .fa-trophy::before { color: #f59e0b; }
+.fa-graduation-cap::before { color: #f59e0b; }
+.fa-xmark::before, .fa-times::before, .fa-ban::before, .fa-circle-xmark::before { color: #ef4444; }
+.fa-plus::before, .fa-circle-plus::before, .fa-square-plus::before { color: #10b981; }
+.fa-tag::before, .fa-tags::before { color: #ec4899; }
+.fa-arrow-right::before, .fa-arrow-left::before { color: #6366f1; }
+.fa-play::before, .fa-film::before { color: #ef4444; }
+.fa-info::before, .fa-circle-info::before, .fa-info-circle::before { color: #3b82f6; }
+.fa-warning::before, .fa-triangle-exclamation::before, .fa-exclamation::before { color: #f59e0b; }
+.fa-share::before, .fa-share-from-square::before { color: #06b6d4; }
+.fa-language::before { color: #06b6d4; }
+.fa-chart-bar::before, .fa-chart-line::before, .fa-chart-column::before, .fa-bar-chart-o::before { color: #6366f1; }
+.fa-rss::before { color: #f97316; }
+.fa-print::before { color: #64748b; }
+.fa-image::before { color: #ec4899; }
+.fa-bolt::before { color: #f59e0b; }
+.fa-paper-plane::before { color: #3b82f6; }
+.fa-bookmark::before { color: #ec4899; }

@@ -1,0 +1,78 @@
+{{!
+    @template theme_smartmind/dashboard/dashboard_continue_learning
+
+    SmartMind Dashboard — Continue learning section.
+    Shows the last accessed course and activity so the user can resume quickly.
+
+    Context variables:
+      * hascontinuelearning       - bool
+      * continuelearning_data     - object with:
+          courseid, coursename, courseimage, hascourseimage, courseurl,
+          hasactivity, activityname, activitydesc, hasactivitydesc,
+          activityurl, activityicon
+}}
+<div class="smartmind-dashboard__section smartmind-dashboard__section--continue mb-4">
+    <div class="p-3">
+        <h5 class="mb-0">
+            <i class="fa fa-play-circle me-2"></i>{{#str}}continuelearning, theme_smartmind{{/str}}
+        </h5>
+    </div>
+
+    {{#hascontinuelearning}}
+    <a href="{{#continuelearning_data}}{{#hasactivity}}{{activityurl}}{{/hasactivity}}{{^hasactivity}}{{courseurl}}{{/hasactivity}}{{/continuelearning_data}}"
+       class="continue-card d-flex text-decoration-none">
+
+        {{! LEFT PANEL: course image (33%) }}
+        <div class="continue-card__image">
+            {{#continuelearning_data}}
+                {{#hascourseimage}}
+                <img src="{{courseimage}}" alt="{{coursename}}" loading="lazy">
+                {{/hascourseimage}}
+                {{^hascourseimage}}
+                <div class="continue-card__image-placeholder">
+                    <i class="fa fa-graduation-cap"></i>
+                </div>
+                {{/hascourseimage}}
+            {{/continuelearning_data}}
+        </div>
+
+        {{! RIGHT PANEL: overlay + text (66%) }}
+        <div class="continue-card__info {{#continuelearning_data}}{{#hascourseimage}}has-bg{{/hascourseimage}}{{/continuelearning_data}}"
+             {{#continuelearning_data}}{{#hascourseimage}}style="background-image: url('{{courseimage}}')"{{/hascourseimage}}{{/continuelearning_data}}>
+            <div class="continue-card__info-overlay">
+                {{#continuelearning_data}}
+                <h6 class="continue-card__course-name">{{coursename}}</h6>
+
+                {{#hasactivity}}
+                <div class="continue-card__activity">
+                    {{#activityicon}}
+                    <img src="{{activityicon}}" alt="" class="continue-card__activity-icon">
+                    {{/activityicon}}
+                    <span class="continue-card__activity-name">{{activityname}}</span>
+                </div>
+                {{#hasactivitydesc}}
+                <p class="continue-card__activity-desc">{{{activitydesc}}}</p>
+                {{/hasactivitydesc}}
+                {{/hasactivity}}
+
+                <span class="continue-card__cta">
+                    {{#hasactivity}}
+                    {{#str}}continuelearning_gotoactivity, theme_smartmind{{/str}}
+                    {{/hasactivity}}
+                    {{^hasactivity}}
+                    {{#str}}continuelearning_gotocourse, theme_smartmind{{/str}}
+                    {{/hasactivity}}
+                    <i class="fa fa-arrow-right ms-1"></i>
+                </span>
+                {{/continuelearning_data}}
+            </div>
+        </div>
+    </a>
+    {{/hascontinuelearning}}
+
+    {{^hascontinuelearning}}
+    <div class="p-4 text-muted text-center">
+        {{#str}}continuelearning_placeholder, theme_smartmind{{/str}}
+    </div>
+    {{/hascontinuelearning}}
+</div>

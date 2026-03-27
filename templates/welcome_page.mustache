@@ -1,0 +1,13 @@
+{{!
+    Template: local_sm_graphics_plugin/welcome_page
+    Renders the welcome page content.
+
+    Context variables (set in pages/welcome.php):
+    - username: string  Full name of the logged-in user
+    - siteurl:  string  Base URL of the Moodle site
+}}
+<div class="sm-welcome p-4">
+    <h2>Hello, {{ username }}!</h2>
+    <p>Welcome to the SmartMind learning platform.</p>
+    <a href="{{ siteurl }}/my/" class="btn btn-primary">Go to Dashboard</a>
+</div>

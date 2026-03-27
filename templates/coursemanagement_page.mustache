@@ -1,0 +1,88 @@
+{{!
+    Template: local_sm_graphics_plugin/coursemanagement_page
+
+    Course management page for site admins and company managers.
+    Displays action cards and a company overview table.
+
+    Context variables:
+    - heading:      string  Page heading
+    - companyname:  string  (optional) Company name for subtitle
+    - options:      array   Option cards (url, icon, title, description)
+    - companies:    array   Company rows (name, shortname, coursecount, usercount)
+    - hascompanies: bool
+}}
+<div class="sm-coursemanagement p-4 w-100">
+    <h2 class="{{#companyname}}mb-1{{/companyname}}{{^companyname}}mb-4{{/companyname}}">{{heading}}</h2>
+    {{#companyname}}
+        <p class="text-muted mb-4">{{companyname}}</p>
+    {{/companyname}}
+
+    {{! Action cards }}
+    {{> local_sm_graphics_plugin/admin_option_cards }}
+
+    {{! Company overview table }}
+    {{#hascompanies}}
+    <h4 class="mt-5 mb-3">{{#str}}coursemgmt_companies, local_sm_graphics_plugin{{/str}}</h4>
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle sm-company-table">
+            <thead class="table-light">
+                <tr>
+                    <th>{{#str}}coursemgmt_companies, local_sm_graphics_plugin{{/str}}</th>
+                    <th class="text-center">{{#str}}coursemgmt_courses_col, local_sm_graphics_plugin{{/str}}</th>
+                    <th class="text-center">{{#str}}coursemgmt_users_col, local_sm_graphics_plugin{{/str}}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#companies}}
+                <tr>
+                    <td>
+                        <strong>{{name}}</strong>
+                        {{#shortname}}<span class="text-muted small ms-1">({{shortname}})</span>{{/shortname}}
+                    </td>
+                    <td class="text-center">{{coursecount}}</td>
+                    <td class="text-center">{{usercount}}{{#maxusers}} / {{maxusers}}{{/maxusers}}</td>
+                </tr>
+                {{/companies}}
+            </tbody>
+        </table>
+    </div>
+    {{/hascompanies}}
+</div>
+
+<style>
+    /* Force Moodle layout chain to full width. */
+    #page,
+    #topofscroll,
+    .main-inner,
+    #page-content,
+    #region-main-box,
+    [role="main"],
+    #region-main,
+    .smartmind-page-banner,
+    .smartmind-page-banner__content {
+        max-width: 100% !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    .main-inner {
+        padding-left: 1.5rem !important;
+        padding-right: 1.5rem !important;
+    }
+    #page-content,
+    #region-main-box,
+    #region-main {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    /* Company table */
+    .sm-company-table {
+        width: 100%;
+    }
+    .sm-company-table th {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: #64748b;
+    }
+</style>

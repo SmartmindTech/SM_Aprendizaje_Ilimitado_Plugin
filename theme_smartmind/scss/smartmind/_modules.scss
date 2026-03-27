@@ -1,0 +1,50 @@
+//
+// SmartMind — Activity Module Overrides
+//
+// Base files: _modules.scss (1694 lines), _question.scss (698 lines)
+//
+
+// General Module Styles
+.path-mod {}
+
+// Activity Header
+.activity-header {}
+.activity-information {}
+.activity-dates {}
+.completion-info {}
+.activity-description {}
+.automatic-completion-conditions {}
+
+// Target Specific Modules
+body.path-mod-quiz {}
+body.path-mod-assign {}
+body.path-mod-forum {}
+body.path-mod-resource {}
+body.path-mod-page {}
+body.path-mod-url {}
+body.path-mod-book {}
+body.path-mod-workshop {}
+body.path-mod-feedback {}
+body.path-mod-glossary {}
+body.path-mod-wiki {}
+body.path-mod-data {}
+body.path-mod-lesson {}
+body.path-mod-scorm {}
+body.path-mod-h5pactivity {}
+body.path-mod-lti {}
+body.path-mod-bigbluebuttonbn {}
+
+// Choice Module
+.path-mod-choice .horizontal .choices .option {}
+
+// Forum Module
+.path-mod-forum .forumsearch {}
+.path-mod-forum .forumheaderlist {}
+
+// Question Bank & Types
+.questionbank {}
+.questioncategories {}
+#chooseqtype {}
+.que {}
+.que .info {}
+.que .content {}

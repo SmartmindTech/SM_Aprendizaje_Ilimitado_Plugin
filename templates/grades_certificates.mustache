@@ -1,0 +1,78 @@
+{{!
+    Grades & Certificates page template.
+
+    @package    local_sm_graphics_plugin
+    @copyright  2026 SmartMind Technologies
+    @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+}}
+<div id="smgp-grades-certificates" class="smgp-gradescerts">
+
+    {{! ---- HEADER ---- }}
+    <div class="smartmind-catalogue-header mb-4">
+        <span class="smartmind-catalogue-header__eyebrow">{{#str}}page_eyebrow, local_sm_graphics_plugin{{/str}}</span>
+        <h1 class="smartmind-catalogue-header__title">{{#str}}gradescerts_heading, local_sm_graphics_plugin{{/str}}</h1>
+        <p class="smartmind-catalogue-header__desc">{{#str}}gradescerts_desc, local_sm_graphics_plugin{{/str}}</p>
+    </div>
+
+    {{! ---- CERTIFICATE CARDS GRID ---- }}
+    {{#hascourses}}
+    <div class="smgp-gradescerts__grid">
+        {{#courses}}
+        <div class="smgp-gradescerts__card">
+            {{! Header with course image + star overlay }}
+            <div class="smgp-gradescerts__card-top {{^hascertificate}}smgp-gradescerts__card-top--pending{{/hascertificate}}">
+                {{#hascourseimage}}
+                <img src="{{courseimage}}" class="smgp-gradescerts__card-img" alt="" loading="lazy">
+                <div class="smgp-gradescerts__card-overlay"></div>
+                {{/hascourseimage}}
+                <div class="smgp-gradescerts__star">
+                    <i class="fa fa-star"></i>
+                </div>
+                {{#hascertificate}}
+                <span class="smgp-gradescerts__badge">{{#str}}gradescerts_official, local_sm_graphics_plugin{{/str}}</span>
+                {{/hascertificate}}
+                {{^hascertificate}}
+                <span class="smgp-gradescerts__badge">{{#str}}gradescerts_inprogress, local_sm_graphics_plugin{{/str}}</span>
+                {{/hascertificate}}
+            </div>
+
+            {{! Card body }}
+            <div class="smgp-gradescerts__card-body">
+                <h3 class="smgp-gradescerts__course-name">{{coursename}}</h3>
+                {{#hascertificate}}
+                    {{#certdate}}
+                    <p class="smgp-gradescerts__date">{{#str}}gradescerts_issued, local_sm_graphics_plugin{{/str}} {{certdate}}</p>
+                    {{/certdate}}
+                    {{#certcode}}
+                    <p class="smgp-gradescerts__code">ID: {{certcode}}</p>
+                    {{/certcode}}
+                    <a href="{{downloadurl}}" class="smgp-gradescerts__download-btn" data-download-cert="1">
+                        {{#str}}gradescerts_download_pdf, local_sm_graphics_plugin{{/str}}
+                    </a>
+                {{/hascertificate}}
+                {{^hascertificate}}
+                    <p class="smgp-gradescerts__date">{{progress}}% {{#str}}mycourses_completed_label, local_sm_graphics_plugin{{/str}}</p>
+                    <div class="smgp-gradescerts__progress-bar">
+                        <div class="smgp-gradescerts__progress-fill" style="width: {{progress}}%"></div>
+                    </div>
+                    <span class="smgp-gradescerts__download-btn smgp-gradescerts__download-btn--disabled">
+                        {{#str}}gradescerts_not_available, local_sm_graphics_plugin{{/str}}
+                    </span>
+                {{/hascertificate}}
+            </div>
+        </div>
+        {{/courses}}
+    </div>
+    {{/hascourses}}
+
+    {{^hascourses}}
+    <div class="smgp-gradescerts__empty">
+        <p>{{#str}}gradescerts_no_courses, local_sm_graphics_plugin{{/str}}</p>
+    </div>
+    {{/hascourses}}
+
+    {{! Hidden language selector for JS }}
+    {{#hasiomadcert}}
+    <input type="hidden" id="smgp-certlang" value="es">
+    {{/hasiomadcert}}
+</div>

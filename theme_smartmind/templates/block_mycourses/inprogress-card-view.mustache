@@ -1,0 +1,39 @@
+{{!
+    @template block_mycourses/inprogress-card-view
+
+    SmartMind override — In-progress courses card view.
+    Original: blocks/mycourses/templates/inprogress-card-view.mustache
+}}
+<div id="inprogress-view-{{uniqid}}" data-region="inprogress-view">
+    <div class="tab-content">
+        <div class="tab-pane active" id="mycourses_inprogress_view">
+            <div id="paged-content-container-{{uniqid}}" data-region="paged-content-container">
+                <div id="paged-content-page" data-page="1">
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3" data-region="card-deck" role="list">
+                        {{#inprogressview.courses}}
+                            {{> block_mycourses/coursecard }}
+                        {{/inprogressview.courses}}
+                        {{^inprogressview.courses}}
+                            <div class="col-12 text-center m-t-3">
+                                <img class="empty-placeholder-image-lg"
+                                    src="{{nocourses}}"
+                                    alt="{{#str}} noinprogress, block_mycourses {{/str}}"
+                                    role="presentation">
+                                <p class="text-muted m-t-1">{{#str}} noinprogress, block_mycourses {{/str}}</p>
+                            </div>
+                        {{/inprogressview.courses}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{#js}}
+require(['jquery', 'core/custom_interaction_events'], function($, customEvents) {
+    var root = $('#inprogress-view-{{uniqid}}');
+    customEvents.define(root, [customEvents.events.activate]);
+    root.on(customEvents.events.activate, '[data-toggle="btns"] > .btn', function() {
+        root.find('.btn.active').removeClass('active');
+    });
+});
+{{/js}}

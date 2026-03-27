@@ -1,0 +1,51 @@
+//
+// SmartMind — Layout Overrides
+//
+// Base file: scss/moodle/_layout.scss (249 lines)
+//
+
+// ── Decorative background — gradient mesh with soft orbs ──
+// Applies to the main page body behind all content.
+// Creates a modern, lively feel even when the page has little content.
+
+body {
+    background-color: #f5f3ef !important;
+    min-height: 100vh;
+}
+
+// Fullscreen Layout
+// .layout {}
+
+// Main Page with Drawers
+#page.drawers {}
+
+// Drawer Toggle Buttons
+.drawer-toggles {}
+
+// Drawer-open State Adjustments
+#page.drawers.show-drawer-left .drawer-left-toggle {}
+#page.drawers.show-drawer-right .drawer-right-toggle {}
+
+// Main Content Area
+#page-content {}
+#region-main-box {}
+#region-main {}
+.main-inner {}
+
+// Frontpage: full-width page, but catalogue grid stays readable
+body.pagelayout-frontpage #page.drawers .main-inner,
+body.pagelayout-frontpage.limitedwidth #page.drawers .main-inner {
+    max-width: 100% !important;
+}
+
+// Admin / Settings pages: full-width content and header
+body.pagelayout-admin,
+body.pagelayout-standard.path-admin {
+    #page.drawers .main-inner {
+        max-width: 100% !important;
+    }
+
+    .header-maxwidth {
+        max-width: 100% !important;
+    }
+}

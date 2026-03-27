@@ -1,0 +1,90 @@
+//
+// SmartMind — Form, Table, Button & UI Component Overrides
+//
+// Base files: _forms.scss, _tables.scss, _buttons.scss,
+//             _modal.scss, _toasts.scss, _icons.scss, _popover-region.scss
+//
+
+// Forms
+
+// Fix collapsible fieldset sections — ensure clicks on the header toggle collapse.
+.mform fieldset .ftoggler {
+    cursor: pointer;
+
+    h3, .h3 {
+        pointer-events: none;
+    }
+}
+
+// Ensure the fcontainer collapse transition works.
+.mform fieldset .fcontainer.collapseable {
+    &.collapse:not(.show) {
+        display: none;
+    }
+}
+
+.mform {}
+.mform fieldset {}
+.mform .fitem {}
+.mform label .req {}
+#adminsettings {}
+
+// Form Autocomplete
+.form-autocomplete-selection {}
+.form-autocomplete-suggestions {
+  // estilos del contenedor
+
+  li[data-value]:not([data-value=""]):hover {
+    // tus estilos aquí, por ejemplo:
+    background-color: black
+
+  }
+
+  li[data-value=""] {
+    // ocultar o estilizar el item vacío
+    box-shadow: none !important;
+    background-color: lightgrey !important;
+
+  }
+}
+.form-autocomplete-downarrow {}
+
+// Tables
+.generaltable {}
+.table-dynamic > .loading-icon {}
+.table-responsive {}
+
+// Buttons
+.btn {}
+.singlebutton {}
+.continuebutton {}
+.btn-icon {}
+.btn-add-content {}
+
+// Modals
+.modal {}
+.modal-dialog {}
+.modal-body {}
+
+// Toast Notifications
+.toast {}
+.toast.toast-success {}
+.toast.toast-danger {}
+.toast.toast-info {}
+.toast.toast-warning {}
+
+// Icons
+.icon {}
+img.icon {}
+.icon-large > .icon {}
+.activityiconcontainer {}
+
+// Popover Regions (notification bell, messages)
+.popover-region {}
+.popover-region-toggle {}
+.count-container {}
+.popover-region-container {}
+.popover-region-content-container {}
+.popover-region-notifications {}
+.popover-region-messages {}
+

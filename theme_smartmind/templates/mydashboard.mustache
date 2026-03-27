@@ -1,0 +1,128 @@
+{{!
+    @template theme_smartmind/mydashboard
+
+    SmartMind — Custom Dashboard template (/my/).
+    Independent from drawers.mustache — changes here only affect the dashboard.
+
+    Components (edit each independently in templates/smartmind/):
+      smartmind/logo           — Site logo
+      smartmind/sidemenu       — Side navigation with icons
+      smartmind/user_area      — Search, notifications, user menu
+      smartmind/page_header    — Breadcrumbs + heading
+      smartmind/main_content   — Main content region (dashboard blocks)
+}}
+{{> theme_smartmind/head }}
+
+<body {{{ bodyattributes }}}>
+{{> core/local/toast/wrapper}}
+<div id="page-wrapper" class="d-flex flex-row justify-content-between">
+
+    {{{ output.standard_top_of_body_html }}}
+
+    {{! SECTION: LEFT SIDEBAR }}
+    {{> theme_smartmind/navbar_left }}
+
+    {{! SECTION: LEFT DRAWER (Course Index) }}
+    {{#courseindex}}
+        {{< theme_smartmind/drawer }}
+            {{$id}}theme_smartmind-drawers-courseindex{{/id}}
+            {{$drawerheadercontent}}
+                {{> theme_smartmind/courseindexdrawercontrols}}
+            {{/drawerheadercontent}}
+            {{$drawerclasses}}drawer drawer-left {{#courseindexopen}}show{{/courseindexopen}}{{/drawerclasses}}
+            {{$drawercontent}}
+                {{{courseindex}}}
+            {{/drawercontent}}
+            {{$drawerpreferencename}}drawer-open-index{{/drawerpreferencename}}
+            {{$drawerstate}}show-drawer-left{{/drawerstate}}
+            {{$tooltipplacement}}right{{/tooltipplacement}}
+            {{$closebuttontext}}{{#str}}closecourseindex, core{{/str}}{{/closebuttontext}}
+        {{/ theme_smartmind/drawer}}
+    {{/courseindex}}
+
+    {{! SECTION: RIGHT DRAWER (Blocks Sidebar) }}
+    {{#hasblocks}}
+        {{< theme_smartmind/drawer }}
+            {{$id}}theme_smartmind-drawers-blocks{{/id}}
+            {{$drawerclasses}}drawer drawer-right{{#blockdraweropen}} show{{/blockdraweropen}}{{/drawerclasses}}
+            {{$drawercontent}}
+                <div class="d-print-none">
+                    {{{ addblockbutton }}}
+                    {{{ sidepreblocks }}}
+                </div>
+            {{/drawercontent}}
+            {{$drawerpreferencename}}drawer-open-block{{/drawerpreferencename}}
+            {{$forceopen}}{{#forceblockdraweropen}}1{{/forceblockdraweropen}}{{/forceopen}}
+            {{$drawerstate}}show-drawer-right{{/drawerstate}}
+            {{$tooltipplacement}}left{{/tooltipplacement}}
+            {{$drawercloseonresize}}1{{/drawercloseonresize}}
+            {{$closebuttontext}}{{#str}}closeblockdrawer, core{{/str}}{{/closebuttontext}}
+        {{/ theme_smartmind/drawer}}
+    {{/hasblocks}}
+
+    {{! SECTION: MAIN PAGE }}
+    <div id="page" data-region="mainpage" data-usertour="scroller" class="drawers {{#courseindexopen}}show-drawer-left{{/courseindexopen}} {{#blockdraweropen}}show-drawer-right{{/blockdraweropen}} p-0 m-0">
+        <div id="topofscroll" class="main-inner p-4">
+            <div class="drawer-toggles d-flex">
+                {{#courseindex}}
+                    <div class="drawer-toggler drawer-left-toggle open-nav d-print-none">
+                        <button
+                            class="btn icon-no-margin"
+                            data-toggler="drawers"
+                            data-action="toggle"
+                            data-target="theme_smartmind-drawers-courseindex"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="right"
+                            title="{{#str}}opendrawerindex, core{{/str}}"
+                        >
+                            <span class="visually-hidden">{{#str}}opendrawerindex, core{{/str}}</span>
+                            {{#pix}} t/index_drawer, moodle {{/pix}}
+                        </button>
+                    </div>
+                {{/courseindex}}
+                {{#hasblocks}}
+                    <div class="drawer-toggler drawer-right-toggle ms-auto d-print-none">
+                        <button
+                            class="btn icon-no-margin"
+                            data-toggler="drawers"
+                            data-action="toggle"
+                            data-target="theme_smartmind-drawers-blocks"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="right"
+                            title="{{#str}}opendrawerblocks, core{{/str}}"
+                        >
+                            <span class="visually-hidden">{{#str}}opendrawerblocks, core{{/str}}</span>
+                            <span class="dir-rtl-hide">{{#pix}}t/blocks_drawer, core{{/pix}}</span>
+                            <span class="dir-ltr-hide">{{#pix}}t/blocks_drawer_rtl, core{{/pix}}</span>
+                        </button>
+                    </div>
+                {{/hasblocks}}
+            </div>
+
+            {{! SECTION: PAGE HEADER }}
+            {{> theme_smartmind/smartmind/page_header }}
+
+            {{! SECTION: MAIN CONTENT (dashboard blocks) }}
+            {{> theme_smartmind/smartmind/main_content }}
+        </div>
+
+        {{! SECTION: FOOTER }}
+        {{> theme_smartmind/footer }}
+    </div>
+
+    {{! SECTION: RIGHT SIDEBAR }}
+    {{> theme_smartmind/navbar_right }}
+
+    {{{ output.standard_after_main_region_html }}}
+</div>
+
+</body>
+</html>
+{{#js}}
+M.util.js_pending('theme_smartmind/loader');
+require(['theme_smartmind/loader', 'theme_smartmind/drawer', 'theme_smartmind/dashboard_scroll'], function(Loader, Drawer, DashboardScroll) {
+    Drawer.init();
+    DashboardScroll.init();
+    M.util.js_complete('theme_smartmind/loader');
+});
+{{/js}}

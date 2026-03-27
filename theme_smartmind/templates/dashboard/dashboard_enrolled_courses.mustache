@@ -1,0 +1,29 @@
+{{!
+    @template theme_smartmind/dashboard/dashboard_enrolled_courses
+
+    SmartMind Dashboard — Continue learning / enrolled courses section.
+    Streaming-style "Continue watching" row with resume buttons.
+}}
+<div class="catalog-section catalog-section--enrolled">
+    <div class="catalog-section__header">
+        <h5 class="catalog-section__title">{{#str}}continuelearning, theme_smartmind{{/str}}</h5>
+        <a href="#" class="catalog-section__viewall">{{#str}}dashboard_viewall_courses, theme_smartmind{{/str}}</a>
+    </div>
+    <div class="catalog-section__content">
+        {{#hasenrolledcourses}}
+        {{< theme_smartmind/dashboard/dashboard_scrollable_horizontal }}
+            {{$scroll_extra_class}}{{#enrolledcoursesscrollable}}has-overflow{{/enrolledcoursesscrollable}}{{/scroll_extra_class}}
+            {{$scroll_items}}
+                {{#enrolledcourses}}
+                    {{> theme_smartmind/dashboard/dashboard_course_card }}
+                {{/enrolledcourses}}
+            {{/scroll_items}}
+        {{/ theme_smartmind/dashboard/dashboard_scrollable_horizontal }}
+        {{/hasenrolledcourses}}
+        {{^hasenrolledcourses}}
+        <div class="catalog-section__empty">
+            {{#str}}continuelearning_placeholder, theme_smartmind{{/str}}
+        </div>
+        {{/hasenrolledcourses}}
+    </div>
+</div>

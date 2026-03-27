@@ -1,0 +1,85 @@
+{{!
+    Course Comments — Udemy-style threaded comment section.
+
+    Context variables required:
+    - courseid (int) Course ID
+    - cmid (int) Course module ID (0 for course-level)
+    - activityname (string) Activity name
+    - activitytype (string) Activity type
+    - canpost (bool) Whether user can post comments
+    - candeleteany (bool) Whether user can delete any comment
+    - userid (int) Current user ID
+    - userfullname (string) Current user full name
+
+    @template local_sm_graphics_plugin/course_comments
+    @copyright 2026 SmartMind
+    @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+}}
+<div class="smgp-comments"
+     data-courseid="{{courseid}}"
+     data-cmid="{{cmid}}"
+     data-activityname="{{activityname}}"
+     data-activitytype="{{activitytype}}"
+     data-canpost="{{#canpost}}1{{/canpost}}{{^canpost}}0{{/canpost}}"
+     data-candeleteany="{{#candeleteany}}1{{/candeleteany}}{{^candeleteany}}0{{/candeleteany}}"
+     data-userid="{{userid}}"
+     data-userfullname="{{userfullname}}">
+
+    {{! Header: title + count + sort }}
+    <div class="smgp-comments__header">
+        <div class="smgp-comments__title">
+            <i class="icon-message-circle"></i>
+            {{#str}}comments_title, local_sm_graphics_plugin{{/str}}
+            <span class="smgp-comments__count"></span>
+        </div>
+        <div class="smgp-comments__sort">
+            <div class="smgp-comments__sort-dropdown">
+                <button type="button" class="smgp-comments__sort-trigger" data-current="newest">
+                    <span class="smgp-comments__sort-trigger-label">{{#str}}comments_newest, local_sm_graphics_plugin{{/str}}</span>
+                    <i class="icon-chevron-down"></i>
+                </button>
+                <div class="smgp-comments__sort-menu" style="display:none;">
+                    <button type="button" class="smgp-comments__sort-option smgp-comments__sort-option--active" data-sort="newest">
+                        {{#str}}comments_newest, local_sm_graphics_plugin{{/str}}
+                    </button>
+                    <button type="button" class="smgp-comments__sort-option" data-sort="oldest">
+                        {{#str}}comments_oldest, local_sm_graphics_plugin{{/str}}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{! Loading spinner }}
+    <div class="smgp-comments__loading">
+        <div class="smgp-comments__spinner"></div>
+    </div>
+
+    {{! Comment list (JS-populated) }}
+    <div class="smgp-comments__list"></div>
+
+    {{! Empty state }}
+    <div class="smgp-comments__empty" style="display:none;">
+        <i class="icon-message-square"></i>
+        <p>{{#str}}comments_empty, local_sm_graphics_plugin{{/str}}</p>
+    </div>
+
+    {{! Load more button }}
+    <div class="smgp-comments__load-more-wrapper">
+        <button type="button" class="smgp-comments__load-more" style="display:none;">
+            {{#str}}comments_load_more, local_sm_graphics_plugin{{/str}}
+        </button>
+    </div>
+
+    {{! Editor area (only if user can post) }}
+    {{#canpost}}
+    <div class="smgp-comments__editor-section">
+        <div class="smgp-comments__editor"></div>
+        <div class="smgp-comments__editor-actions">
+            <button type="button" class="smgp-comments__submit">
+                {{#str}}comments_post, local_sm_graphics_plugin{{/str}}
+            </button>
+        </div>
+    </div>
+    {{/canpost}}
+</div>

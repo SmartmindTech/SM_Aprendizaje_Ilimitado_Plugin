@@ -1,0 +1,563 @@
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * SCORM 2004 API wrapping — Initialize, GetValue, and SetValue interceptors.
+ *
+ * @package    local_sm_graphics_plugin
+ * @copyright  2025 SmartMind
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+namespace local_sm_graphics_plugin\scorm;
+
+defined('MOODLE_INTERNAL') || die();
+
+class tracking_api_scorm2004 {
+
+    /**
+     * Returns the JavaScript for SCORM 2004 API wrapping.
+     *
+     * @return string JavaScript code defining wrapScorm2004Api().
+     */
+    public static function get_js() {
+        return <<<'JSEOF'
+// === SCORM 2004 API WRAPPING (wrapScorm2004Api) ===
+function wrapScorm2004Api() {
+if (typeof window.API_1484_11 === 'undefined' || window.API_1484_11 === null || !window.API_1484_11.SetValue) {
+    return false;
+}
+
+// Save original references before any wrapping
+var origGetValue2004 = window.API_1484_11.GetValue;
+var origSetValue2004ref = window.API_1484_11.SetValue;
+// v2.0.92: Expose unwrapped GetValue for retry loop backing store correction (detection.php).
+if (!originalUnwrappedGetValue) {
+    originalUnwrappedGetValue = function(el) { return origGetValue2004.call(window.API_1484_11, el); };
+}
+
+// CRITICAL FIX v2.0.51: Directly modify the backing store BEFORE wrapping.
+// Same reasoning as SCORM 1.2 - Storyline reads from Moodle's pre-populated
+// data model object, NOT through GetValue calls.
+if (pendingSlideNavigation && window.API_1484_11.GetValue && window.API_1484_11.SetValue) {
+    try {
+        // 1. Modify suspend_data in the backing store
+        var currentSD2004 = window.API_1484_11.GetValue.call(window.API_1484_11, 'cmi.suspend_data');
+        if (currentSD2004 && currentSD2004.length > 5) {
+            var modifiedSD2004 = modifySuspendDataForSlide(currentSD2004, pendingSlideNavigation.slide);
+            if (modifiedSD2004 !== currentSD2004) {
+                window.API_1484_11.SetValue.call(window.API_1484_11, 'cmi.suspend_data', modifiedSD2004);
+            }
+        }
+        // 2. Set location directly in the backing store (v2.0.92: preserve vendor format)
+        window.API_1484_11.SetValue.call(window.API_1484_11, 'cmi.location',
+            formatLocationValue(window.API_1484_11.GetValue.call(window.API_1484_11, 'cmi.location'), pendingSlideNavigation.slide));
+    } catch (e) {}
+}
+
+// v2.0.55: On resume (no tag navigation), correct backing store to furthest slide.
+// Best-effort - data may not be populated at defineProperty trap time.
+var resumeReadInterceptCount = 0;
+var resumeInterceptStartTime = Date.now();
+if (!pendingSlideNavigation && furthestSlide !== null && window.API_1484_11.GetValue && window.API_1484_11.SetValue) {
+    try {
+        var resumeSD2004 = window.API_1484_11.GetValue.call(window.API_1484_11, 'cmi.suspend_data');
+        if (resumeSD2004 && resumeSD2004.length > 5) {
+            var dbSlide2004 = parseSlideFromSuspendData(resumeSD2004);
+            if (dbSlide2004 !== null && dbSlide2004 < furthestSlide) {
+                var corrected2004 = modifySuspendDataForSlide(resumeSD2004, furthestSlide);
+                if (corrected2004 !== resumeSD2004) {
+                    window.API_1484_11.SetValue.call(window.API_1484_11, 'cmi.suspend_data', corrected2004);
+                }
+            }
+        }
+        // v2.0.94: Always correct location for resume, not gated behind suspend_data.
+        // For vendors whose suspend_data can't be modified (iSpring Base64, Rise 360),
+        // location is the primary resume mechanism.
+        var resumeLoc2004 = window.API_1484_11.GetValue.call(window.API_1484_11, 'cmi.location');
+        var resumeLocSlide2004 = resumeLoc2004 ? parseSlideNumber(resumeLoc2004) : null;
+        if (resumeLocSlide2004 === null || resumeLocSlide2004 < furthestSlide) {
+            window.API_1484_11.SetValue.call(window.API_1484_11, 'cmi.location',
+                formatLocationValue(lastKnownLocationFormat || resumeLoc2004, furthestSlide));
+        } else if (lastKnownLocationFormat && /^\d+$/.test(resumeLoc2004)) {
+            // v2.0.94: Correct slide but wrong format (numeric "5" vs vendor "slide_5")
+            window.API_1484_11.SetValue.call(window.API_1484_11, 'cmi.location',
+                formatLocationValue(lastKnownLocationFormat, resumeLocSlide2004));
+        }
+    } catch (e) {}
+}
+
+// v2.0.72: Score-based resume correction for SCORM 2004.
+// v2.0.95: Always install (removed `furthestSlide === null` gate). Pre-init writes
+// fail because Moodle's API returns empty before Initialize. This wrapper is the
+// only mechanism that can correct data AFTER the API is functional.
+if (!pendingSlideNavigation) {
+    var origInitialize2004 = window.API_1484_11.Initialize;
+    window.API_1484_11.Initialize = function(param) {
+        var result = origInitialize2004.call(window.API_1484_11, param);
+        // v2.0.84: Changed from early return to conditional block (same as SCORM 1.2).
+        if (furthestSlide === null) {
+        try {
+            var scoreStr = origGetValue2004.call(window.API_1484_11, 'cmi.score.raw');
+            var locationStr = origGetValue2004.call(window.API_1484_11, 'cmi.location');
+            var score = parseFloat(scoreStr);
+            var location = parseSlideNumber(locationStr); // v2.0.92: parseSlideNumber for vendor formats
+
+            if (!isNaN(score) && score > 0 && score <= 100) {
+                var content = findGenericScormContent();
+                var total = content ? getGenericTotalSlides(content) : null;
+
+                if (total && total > 1) {
+                    var furthestFromScore = Math.round((score / 100) * total);
+                    slidescount = total;
+
+                    if (location !== null && furthestFromScore > location) {
+                        furthestSlide = furthestFromScore;
+                        // v2.0.92: Preserve vendor format for location
+                        origSetValue2004ref.call(window.API_1484_11, 'cmi.location', formatLocationValue(locationStr, furthestSlide));
+                        var sd = origGetValue2004.call(window.API_1484_11, 'cmi.suspend_data');
+                        if (sd && sd.length > 5) {
+                            var fixed = modifySuspendDataForSlide(sd, furthestSlide);
+                            if (fixed !== sd) {
+                                origSetValue2004ref.call(window.API_1484_11, 'cmi.suspend_data', fixed);
+                                lastSuspendData = fixed; // v2.0.79: Prevent DOM observer from treating boosted DB value as navigation
+                            }
+                        }
+                        try { sessionStorage.setItem('scorm_furthest_slide_' + cmid, String(furthestSlide)); localStorage.setItem('scorm_furthest_slide_' + cmid, String(furthestSlide)); } catch (e) {}
+                    } else if (location !== null && location >= 1) {
+                        furthestSlide = Math.max(location, furthestFromScore || 0);
+                        try { sessionStorage.setItem('scorm_furthest_slide_' + cmid, String(furthestSlide)); localStorage.setItem('scorm_furthest_slide_' + cmid, String(furthestSlide)); } catch (e) {}
+                    }
+                }
+            }
+        } catch (e) {}
+        } // end if (furthestSlide === null)
+
+        // v2.0.84: Always correct suspend_data if furthestSlide is set and suspend_data
+        // is behind (same logic as SCORM 1.2 — see tracking_api_scorm12.php).
+        if (furthestSlide !== null && furthestSlide > 1) {
+            try {
+                var initSD = origGetValue2004.call(window.API_1484_11, 'cmi.suspend_data');
+                if (initSD && initSD.length > 5) {
+                    var initSlide = parseSlideFromSuspendData(initSD);
+                    if (initSlide !== null && initSlide < furthestSlide) {
+                        var initFixed = modifySuspendDataForSlide(initSD, furthestSlide);
+                        if (initFixed !== initSD) {
+                            origSetValue2004ref.call(window.API_1484_11, 'cmi.suspend_data', initFixed);
+                            lastSuspendData = initFixed;
+                        }
+                    }
+                }
+            } catch (e) {}
+        }
+
+        // v2.0.95: Post-init location correction for refresh resume.
+        // Pre-init writes (lines 75-101) fail because Moodle's API returns empty before Initialize.
+        // Now that Initialize loaded DB data, capture format and correct location.
+        if (furthestSlide !== null && furthestSlide >= 1) {
+            try {
+                var postInitLoc2004 = origGetValue2004.call(window.API_1484_11, 'cmi.location');
+                // Capture vendor format from real DB value (first time seeing populated data)
+                if (postInitLoc2004 && postInitLoc2004.length > 0 && !/^\d+$/.test(postInitLoc2004) && !lastKnownLocationFormat) {
+                    lastKnownLocationFormat = postInitLoc2004;
+                    try { localStorage.setItem('scorm_location_format_' + cmid, postInitLoc2004); } catch(e) {}
+                }
+                var postInitLocSlide2004 = postInitLoc2004 ? parseSlideNumber(postInitLoc2004) : null;
+                if (postInitLocSlide2004 === null || postInitLocSlide2004 < furthestSlide) {
+                    origSetValue2004ref.call(window.API_1484_11, 'cmi.location',
+                        formatLocationValue(lastKnownLocationFormat || postInitLoc2004, furthestSlide));
+                } else if (lastKnownLocationFormat && /^\d+$/.test(postInitLoc2004)) {
+                    // Correct format mismatch: DB has numeric "2" but vendor expects "section_1"
+                    origSetValue2004ref.call(window.API_1484_11, 'cmi.location',
+                        formatLocationValue(lastKnownLocationFormat, postInitLocSlide2004));
+                }
+            } catch(e) {}
+        }
+
+        return result;
+    };
+}
+
+// Wrap GetValue FIRST to intercept suspend_data reads
+// v2.0.58: Always install when furthestSlide is known (compute on-the-fly).
+if (window.API_1484_11.GetValue && (pendingSlideNavigation || furthestSlide !== null)) {
+    var originalGetValue2004 = window.API_1484_11.GetValue;
+    window.API_1484_11.GetValue = function(element) {
+        var result = originalGetValue2004.call(window.API_1484_11, element);
+
+        // Intercept location reads WITHIN the intercept window.
+        // During initialization, Storyline uses cmi.location for its resume position.
+        // After the window, stop intercepting so the position bar tracks natural navigation.
+        if (element === 'cmi.location' && pendingSlideNavigation) {
+            // v2.0.65: Stop intercepting if user naturally navigated away from tag target
+            if (locationInterceptDisabled) {
+                return result;
+            }
+            var withinWindow = interceptStartTime !== null &&
+                (Date.now() - interceptStartTime) < INTERCEPT_WINDOW_MS;
+            if (!withinWindow) {
+                return result; // Window expired - let actual value through
+            }
+            if (!isOurNavigationStillActive()) {
+                return result;
+            }
+            return String(pendingSlideNavigation.slide);
+        }
+
+        // v2.0.58: Resume correction read intercept (on-the-fly).
+        if (element === 'cmi.suspend_data' && furthestSlide !== null && !pendingSlideNavigation) {
+            var withinResumeWindow = (Date.now() - resumeInterceptStartTime) < INTERCEPT_WINDOW_MS;
+            if (withinResumeWindow && result && result.length > 5) {
+                var origSlide = parseSlideFromSuspendData(result);
+                if (origSlide !== null && origSlide < furthestSlide) {
+                    var correctedSD = modifySuspendDataForSlide(result, furthestSlide);
+                    if (correctedSD !== result) {
+                        resumeReadInterceptCount++;
+                        return correctedSD;
+                    }
+                }
+            }
+        }
+        if (element === 'cmi.location' && furthestSlide !== null && !pendingSlideNavigation) {
+            var withinResumeWindow = (Date.now() - resumeInterceptStartTime) < INTERCEPT_WINDOW_MS;
+            if (withinResumeWindow) {
+                var locSlide = parseSlideNumber(result); // v2.0.92: parseSlideNumber for vendor formats
+                if (locSlide !== null && locSlide < furthestSlide) {
+                    return formatLocationValue(lastKnownLocationFormat || result, furthestSlide);
+                }
+                // v2.0.94: Correct format mismatch even when slide number matches.
+                // DB may have numeric "5" from pre-v2.0.92, but vendor expects "slide_5".
+                if (locSlide !== null && lastKnownLocationFormat && /^\d+$/.test(result)) {
+                    return formatLocationValue(lastKnownLocationFormat, locSlide);
+                }
+            }
+        }
+
+        // Intercept suspend_data reads within the time/count window
+        // Storyline calls GetValue multiple times during initialization
+        if (element === 'cmi.suspend_data' && pendingSlideNavigation) {
+            // CRITICAL: Check if our navigation is still active
+            if (!isOurNavigationStillActive()) {
+                return result;
+            }
+
+            // Start timer on first intercept
+            if (interceptStartTime === null) {
+                interceptStartTime = Date.now();
+            }
+
+            var withinWindow = (Date.now() - interceptStartTime) < INTERCEPT_WINDOW_MS;
+            var underLimit = suspendDataInterceptCount < MAX_INTERCEPTS;
+
+            if (withinWindow && underLimit) {
+                suspendDataInterceptCount++;
+
+                var modifiedData = modifySuspendDataForSlide(result, pendingSlideNavigation.slide);
+                if (modifiedData !== result) {
+                    return modifiedData;
+                }
+            } else if (suspendDataInterceptCount > 0) {
+                // Window closed for suspend_data, but keep pendingSlideNavigation for location
+                // location intercept must continue for the entire session (polling needs it)
+                // DO NOT null pendingSlideNavigation - location intercept still needs it
+            }
+        }
+
+        return result;
+    };
+}
+
+var originalSetValue2004 = window.API_1484_11.SetValue;
+// v2.0.66: Store reference to original SCORM 2004 API for grade writing.
+if (!originalScormSetValue) {
+    originalScormSetValue = function(el, val) { return originalSetValue2004.call(window.API_1484_11, el, val); };
+    scormApiVersion = '2004';
+}
+if (!originalScormCommit && window.API_1484_11.Commit) {
+    var origCommit2004 = window.API_1484_11.Commit;
+    originalScormCommit = function() { return origCommit2004.call(window.API_1484_11, ''); };
+}
+window.API_1484_11.SetValue = function(element, value) {
+    var valueToWrite = value;
+
+    // Write interception for suspend_data during tag navigation.
+    // During intercept window: force TAG TARGET so content initializes at correct slide.
+    // v2.0.80: After intercept window, let natural value through (DB gets cs=current).
+    if (element === 'cmi.suspend_data' && pendingSlideNavigation) {
+        if (!isOurNavigationStillActive()) {
+            // Navigation superseded, not intercepting write
+        } else {
+            var inInterceptWindow = interceptStartTime !== null &&
+                (Date.now() - interceptStartTime) < INTERCEPT_WINDOW_MS;
+
+            if (inInterceptWindow) {
+                // During initialization: force tag target
+                var modifiedValue = modifySuspendDataForSlide(value, pendingSlideNavigation.slide);
+                if (modifiedValue !== value) {
+                    valueToWrite = modifiedValue;
+                }
+            }
+            // v2.0.80: After intercept window, let natural value through.
+            // DB gets cs=current so SmartLearning API polling shows correct position.
+            // Resume is handled by pre-init backing store + read interceptors at page load.
+        }
+    }
+
+    // v2.0.57: Score write interception - ensure score always reflects furthest progress.
+    if (element === 'cmi.score.raw' && furthestSlide !== null && slidescount > 1) {
+        var writtenScore = parseFloat(value);
+        if (!isNaN(writtenScore)) {
+            var furthestScore = Math.min(Math.round((furthestSlide / slidescount) * 10000) / 100, 100);
+            if (pendingSlideNavigation) {
+                // v2.0.87: During tag navigation, always write furthestScore to prevent DB inflation.
+                // Content writes score reflecting tag position, not actual progress.
+                valueToWrite = String(furthestScore);
+            } else if (writtenScore < furthestScore) {
+                valueToWrite = String(furthestScore);
+            }
+        }
+    }
+
+    // v2.0.73: For cmi.location, write max(value, furthestSlide) to DB so that
+    // on page refresh, the content resumes at the furthest slide, not the current.
+    // v2.0.87: During tag navigation, cap at furthestSlide to prevent DB inflation.
+    var dbWriteValue2004 = valueToWrite;
+    if (element === 'cmi.location' && furthestSlide !== null) {
+        var locSlide2004 = parseSlideNumber(valueToWrite);
+        if (locSlide2004 !== null) {
+            if (pendingSlideNavigation && locSlide2004 > furthestSlide) {
+                // v2.0.87: Cap at furthestSlide during tag navigation to prevent DB inflation.
+                // v2.0.92: Preserve vendor format (e.g. "slide_3" not "3")
+                dbWriteValue2004 = formatLocationValue(lastKnownLocationFormat || valueToWrite, furthestSlide);
+            } else if (locSlide2004 < furthestSlide) {
+                // v2.0.92: Preserve vendor format for location boost
+                dbWriteValue2004 = formatLocationValue(lastKnownLocationFormat || valueToWrite, furthestSlide);
+            }
+        }
+    }
+
+    // v2.0.78: Pre-set lastSuspendData BEFORE the DB write to prevent re-entrant tracking.
+    // When originalSetValue2004 writes modified suspend_data, Moodle's runtime may trigger
+    // a re-entrant call back into this interceptor with the modified value. By pre-setting
+    // lastSuspendData, the re-entrant call's value will match and be skipped.
+    if (element === 'cmi.suspend_data') {
+        lastSuspendData = valueToWrite;
+    }
+
+    var result = originalSetValue2004.call(window.API_1484_11, element, dbWriteValue2004);
+
+    // Track location changes.
+    // v2.0.64: Pass parsed slide as directSlide (not location) so backward navigation is allowed.
+    // Only poll-based reads should suppress backward movement, not actual SCORM writes.
+    // v2.0.77: Compare against lastWrittenLocation (actual content value) not lastLocation
+    // (DB value, may be boosted by v2.0.74). Set lastLocation = dbWriteValue2004 so the poll
+    // doesn't re-report the boosted DB value as a position change.
+    if (element === 'cmi.location' && valueToWrite !== lastWrittenLocation) {
+        lastKnownLocationFormat = valueToWrite; // v2.0.92: Track format for boost
+        try { localStorage.setItem('scorm_location_format_' + cmid, valueToWrite); } catch(e) {}
+        lastWrittenLocation = valueToWrite;
+        lastLocation = dbWriteValue2004;
+        lastApiChangeTime = Date.now();
+        console.log('[SCORM 2004] location: ' + valueToWrite + ' (db=' + dbWriteValue2004 + ', furthest=' + furthestSlide + ')');
+        var parsedSlide = parseSlideNumber(valueToWrite);
+        sendProgressUpdate(null, lastStatus, null, parsedSlide, true);
+        // v2.0.65: If user naturally navigated away from tag target, disable the
+        // location read interceptor. Otherwise the poll picks up the stale
+        // intercepted value and pushes position back up.
+        if (pendingSlideNavigation && !locationInterceptDisabled &&
+            String(valueToWrite) !== String(pendingSlideNavigation.slide)) {
+            locationInterceptDisabled = true;
+        }
+    }
+    // Track completion_status changes.
+    // v2.0.82: Pass null instead of lastLocation — lastLocation is boosted to
+    // furthestSlide by the location interceptor, so passing it here would
+    // override the position bar with furthest instead of current slide.
+    if (element === 'cmi.completion_status') {
+        lastStatus = valueToWrite;
+        sendProgressUpdate(null, valueToWrite, null, null);
+    }
+    // Track score changes.
+    // IMPORTANT: Score represents FURTHEST PROGRESS, not current position.
+    if (element === 'cmi.score.raw') {
+        contentWritesScore = true; // v2.0.66: Mark that this SCORM manages its own scores
+        var score = parseFloat(valueToWrite);
+        if (!isNaN(score) && slidescount > 0 && score <= 100) {
+            // Calculate slide from score percentage.
+            var calculatedSlide = Math.round((score / 100) * slidescount);
+            calculatedSlide = Math.max(1, Math.min(calculatedSlide, slidescount));
+
+            // Check if we're in the intercept window (tag navigation in progress)
+            var inInterceptWindow = pendingSlideNavigation && interceptStartTime !== null &&
+                (Date.now() - interceptStartTime) < INTERCEPT_WINDOW_MS;
+
+            // Check if user has naturally navigated beyond the tag target
+            // This allows progress to resume after user surpasses the jumped-to slide
+            var naturallyBeyondTarget = pendingSlideNavigation === null ||
+                calculatedSlide > pendingSlideNavigation.slide;
+
+            // IMPORTANT: Only update furthest during NATURAL navigation, not during tag jumps!
+            // When user jumps via tag, they didn't VIEW the intermediate slides,
+            // so furthest should NOT increase until they naturally navigate beyond the target.
+            // The score from Storyline reflects current position, not actual progress.
+            if (!inInterceptWindow && naturallyBeyondTarget &&
+                (furthestSlide === null || calculatedSlide > furthestSlide)) {
+                furthestSlide = calculatedSlide;
+            }
+
+            // Only use score-based slide for CURRENT position if no suspend_data AND not in intercept window.
+            // During intercept window, we have a pending navigation target, so don't override with score.
+            if (slideSource !== 'suspend_data' && lastSlide === null && !inInterceptWindow) {
+                slideSource = 'score';
+                sendProgressUpdate(null, lastStatus, valueToWrite, calculatedSlide, true);
+            } else {
+                // Don't change currentSlide, but send update with furthestSlide for progress bar.
+                // v2.0.82: Pass null instead of lastLocation — it's boosted to furthest
+                // and would override position bar with wrong slide number.
+                sendProgressUpdate(null, lastStatus, valueToWrite, null);
+            }
+        } else {
+            sendProgressUpdate(null, lastStatus, valueToWrite, null);
+        }
+    }
+    // Track suspend_data changes for position and progress.
+    // Use the ORIGINAL value (before write interception) for actual position.
+    // The modified valueToWrite preserves the tag target in DB, but the
+    // original value reflects Storyline's actual current slide.
+    // v2.0.78: Also skip if value === lastSuspendData (re-entrant call from Moodle runtime
+    // echoing the modified DB value back through our interceptor).
+    if (element === 'cmi.suspend_data' && value !== lastSuspendDataOriginal && value !== lastSuspendData) {
+        var inInterceptWindow = pendingSlideNavigation && interceptStartTime !== null &&
+            (Date.now() - interceptStartTime) < INTERCEPT_WINDOW_MS;
+
+        lastSuspendDataOriginal = value;
+        lastSuspendData = valueToWrite;
+        lastApiChangeTime = Date.now();
+        if (!inInterceptWindow) {
+            // Parse from ORIGINAL value to get actual position
+            var slideNum = parseSlideFromSuspendData(value);
+            if (slideNum !== null) {
+                // v2.0.82: Detect Captivate periodic commits (cs unchanged = timer-based, not navigation).
+                // Captivate writes suspend_data every ~30s with format cs=N,vs=...,qt=...,qr=...,ts=...
+                // The cs field stays stale during periodic commits, causing wrong position updates.
+                var isCaptivatePeriodicCommit = false;
+                if (/\bcs=\d+/.test(value)) {
+                    var csMatch = value.match(/\bcs=(\d+)/);
+                    var currentCs = csMatch ? parseInt(csMatch[1], 10) : -1;
+                    if (lastCaptivateCs !== null && currentCs === lastCaptivateCs) {
+                        isCaptivatePeriodicCommit = true;
+                    }
+                    lastCaptivateCs = currentCs;
+                }
+
+                // v2.0.82: Extract Captivate vs (visited slides) for accurate furthestSlide.
+                // vs=0:1:2:3 means slides 0-3 visited → furthest is 4 (0-based to 1-based).
+                // v2.0.87: During tag navigation, only advance furthest if beyond tag target.
+                if (/\bvs=/.test(value)) {
+                    var vsMatch = value.match(/\bvs=([0-9:]+)/);
+                    if (vsMatch) {
+                        var visited = vsMatch[1].split(':').map(function(s) { return parseInt(s, 10); }).filter(function(n) { return !isNaN(n); });
+                        if (visited.length > 0) {
+                            var maxVisited = Math.max.apply(null, visited) + 1; // 0-based to 1-based
+                            var allowVsAdvance = !pendingSlideNavigation || maxVisited > pendingSlideNavigation.slide;
+                            if (allowVsAdvance && (furthestSlide === null || maxVisited > furthestSlide)) {
+                                furthestSlide = maxVisited;
+                                try {
+                                    sessionStorage.setItem('scorm_furthest_slide_' + cmid, String(furthestSlide));
+                                    localStorage.setItem('scorm_furthest_slide_' + cmid, String(furthestSlide));
+                                } catch (e) {}
+                            }
+                        }
+                    }
+                }
+
+                // Update furthestSlide from parsed slide (only increases)
+                // v2.0.87: During tag navigation, only advance furthest if beyond tag target.
+                var allowAdvance = !pendingSlideNavigation || slideNum > pendingSlideNavigation.slide;
+                if (allowAdvance && (furthestSlide === null || slideNum > furthestSlide)) {
+                    furthestSlide = slideNum;
+                    try {
+                        sessionStorage.setItem('scorm_furthest_slide_' + cmid, String(furthestSlide));
+                        localStorage.setItem('scorm_furthest_slide_' + cmid, String(furthestSlide));
+                    } catch (e) {}
+                }
+
+                // Send position update — skip if Captivate periodic commit (cs is stale)
+                if (!isCaptivatePeriodicCommit && slideNum !== lastSlide) {
+                    console.log('[SCORM 2004] suspend_data slide: ' + slideNum + ' (furthest=' + furthestSlide + ')');
+                    sendProgressUpdate(lastLocation, lastStatus, null, slideNum, true);
+                }
+            }
+        }
+    }
+
+    return result;
+};
+
+// v2.0.87: Schedule a proactive write after the intercept window closes (SCORM 2004).
+// ALWAYS write furthestSlide and furthestScore unconditionally during tag navigation.
+// Tag navigation may have inflated DB values (location=tag, score=tag%).
+// The post-intercept write corrects DB to actual furthest progress.
+if (pendingSlideNavigation) {
+    setTimeout(function() {
+        if (furthestSlide === null) return;
+        try {
+            // v2.0.87: Always write furthestSlide (tag navigation may have inflated DB values).
+            // v2.0.92: Preserve vendor format for location
+            var currentLoc2004Post = origGetValue2004.call(window.API_1484_11, 'cmi.location');
+            origSetValue2004ref.call(window.API_1484_11, 'cmi.location',
+                formatLocationValue(lastKnownLocationFormat || currentLoc2004Post, furthestSlide));
+            var furthestScore = null;
+            if (slidescount > 1) {
+                furthestScore = Math.min(Math.round((furthestSlide / slidescount) * 10000) / 100, 100);
+                origSetValue2004ref.call(window.API_1484_11, 'cmi.score.raw', String(furthestScore));
+            }
+            console.log('[SCORM 2004] Post-intercept write: location=' + furthestSlide + ' score=' + furthestScore);
+            window.API_1484_11.Commit('');
+        } catch (e) {}
+    }, INTERCEPT_WINDOW_MS + 2000);
+}
+
+// v2.0.80: Schedule a proactive write to ensure DB has correct resume data (SCORM 2004).
+// Only write location and score - NOT suspend_data.cs.
+if (!pendingSlideNavigation && furthestSlide !== null) {
+    setTimeout(function() {
+        if (furthestSlide === null) return;
+        try {
+            var currentLoc = origGetValue2004.call(window.API_1484_11, 'cmi.location');
+            var locSlide = parseSlideNumber(currentLoc); // v2.0.92: parseSlideNumber for vendor formats
+            if (locSlide === null || locSlide < furthestSlide) {
+                // v2.0.92: Preserve vendor format for location
+                origSetValue2004ref.call(window.API_1484_11, 'cmi.location',
+                    formatLocationValue(lastKnownLocationFormat || currentLoc, furthestSlide));
+            }
+            if (slidescount > 1) {
+                var currentScore = origGetValue2004.call(window.API_1484_11, 'cmi.score.raw');
+                var furthestScore = Math.min(Math.round((furthestSlide / slidescount) * 10000) / 100, 100);
+                if (!currentScore || parseFloat(currentScore) < furthestScore) {
+                    origSetValue2004ref.call(window.API_1484_11, 'cmi.score.raw', String(furthestScore));
+                }
+            }
+            window.API_1484_11.Commit('');
+        } catch (e) {}
+    }, INTERCEPT_WINDOW_MS + 2000);
+}
+
+return true;
+}
+JSEOF;
+    }
+}

@@ -1,0 +1,192 @@
+{{!
+    Template: local_sm_graphics_plugin/statistics_page
+
+    Renders summary statistic cards and weekly charts for company managers.
+
+    Context variables (set in pages/statistics.php):
+    - heading:            string  Page heading
+    - cards:              array   Stat cards (icon, value, label)
+    - completions_title:  string  Chart 1 heading
+    - completions_chart:  string  Rendered Moodle chart HTML
+    - active_users_title: string  Chart 2 heading
+    - active_users_chart: string  Rendered Moodle chart HTML
+}}
+<div class="sm-statistics p-4 w-100">
+    <h2 class="mb-4">{{heading}}</h2>
+
+    {{! ===== Summary cards ===== }}
+    <div class="sm-stat-cards mb-5">
+        {{#cards}}
+            <div class="sm-stat-card">
+                <div class="sm-stat-card__icon">
+                    <i class="fa {{icon}}"></i>
+                </div>
+                <div class="sm-stat-card__value">{{value}}</div>
+                <div class="sm-stat-card__label">{{label}}</div>
+            </div>
+        {{/cards}}
+    </div>
+
+    {{! ===== Weekly charts ===== }}
+    <div class="sm-stat-charts">
+        <div class="sm-stat-chart-card">
+            <h4 class="sm-stat-chart-card__title">{{completions_title}}</h4>
+            {{{completions_chart}}}
+        </div>
+        <div class="sm-stat-chart-card">
+            <h4 class="sm-stat-chart-card__title">{{active_users_title}}</h4>
+            {{{active_users_chart}}}
+        </div>
+    </div>
+</div>
+
+
+<style>
+    /* Full-width layout chain. */
+    #page,
+    #topofscroll,
+    .main-inner,
+    #page-content,
+    #region-main-box,
+    [role="main"],
+    #region-main,
+    .smartmind-page-banner,
+    .smartmind-page-banner__content {
+        max-width: 100% !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    .main-inner {
+        padding-left: 1.5rem !important;
+        padding-right: 1.5rem !important;
+    }
+    #page-content,
+    #region-main-box,
+    #region-main {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    /* Stat cards grid. */
+    .sm-stat-cards {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 1.5rem;
+    }
+    @media (max-width: 1200px) {
+        .sm-stat-cards { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 768px) {
+        .sm-stat-cards { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 480px) {
+        .sm-stat-cards { grid-template-columns: 1fr; }
+    }
+
+    /* Individual card. */
+    .sm-stat-card {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        transition: box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
+    }
+    .sm-stat-card:hover {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+    }
+
+    /* Icon circle. */
+    .sm-stat-card__icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: #f3f4f6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+    }
+    .sm-stat-card__icon .fa {
+        font-size: 1.25rem;
+        color: #374151;
+    }
+
+    /* Value. */
+    .sm-stat-card__value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #111827;
+        line-height: 1.2;
+        margin-bottom: 0.25rem;
+    }
+
+    /* Label. */
+    .sm-stat-card__label {
+        font-size: 0.875rem;
+        color: #6b7280;
+        font-weight: 500;
+    }
+
+    /* Charts grid. */
+    .sm-stat-charts {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        width: 100%;
+    }
+    @media (max-width: 992px) {
+        .sm-stat-charts { grid-template-columns: 1fr; }
+    }
+
+    /* Chart card. */
+    .sm-stat-chart-card {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 1.5rem;
+        min-width: 0;
+        overflow: hidden;
+    }
+    .sm-stat-chart-card__title {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #111827;
+        margin-bottom: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+
+    /* Force Moodle chart to fill card width. */
+    .sm-stat-chart-card .chart-area,
+    .sm-stat-chart-card .chart-image {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        height: 400px !important;
+    }
+    .sm-stat-chart-card canvas {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    .sm-stat-chart-card .chart-table {
+        display: none;
+    }
+    @media (max-width: 992px) {
+        .sm-stat-chart-card .chart-area,
+        .sm-stat-chart-card .chart-area canvas {
+            min-height: 220px;
+            max-height: 280px;
+        }
+    }
+
+    /* Statistics page full width. */
+    .sm-statistics {
+        width: 100%;
+        max-width: 100%;
+    }
+</style>

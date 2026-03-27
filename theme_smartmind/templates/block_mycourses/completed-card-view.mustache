@@ -1,0 +1,39 @@
+{{!
+    @template block_mycourses/completed-card-view
+
+    SmartMind override — Completed courses card view.
+    Original: blocks/mycourses/templates/completed-card-view.mustache
+}}
+<div id="completed-view-{{uniqid}}" data-region="completed-view">
+    <div class="tab-content">
+        <div class="tab-pane active" id="mycourses_completed_view">
+            <div id="paged-content-container-{{uniqid}}" data-region="paged-content-container">
+                <div id="paged-content-page" data-page="1">
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3" data-region="card-deck" role="list">
+                        {{#completedview.courses}}
+                            {{> block_mycourses/completedcoursecard }}
+                        {{/completedview.courses}}
+                        {{^completedview.courses}}
+                            <div class="col-12 text-center m-t-3">
+                                <img class="empty-placeholder-image-lg"
+                                    src="{{nocourses}}"
+                                    alt="{{#str}} nocompleted, block_mycourses {{/str}}"
+                                    role="presentation">
+                                <p class="text-muted m-t-1">{{#str}} nocompleted, block_mycourses {{/str}}</p>
+                            </div>
+                        {{/completedview.courses}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{#js}}
+require(['jquery', 'core/custom_interaction_events'], function($, customEvents) {
+    var root = $('#completed-view-{{uniqid}}');
+    customEvents.define(root, [customEvents.events.activate]);
+    root.on(customEvents.events.activate, '[data-toggle="btns"] > .btn', function() {
+        root.find('.btn.active').removeClass('active');
+    });
+});
+{{/js}}

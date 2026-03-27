@@ -1,0 +1,1231 @@
+// ============================================
+// COURSE PAGE — Udemy-style course dedicated page
+// ============================================
+// NOTE: .smgp-course-header section intentionally removed.
+
+// ===== Course Page Root =====
+body.smgp-course-player .navbar_right_content {
+  background-color: #F5F3EE !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+// Hide Moodle right drawers (course index, blocks) in course player.
+body.smgp-course-player .drawer.drawer-right {
+  display: none !important;
+}
+
+// Ensure page-wrapper stretches full width.
+body.smgp-course-player #page-wrapper {
+  background: #FFFFFF !important;
+}
+
+.smgp-course-page {
+  display: flex;
+  flex-direction: column;
+}
+
+// ===== Breadcrumb =====
+.smgp-course-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 32px 8px;
+  font-size: 13px;
+  color: #A09B96;
+
+  &__link {
+    cursor: pointer;
+    transition: color 0.12s;
+    &:hover { color: #1B4FD8; }
+  }
+  &__sep { color: #E2DDD6; }
+  &__current { color: #6B6660; }
+}
+
+// ===== Activity Info (below nav) =====
+.smgp-course-activity-info {
+  padding: 20px 32px 24px;
+
+  &__title {
+    font-size: 20px;
+    font-weight: 500;
+    color: #1A1814;
+    margin-bottom: 4px;
+    line-height: 1.3;
+  }
+  &__meta {
+    font-size: 13px;
+    color: #A09B96;
+    margin-bottom: 0;
+  }
+}
+
+// ===== Main Body Layout =====
+.smgp-course-body {
+  display: flex;
+  position: relative;
+  background: #F5F3EE;
+}
+
+.smgp-course-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+// ===== Content Area (single activity loaded via AJAX) =====
+.smgp-course-content {
+  padding: 0 32px;
+  background: #F5F3EE;
+  color: #1A1814;
+  overflow: hidden;
+  height: calc(100vh - 180px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  // Center inline content with a max-width for readability.
+  > .smgp-activity-content {
+    width: 100%;
+    max-width: 960px;
+  }
+
+  &__placeholder,
+  &__loading,
+  &__error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    width: 100%;
+    color: var(--smgp-text-secondary, $smgp-text-secondary);
+    gap: $smgp-space-md;
+
+    i {
+      font-size: 3rem;
+      opacity: 0.4;
+    }
+
+    p {
+      margin: 0;
+      font-size: $smgp-font-lg;
+    }
+  }
+
+  &__error i {
+    color: var(--smgp-danger, $smgp-danger);
+    opacity: 0.7;
+  }
+
+  &__iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 0;
+    color-scheme: light dark;
+    display: block;
+  }
+
+  // Rounded wrapper that clips the iframe content.
+  &__iframe-wrap {
+    width: 100%;
+    height: 100%;
+    border: 1px solid #E2DDD6;
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  // When content area has an iframe, add side padding so beige shows around the rounded rect.
+  &:has(.smgp-course-content__iframe) {
+    padding: 0 32px;
+    align-items: stretch;
+    overflow: hidden;
+  }
+}
+
+// Hide Moodle completion condition tags ("Hecho: Ver", etc.) in inline content.
+.smgp-course-content {
+  .activity-information,
+  .automatic-completion-conditions,
+  .completionrequirements,
+  .completion-info,
+  [data-region="completion-info"],
+  [data-region="completionrequirements"],
+  [data-region="activity-information"] {
+    display: none !important;
+  }
+}
+
+// ===== Activity Content (rendered by AJAX) =====
+.smgp-activity-content {
+  line-height: 1.7;
+  color: var(--smgp-text, $smgp-text);
+  font-size: $smgp-font-base;
+
+  img {
+    max-width: 100%;
+    height: auto;
+    border-radius: $smgp-radius-md;
+  }
+
+  &__intro {
+    margin-bottom: $smgp-space-lg;
+  }
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $smgp-space-md;
+    margin: $smgp-space-md 0;
+    font-size: $smgp-font-sm;
+    color: var(--smgp-text-secondary, $smgp-text-secondary);
+
+    i {
+      margin-right: $smgp-space-xs;
+    }
+  }
+
+  &__status {
+    margin: $smgp-space-md 0;
+  }
+
+  &__open-link {
+    margin-top: $smgp-space-lg;
+  }
+
+  &__chapter-info {
+    padding: $smgp-space-sm $smgp-space-md;
+    background: var(--smgp-gray-50, $smgp-gray-50);
+    border-radius: $smgp-radius-md;
+    margin-bottom: $smgp-space-md;
+    font-size: $smgp-font-sm;
+  }
+
+  &__preview {
+    margin: $smgp-space-md 0;
+  }
+
+  &__file {
+    margin-top: $smgp-space-md;
+  }
+
+  &__video-player {
+    background: #000;
+    overflow: hidden;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .smgp-video-player {
+      width: 100%;
+      height: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+  }
+
+  &__audio-player {
+    margin: $smgp-space-md 0;
+
+    .smgp-audio-player {
+      width: 100%;
+    }
+  }
+}
+
+// ===== Activity Navigation =====
+.smgp-course-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 32px;
+  background: #F5F3EE;
+  flex-shrink: 0;
+
+  &__btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 18px;
+    border: 1px solid #E2DDD6;
+    border-radius: 8px;
+    background: none;
+    color: #1A1814;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+
+    &:hover:not(:disabled) {
+      background: #1B4FD8;
+      color: #fff;
+      border-color: #1B4FD8;
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+
+  // "Siguiente" button gets the primary style.
+  .smgp-course-nav__next:not(:disabled) {
+    background: #1B4FD8;
+    color: #fff;
+    border-color: #1B4FD8;
+
+    &:hover {
+      background: #1340B0;
+      border-color: #1340B0;
+    }
+  }
+
+  &__center {
+    display: flex;
+    align-items: center;
+    gap: $smgp-space-md;
+    flex: 1;
+    min-width: 0;
+    margin: 0 16px;
+  }
+
+  &__item-counter {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 10px;
+    background: rgba(#1B4FD8, 0.1);
+    color: #1B4FD8;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+
+    i {
+      font-size: 13px;
+    }
+  }
+
+}
+
+// ===== Course Progress Bar =====
+.smgp-course-progress-bar {
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+  padding: $smgp-space-xs 0;
+
+  &__track {
+    position: relative;
+    height: 4px;
+    background: var(--smgp-gray-200, $smgp-gray-200);
+    border-radius: $smgp-radius-full;
+    transition: height 0.15s ease;
+  }
+
+  &__fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: var(--smgp-success, $smgp-success);
+    border-radius: $smgp-radius-full;
+    transition: width 0.3s ease;
+  }
+
+  &__cursor {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 12px;
+    height: 12px;
+    background: var(--smgp-primary, $smgp-primary);
+    border: 2px solid #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1), $smgp-shadow-sm;
+    transition: left 0.3s ease;
+    z-index: 2;
+    cursor: grab;
+
+    &:active {
+      cursor: grabbing;
+      transform: translate(-50%, -50%) scale(1.3);
+    }
+  }
+
+  &__marker {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 6px;
+    height: 6px;
+    background: var(--smgp-warning, $smgp-warning);
+    border-radius: 50%;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  &:hover &__cursor {
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+
+  &:hover &__track {
+    height: 6px;
+  }
+}
+
+// ===== Floating Focus Mode Button =====
+.smgp-course-focus-btn {
+  position: fixed;
+  bottom: $smgp-space-lg;
+  right: $smgp-space-lg;
+  width: 44px;
+  height: 44px;
+  border-radius: $smgp-radius-full;
+  border: none;
+  background: var(--smgp-primary, $smgp-primary);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0.4;
+  transition: opacity $smgp-transition-fast, transform $smgp-transition-fast, box-shadow $smgp-transition-fast;
+  z-index: 10;
+  box-shadow: $smgp-shadow-md;
+
+  &:hover {
+    opacity: 1;
+    transform: scale(1.1);
+    box-shadow: $smgp-shadow-lg;
+  }
+
+  i {
+    font-size: $smgp-font-lg;
+  }
+}
+
+// ===== Focus Mode (course page) =====
+// Shows ONLY the content area + nav bar. Hides everything else.
+// Class is added to .smgp-course-page div — use descendant selector.
+.smgp-course-page--focus {
+  .smgp-course-header,
+  .smgp-course-activity-bar,
+  .smgp-course-breadcrumb,
+  .smgp-course-activity-info,
+  .smgp-course-sidebar,
+  .smgp-course-sidebar__toggle,
+  .smgp-course-tabs {
+    display: none !important;
+  }
+
+  .smgp-course-body {
+    min-height: calc(100vh - 56px);
+  }
+
+  .smgp-course-content {
+    flex: 1;
+    min-height: calc(100vh - 112px); // Subtract nav bar height.
+
+    // In focus mode, let inline content stretch wider.
+    > .smgp-activity-content {
+      max-width: 1200px;
+    }
+  }
+}
+
+// Focus mode: hide main SmartMind sidebar + header.
+// Class added to body when focus mode is active.
+body.smgp-course-focus-active {
+  padding-top: 0 !important;
+
+  .smgp-header,
+  .smgp-sidebar,
+  .smgp-sidebar__overlay {
+    display: none !important;
+  }
+
+  #page,
+  #page.drawers,
+  #page.drawers.drag-container {
+    margin-left: 0 !important;
+  }
+}
+
+.smgp-course-page--focus .smgp-course-content {
+  height: calc(100vh - 80px);
+  min-height: 400px;
+}
+
+// ===== Tabs Section =====
+.smgp-course-tabs {
+  display: flex;
+  flex-direction: column;
+  background: var(--smgp-bg, $smgp-bg);
+  border-radius: $smgp-radius-lg $smgp-radius-lg 0 0;
+  overflow: hidden;
+
+  &__bar {
+    display: flex;
+    border-bottom: 2px solid var(--smgp-border, $smgp-border);
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  &__tab {
+    flex-shrink: 0;
+    padding: $smgp-space-sm $smgp-space-lg;
+    border: none;
+    background: transparent;
+    color: var(--smgp-text-secondary, $smgp-text-secondary);
+    font-size: $smgp-font-sm;
+    font-weight: 500;
+    cursor: pointer;
+    position: relative;
+    transition: color $smgp-transition-fast;
+
+    &:hover {
+      color: var(--smgp-text, $smgp-text);
+    }
+
+    &--active {
+      color: var(--smgp-primary, $smgp-primary);
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--smgp-primary, $smgp-primary);
+        border-radius: 2px 2px 0 0;
+      }
+    }
+  }
+
+  &__panels {
+    overflow-y: auto;
+  }
+
+  &__panel {
+    display: none;
+    padding: $smgp-space-lg;
+    min-height: 150px;
+
+    &--active {
+      display: block;
+    }
+  }
+
+  &__description {
+    line-height: 1.7;
+    color: var(--smgp-text, $smgp-text);
+    font-size: $smgp-font-base;
+
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: $smgp-radius-md;
+    }
+  }
+
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: $smgp-space-2xl;
+    color: var(--smgp-text-secondary, $smgp-text-secondary);
+    text-align: center;
+
+    i {
+      font-size: 2.5rem;
+      margin-bottom: $smgp-space-md;
+      opacity: 0.4;
+    }
+
+    p {
+      margin: 0;
+      font-size: $smgp-font-base;
+    }
+  }
+
+  &__students {
+    display: flex;
+    flex-direction: column;
+    gap: $smgp-space-md;
+  }
+
+  &__student-count {
+    display: flex;
+    align-items: center;
+    gap: $smgp-space-sm;
+    padding: $smgp-space-lg;
+    background: var(--smgp-gray-50, $smgp-gray-50);
+    border-radius: $smgp-radius-lg;
+
+    i {
+      font-size: $smgp-font-2xl;
+      color: var(--smgp-primary, $smgp-primary);
+    }
+
+    &-number {
+      font-size: $smgp-font-3xl;
+      font-weight: 700;
+      color: var(--smgp-text, $smgp-text);
+    }
+
+    span {
+      color: var(--smgp-text-secondary, $smgp-text-secondary);
+    }
+  }
+
+  &__teachers {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: $smgp-space-md;
+  }
+
+  &__grades-table-wrap {
+    overflow-x: auto;
+  }
+}
+
+// ===== Grades Table =====
+.smgp-grades-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: $smgp-font-sm;
+
+  th {
+    text-align: left;
+    padding: $smgp-space-sm $smgp-space-md;
+    border-bottom: 2px solid var(--smgp-border, $smgp-border);
+    color: var(--smgp-text-secondary, $smgp-text-secondary);
+    font-weight: 600;
+    font-size: $smgp-font-xs;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  td {
+    padding: $smgp-space-sm $smgp-space-md;
+    border-bottom: 1px solid var(--smgp-border, $smgp-border);
+    color: var(--smgp-text, $smgp-text);
+    vertical-align: middle;
+  }
+
+  &__name {
+    min-width: 200px;
+  }
+
+  &__type {
+    display: inline-block;
+    font-size: $smgp-font-xs;
+    color: var(--smgp-text-secondary, $smgp-text-secondary);
+    background: var(--smgp-gray-100, $smgp-gray-100);
+    padding: 1px 6px;
+    border-radius: $smgp-radius-sm;
+    margin-right: $smgp-space-xs;
+  }
+
+  &__grade {
+    white-space: nowrap;
+    font-weight: 500;
+    min-width: 90px;
+  }
+
+  &__bar-cell {
+    width: 160px;
+    min-width: 120px;
+  }
+
+  &__bar {
+    display: inline-block;
+    width: 80px;
+    height: 6px;
+    background: var(--smgp-gray-200, $smgp-gray-200);
+    border-radius: $smgp-radius-full;
+    overflow: hidden;
+    vertical-align: middle;
+    margin-right: $smgp-space-xs;
+
+    &-fill {
+      height: 100%;
+      background: var(--smgp-primary, $smgp-primary);
+      border-radius: $smgp-radius-full;
+      transition: width 0.4s ease;
+    }
+  }
+
+  &__pct {
+    font-size: $smgp-font-xs;
+    color: var(--smgp-text-secondary, $smgp-text-secondary);
+  }
+
+  &__row--graded .smgp-grades-table__grade {
+    color: var(--smgp-success, $smgp-success);
+  }
+
+  &__total td {
+    border-top: 2px solid var(--smgp-border, $smgp-border);
+    border-bottom: none;
+    padding-top: $smgp-space-md;
+  }
+}
+
+// ===== Teacher Card =====
+.smgp-teacher-card {
+  display: flex;
+  align-items: center;
+  gap: $smgp-space-md;
+  padding: $smgp-space-md;
+  background: var(--smgp-gray-50, $smgp-gray-50);
+  border-radius: $smgp-radius-lg;
+
+  &__avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: $smgp-radius-full;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  &__name {
+    font-weight: 600;
+    color: var(--smgp-text, $smgp-text);
+    font-size: $smgp-font-base;
+  }
+
+  &__role {
+    font-size: $smgp-font-sm;
+    color: var(--smgp-text-secondary, $smgp-text-secondary);
+  }
+}
+
+// ===== Module Content Sidebar =====
+.smgp-course-sidebar {
+  width: 320px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid #E2DDD6;
+  background: #FFFFFF;
+  overflow-y: auto;
+  transition: width $smgp-transition-base, opacity $smgp-transition-fast;
+
+  &--collapsed {
+    width: 0;
+    overflow: hidden;
+    border-left: none;
+    opacity: 0;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px;
+    border-bottom: 1px solid #E2DDD6;
+    flex-shrink: 0;
+    background-color: #F5F3EE;
+  }
+
+  &__title {
+    font-size: 14px;
+    font-weight: 500;
+    margin: 0;
+    color: #1A1814;
+  }
+
+  &__count {
+    display: none;
+  }
+
+  &__sections, &__list {
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  &__toggle {
+    position: absolute;
+    right: 320px;
+    top: 0;
+    width: 24px;
+    height: 51px; // Matches sidebar header: 18px + 14px + 18px + 1px border.
+    border: 1px solid #E2DDD6;
+    border-right: none;
+    border-radius: 8px 0 0 8px;
+    background: #FFFFFF;
+    color: #A09B96;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+    transition: right $smgp-transition-base;
+
+    &:hover {
+      background: #F0EDE8;
+      color: #1A1814;
+    }
+
+    .smgp-course-page--sidebar-collapsed & {
+      right: 0;
+    }
+  }
+}
+
+// ===== Section =====
+.smgp-course-section {
+  border-bottom: 1px solid var(--smgp-border, $smgp-border);
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: $smgp-space-sm;
+    width: 100%;
+    padding: $smgp-space-md $smgp-space-lg;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    text-align: left;
+    transition: background $smgp-transition-fast;
+
+    &:hover {
+      background: var(--smgp-gray-50, $smgp-gray-50);
+    }
+  }
+
+  &__chevron {
+    font-size: $smgp-font-sm;
+    color: var(--smgp-text-secondary, $smgp-text-secondary);
+    transition: transform $smgp-transition-fast;
+    flex-shrink: 0;
+  }
+
+  &--expanded .smgp-course-section__chevron {
+    transform: rotate(90deg);
+  }
+
+  .smgp-section-progress-ring {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    transform: rotate(-90deg);
+
+    &__bg {
+      stroke: var(--smgp-gray-200, $smgp-gray-200);
+    }
+
+    &__fill {
+      stroke: var(--smgp-primary, $smgp-primary);
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.4s ease;
+    }
+  }
+
+  &__name {
+    flex: 1;
+    font-size: $smgp-font-sm;
+    font-weight: 500;
+    color: var(--smgp-text, $smgp-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+
+  &__count {
+    font-size: $smgp-font-xs;
+    color: var(--smgp-text-secondary, $smgp-text-secondary);
+    flex-shrink: 0;
+  }
+
+  &__activities {
+    display: none;
+  }
+
+  &--expanded .smgp-course-section__activities {
+    display: block;
+  }
+}
+
+// ===== Activity Item =====
+// ===== Sidebar Activity Item (flat list — matching dump.html) =====
+.smgp-course-activity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  border-bottom: 1px solid #E2DDD6;
+  cursor: pointer;
+  transition: background 0.12s;
+  border-left: 3px solid transparent;
+
+  &:hover {
+    background: #F0EDE8;
+  }
+
+  &--active {
+    background: #FEF3C7;
+    border-left-color: #B45309;
+  }
+
+  &--complete {
+    .smgp-course-activity__name {
+      color: #6B6660;
+    }
+  }
+
+  &--just-completed {
+    animation: smgp-completion-flash 0.6s ease;
+  }
+
+  // Icon box (colored square with activity icon).
+  &__icon-box {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 14px;
+    background: #EEF2FF;
+    color: #1B4FD8;
+  }
+
+  // Text block (name + duration).
+  &__text {
+    flex: 1;
+    min-width: 0;
+
+    p {
+      font-size: 13px;
+      color: #1A1814;
+      line-height: 1.3;
+      margin: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  &__duration {
+    font-size: 11px;
+    color: #A09B96;
+  }
+
+  // Completion indicator (ring or check).
+  &__completion {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+  }
+
+  &__check {
+    color: #0F7B5C;
+    font-size: 16px;
+  }
+
+  // Per-activity progress ring (SVG — preserved).
+  .smgp-activity-ring {
+    width: 16px;
+    height: 16px;
+    transform: rotate(-90deg);
+
+    &__bg {
+      stroke: #E2DDD6;
+    }
+
+    &__fill {
+      stroke: #1B4FD8;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.4s ease;
+    }
+  }
+
+  // Legacy selectors kept for JS compatibility.
+  &__icon {
+    flex-shrink: 0;
+    font-size: $smgp-font-sm;
+    color: var(--smgp-text-secondary, $smgp-text-secondary);
+  }
+
+  &__name {
+    flex: 1;
+    font-size: 13px;
+    color: var(--smgp-text, $smgp-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+
+  &__type {
+    display: none;
+  }
+}
+
+// ===== Mobile Responsive =====
+@media (max-width: $smgp-bp-lg) {
+  .smgp-course-body {
+    flex-direction: column;
+  }
+
+  .smgp-course-sidebar {
+    width: 100%;
+    max-height: 50vh;
+    border-left: none;
+    border-top: 1px solid var(--smgp-border, $smgp-border);
+
+    &--collapsed {
+      max-height: 0;
+    }
+  }
+
+  .smgp-course-sidebar__toggle {
+    position: relative;
+    right: auto;
+    top: auto;
+    transform: none;
+    width: 100%;
+    height: 32px;
+    border-radius: 0;
+    border: none;
+    border-top: 1px solid var(--smgp-border, $smgp-border);
+
+    i {
+      transform: rotate(90deg);
+    }
+
+    .smgp-course-page--sidebar-collapsed & i {
+      transform: rotate(-90deg);
+    }
+  }
+
+}
+
+@media (max-width: $smgp-bp-sm) {
+  .smgp-course-tabs__tab {
+    padding: $smgp-space-xs $smgp-space-sm;
+    font-size: $smgp-font-xs;
+  }
+
+  .smgp-course-activity {
+    padding-left: $smgp-space-lg;
+  }
+
+  .smgp-grades-table__bar-cell {
+    display: none;
+  }
+}
+
+// Genially iframe — responsive.
+.smgp-course-content__iframe--genially {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+}
+
+// Responsive iframe zoom — scales activity content based on viewport width.
+.smgp-course-content__iframe {
+  --iframe-zoom: 1.10;
+
+  @media (min-width: 1800px) { --iframe-zoom: 1.30; }
+  @media (min-width: 1600px) and (max-width: 1799px) { --iframe-zoom: 1.20; }
+  @media (min-width: 900px) and (max-width: 1199px) { --iframe-zoom: 1.05; }
+  @media (max-width: 899px) { --iframe-zoom: 1.0; }
+
+  width: calc(100% / var(--iframe-zoom));
+  height: calc(100% / var(--iframe-zoom));
+  transform: scale(var(--iframe-zoom));
+  transform-origin: top left;
+}
+
+// FOUC fix — hidden until JS swaps content.
+body.smgp-course-player #region-main:not(.smgp-course-page-ready) {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+body.smgp-course-player #page-header,
+body.smgp-course-player .secondary-navigation {
+  display: none !important;
+}
+
+// ===== Course Player — Moodle wrapper overrides =====
+
+// Restore margin-top that Moodle's m-0 utility kills.
+body.smgp-course-player #page.drawers {
+  margin-top: 10px !important;
+}
+
+body.smgp-course-player #topofscroll {
+  padding-top: 0 !important;
+  padding-right: 0 !important;
+  padding-bottom: 0 !important;
+  margin-right: 0 !important;
+  margin-bottom: 0 !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+
+body.smgp-course-player #region-main {
+  padding: 0 !important;
+  margin-top: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+body.smgp-course-player #region-main > .card,
+body.smgp-course-player #region-main.card {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+// Full-width: remove all padding/margins so the course page fills edge-to-edge.
+body.smgp-course-player {
+  #page-wrapper {
+    overflow-x: hidden;
+    background: #FFFFFF !important; // Sidebar white extends to edge.
+  }
+
+  #page,
+  #page.container-fluid {
+    margin-left: $smgp-space-md !important;
+  }
+
+  #page,
+  #page.container-fluid {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  #page-content {
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+  }
+
+  #page-content.row {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  #region-main-box {
+    padding: 0 !important;
+    max-width: 100% !important;
+    flex: 0 0 100% !important;
+    background: transparent !important;
+  }
+
+  #region-main {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+}
+
+
+// ===== Embed Mode (iframed activity pages) =====
+body.smgp-embedded {
+  .navbar,
+  #page-header,
+  .drawer-left,
+  .drawer-right,
+  .drawer-toggles,
+  .drawer,
+  [data-region="drawer"],
+  #page-footer,
+  footer,
+  .smgp-custom-header,
+  .smgp-custom-sidebar,
+  .smgp-header,
+  .smgp-sidebar,
+  .smgp-sidebar__overlay,
+  #nav-drawer,
+  .breadcrumb-nav,
+  nav[aria-label="Navigation bar"],
+  .secondary-navigation,
+  .activity-navigation,
+  .activity-header .moremenu,
+  .smgp-focus-bar,
+  .smgp-course-focus-btn,
+  .smgp-focus-mode-btn,
+  #smgp-comments-source,
+  #smgp-comments-container {
+    display: none !important;
+  }
+
+  #page,
+  #page.drawers,
+  #page.drawers.drag-container {
+    display: block !important;
+    grid-template-columns: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  #topofscroll,
+  #page-content {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  #region-main {
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 1rem !important;
+    margin: 0 auto !important;
+    max-width: 960px !important;
+    background: var(--smgp-bg, $smgp-bg) !important;
+    color: var(--smgp-text, $smgp-text) !important;
+  }
+
+  // Ensure embedded body background matches the content area.
+  background: var(--smgp-bg, $smgp-bg) !important;
+
+  // Hide Moodle completion condition tags ("Hecho: Ver", etc.)
+  .activity-information,
+  .automatic-completion-conditions,
+  .completionrequirements,
+  .completion-info,
+  [data-region="completion-info"],
+  [data-region="completionrequirements"],
+  [data-region="activity-information"] {
+    display: none !important;
+  }
+
+  // Maximize content width inside embedded activities.
+  .container-fluid,
+  #page-content,
+  [role="main"] {
+    max-width: 100% !important;
+  }
+}

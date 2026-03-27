@@ -1,0 +1,18 @@
+//
+// SmartMind — Footer Overrides
+//
+// Base files: _layout.scss (footer section), _sticky-footer.scss (103 lines)
+// Template: templates/footer.mustache
+//
+
+// Page Footer
+#page-footer {}
+
+// Sticky Footer (edit mode toggle bar)
+.stickyfooter {}
+#sticky-footer {}
+.hasstickyfooter .stickyfooter {}
+.stickyfooter .btn {}
+
+// Footer Links & Content
+#page-footer a {}

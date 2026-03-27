@@ -1,0 +1,125 @@
+{{!
+    @template theme_smartmind/smartmind/main_content
+
+    SmartMind — Main content area.
+
+    This template renders the main content region where Moodle
+    injects page-specific content (blocks, course content, etc.).
+
+    {{{ output.main_content \}\}\} is REQUIRED — do not remove it.
+    Add custom HTML before or after it as needed.
+}}
+<div id="page-content" class="pb-3 d-print-block">
+    <div id="region-main-box">
+        {{#hasregionmainsettingsmenu}}
+        <div id="region-main-settings-menu" class="d-print-none">
+            <div> {{{ regionmainsettingsmenu }}}</div>
+        </div>
+        {{/hasregionmainsettingsmenu}}
+        <div id="region-main">
+
+            {{#hasregionmainsettingsmenu}}
+                <div class="region_main_settings_menu_proxy"></div>
+            {{/hasregionmainsettingsmenu}}
+            {{{ output.course_content_header }}}
+            {{#headercontent}}
+                {{> core/activity_header }}
+            {{/headercontent}}
+            {{#overflow}}
+                <div class="container-fluid tertiary-navigation">
+                    <div class="navitem">
+                        {{> core/url_select}}
+                    </div>
+                </div>
+            {{/overflow}}
+
+            {{#iscourseall}}
+            <div class="section course-section main clearfix smartmind-continue-learning">
+                <div class="section-item">
+                    <div class="course-section-header d-flex">
+                        <h3 class="h4 sectionname course-content-item d-flex align-self-stretch align-items-center mb-0">
+                            {{#str}}continuelearning, theme_smartmind{{/str}}
+                        </h3>
+                    </div>
+                    <div class="content text-muted py-3">
+                        {{#str}}continuelearning_placeholder, theme_smartmind{{/str}}
+                    </div>
+                </div>
+            </div>
+            {{/iscourseall}}
+            {{#isfrontpage}}
+                {{! ---- CATALOGUE HEADER ---- }}
+                <div class="smartmind-catalogue-header mb-4">
+                    <span class="smartmind-catalogue-header__eyebrow">{{#str}}catalogue_eyebrow, theme_smartmind{{/str}}</span>
+                    <h1 class="smartmind-catalogue-header__title">{{#str}}coursecatalogue, theme_smartmind{{/str}}</h1>
+                    <p class="smartmind-catalogue-header__desc">{{#str}}catalogue_desc, theme_smartmind{{/str}}</p>
+                </div>
+
+                {{! ---- SEARCH + CATEGORY BADGES ---- }}
+                <div class="smartmind-catalogue-filters mb-4" data-region="smartmind-filters">
+                    <div class="smartmind-catalogue-filters__search">
+                        {{< core/search_input_auto }}
+                            {{$label}}{{#str}}catalogue_search, theme_smartmind{{/str}}{{/label}}
+                            {{$placeholder}}{{#str}}catalogue_search_placeholder, theme_smartmind{{/str}}{{/placeholder}}
+                        {{/ core/search_input_auto }}
+                    </div>
+                    <div class="smartmind-catalogue-filters__badges" data-region="smartmind-category-badges">
+                        <button class="smartmind-badge smartmind-badge--active" data-categoryid="all">{{#str}}catalogue_all, theme_smartmind{{/str}}</button>
+                        {{#coursecategories}}
+                        <button class="smartmind-badge" data-categoryid="{{id}}">{{name}}</button>
+                        {{/coursecategories}}
+                    </div>
+                </div>
+
+                {{! ---- COURSE CARDS GRID ---- }}
+                {{#hasallcourses}}
+                <div class="smartmind-frontpage-courses" data-region="smartmind-catalogue">
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4" data-region="smartmind-catalogue-grid">
+                        {{#allcourses}}
+                            {{> theme_smartmind/catalogue_card }}
+                        {{/allcourses}}
+                    </div>
+                </div>
+                {{/hasallcourses}}
+                <div class="d-none">{{{ output.main_content }}}</div>
+            {{/isfrontpage}}
+            {{^isfrontpage}}
+                {{#isdashboard}}
+                    <div class="d-none">{{{ output.main_content }}}</div>
+                {{/isdashboard}}
+                {{^isdashboard}}
+                    {{{ output.main_content }}}
+                {{/isdashboard}}
+            {{/isfrontpage}}
+            {{#isdashboard}}
+            <div class="catalog-dashboard">
+
+                {{! ---- WELCOME HEADER ---- }}
+                <div class="catalog-dashboard__header">
+                    <h4 class="catalog-dashboard__title">{{#str}}dashboard_welcome, theme_smartmind, {{{userfullname}}}{{/str}}</h4>
+                    {{#hasenrolledcourses}}
+                    <p class="catalog-dashboard__subtitle">{{#str}}dashboard_subtitle, theme_smartmind, {{{enrolledcount}}}{{/str}}</p>
+                    {{/hasenrolledcourses}}
+                </div>
+
+                {{! ---- STATS ROW ---- }}
+                {{> theme_smartmind/dashboard/dashboard_stats }}
+
+                {{! ---- COURSE CATALOG SECTIONS ---- }}
+                <div class="catalog-dashboard__sections">
+                    {{! Enrolled = "Continúa aprendiendo" (streaming-style continue watching) }}
+                    {{> theme_smartmind/dashboard/dashboard_enrolled_courses }}
+                    {{> theme_smartmind/dashboard/dashboard_recommended_courses }}
+                    {{> theme_smartmind/dashboard/dashboard_viewed_courses }}
+                    {{> theme_smartmind/dashboard/dashboard_completed_courses }}
+                </div>
+
+            </div>
+            {{/isdashboard}}
+            {{{ output.activity_navigation }}}
+            {{{ output.course_content_footer }}}
+
+        </div>
+    </div>
+</div>
+

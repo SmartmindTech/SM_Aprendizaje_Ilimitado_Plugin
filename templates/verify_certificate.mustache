@@ -1,0 +1,83 @@
+{{!
+    Public certificate verification page.
+
+    @package    local_sm_graphics_plugin
+    @copyright  2026 SmartMind Technologies
+    @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+}}
+<div class="smgp-login-page">
+    <div class="smgp-login-card smgp-verify-card">
+
+        <div class="smgp-login-branding">
+            <h1 class="smgp-login-title">{{#str}}verify_heading, local_sm_graphics_plugin{{/str}}</h1>
+        </div>
+
+        {{! Search form }}
+        <form action="{{verifyurl}}" method="get" class="smgp-verify-form">
+            <div class="smgp-input-group mb-3">
+                <i class="icon-search"></i>
+                <input type="text" name="code" id="verify-code" value="{{code}}"
+                       class="form-control form-control-lg"
+                       placeholder="{{#str}}verify_placeholder, local_sm_graphics_plugin{{/str}}"
+                       autocomplete="off" maxlength="10">
+            </div>
+            <div class="smgp-verify-submit mb-3">
+                <button type="submit" class="btn btn-primary btn-lg w-100">
+                    <i class="icon-badge-check"></i>
+                    {{#str}}verify_button, local_sm_graphics_plugin{{/str}}
+                </button>
+            </div>
+        </form>
+
+        {{! Success result }}
+        {{#found}}
+        <div class="smgp-verify-result smgp-verify-result--success">
+            <div class="smgp-verify-check">
+                <i class="icon-check-circle"></i>
+            </div>
+            <p class="smgp-verify-success-text">{{#str}}verify_success, local_sm_graphics_plugin{{/str}}</p>
+
+            <div class="smgp-verify-details">
+                <div class="smgp-verify-row">
+                    <span class="smgp-verify-label">{{#str}}verify_student, local_sm_graphics_plugin{{/str}}</span>
+                    <span class="smgp-verify-value">{{studentname}}</span>
+                </div>
+                <div class="smgp-verify-row">
+                    <span class="smgp-verify-label">{{#str}}verify_course, local_sm_graphics_plugin{{/str}}</span>
+                    <span class="smgp-verify-value">{{coursename}}</span>
+                </div>
+                <div class="smgp-verify-row">
+                    <span class="smgp-verify-label">{{#str}}verify_date, local_sm_graphics_plugin{{/str}}</span>
+                    <span class="smgp-verify-value">{{completiondate}}</span>
+                </div>
+                {{#hascompany}}
+                <div class="smgp-verify-row">
+                    <span class="smgp-verify-label">{{#str}}verify_company, local_sm_graphics_plugin{{/str}}</span>
+                    <span class="smgp-verify-value">{{companyname}}</span>
+                </div>
+                {{/hascompany}}
+                <div class="smgp-verify-row">
+                    <span class="smgp-verify-label">{{#str}}verify_code, local_sm_graphics_plugin{{/str}}</span>
+                    <span class="smgp-verify-value smgp-verify-value--code">{{code}}</span>
+                </div>
+            </div>
+        </div>
+        {{/found}}
+
+        {{! Error result }}
+        {{#error}}
+        <div class="smgp-verify-result smgp-verify-result--error">
+            <i class="icon-circle-x"></i>
+            <p>{{#str}}verify_notfound, local_sm_graphics_plugin{{/str}}</p>
+        </div>
+        {{/error}}
+
+        {{! Back to login }}
+        <div class="smgp-verify-back">
+            <a href="{{wwwroot}}/login/index.php">
+                <i class="icon-arrow-left"></i>
+                {{#str}}verify_back_login, local_sm_graphics_plugin{{/str}}
+            </a>
+        </div>
+    </div>
+</div>

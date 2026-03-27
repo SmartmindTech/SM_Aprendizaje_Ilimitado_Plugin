@@ -1,0 +1,53 @@
+//
+// SmartMind — Calendar Overrides
+//
+// Base file: scss/moodle/_calendar.scss (752 lines)
+// Template override: templates/calendar/calendar_mini.mustache
+//
+
+// Calendar Event Type Colours
+.calendar_event_category {}
+.calendar_event_course {}
+.calendar_event_site {}
+.calendar_event_group {}
+.calendar_event_user {}
+.calendar_event_other {}
+
+// Calendar Table
+.calendartable {}
+.calendartable td {}
+.calendartable td.today {}
+
+// Calendar Controls (month navigation)
+.calendar-controls {}
+
+// Main Calendar (full page: /calendar/view.php)
+#region-main .maincalendar {}
+.maincalendar .calendarmonth {}
+.maincalendar .header {}
+.maincalendar .eventlist {}
+
+// Calendar in Blocks
+.block .minicalendar {}
+.block .minicalendar td.today {}
+
+// Calendar Block in Course View
+.path-course-view .block.block_calendar_month {}
+
+// Calendar Wrapper (JS-driven)
+.calendarwrapper {}
+
+// Event Popovers
+.day-popover-content {}
+.location-content {}
+.description-content {}
+
+// ========================================
+// ACTIVE OVERRIDES
+// ========================================
+
+// Hide calendar on the front page
+// body.pagelayout-frontpage .maincalendar { display: none !important; }
+
+// Hide calendar block on the dashboard
+// body.pagelayout-mydashboard .block_calendar_month { display: none !important; }
