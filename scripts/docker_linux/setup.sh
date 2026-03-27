@@ -1,7 +1,7 @@
 #!/bin/bash
 # SmartMind Plugin — Development Setup (Docker + Linux/WSL/Mac)
 #
-# Copies plugin + theme into the Docker container and runs upgrade.
+# Deploys plugin + theme into the Docker container and runs upgrade.
 #
 # Prerequisites:
 #   1. Copy .env.example to .env and set DOCKER_CONTAINER
@@ -31,14 +31,6 @@ fi
 
 DOCKER_CMD="docker"
 MOODLE_ROOT="/var/www/html"
-
-# --- Initialize submodule and pull latest ---
-echo "Initializing theme submodule..."
-git -C "$REPO" submodule init
-git -C "$REPO" submodule update
-git -C "$REPO/theme_smartmind" checkout dev
-echo "Pulling latest theme..."
-git -C "$REPO/theme_smartmind" pull origin dev
 
 # --- Copy plugin to container ---
 echo ""

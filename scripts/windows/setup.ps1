@@ -1,6 +1,6 @@
-# SmartMind Plugin - Development Setup (PowerShell)
+# SmartMind Plugin — Development Setup (PowerShell)
 #
-# Copies plugin + theme to Moodle and runs upgrade.
+# Deploys plugin + theme to Moodle and runs upgrade.
 #
 # Prerequisites:
 #   1. Copy .env.example to .env and set MOODLE_PATH
@@ -40,14 +40,7 @@ if (-not (Test-Path (Join-Path $MOODLE_PATH "admin"))) {
 $PLUGIN_DEST = Join-Path $MOODLE_PATH "local\sm_graphics_plugin"
 $THEME_DEST = Join-Path $MOODLE_PATH "theme\smartmind"
 
-# --- Initialize submodule and pull latest ---
-Write-Host "Initializing theme submodule..."
-git -C $REPO submodule init
-git -C $REPO submodule update
 $themeDir = Join-Path $REPO "theme_smartmind"
-git -C $themeDir checkout dev
-Write-Host "Pulling latest theme..."
-git -C $themeDir pull origin dev
 
 # --- Copy plugin files ---
 Write-Host ""

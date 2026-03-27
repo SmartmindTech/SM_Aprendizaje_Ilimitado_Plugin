@@ -1,6 +1,6 @@
-# SmartMind Plugin - Development Setup (Docker + Windows PowerShell)
+# SmartMind Plugin — Development Setup (Docker + Windows PowerShell)
 #
-# Copies plugin + theme into the Docker container and runs upgrade.
+# Deploys plugin + theme into the Docker container and runs upgrade.
 #
 # Prerequisites:
 #   1. Copy .env.example to .env and set DOCKER_CONTAINER
@@ -32,14 +32,7 @@ if (-not $DOCKER_CONTAINER) {
     exit 1
 }
 
-# --- Initialize submodule and pull latest ---
-Write-Host "Initializing theme submodule..."
-git -C $REPO submodule init
-git -C $REPO submodule update
 $themeDir = Join-Path $REPO "theme_smartmind"
-git -C $themeDir checkout dev
-Write-Host "Pulling latest theme..."
-git -C $themeDir pull origin dev
 
 # --- Copy plugin to container ---
 Write-Host ""
