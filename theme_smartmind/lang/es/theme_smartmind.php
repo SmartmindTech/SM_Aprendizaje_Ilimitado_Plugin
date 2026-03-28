@@ -114,3 +114,6 @@ $string['stat_enrolled'] = 'Cursos matriculados';
 $string['stat_completed'] = 'Completados';
 $string['stat_hours'] = 'Horas de formación';
 $string['stat_certs'] = 'Certificados';
+
+// Company selector.
+$string['select_company'] = 'Seleccionar Empresa';

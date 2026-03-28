@@ -80,6 +80,8 @@ $templatecontext = [
     'headercontent' => $headercontent,
     'overflow' => $overflow,
     'addblockbutton' => $addblockbutton,
+    'companyselector' => theme_smartmind_get_company_selector(),
+    'hascompanyselector' => !empty(theme_smartmind_get_company_selector()),
 ];
 
 echo $OUTPUT->render_from_template('theme_smartmind/columns2', $templatecontext);

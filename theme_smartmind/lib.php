@@ -25,6 +25,73 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
+ * Build the IOMAD company selector HTML for the top navbar.
+ *
+ * @return string HTML for the company selector dropdown, or empty string.
+ */
+function theme_smartmind_get_company_selector(): string {
+    global $CFG, $USER, $SESSION;
+
+    if (!isloggedin() || isguestuser()) {
+        return '';
+    }
+    if (!file_exists($CFG->dirroot . '/local/iomad/lib/company.php')) {
+        return '';
+    }
+
+    require_once($CFG->dirroot . '/local/iomad/lib/company.php');
+
+    $syscontext = context_system::instance();
+    if (!iomad::has_capability('block/iomad_company_admin:company_add', $syscontext)) {
+        return '';
+    }
+
+    $selectedcompany = '';
+    if (!empty($SESSION->currenteditingcompany)) {
+        $selectedcompany = $SESSION->currenteditingcompany;
+    } else if (!empty($USER->profile->company)) {
+        try {
+            $usercompany = company::by_userid($USER->id);
+            $selectedcompany = $usercompany->id;
+        } catch (\Exception $e) {
+            // User has no company.
+        }
+    }
+
+    $companylist = company::get_companies_select();
+    if (empty($companylist)) {
+        return '';
+    }
+
+    // Get current company name.
+    $currentname = get_string('select_company', 'theme_smartmind');
+    if (!empty($selectedcompany) && isset($companylist[$selectedcompany])) {
+        $currentname = $companylist[$selectedcompany];
+    }
+
+    // Build a custom dropdown (no ugly select box).
+    $actionurl = $CFG->wwwroot . '/blocks/iomad_company_admin/index.php';
+    $html = '<div class="smgp-company-dropdown position-relative" tabindex="-1"'
+        . ' onfocusout="var self=this;setTimeout(function(){if(!self.contains(document.activeElement)){document.getElementById(\'smgp-company-menu\').classList.remove(\'show\');document.getElementById(\'smgp-company-toggle\').setAttribute(\'aria-expanded\',\'false\');}},100);">';
+    $html .= '<button type="button" class="smgp-company-dropdown__toggle" id="smgp-company-toggle"'
+        . ' aria-expanded="false"'
+        . ' onclick="var m=document.getElementById(\'smgp-company-menu\');var o=m.classList.toggle(\'show\');this.setAttribute(\'aria-expanded\',o);">'
+        . '<span class="smgp-company-dropdown__name">' . s($currentname) . '</span>'
+        . ' <i class="icon-chevron-down" style="font-size:0.75em;"></i>'
+        . '</button>';
+    $html .= '<div class="smgp-company-dropdown__menu" id="smgp-company-menu">';
+    foreach ($companylist as $cid => $cname) {
+        $active = ($cid == $selectedcompany) ? ' smgp-company-dropdown__item--active' : '';
+        $html .= '<a href="' . $actionurl . '?company=' . $cid . '"'
+            . ' class="smgp-company-dropdown__item' . $active . '">'
+            . s($cname) . '</a>';
+    }
+    $html .= '</div></div>';
+
+    return $html;
+}
+
+/**
  * Post process the CSS tree.
  *
  * @param string $tree The CSS tree.

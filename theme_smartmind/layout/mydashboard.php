@@ -188,6 +188,8 @@ $templatecontext = [
     'recommendedcourses' => $recommendedcourses,
     'hasrecommendedcourses' => !empty($recommendedcourses),
     'recommendedcoursesscrollable' => count($recommendedcourses) > 3,
+    'companyselector' => theme_smartmind_get_company_selector(),
+    'hascompanyselector' => !empty(theme_smartmind_get_company_selector()),
 ];
 
 echo $OUTPUT->render_from_template('theme_smartmind/mydashboard', $templatecontext);
