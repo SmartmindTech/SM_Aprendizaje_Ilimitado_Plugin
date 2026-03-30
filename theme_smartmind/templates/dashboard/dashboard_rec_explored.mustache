@@ -1,0 +1,24 @@
+{{!
+    @template theme_smartmind/dashboard/dashboard_rec_explored
+
+    SmartMind Dashboard — Recommended based on explored/browsed courses.
+    Horizontal scrollable row of course cards.
+}}
+{{#hasrecexplored}}
+<div class="catalog-section catalog-section--rec-explored">
+    <div class="catalog-section__header">
+        <div>
+            <h5 class="catalog-section__title"><i class="fas fa-compass catalog-section__icon catalog-section__icon--purple"></i> {{#str}}dashboard_rec_explored, theme_smartmind{{/str}}</h5>
+            <p class="catalog-section__desc">{{#str}}dashboard_rec_explored_desc, theme_smartmind{{/str}}</p>
+        </div>
+        <a href="#" class="catalog-section__viewall">{{#str}}dashboard_viewall, theme_smartmind{{/str}}</a>
+    </div>
+    <div class="catalog-section__content">
+        <div class="dashboard-section-grid dashboard-section-grid--4">
+            {{#recexplored}}
+                {{> theme_smartmind/dashboard/dashboard_course_card }}
+            {{/recexplored}}
+        </div>
+    </div>
+</div>
+{{/hasrecexplored}}

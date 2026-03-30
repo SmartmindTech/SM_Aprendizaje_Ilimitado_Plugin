@@ -1,0 +1,36 @@
+{{!
+    @template theme_smartmind/dashboard/dashboard_videos
+
+    SmartMind Dashboard — Video content section.
+    White bg cards with play overlay, duration badge, and author.
+}}
+{{#hasfakevideos}}
+<div class="catalog-section catalog-section--videos">
+    <div class="catalog-section__header">
+        <div>
+            <h5 class="catalog-section__title"><i class="fas fa-video catalog-section__icon catalog-section__icon--green"></i> {{#str}}dashboard_videos, theme_smartmind{{/str}}</h5>
+            <p class="catalog-section__desc">{{#str}}dashboard_videos_desc, theme_smartmind{{/str}}</p>
+        </div>
+        <a href="#" class="catalog-section__viewall">{{#str}}dashboard_viewall, theme_smartmind{{/str}}</a>
+    </div>
+    <div class="catalog-section__content">
+        <div class="dashboard-section-grid dashboard-section-grid--4">
+            {{#fakevideos}}
+            <article class="video-card">
+                <a href="{{url}}" class="video-card__thumb">
+                    <img src="{{image}}" class="video-card__img" alt="{{title}}" loading="lazy">
+                    <div class="video-card__diffuse"></div>
+                    <span class="video-card__duration"><i class="fa fa-clock-o"></i> {{duration}} min</span>
+                    <span class="video-card__play"><i class="fa fa-play"></i></span>
+                </a>
+                <div class="video-card__body">
+                    <span class="video-card__tag">{{categoryname}}</span>
+                    <h3 class="video-card__title"><a href="{{url}}">{{title}}</a></h3>
+                    <span class="video-card__author">{{author}}</span>
+                </div>
+            </article>
+            {{/fakevideos}}
+        </div>
+    </div>
+</div>
+{{/hasfakevideos}}

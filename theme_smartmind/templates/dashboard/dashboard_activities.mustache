@@ -1,0 +1,35 @@
+{{!
+    @template theme_smartmind/dashboard/dashboard_activities
+
+    SmartMind Dashboard — Activities/exercises section.
+    White bg cards with activity type badge and duration.
+}}
+{{#hasfakeactivities}}
+<div class="catalog-section catalog-section--activities">
+    <div class="catalog-section__header">
+        <div>
+            <h5 class="catalog-section__title"><i class="fas fa-pen-to-square catalog-section__icon catalog-section__icon--green"></i> {{#str}}dashboard_activities, theme_smartmind{{/str}}</h5>
+            <p class="catalog-section__desc">{{#str}}dashboard_activities_desc, theme_smartmind{{/str}}</p>
+        </div>
+        <a href="#" class="catalog-section__viewall">{{#str}}dashboard_viewall, theme_smartmind{{/str}}</a>
+    </div>
+    <div class="catalog-section__content">
+        <div class="dashboard-section-grid dashboard-section-grid--4">
+            {{#fakeactivities}}
+            <article class="activity-card">
+                <a href="{{url}}" class="activity-card__thumb">
+                    <img src="{{image}}" class="activity-card__img" alt="{{title}}" loading="lazy">
+                    <div class="activity-card__diffuse"></div>
+                    <span class="activity-card__duration"><i class="fa fa-clock-o"></i> {{duration}} min</span>
+                </a>
+                <div class="activity-card__body">
+                    <span class="activity-card__type">{{type}}</span>
+                    <h3 class="activity-card__title"><a href="{{url}}">{{title}}</a></h3>
+                    <span class="activity-card__category">{{categoryname}}</span>
+                </div>
+            </article>
+            {{/fakeactivities}}
+        </div>
+    </div>
+</div>
+{{/hasfakeactivities}}

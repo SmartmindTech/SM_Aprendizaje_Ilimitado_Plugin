@@ -129,25 +129,35 @@
             {{#isdashboard}}
             <div class="catalog-dashboard">
 
-                {{! ---- WELCOME HEADER ---- }}
-                <div class="catalog-dashboard__header">
-                    <h4 class="catalog-dashboard__title">{{#str}}dashboard_welcome, theme_smartmind, {{{userfullname}}}{{/str}}</h4>
-                    {{#hasenrolledcourses}}
-                    <p class="catalog-dashboard__subtitle">{{#str}}dashboard_subtitle, theme_smartmind, {{{enrolledcount}}}{{/str}}</p>
-                    {{/hasenrolledcourses}}
-                </div>
+                {{! ---- WELCOME BANNER ---- }}
+                {{> theme_smartmind/dashboard/dashboard_welcome_banner }}
 
-                {{! ---- STATS ROW ---- }}
-                {{> theme_smartmind/dashboard/dashboard_stats }}
+                {{! ---- QUICK NAVIGATION ---- }}
+                {{> theme_smartmind/dashboard/dashboard_quick_nav }}
 
-                {{! ---- COURSE CATALOG SECTIONS ---- }}
-                <div class="catalog-dashboard__sections">
-                    {{! Enrolled = "Continúa aprendiendo" (streaming-style continue watching) }}
-                    {{> theme_smartmind/dashboard/dashboard_enrolled_courses }}
-                    {{> theme_smartmind/dashboard/dashboard_recommended_courses }}
-                    {{> theme_smartmind/dashboard/dashboard_viewed_courses }}
-                    {{> theme_smartmind/dashboard/dashboard_completed_courses }}
-                </div>
+                {{! ---- SEGUIR APRENDIENDO (enrolled courses grid) ---- }}
+                {{> theme_smartmind/dashboard/dashboard_enrolled_courses }}
+
+                {{! ---- PORQUE HAS EXPLORADO ---- }}
+                {{> theme_smartmind/dashboard/dashboard_rec_explored }}
+
+                {{! ---- CATEGORY SECTIONS (custom smgp categories) ---- }}
+                {{> theme_smartmind/dashboard/dashboard_category_section }}
+
+                {{! ---- SIGUE AVANZANDO (based on completed) ---- }}
+                {{> theme_smartmind/dashboard/dashboard_rec_completed }}
+
+                {{! ---- VÍDEOS ---- }}
+                {{> theme_smartmind/dashboard/dashboard_videos }}
+
+                {{! ---- ACTIVIDADES ---- }}
+                {{> theme_smartmind/dashboard/dashboard_activities }}
+
+                {{! ---- ITINERARIOS ---- }}
+                {{> theme_smartmind/dashboard/dashboard_itineraries }}
+
+                {{! ---- RECOMENDADO PARA TI ---- }}
+                {{> theme_smartmind/dashboard/dashboard_recommended_courses }}
 
             </div>
             {{/isdashboard}}

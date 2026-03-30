@@ -1,0 +1,35 @@
+{{!
+    @template theme_smartmind/dashboard/dashboard_welcome_banner
+
+    SmartMind Dashboard — Welcome banner with gradient background,
+    time-aware greeting, streak message, suggestion, and stat badges.
+
+    Context variables:
+      * greeting     - Time-aware greeting string
+      * streakdays   - Number of consecutive days
+      * xppoints     - XP points (formatted string)
+      * userlevel    - Current user level
+}}
+<div class="dashboard-banner">
+    <div class="dashboard-banner__blob"></div>
+    <div class="dashboard-banner__blob dashboard-banner__blob--2"></div>
+    <div class="dashboard-banner__content">
+        <h2 class="dashboard-banner__greeting"><span class="dashboard-banner__emoji">&#x1F44B;</span> {{greeting}}</h2>
+        <p class="dashboard-banner__streak">{{#str}}dashboard_streak_message, theme_smartmind, {{streakdays}}{{/str}} &#x1F525;</p>
+        <div class="dashboard-banner__suggestion">
+            <span class="dashboard-banner__suggestion-icon">&#x1F4A1;</span>
+            <span>{{#str}}dashboard_suggestion, theme_smartmind{{/str}} <a href="#" class="dashboard-banner__suggestion-link">{{#str}}dashboard_suggestion_link, theme_smartmind{{/str}}</a></span>
+        </div>
+        <div class="dashboard-banner__badges">
+            <span class="dashboard-banner__badge dashboard-banner__badge--streak">
+                &#x1F525; {{#str}}dashboard_stat_streak, theme_smartmind, {{streakdays}}{{/str}}
+            </span>
+            <span class="dashboard-banner__badge dashboard-banner__badge--xp">
+                &#x26A1; {{#str}}dashboard_stat_xp, theme_smartmind, {{xppoints}}{{/str}}
+            </span>
+            <span class="dashboard-banner__badge dashboard-banner__badge--level">
+                &#x1F4CA; {{#str}}dashboard_stat_level, theme_smartmind, {{userlevel}}{{/str}}
+            </span>
+        </div>
+    </div>
+</div>

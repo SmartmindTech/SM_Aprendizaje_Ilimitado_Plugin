@@ -107,9 +107,10 @@ class dashboard_helper {
 
             $base = self::build_course_base($course, true);
 
-            // Course progress percentage.
+            // Course progress percentage — cast to string so Mustache renders "0".
             $progress = \core_completion\progress::get_course_progress_percentage($course, $USER->id);
-            $base['progress'] = ($progress !== null) ? round($progress) : 0;
+            $pct = ($progress !== null) ? (int) round($progress) : 0;
+            $base['progress'] = (string) $pct;
             $base['hasprogress'] = true;
 
             // Resume URL — enters the course player directly.
@@ -251,20 +252,169 @@ class dashboard_helper {
     }
 
     /**
-     * Return fake recommended courses for development/testing.
+     * Fetch SmartMind custom catalogue categories (local_smgp_categories)
+     * with their linked courses for the dashboard.
      *
+     * @param int $maxcategories Maximum number of categories to return.
+     * @param int $maxcourses    Maximum courses per category.
+     * @return array Array of [{categoryname, categoryid, image_src, courses, count}].
+     */
+    public static function get_category_sections(int $maxcategories = 6, int $maxcourses = 4): array {
+        global $DB, $CFG;
+
+        $categories = $DB->get_records('local_smgp_categories', null, 'sortorder ASC');
+        if (empty($categories)) {
+            return [];
+        }
+
+        // First pass: collect all categories that have visible courses.
+        $eligible = [];
+        foreach ($categories as $cat) {
+            $links = $DB->get_records('local_smgp_course_category', ['categoryid' => $cat->id], '', 'courseid');
+            if (empty($links)) {
+                continue;
+            }
+
+            $courseids = array_keys($links);
+            list($insql, $params) = $DB->get_in_or_equal($courseids, SQL_PARAMS_NAMED);
+            $courses = $DB->get_records_select('course', "id $insql AND visible = 1", $params, 'fullname ASC');
+
+            if (empty($courses)) {
+                continue;
+            }
+
+            $eligible[] = ['cat' => $cat, 'courses' => $courses];
+        }
+
+        // Pick random categories (up to $maxcategories).
+        if (count($eligible) > $maxcategories) {
+            $keys = array_rand($eligible, $maxcategories);
+            if (!is_array($keys)) {
+                $keys = [$keys];
+            }
+            $picked = [];
+            foreach ($keys as $k) {
+                $picked[] = $eligible[$k];
+            }
+            $eligible = $picked;
+        }
+
+        // Format the selected categories.
+        $sections = [];
+        foreach ($eligible as $entry) {
+            $cat = $entry['cat'];
+            $courses = $entry['courses'];
+
+            $totalcount = count($courses);
+            $formatted = [];
+            $count = 0;
+            foreach ($courses as $course) {
+                if ($count >= $maxcourses) {
+                    break;
+                }
+                $formatted[] = self::build_course_base($course, false);
+                $count++;
+            }
+
+            // Resolve category image.
+            $imagesrc = '';
+            if (!empty($cat->image_url)) {
+                foreach (['jpg', 'jpeg', 'png', 'webp'] as $ext) {
+                    $path = $CFG->dirroot . '/theme/smartmind/pix/categories/' . $cat->image_url . '.' . $ext;
+                    if (file_exists($path)) {
+                        $imagesrc = $CFG->wwwroot . '/theme/smartmind/pix/categories/' . $cat->image_url . '.' . $ext;
+                        break;
+                    }
+                }
+            }
+
+            $sections[] = [
+                'categoryname' => format_string($cat->name),
+                'categoryid'   => (int) $cat->id,
+                'image_src'    => $imagesrc,
+                'courses'      => $formatted,
+                'count'        => $totalcount,
+            ];
+        }
+
+        return $sections;
+    }
+
+    /**
+     * Return fake recommended courses for development/testing.
      * @return array
      */
     public static function get_fake_recommended_courses(): array {
-        // Placeholder images from picsum.photos for development/testing.
         return [
-            self::fake_course(701, '[FALSO] Curso recomendado 1', 'Datos de prueba.', 42, 10, false, 'REC001', 'Digital', 'https://picsum.photos/seed/rec1/600/400'),
-            self::fake_course(702, '[FALSO] Curso recomendado 2', 'Datos de prueba.', 38, 8, false, 'REC002', 'Habilidades', 'https://picsum.photos/seed/rec2/600/400'),
-            self::fake_course(703, '[FALSO] Curso recomendado 3', 'Datos de prueba.', 27, 6, false, 'REC003', 'Legal', 'https://picsum.photos/seed/rec3/600/400'),
-            self::fake_course(704, '[FALSO] Curso recomendado 4', 'Datos de prueba.', 55, 5, false, 'REC004', 'Seguridad', 'https://picsum.photos/seed/rec4/600/400'),
-            self::fake_course(705, '[FALSO] Curso recomendado 5', 'Datos de prueba.', 19, 12, false, 'REC005', 'Digital', 'https://picsum.photos/seed/rec5/600/400'),
-            self::fake_course(706, '[FALSO] Curso recomendado 6', 'Datos de prueba.', 31, 7, false, 'REC006', 'Habilidades', 'https://picsum.photos/seed/rec6/600/400'),
-            self::fake_course(707, '[FALSO] Curso recomendado 7', 'Datos de prueba.', 23, 15, false, 'REC007', 'Legal', 'https://picsum.photos/seed/rec7/600/400'),
+            self::fake_course(701, '[FAKE] Diseño UX/UI: Metodologías Modernas', '', 42, 10, false, 'REC001', 'Diseño', 'https://picsum.photos/seed/rec1/600/400'),
+            self::fake_course(702, '[FAKE] Ciberseguridad Empresarial', '', 38, 8, false, 'REC002', 'Seguridad', 'https://picsum.photos/seed/rec2/600/400'),
+            self::fake_course(703, '[FAKE] Data Analytics con Power BI', '', 27, 6, false, 'REC003', 'Datos', 'https://picsum.photos/seed/rec3/600/400'),
+            self::fake_course(704, '[FAKE] Cloud Architecture con AWS', '', 55, 5, false, 'REC004', 'Cloud', 'https://picsum.photos/seed/rec4/600/400'),
+        ];
+    }
+
+    /**
+     * Fake: recommended based on explored/browsed courses.
+     * @return array
+     */
+    public static function get_fake_rec_explored(): array {
+        return [
+            self::fake_course(801, '[FAKE] 8 trucos de productividad con IA', '', 64, 4, false, 'EXP01', 'Productividad', 'https://picsum.photos/seed/exp1/600/400'),
+            self::fake_course(802, '[FAKE] Introducción a Prompt Engineering', '', 29, 6, false, 'EXP02', 'IA', 'https://picsum.photos/seed/exp2/600/400'),
+            self::fake_course(803, '[FAKE] Visualización de datos en 1 minuto', '', 15, 3, false, 'EXP03', 'Datos', 'https://picsum.photos/seed/exp3/600/400'),
+            self::fake_course(804, '[FAKE] ChatGPT para equipos de ventas', '', 73, 5, false, 'EXP04', 'IA', 'https://picsum.photos/seed/exp4/600/400'),
+        ];
+    }
+
+    /**
+     * Fake: recommended based on completed courses.
+     * @return array
+     */
+    public static function get_fake_rec_completed(): array {
+        return [
+            self::fake_course(811, '[FAKE] Liderazgo en entornos híbridos', '', 48, 8, false, 'CMP01', 'Liderazgo', 'https://picsum.photos/seed/cmp1/600/400'),
+            self::fake_course(812, '[FAKE] Negociación avanzada', '', 31, 6, false, 'CMP02', 'Habilidades', 'https://picsum.photos/seed/cmp2/600/400'),
+            self::fake_course(813, '[FAKE] Gestión del cambio organizacional', '', 22, 7, false, 'CMP03', 'Management', 'https://picsum.photos/seed/cmp3/600/400'),
+            self::fake_course(814, '[FAKE] Comunicación ejecutiva', '', 56, 5, false, 'CMP04', 'Comunicación', 'https://picsum.photos/seed/cmp4/600/400'),
+        ];
+    }
+
+    /**
+     * Fake: video content items.
+     * @return array
+     */
+    public static function get_fake_videos(): array {
+        return [
+            ['id' => 901, 'title' => '[FAKE] Cómo dar feedback efectivo en 2 min', 'duration' => 2, 'author' => 'María López', 'image' => 'https://picsum.photos/seed/vid1/600/340', 'url' => '#', 'categoryname' => 'Liderazgo'],
+            ['id' => 902, 'title' => '[FAKE] Las 5 claves del trabajo remoto', 'duration' => 4, 'author' => 'Carlos Ruiz', 'image' => 'https://picsum.photos/seed/vid2/600/340', 'url' => '#', 'categoryname' => 'Productividad'],
+            ['id' => 903, 'title' => '[FAKE] Excel: atajos que nadie te enseñó', 'duration' => 3, 'author' => 'Ana García', 'image' => 'https://picsum.photos/seed/vid3/600/340', 'url' => '#', 'categoryname' => 'Digital'],
+            ['id' => 904, 'title' => '[FAKE] Mindfulness en la oficina', 'duration' => 5, 'author' => 'Laura Sánchez', 'image' => 'https://picsum.photos/seed/vid4/600/340', 'url' => '#', 'categoryname' => 'Bienestar'],
+        ];
+    }
+
+    /**
+     * Fake: activity/exercise items.
+     * @return array
+     */
+    public static function get_fake_activities(): array {
+        return [
+            ['id' => 951, 'title' => '[FAKE] Quiz: ¿Conoces las normas RGPD?', 'type' => 'Quiz', 'duration' => 5, 'image' => 'https://picsum.photos/seed/act1/600/340', 'url' => '#', 'categoryname' => 'Legal'],
+            ['id' => 952, 'title' => '[FAKE] Caso práctico: Plan de comunicación', 'type' => 'Caso práctico', 'duration' => 15, 'image' => 'https://picsum.photos/seed/act2/600/340', 'url' => '#', 'categoryname' => 'Comunicación'],
+            ['id' => 953, 'title' => '[FAKE] Simulación: Negociación con clientes', 'type' => 'Simulación', 'duration' => 10, 'image' => 'https://picsum.photos/seed/act3/600/340', 'url' => '#', 'categoryname' => 'Ventas'],
+            ['id' => 954, 'title' => '[FAKE] Reto: Crea tu dashboard en Power BI', 'type' => 'Reto', 'duration' => 20, 'image' => 'https://picsum.photos/seed/act4/600/340', 'url' => '#', 'categoryname' => 'Datos'],
+        ];
+    }
+
+    /**
+     * Fake: learning itineraries (paths grouping multiple courses).
+     * @return array
+     */
+    public static function get_fake_itineraries(): array {
+        return [
+            ['id' => 1001, 'title' => '[FAKE] De cero a líder digital', 'coursecount' => 6, 'duration' => 45, 'image' => 'https://picsum.photos/seed/itn1/600/340', 'url' => '#', 'description' => 'Domina las herramientas digitales y lidera la transformación.'],
+            ['id' => 1002, 'title' => '[FAKE] Especialista en IA generativa', 'coursecount' => 4, 'duration' => 30, 'image' => 'https://picsum.photos/seed/itn2/600/340', 'url' => '#', 'description' => 'Aprende a usar IA en tu día a día profesional.'],
+            ['id' => 1003, 'title' => '[FAKE] Manager 360°', 'coursecount' => 8, 'duration' => 60, 'image' => 'https://picsum.photos/seed/itn3/600/340', 'url' => '#', 'description' => 'Liderazgo, comunicación, gestión de equipos y más.'],
+            ['id' => 1004, 'title' => '[FAKE] Data-Driven Business', 'coursecount' => 5, 'duration' => 35, 'image' => 'https://picsum.photos/seed/itn4/600/340', 'url' => '#', 'description' => 'Toma decisiones basadas en datos reales.'],
         ];
     }
 
