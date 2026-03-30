@@ -88,6 +88,7 @@ theme_smartmind_inject_student_nav($primarymenu, $companymanagernav, $PAGE);
 // Ensure only one nav item is active — custom items (sm-*) take priority.
 theme_smartmind_fix_active_nav($primarymenu);
 
+
 $buildregionmainsettings = !$PAGE->include_region_main_settings_in_header_actions() && !$PAGE->has_secondary_navigation();
 // If the settings menu will be included in the header then don't add it here.
 $regionmainsettingsmenu = $buildregionmainsettings ? $OUTPUT->region_main_settings_menu() : false;

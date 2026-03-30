@@ -57,10 +57,11 @@ section.block_timeline {
 // ═══════════════════════════════════════════════════════════════════
 .dashboard-banner {
     position: relative;
-    background: linear-gradient(135deg, #e6f0e4 0%, #ecf2e6 30%, #f4f3ee 70%, #f6f5f0 100%);
+    background: linear-gradient(to right, #f6f5f0 0%, #f6f5f0 40%, #e6f0e4 100%);
     border-radius: 20px;
     padding: 30px 34px 26px;
     overflow: hidden;
+    border: 1px solid lightgray;
 
     // Main blob — soft organic green shape on the right.
     &__blob {
