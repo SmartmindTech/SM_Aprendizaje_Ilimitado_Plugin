@@ -131,6 +131,11 @@
                 {{/hasblocks}}
             </div>
             {{> theme_smartmind/smartmind/page_header }}
+            {{#secondarymoremenu}}
+                <div class="secondary-navigation">
+                    {{> core/moremenu}}
+                </div>
+            {{/secondarymoremenu}}
             {{> theme_smartmind/smartmind/main_content }}
         </div>
         {{> theme_smartmind/footer }}
