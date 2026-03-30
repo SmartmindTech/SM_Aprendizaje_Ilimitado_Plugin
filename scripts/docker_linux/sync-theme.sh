@@ -34,6 +34,11 @@ if [ -d "$REPO/amd/src" ]; then
     done
 fi
 
+# --- Copy .env file into plugin dir (provides GEMINI_API_KEY etc. to PHP) ---
+if [ -f "$REPO/.env" ]; then
+    $DOCKER_CMD cp "$REPO/.env" "$DOCKER_CONTAINER:$MOODLE_ROOT/local/sm_graphics_plugin/.env"
+fi
+
 # --- Sync plugin files ---
 echo "Syncing plugin..."
 $DOCKER_CMD exec "$DOCKER_CONTAINER" mkdir -p "$MOODLE_ROOT/local/sm_graphics_plugin"

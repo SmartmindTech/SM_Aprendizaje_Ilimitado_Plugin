@@ -146,5 +146,38 @@
         <INDEX NAME="ix_courseid" UNIQUE="false" FIELDS="courseid"/>
       </INDEXES>
     </TABLE>
+    <TABLE NAME="local_smgp_learning_objectives" COMMENT="Learning objectives (bullet points) per course">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="FK to course.id"/>
+        <FIELD NAME="objective" TYPE="text" NOTNULL="true" COMMENT="Objective text"/>
+        <FIELD NAME="sortorder" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" COMMENT="Display order"/>
+        <FIELD NAME="lang" TYPE="char" LENGTH="10" NOTNULL="true" DEFAULT="es" COMMENT="Language code: en, es, pt_br"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="ix_courseid_lang_sort" UNIQUE="false" FIELDS="courseid, lang, sortorder"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_smgp_course_translations" COMMENT="Auto-translated course summaries per language">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="FK to course.id"/>
+        <FIELD NAME="lang" TYPE="char" LENGTH="10" NOTNULL="true" COMMENT="Language code: en, es, pt_br"/>
+        <FIELD NAME="summary" TYPE="text" NOTNULL="true" COMMENT="Translated course summary"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="courseid_lang_unique" UNIQUE="true" FIELDS="courseid, lang"/>
+      </INDEXES>
+    </TABLE>
   </TABLES>
 </XMLDB>

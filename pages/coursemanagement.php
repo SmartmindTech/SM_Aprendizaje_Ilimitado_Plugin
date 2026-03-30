@@ -59,8 +59,8 @@ $base      = '/blocks/iomad_company_admin';
 // Action cards.
 $options = [
     [
-        'url'         => (new moodle_url($base . '/company_courses_form.php'))->out(),
-        'icon'        => 'fa-plus-circle',
+        'url'         => (new moodle_url('/course/edit.php'))->out(),
+        'icon'        => 'fa-circle-plus',
         'title'       => get_string('coursemgmt_create', $component),
         'description' => get_string('coursemgmt_create_desc', $component),
     ],
@@ -71,7 +71,7 @@ $options = [
         'description' => get_string('coursemgmt_restore_desc', $component),
     ],
     [
-        'url'         => (new moodle_url($base . '/company_courses.php'))->out(),
+        'url'         => (new moodle_url($base . '/company_courses_form.php'))->out(),
         'icon'        => 'fa-building',
         'title'       => get_string('coursemgmt_assign', $component),
         'description' => get_string('coursemgmt_assign_desc', $component),

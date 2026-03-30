@@ -136,8 +136,11 @@ define(['core/ajax', 'core/str'], function(Ajax, Str) {
                             var section = btn.closest('.smgp-landing__section');
                             if (section) {
                                 var count = section.querySelectorAll('.smgp-landing__activity').length;
-                                var countEl = section.querySelector('.smgp-landing__section-count');
-                                if (countEl) countEl.textContent = count + ' Modules';
+                                var subtitleEl = section.querySelector('.smgp-landing__section-subtitle');
+                                if (subtitleEl) {
+                                    // Update the elements count in subtitle.
+                                    subtitleEl.textContent = subtitleEl.textContent.replace(/^\d+/, count);
+                                }
                             }
                         }
                     }).catch(function(err) {

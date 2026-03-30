@@ -51,6 +51,119 @@ class observer {
             }
         }
 
+        // Save learning objectives from JSON.
+        $objectivesjson = optional_param('smgp_objectives_data', null, PARAM_RAW);
+        if ($objectivesjson !== null) {
+            $dbman = $DB->get_manager();
+            if ($dbman->table_exists('local_smgp_learning_objectives')) {
+                $objectives = json_decode($objectivesjson, true);
+                if (is_array($objectives)) {
+                    $sourcelang = current_language();
+                    // Normalize language code (e.g., 'es_mx' → 'es').
+                    if (!in_array($sourcelang, ['en', 'es', 'pt_br'])) {
+                        if (strpos($sourcelang, 'es') === 0) {
+                            $sourcelang = 'es';
+                        } else if (strpos($sourcelang, 'pt') === 0) {
+                            $sourcelang = 'pt_br';
+                        } else {
+                            $sourcelang = 'en';
+                        }
+                    }
+
+                    // Delete all objectives for this course (all languages).
+                    $DB->delete_records('local_smgp_learning_objectives', ['courseid' => $courseid]);
+
+                    // Insert source-language objectives.
+                    $now = time();
+                    $cleantexts = [];
+                    foreach ($objectives as $sortorder => $text) {
+                        $text = trim($text);
+                        if ($text === '') {
+                            continue;
+                        }
+                        $cleantext = clean_param($text, PARAM_TEXT);
+                        $cleantexts[] = $cleantext;
+                        $DB->insert_record('local_smgp_learning_objectives', (object) [
+                            'courseid'     => $courseid,
+                            'objective'    => $cleantext,
+                            'sortorder'    => count($cleantexts) - 1,
+                            'lang'         => $sourcelang,
+                            'timecreated'  => $now,
+                            'timemodified' => $now,
+                        ]);
+                    }
+
+                    // Auto-translate to other languages via Gemini.
+                    if (!empty($cleantexts)) {
+                        $alllanguages = ['en', 'es', 'pt_br'];
+                        $targetlangs = array_diff($alllanguages, [$sourcelang]);
+
+                        foreach ($targetlangs as $targetlang) {
+                            $translated = \local_sm_graphics_plugin\gemini::translate_batch(
+                                $cleantexts, $sourcelang, $targetlang
+                            );
+                            if ($translated) {
+                                foreach ($translated as $i => $transtext) {
+                                    $DB->insert_record('local_smgp_learning_objectives', (object) [
+                                        'courseid'     => $courseid,
+                                        'objective'    => clean_param(trim($transtext), PARAM_TEXT),
+                                        'sortorder'    => $i,
+                                        'lang'         => $targetlang,
+                                        'timecreated'  => $now,
+                                        'timemodified' => $now,
+                                    ]);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Auto-translate course summary to other languages.
+        $course = $DB->get_record('course', ['id' => $courseid], 'summary');
+        if ($course && !empty(trim(strip_tags($course->summary ?? '')))) {
+            $sourcelang = current_language();
+            if (!in_array($sourcelang, ['en', 'es', 'pt_br'])) {
+                if (strpos($sourcelang, 'es') === 0) {
+                    $sourcelang = 'es';
+                } else if (strpos($sourcelang, 'pt') === 0) {
+                    $sourcelang = 'pt_br';
+                } else {
+                    $sourcelang = 'en';
+                }
+            }
+
+            $dbman = $DB->get_manager();
+            if ($dbman->table_exists('local_smgp_course_translations')) {
+                $alllanguages = ['en', 'es', 'pt_br'];
+                $targetlangs = array_diff($alllanguages, [$sourcelang]);
+                $now = time();
+                $plaintext = strip_tags($course->summary);
+
+                foreach ($targetlangs as $targetlang) {
+                    $translated = \local_sm_graphics_plugin\gemini::translate($plaintext, $sourcelang, $targetlang);
+                    if ($translated) {
+                        $existing = $DB->get_record('local_smgp_course_translations',
+                            ['courseid' => $courseid, 'lang' => $targetlang]);
+                        if ($existing) {
+                            $existing->summary = $translated;
+                            $existing->timemodified = $now;
+                            $DB->update_record('local_smgp_course_translations', $existing);
+                        } else {
+                            $DB->insert_record('local_smgp_course_translations', (object) [
+                                'courseid'     => $courseid,
+                                'lang'         => $targetlang,
+                                'summary'      => $translated,
+                                'timecreated'  => $now,
+                                'timemodified' => $now,
+                            ]);
+                        }
+                    }
+                }
+            }
+        }
+
         // Read submitted values from the form POST data.
         $price = optional_param('smgp_price', null, PARAM_RAW);
         $currency = optional_param('smgp_currency', null, PARAM_ALPHA);
