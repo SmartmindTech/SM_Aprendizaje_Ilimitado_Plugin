@@ -373,5 +373,71 @@ function xmldb_local_sm_graphics_plugin_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026032600, 'local', 'sm_graphics_plugin');
     }
 
+    if ($oldversion < 2026033000) {
+        $dbman = $DB->get_manager();
+        $table = new xmldb_table('local_smgp_learning_objectives');
+
+        if (!$dbman->table_exists($table)) {
+            $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE);
+            $table->add_field('courseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL);
+            $table->add_field('objective', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL);
+            $table->add_field('sortorder', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+
+            $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+            $table->add_field('lang', XMLDB_TYPE_CHAR, '10', null, XMLDB_NOTNULL, null, 'es');
+            $table->add_index('ix_courseid_lang_sort', XMLDB_INDEX_NOTUNIQUE, ['courseid', 'lang', 'sortorder']);
+
+            $dbman->create_table($table);
+        }
+
+        upgrade_plugin_savepoint(true, 2026033000, 'local', 'sm_graphics_plugin');
+    }
+
+    if ($oldversion < 2026033001) {
+        $dbman = $DB->get_manager();
+        $table = new xmldb_table('local_smgp_learning_objectives');
+
+        // Add lang column if table was created in 2026033000 without it.
+        $field = new xmldb_field('lang', XMLDB_TYPE_CHAR, '10', null, XMLDB_NOTNULL, null, 'es', 'sortorder');
+        if ($dbman->table_exists($table) && !$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+
+            // Replace old index with new one including lang.
+            $oldindex = new xmldb_index('ix_courseid_sort', XMLDB_INDEX_NOTUNIQUE, ['courseid', 'sortorder']);
+            if ($dbman->index_exists($table, $oldindex)) {
+                $dbman->drop_index($table, $oldindex);
+            }
+            $newindex = new xmldb_index('ix_courseid_lang_sort', XMLDB_INDEX_NOTUNIQUE, ['courseid', 'lang', 'sortorder']);
+            if (!$dbman->index_exists($table, $newindex)) {
+                $dbman->add_index($table, $newindex);
+            }
+        }
+
+        upgrade_plugin_savepoint(true, 2026033001, 'local', 'sm_graphics_plugin');
+    }
+
+    if ($oldversion < 2026033002) {
+        $dbman = $DB->get_manager();
+        $table = new xmldb_table('local_smgp_course_translations');
+
+        if (!$dbman->table_exists($table)) {
+            $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE);
+            $table->add_field('courseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL);
+            $table->add_field('lang', XMLDB_TYPE_CHAR, '10', null, XMLDB_NOTNULL);
+            $table->add_field('summary', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL);
+            $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+
+            $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+            $table->add_index('courseid_lang_unique', XMLDB_INDEX_UNIQUE, ['courseid', 'lang']);
+
+            $dbman->create_table($table);
+        }
+
+        upgrade_plugin_savepoint(true, 2026033002, 'local', 'sm_graphics_plugin');
+    }
+
     return true;
 }

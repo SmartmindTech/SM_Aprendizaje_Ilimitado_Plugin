@@ -1,5 +1,5 @@
 CLAUDE.md
-*.png
+image*.png
 .env
 .xcopy-exclude
 .claude
