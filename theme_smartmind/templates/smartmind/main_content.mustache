@@ -49,32 +49,67 @@
             {{/iscourseall}}
             {{#isfrontpage}}
                 {{! ---- CATALOGUE HEADER ---- }}
-                <div class="smartmind-catalogue-header mb-4">
-                    <span class="smartmind-catalogue-header__eyebrow">{{#str}}catalogue_eyebrow, theme_smartmind{{/str}}</span>
+                <div class="smartmind-catalogue-header mb-3">
                     <h1 class="smartmind-catalogue-header__title">{{#str}}coursecatalogue, theme_smartmind{{/str}}</h1>
                     <p class="smartmind-catalogue-header__desc">{{#str}}catalogue_desc, theme_smartmind{{/str}}</p>
                 </div>
 
-                {{! ---- SEARCH + CATEGORY BADGES ---- }}
-                <div class="smartmind-catalogue-filters mb-4" data-region="smartmind-filters">
-                    <div class="smartmind-catalogue-filters__search">
-                        {{< core/search_input_auto }}
-                            {{$label}}{{#str}}catalogue_search, theme_smartmind{{/str}}{{/label}}
-                            {{$placeholder}}{{#str}}catalogue_search_placeholder, theme_smartmind{{/str}}{{/placeholder}}
-                        {{/ core/search_input_auto }}
-                    </div>
-                    <div class="smartmind-catalogue-filters__badges" data-region="smartmind-category-badges">
-                        <button class="smartmind-badge smartmind-badge--active" data-categoryid="all">{{#str}}catalogue_all, theme_smartmind{{/str}}</button>
-                        {{#coursecategories}}
-                        <button class="smartmind-badge" data-categoryid="{{id}}">{{name}}</button>
-                        {{/coursecategories}}
+                {{! ---- SEARCH BAR (full width) ---- }}
+                <div class="smartmind-catalogue-search mb-3" data-region="smartmind-filters">
+                    <div class="smartmind-catalogue-search__wrapper">
+                        <i class="fa fa-search smartmind-catalogue-search__icon"></i>
+                        <input type="text"
+                               class="smartmind-catalogue-search__input"
+                               placeholder="{{#str}}catalogue_search_placeholder, theme_smartmind{{/str}}"
+                               data-action="catalogue-search"
+                               autocomplete="off">
                     </div>
                 </div>
+
+                {{! ---- TYPE FILTER ROW ---- }}
+                <div class="smartmind-catalogue-types mb-5" data-region="smartmind-type-badges">
+                    <button class="smartmind-type-badge smartmind-type-badge--active" data-typeid="all">
+                        {{#str}}catalogue_all, theme_smartmind{{/str}}
+                    </button>
+                    <button class="smartmind-type-badge" data-typeid="curso">
+                        <span class="smartmind-type-badge__icon">📚</span> Curso
+                    </button>
+                    <button class="smartmind-type-badge" data-typeid="pildora">
+                        <span class="smartmind-type-badge__icon">💊</span> Píldora
+                    </button>
+                    <button class="smartmind-type-badge" data-typeid="video">
+                        <span class="smartmind-type-badge__icon">🎬</span> Video
+                    </button>
+                    <button class="smartmind-type-badge" data-typeid="ruta">
+                        <span class="smartmind-type-badge__icon">🗺️</span> Ruta
+                    </button>
+                    <button class="smartmind-type-badge" data-typeid="actividad">
+                        <span class="smartmind-type-badge__icon">🎯</span> Actividad
+                    </button>
+                    <button class="smartmind-type-badge" data-typeid="microcredencial">
+                        <span class="smartmind-type-badge__icon">🏅</span> Microcredencial
+                    </button>
+                </div>
+
+                {{! ---- CATEGORY FILTER BADGES ---- }}
+                <div class="smartmind-catalogue-categories mb-3" data-region="smartmind-category-badges">
+                    <button class="smartmind-cat-badge smartmind-cat-badge--active" data-categoryid="all">{{#str}}catalogue_all, theme_smartmind{{/str}}</button>
+                    {{#coursecategories}}
+                    <button class="smartmind-cat-badge" data-categoryid="{{id}}">{{name}}</button>
+                    {{/coursecategories}}
+                </div>
+
+                {{! ---- RESULTS COUNT ---- }}
+                {{#hasallcourses}}
+                <div class="smartmind-catalogue-results mb-3">
+                    <h2 class="smartmind-catalogue-results__count" data-region="catalogue-count">{{#str}}catalogue_results, theme_smartmind, {{coursecount}}{{/str}}</h2>
+                </div>
+                {{/hasallcourses}}
 
                 {{! ---- COURSE CARDS GRID ---- }}
                 {{#hasallcourses}}
                 <div class="smartmind-frontpage-courses" data-region="smartmind-catalogue">
-                    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4" data-region="smartmind-catalogue-grid">
+                    <div class="smartmind-catalogue-grid" data-region="smartmind-catalogue-grid">
                         {{#allcourses}}
                             {{> theme_smartmind/catalogue_card }}
                         {{/allcourses}}

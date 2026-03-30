@@ -54,6 +54,21 @@ function local_sm_graphics_plugin_enroll_user(int $userid, int $courseid, int $r
 }
 
 /**
+ * Redirect user/profile.php to our custom profile page.
+ */
+function local_sm_graphics_plugin_before_http_headers() {
+    global $PAGE, $CFG;
+
+    $pagepath = $PAGE->url->get_path();
+    if (preg_match('#/user/profile\.php#', $pagepath)) {
+        $id = optional_param('id', 0, PARAM_INT);
+        $params = $id ? ['id' => $id] : [];
+        $url = new moodle_url('/local/sm_graphics_plugin/pages/profile.php', $params);
+        redirect($url);
+    }
+}
+
+/**
  * Rename core navigation nodes to match SmartMind branding.
  *
  * Also injects company-limit fields into the IOMAD company edit form

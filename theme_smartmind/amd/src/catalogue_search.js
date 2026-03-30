@@ -14,7 +14,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Client-side search and category filtering for the frontpage course catalogue.
+ * Client-side search, type and category filtering for the frontpage course catalogue.
  *
  * @module     theme_smartmind/catalogue_search
  * @copyright  2026 SmartMind
@@ -24,12 +24,16 @@
 const SELECTORS = {
     CATALOGUE: '[data-region="smartmind-catalogue"]',
     CARD: '[data-region="catalogue-card"]',
-    BADGES: '[data-region="smartmind-category-badges"]',
-    BADGE: '.smartmind-badge',
+    CATEGORY_BADGES: '[data-region="smartmind-category-badges"]',
+    CAT_BADGE: '.smartmind-cat-badge',
+    TYPE_BADGES: '[data-region="smartmind-type-badges"]',
+    TYPE_BADGE: '.smartmind-type-badge',
+    SEARCH_INPUT: '[data-action="catalogue-search"]',
+    COUNT: '[data-region="catalogue-count"]',
 };
 
 /**
- * Initialise the catalogue search and category filtering.
+ * Initialise the catalogue search, type and category filtering.
  */
 export const init = () => {
     const catalogue = document.querySelector(SELECTORS.CATALOGUE);
@@ -38,21 +42,34 @@ export const init = () => {
     }
 
     const cards = catalogue.querySelectorAll(SELECTORS.CARD);
-    const badgeContainer = document.querySelector(SELECTORS.BADGES);
-    const input = document.querySelector('input[type="text"], input[type="search"]');
+    const catContainer = document.querySelector(SELECTORS.CATEGORY_BADGES);
+    const typeContainer = document.querySelector(SELECTORS.TYPE_BADGES);
+    const input = document.querySelector(SELECTORS.SEARCH_INPUT);
+    const countEl = document.querySelector(SELECTORS.COUNT);
 
     let activeCategoryId = 'all';
+    let activeTypeId = 'all';
 
-    /** Apply both search and category filters. */
+    /** Apply search, type and category filters and update the visible count. */
     const applyFilters = () => {
         const query = input ? input.value.toLowerCase().trim() : '';
+        let visible = 0;
         cards.forEach(card => {
             const name = (card.dataset.fullname || '').toLowerCase();
             const catId = card.dataset.categoryid;
+            const typeId = (card.dataset.typeid || '').toLowerCase();
             const matchesSearch = !query || name.includes(query);
             const matchesCategory = activeCategoryId === 'all' || catId === activeCategoryId;
-            card.style.display = matchesSearch && matchesCategory ? '' : 'none';
+            const matchesType = activeTypeId === 'all' || typeId === activeTypeId;
+            const show = matchesSearch && matchesCategory && matchesType;
+            card.style.display = show ? '' : 'none';
+            if (show) {
+                visible++;
+            }
         });
+        if (countEl) {
+            countEl.textContent = visible + ' resultados';
+        }
     };
 
     // Search filtering.
@@ -61,20 +78,33 @@ export const init = () => {
     }
 
     // Category badge filtering.
-    if (badgeContainer) {
-        badgeContainer.addEventListener('click', (e) => {
-            const badge = e.target.closest(SELECTORS.BADGE);
+    if (catContainer) {
+        catContainer.addEventListener('click', (e) => {
+            const badge = e.target.closest(SELECTORS.CAT_BADGE);
             if (!badge) {
                 return;
             }
-
-            // Update active state.
-            badgeContainer.querySelectorAll(SELECTORS.BADGE).forEach(b => {
-                b.classList.remove('smartmind-badge--active');
+            catContainer.querySelectorAll(SELECTORS.CAT_BADGE).forEach(b => {
+                b.classList.remove('smartmind-cat-badge--active');
             });
-            badge.classList.add('smartmind-badge--active');
-
+            badge.classList.add('smartmind-cat-badge--active');
             activeCategoryId = badge.dataset.categoryid;
+            applyFilters();
+        });
+    }
+
+    // Type badge filtering.
+    if (typeContainer) {
+        typeContainer.addEventListener('click', (e) => {
+            const badge = e.target.closest(SELECTORS.TYPE_BADGE);
+            if (!badge) {
+                return;
+            }
+            typeContainer.querySelectorAll(SELECTORS.TYPE_BADGE).forEach(b => {
+                b.classList.remove('smartmind-type-badge--active');
+            });
+            badge.classList.add('smartmind-type-badge--active');
+            activeTypeId = badge.dataset.typeid;
             applyFilters();
         });
     }

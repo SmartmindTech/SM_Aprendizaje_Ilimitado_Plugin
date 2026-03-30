@@ -12,7 +12,9 @@
 body[class*="iomad_company_admin"] {
     #page.drawers .main-inner,
     .header-maxwidth {
-        max-width: 100% !important;
+        max-width: 75% !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
     }
 
     #region-main {

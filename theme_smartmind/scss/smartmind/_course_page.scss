@@ -78,7 +78,7 @@ body.smgp-course-player #page-wrapper {
 // ===== Content Area (single activity loaded via AJAX) =====
 .smgp-course-content {
   padding: 0 32px;
-  background: #F5F3EE;
+  background: #FFFFFF;
   color: #1A1814;
   overflow: hidden;
   height: calc(100vh - 180px);
@@ -1076,11 +1076,6 @@ body.smgp-course-player .secondary-navigation {
 
 // ===== Course Player — Moodle wrapper overrides =====
 
-// Restore margin-top that Moodle's m-0 utility kills.
-body.smgp-course-player #page.drawers {
-  margin-top: 10px !important;
-}
-
 body.smgp-course-player #topofscroll {
   padding-top: 0 !important;
   padding-right: 0 !important;
@@ -1111,11 +1106,6 @@ body.smgp-course-player {
   #page-wrapper {
     overflow-x: hidden;
     background: #FFFFFF !important; // Sidebar white extends to edge.
-  }
-
-  #page,
-  #page.container-fluid {
-    margin-left: $smgp-space-md !important;
   }
 
   #page,
@@ -1189,6 +1179,8 @@ body.smgp-embedded {
     grid-template-columns: none !important;
     margin: 0 !important;
     padding: 0 !important;
+    background-color: #FFFFFF !important;
+
   }
 
   #topofscroll,
@@ -1204,12 +1196,12 @@ body.smgp-embedded {
     padding: 1rem !important;
     margin: 0 auto !important;
     max-width: 960px !important;
-    background: var(--smgp-bg, $smgp-bg) !important;
+    background: #FFFFFF !important;
     color: var(--smgp-text, $smgp-text) !important;
   }
 
   // Ensure embedded body background matches the content area.
-  background: var(--smgp-bg, $smgp-bg) !important;
+  background: #FFFFFF !important;
 
   // Hide Moodle completion condition tags ("Hecho: Ver", etc.)
   .activity-information,

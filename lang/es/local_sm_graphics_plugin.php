@@ -375,3 +375,15 @@ $string['mycourses_of']              = 'de';
 $string['mycourses_empty']           = 'No tienes cursos matriculados todavía.';
 $string['mycourses_nav']             = 'Mis cursos';
 $string['catalogue_modules']         = 'módulos';
+
+// Profile page.
+$string['profile_xp_total']      = 'XP Total';
+$string['profile_streak']        = 'Racha actual';
+$string['profile_contents']      = 'Contenidos';
+$string['profile_hours']         = 'Horas';
+$string['profile_streak_keep']   = 'Racha actual · ¡Sigue así!';
+$string['profile_days_to']       = '{$a->days} días para +{$a->xp} XP';
+$string['profile_weekly']        = 'ACTIVIDAD SEMANAL';
+$string['profile_level']         = 'Nivel {$a}';
+$string['profile_xp_remaining']  = '{$a->xp} XP para nivel {$a->level}';
+$string['profile_since']         = 'Desde {$a}';

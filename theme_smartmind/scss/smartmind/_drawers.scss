@@ -35,5 +35,7 @@ body.drawer-open-right {}
 }
 
 .pagelayout-standard #page.drawers .main-inner, body.limitedwidth #page.drawers .main-inner {
-  max-width: 100% !important;
+  max-width: 75% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
 }

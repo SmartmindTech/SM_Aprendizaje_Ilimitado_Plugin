@@ -1,0 +1,427 @@
+//
+// SmartMind — User Profile page (Stratoos-style gamified)
+//
+
+.smgp-profile {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+
+    // ── Header card ──
+    &__header-card {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        background: #fff;
+        border: 1px solid #f3f4f6;
+        border-radius: 16px;
+        padding: 2rem;
+    }
+
+    &__avatar-wrap {
+        position: relative;
+        flex-shrink: 0;
+    }
+
+    &__avatar {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #e5e7eb;
+    }
+
+    &__level-badge {
+        position: absolute;
+        bottom: -4px;
+        right: -4px;
+        width: 28px;
+        height: 28px;
+        background: #10b981;
+        color: #fff;
+        font-size: 0.75rem;
+        font-weight: 700;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid #fff;
+    }
+
+    &__name {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin: 0 0 0.15rem;
+    }
+
+    &__meta {
+        font-size: 0.9rem;
+        color: #9ca3af;
+        margin: 0;
+    }
+
+    // ── Stats row ──
+    &__stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+    }
+
+    &__stat {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.25rem;
+        background: #fff;
+        border: 1px solid #f3f4f6;
+        border-radius: 16px;
+        padding: 1.25rem 1rem;
+        transition: all 0.2s ease;
+
+        &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+        }
+    }
+
+    &__stat-icon {
+        font-size: 1.25rem;
+        margin-bottom: 0.25rem;
+
+        &--xp { color: #f59e0b; }
+        &--streak { color: #ef4444; }
+        &--courses { color: #10b981; }
+        &--hours { color: #3b82f6; }
+    }
+
+    &__stat-value {
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: #1a1a1a;
+    }
+
+    &__stat-label {
+        font-size: 0.78rem;
+        color: #9ca3af;
+    }
+
+    // ── Streak card ──
+    &__streak-card {
+        background: linear-gradient(135deg, #10b981 0%, #0d9488 100%);
+        border-radius: 16px;
+        padding: 1.5rem 2rem;
+        color: #fff;
+    }
+
+    &__streak-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+    }
+
+    &__streak-title {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+
+        i {
+            font-size: 1.5rem;
+            opacity: 0.8;
+        }
+
+        strong {
+            display: block;
+            font-size: 1.25rem;
+        }
+
+        span {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+    }
+
+    // Milestones timeline
+    &__milestones {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        position: relative;
+        margin-bottom: 1.5rem;
+        padding: 0 1rem;
+
+        // Connecting line
+        &::before {
+            content: '';
+            position: absolute;
+            top: 18px;
+            left: 3rem;
+            right: 3rem;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.25);
+            z-index: 0;
+        }
+    }
+
+    &__milestone {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.35rem;
+        z-index: 1;
+        opacity: 0.5;
+
+        &--reached {
+            opacity: 1;
+        }
+    }
+
+    &__milestone-dot {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        border: 2px solid rgba(255, 255, 255, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 700;
+
+        .smgp-profile__milestone--reached & {
+            background: #fff;
+            border-color: #fff;
+            color: #10b981;
+        }
+
+        i {
+            font-size: 0.85rem;
+        }
+    }
+
+    &__milestone-xp {
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    &__milestone-days {
+        font-size: 0.65rem;
+        opacity: 0.7;
+    }
+
+    // Streak progress bar
+    &__streak-progress {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 10px;
+        padding: 0.6rem 1rem;
+
+        i { opacity: 0.7; }
+
+        span {
+            font-size: 0.82rem;
+            white-space: nowrap;
+        }
+    }
+
+    &__streak-bar {
+        flex: 1;
+        height: 6px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    &__streak-fill {
+        height: 100%;
+        background: #fff;
+        border-radius: 3px;
+        transition: width 0.4s ease;
+    }
+
+    // ── Bottom row ──
+    &__bottom-row {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.25rem;
+    }
+
+    // ── Weekly activity chart ──
+    &__weekly-card {
+        background: #fff;
+        border: 1px solid #f3f4f6;
+        border-radius: 16px;
+        padding: 1.5rem;
+    }
+
+    &__weekly-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.25rem;
+
+        > span:first-child {
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            color: #1a1a1a;
+
+            i {
+                margin-right: 0.3rem;
+                opacity: 0.5;
+            }
+        }
+    }
+
+    &__weekly-xp {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 12px;
+        background: #f3f4f6;
+        border-radius: 20px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #1a1a1a;
+
+        i { color: #f59e0b; }
+    }
+
+    &__chart {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        height: 160px;
+        gap: 0.5rem;
+        padding-top: 1.5rem;
+    }
+
+    &__chart-col {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        height: 100%;
+        justify-content: flex-end;
+    }
+
+    &__chart-value {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #10b981;
+    }
+
+    &__chart-bar {
+        width: 70%;
+        min-height: 4px;
+        background: #10b981;
+        border-radius: 4px 4px 0 0;
+        transition: height 0.4s ease;
+
+        &--today {
+            background: #f59e0b;
+        }
+    }
+
+    &__chart-day {
+        font-size: 0.72rem;
+        color: #9ca3af;
+        font-weight: 500;
+        margin-top: 4px;
+
+        &--today {
+            color: #f59e0b;
+            font-weight: 700;
+        }
+    }
+
+    // ── Level card ──
+    &__level-card {
+        background: #fff;
+        border: 1px solid #f3f4f6;
+        border-radius: 16px;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    &__level-ring {
+        position: relative;
+        width: 110px;
+        height: 110px;
+
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+    &__level-number {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 2rem;
+        font-weight: 700;
+        color: #10b981;
+    }
+
+    &__level-label {
+        font-size: 1rem;
+        color: #1a1a1a;
+    }
+
+    &__level-remaining {
+        font-size: 0.78rem;
+        color: #9ca3af;
+    }
+}
+
+// ── Responsive ──
+@media (max-width: 900px) {
+    .smgp-profile {
+        &__stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        &__bottom-row {
+            grid-template-columns: 1fr;
+        }
+    }
+}
+
+@media (max-width: 576px) {
+    .smgp-profile {
+        &__header-card {
+            flex-direction: column;
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        &__stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        &__milestones {
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+
+            &::before { display: none; }
+        }
+    }
+}
+
+// ── Hide Moodle's default profile content when our page loads ──
+body#page-local-sm_graphics_plugin-pages-profile {
+    #page-header {
+        display: none;
+    }
+}

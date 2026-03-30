@@ -356,6 +356,18 @@ function theme_smartmind_inject_student_nav(array &$primarymenu, ?array $company
         'classes' => [],
     ];
 
+    $profilenode = [
+        'key' => 'sm-profile',
+        'text' => get_string('myprofile', 'moodle'),
+        'url' => (new moodle_url('/local/sm_graphics_plugin/pages/profile.php'))->out(false),
+        'action' => '',
+        'isactive' => strpos($PAGE->url->out(false), 'profile') !== false,
+        'haschildren' => false,
+        'disabled' => false,
+        'title' => '',
+        'classes' => [],
+    ];
+
     if (!empty($primarymenu['moremenu']['nodecollection']['nodes'])) {
         $nodes = &$primarymenu['moremenu']['nodecollection']['nodes'];
         $insertpos = count($nodes);
@@ -365,11 +377,12 @@ function theme_smartmind_inject_student_nav(array &$primarymenu, ?array $company
                 break;
             }
         }
-        array_splice($nodes, $insertpos, 0, [$mycoursesnode, $gradescertsnode]);
+        array_splice($nodes, $insertpos, 0, [$mycoursesnode, $gradescertsnode, $profilenode]);
         unset($nodes);
     } else if (!empty($primarymenu['moremenu']['nodearray'])) {
         $primarymenu['moremenu']['nodearray'][] = $mycoursesnode;
         $primarymenu['moremenu']['nodearray'][] = $gradescertsnode;
+        $primarymenu['moremenu']['nodearray'][] = $profilenode;
     }
 }
 
@@ -472,6 +485,61 @@ function theme_smartmind_reorder_nodes(array $nodes, array $order): array {
         }
     }
     return array_merge($sorted, $rest);
+}
+
+/**
+ * Ensure only one navigation item is marked active.
+ *
+ * Moodle can mark multiple nodes as active (e.g. "home" on every page).
+ * This function keeps only the most specific active item:
+ * custom sm-* items take priority over Moodle's built-in ones.
+ *
+ * @param array &$primarymenu The primary menu array.
+ */
+function theme_smartmind_fix_active_nav(array &$primarymenu) {
+    $paths = [
+        ['moremenu', 'nodecollection', 'nodes'],
+        ['moremenu', 'nodearray'],
+    ];
+
+    foreach ($paths as $path) {
+        $ref = &$primarymenu;
+        $valid = true;
+        foreach ($path as $key) {
+            if (!isset($ref[$key]) || !is_array($ref[$key])) {
+                $valid = false;
+                break;
+            }
+            $ref = &$ref[$key];
+        }
+        if (!$valid || empty($ref)) {
+            continue;
+        }
+
+        // Find all active nodes and pick the best one.
+        $activeindexes = [];
+        $customactive = null;
+        foreach ($ref as $i => &$node) {
+            if (!empty($node['isactive'])) {
+                $activeindexes[] = $i;
+                // Custom items (sm-*) get priority.
+                if (strpos($node['key'] ?? '', 'sm-') === 0) {
+                    $customactive = $i;
+                }
+            }
+        }
+        unset($node);
+
+        // If more than one is active, keep only the best match.
+        if (count($activeindexes) > 1) {
+            $keep = $customactive !== null ? $customactive : end($activeindexes);
+            foreach ($activeindexes as $idx) {
+                if ($idx !== $keep) {
+                    $ref[$idx]['isactive'] = false;
+                }
+            }
+        }
+    }
 }
 
 /**

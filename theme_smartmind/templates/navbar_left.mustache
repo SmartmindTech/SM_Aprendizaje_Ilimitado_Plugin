@@ -1,143 +1,91 @@
 {{!
     @template theme_smartmind/navbar_left
 
-    SmartMind — Left sidebar navbar.
+    SmartMind — Horizontal top navbar.
 
-    Components (edit each independently):
-      smartmind/logo     — Site logo / brand name
-      smartmind/sidemenu — Navigation items with icon support
+    Contains: logo, primary navigation items (center), user area (right).
 }}
-<nav class="d-flex flex-column vh-100 w-25 align-items-start" aria-label="{{#str}}sitemenubar, admin{{/str}}">
-    <button class="navbar-toggler aabtn d-block d-md-none px-1 my-1 border-0" data-toggler="drawers" data-action="toggle" data-target="theme_smartmind-drawers-primary">
-        <span class="navbar-toggler-icon"></span>
-        <span class="visually-hidden">{{#str}}sidepanel, core{{/str}}</span>
-    </button>
-    <div class="d-flex flex-column gap-4 card shadow p-4 vh-100 position-fixed">
-        {{> theme_smartmind/smartmind/logo }}
-        {{> theme_smartmind/smartmind/sidemenu }}
+<nav class="smgp-topnav" aria-label="{{#str}}sitemenubar, admin{{/str}}">
+    {{! ---- Left: Logo ---- }}
+    <div class="smgp-topnav__left">
+        <a href="{{{ config.homeurl }}}" class="smgp-topnav__logo">
+            <img src="{{{config.wwwroot}}}/theme/smartmind/img/smartmind.png" alt="{{sitename}}">
+        </a>
+    </div>
+
+    {{! ---- Center: Navigation items ---- }}
+    <div class="smgp-topnav__center">
+        {{#iscompanymanager}}
+            {{#companymanagernav}}
+                <a href="{{{url}}}"
+                   class="smgp-topnav__item {{#isactive}}smgp-topnav__item--active{{/isactive}} {{#disabled}}smgp-topnav__item--disabled{{/disabled}}"
+                   data-key="{{key}}"
+                   {{#disabled}}aria-disabled="true"{{/disabled}}>
+                    <span class="smartmind-nav-icon" aria-hidden="true">
+                        {{#smicon}}<i class="fa fa-fw {{smicon}}"></i>{{/smicon}}
+                    </span>
+                    <span class="smgp-topnav__item-text">{{{text}}}</span>
+                </a>
+            {{/companymanagernav}}
+        {{/iscompanymanager}}
+        {{^iscompanymanager}}
+            {{#primarymoremenu}}
+                {{#nodecollection}}
+                    {{#children}}
+                        {{^haschildren}}
+                            <a href="{{{url}}}{{{action}}}"
+                               class="smgp-topnav__item {{#isactive}}smgp-topnav__item--active{{/isactive}}"
+                               data-key="{{key}}">
+                                <span class="smartmind-nav-icon" aria-hidden="true">
+                                    {{#smicon}}<i class="fa fa-fw {{smicon}}"></i>{{/smicon}}
+                                    {{^smicon}}<i class="fa fa-fw fa-circle-o"></i>{{/smicon}}
+                                </span>
+                                <span class="smgp-topnav__item-text">{{{text}}}</span>
+                            </a>
+                        {{/haschildren}}
+                        {{#haschildren}}
+                            <div class="smgp-topnav__dropdown">
+                                <a href="#"
+                                   class="smgp-topnav__item {{#isactive}}smgp-topnav__item--active{{/isactive}}"
+                                   data-key="{{key}}"
+                                   data-bs-toggle="dropdown"
+                                   aria-expanded="false">
+                                    <span class="smartmind-nav-icon" aria-hidden="true">
+                                        <i class="fa fa-fw fa-folder-o"></i>
+                                    </span>
+                                    <span class="smgp-topnav__item-text">{{{text}}}</span>
+                                </a>
+                                <div class="dropdown-menu">
+                                    {{#children}}
+                                        {{^divider}}
+                                            <a class="dropdown-item" href="{{{url}}}{{{action}}}">{{{text}}}</a>
+                                        {{/divider}}
+                                        {{#divider}}<div class="dropdown-divider"></div>{{/divider}}
+                                    {{/children}}
+                                </div>
+                            </div>
+                        {{/haschildren}}
+                    {{/children}}
+                {{/nodecollection}}
+                {{#nodearray}}
+                    {{^haschildren}}
+                        <a href="{{{url}}}{{{action}}}"
+                           class="smgp-topnav__item {{#isactive}}smgp-topnav__item--active{{/isactive}}"
+                           data-key="{{key}}">
+                            <span class="smartmind-nav-icon" aria-hidden="true">
+                                {{#smicon}}<i class="fa fa-fw {{smicon}}"></i>{{/smicon}}
+                                {{^smicon}}<i class="fa fa-fw fa-circle-o"></i>{{/smicon}}
+                            </span>
+                            <span class="smgp-topnav__item-text">{{{text}}}</span>
+                        </a>
+                    {{/haschildren}}
+                {{/nodearray}}
+            {{/primarymoremenu}}
+        {{/iscompanymanager}}
+    </div>
+
+    {{! ---- Right: User area ---- }}
+    <div class="smgp-topnav__right">
+        {{> theme_smartmind/smartmind/user_area }}
     </div>
 </nav>
-
-<style>
-    /* ===== NAVBAR LEFT - Sidebar colapsable ===== */
-
-    /* Contenedor nav — ancho suficiente para iconos + padding */
-    nav.d-flex.flex-column.vh-100.w-25[aria-label] {
-        width: 80px !important;
-        min-width: 80px;
-        max-width: 80px;
-        transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-        max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        overflow: visible;
-        position: relative;
-        flex-shrink: 0;
-    }
-
-    /* Card interna — se expande visualmente al hover */
-    nav.d-flex.flex-column.vh-100.w-25[aria-label] .card {
-        width: 80px;
-        min-width: 80px;
-        overflow: visible;
-        white-space: nowrap;
-        transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-        box-shadow 0.3s ease;
-        will-change: width;
-        background-color: #f0f0f0;
-        border-radius: 0 !important;
-    }
-
-    /* Hover: expande hacia la derecha */
-    nav.d-flex.flex-column.vh-100.w-25[aria-label]:hover .card {
-        width: 280px;
-        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.10) !important;
-    }
-
-    /* Logo — ocultar texto, mostrar solo icono */
-    nav.d-flex.flex-column.vh-100.w-25[aria-label] .card > a {
-        overflow: hidden;
-        display: flex;
-        align-items: center;
-    }
-
-    nav.d-flex.flex-column.vh-100.w-25[aria-label] .card > a img.logo {
-        max-width: 28px;
-        flex-shrink: 0;
-        transition: max-width 0.3s ease;
-    }
-
-    nav.d-flex.flex-column.vh-100.w-25[aria-label]:hover .card > a img.logo {
-        max-width: 140px;
-    }
-
-    /* Ítems del menú */
-    nav.d-flex.flex-column.vh-100.w-25[aria-label] .primary-navigation ul li a,
-    nav.d-flex.flex-column.vh-100.w-25[aria-label] .primary-navigation ul li {
-        display: flex;
-        align-items: center;
-        overflow: hidden;
-        white-space: nowrap;
-    }
-
-    /* Iconos — siempre visibles */
-    nav.d-flex.flex-column.vh-100.w-25[aria-label] .primary-navigation ul li a .icon,
-    nav.d-flex.flex-column.vh-100.w-25[aria-label] .primary-navigation ul li a svg,
-    nav.d-flex.flex-column.vh-100.w-25[aria-label] .primary-navigation ul li a img,
-    nav.d-flex.flex-column.vh-100.w-25[aria-label] .primary-navigation ul li a .smartmind-nav-icon {
-        flex-shrink: 0;
-        width: 20px;
-        height: 20px;
-        opacity: 1 !important;
-        max-width: none !important;
-        overflow: visible !important;
-    }
-
-    /* Texto de los ítems — oculto colapsado */
-    nav.d-flex.flex-column.vh-100.w-25[aria-label] .primary-navigation ul li a .smartmind-nav-text,
-    nav.d-flex.flex-column.vh-100.w-25[aria-label] .primary-navigation ul li a .nav-link-text {
-        opacity: 0;
-        max-width: 0;
-        transition: opacity 0.2s ease 0.05s, max-width 0.3s ease;
-        overflow: hidden;
-    }
-
-    /* Texto visible al expandir */
-    nav.d-flex.flex-column.vh-100.w-25[aria-label]:hover .primary-navigation ul li a .smartmind-nav-text,
-    nav.d-flex.flex-column.vh-100.w-25[aria-label]:hover .primary-navigation ul li a .nav-link-text {
-        opacity: 1;
-        max-width: 180px;
-    }
-
-    .userfullname-text {
-        display: inline-block;
-        max-width: 0;
-        opacity: 0;
-        overflow: hidden;
-        white-space: nowrap;
-        vertical-align: middle;
-        transition: max-width 0.3s ease, opacity 0.2s ease 0.1s;
-    }
-
-    nav.d-flex.flex-column.vh-100.w-25[aria-label]:hover .userfullname-text {
-        max-width: 180px;
-        opacity: 1;
-    }
-
-    /* User menu dropdown — positioned to the right of the sidebar */
-    nav.d-flex.flex-column.vh-100.w-25[aria-label] .usermenu-container {
-        position: relative;
-        overflow: visible !important;
-    }
-    nav.d-flex.flex-column.vh-100.w-25[aria-label] .usermenu-container .dropdown-menu {
-        position: fixed !important;
-        bottom: 1rem;
-        left: var(--smgp-sidebar-width, 80px);
-        z-index: 1060;
-        min-width: 180px;
-        /* Same transition as the sidebar card so they move in sync */
-        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    /* When sidebar is hovered (expanded), overlap a bit */
-    nav.d-flex.flex-column.vh-100.w-25[aria-label]:hover .usermenu-container .dropdown-menu {
-        left: var(--smgp-sidebar-expanded, 255px);
-    }
-</style>

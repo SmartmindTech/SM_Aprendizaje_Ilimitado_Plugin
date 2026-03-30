@@ -48,18 +48,12 @@ html.smgp-dark {
 
 .smgp-topnav {
     position: fixed;
-    top: 1.25rem;
-    right: 1.25rem;
+    width: 100%;
     z-index: 100;
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
     border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 9999px;
-    padding: 0.25rem 0.5rem;
 
     &__btn {
         background: transparent;

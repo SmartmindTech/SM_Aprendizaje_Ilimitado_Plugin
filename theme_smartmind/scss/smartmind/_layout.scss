@@ -26,26 +26,23 @@ body {
 #page.drawers.show-drawer-left .drawer-left-toggle {}
 #page.drawers.show-drawer-right .drawer-right-toggle {}
 
-// Main Content Area
+// Main Content Area — cap ALL pages at 90% width, centered.
 #page-content {}
 #region-main-box {}
 #region-main {}
-.main-inner {}
 
-// Frontpage: full-width page, but catalogue grid stays readable
-body.pagelayout-frontpage #page.drawers .main-inner,
-body.pagelayout-frontpage.limitedwidth #page.drawers .main-inner {
-    max-width: 100% !important;
+.main-inner,
+#page.drawers .main-inner,
+body.limitedwidth #page.drawers .main-inner,
+.pagelayout-standard #page.drawers .main-inner {
+    max-width: 75% !important;
+    width: 75% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
 }
 
-// Admin / Settings pages: full-width content and header
-body.pagelayout-admin,
-body.pagelayout-standard.path-admin {
-    #page.drawers .main-inner {
-        max-width: 100% !important;
-    }
-
-    .header-maxwidth {
-        max-width: 100% !important;
-    }
+.header-maxwidth {
+    max-width: 75% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
 }

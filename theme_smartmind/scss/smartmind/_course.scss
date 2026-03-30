@@ -13,7 +13,9 @@ body.pagelayout-incourse,
 body.pagelayout-report,
 body.pagelayout-admin {
     #page.drawers .main-inner {
-        max-width: 100%;
+        max-width: 75% !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
     }
 
     // Header: remove the 830px cap, keep centered with content

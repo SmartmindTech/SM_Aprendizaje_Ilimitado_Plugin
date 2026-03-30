@@ -1,25 +1,23 @@
 {{!
     @template theme_smartmind/smartmind/user_area
 
-    SmartMind — User navigation area (top-right).
+    SmartMind — User navigation area (right side of top navbar).
 
     Contains: search box, language menu, plugin output (notifications, messages),
-    user menu (avatar dropdown), and edit mode switch.
-
-    Edit this file to rearrange, add, or remove items from the user area.
+    company selector, user menu (avatar dropdown).
 }}
-<div id="usernavigation" class="d-flex align-items-center mt-4 gap-3" style="margin-right: 7rem; font-size: 1.2rem; font-weight: bold;">
+<div id="usernavigation" class="smgp-topnav__user-area">
     {{# output.search_box }}
         {{{ output.search_box }}}
-        <div class="divider border-start h-75 align-self-center mx-1"></div>
     {{/output.search_box}}
     {{#langmenu}}
         {{> theme_smartmind/language_menu }}
-        <div class="divider border-start h-75 align-self-center mx-1"></div>
     {{/langmenu}}
     {{{ output.navbar_plugin_output }}}
     {{#hascompanyselector}}
         {{{ companyselector }}}
     {{/hascompanyselector}}
+    {{#usermenu}}
+        {{> core/user_menu }}
+    {{/usermenu}}
 </div>
-
