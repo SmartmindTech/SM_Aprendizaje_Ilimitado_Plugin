@@ -1,0 +1,49 @@
+// ============================================
+// SMARTMIND SPA — MAIN SCSS
+// Ported from theme_smartmind design system
+// ============================================
+
+// 1. ABSTRACTS (variables, mixins — no output)
+@use 'abstracts' as *;
+
+// 2. VENDORS (Bootstrap 5)
+@import 'bootstrap/scss/bootstrap';
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+
+// 3. LUCIDE ICONS (custom font used by sidebar)
+@font-face {
+  font-family: 'lucide';
+  src: url('~/assets/fonts/lucide.woff2') format('woff2'),
+       url('~/assets/fonts/lucide.woff') format('woff'),
+       url('~/assets/fonts/lucide.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+// 4. BASE
+body {
+  background-color: $body-bg;
+  color: $body-color;
+  margin: 0;
+  padding: 0;
+}
+
+#__nuxt {
+  min-height: 100vh;
+}
+
+// 5. COMPONENTS (ported from theme_smartmind)
+@import 'components/sidebar';
+@import 'components/dashboard';
+@import 'components/mycourses';
+@import 'components/course-landing';
+@import 'components/course-page';
+@import 'components/grades-certificates';
+@import 'components/catalogue';
+@import 'components/comments';
+@import 'components/iomad';
+@import 'components/layout';
+@import 'components/forms';
+@import 'components/navigation';
+@import 'components/utilities';

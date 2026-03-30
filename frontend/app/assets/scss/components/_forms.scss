@@ -1,0 +1,34 @@
+// ============================================
+// SmartMind — Form, Table, Button & UI Component Overrides
+// Ported from theme_smartmind/scss/smartmind/_forms.scss
+// ============================================
+
+// Forms
+
+// Fix collapsible fieldset sections — ensure clicks on the header toggle collapse.
+.mform fieldset .ftoggler {
+    cursor: pointer;
+
+    h3, .h3 {
+        pointer-events: none;
+    }
+}
+
+// Ensure the fcontainer collapse transition works.
+.mform fieldset .fcontainer.collapseable {
+    &.collapse:not(.show) {
+        display: none;
+    }
+}
+
+// Form Autocomplete
+.form-autocomplete-suggestions {
+  li[data-value]:not([data-value=""]):hover {
+    background-color: black;
+  }
+
+  li[data-value=""] {
+    box-shadow: none !important;
+    background-color: lightgrey !important;
+  }
+}

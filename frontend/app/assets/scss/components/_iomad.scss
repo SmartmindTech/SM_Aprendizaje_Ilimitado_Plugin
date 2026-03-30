@@ -1,0 +1,166 @@
+// ============================================
+// SmartMind — IOMAD Admin Page Overrides
+// Ported from theme_smartmind/scss/smartmind/_iomad.scss
+// ============================================
+//
+// Styles for IOMAD company administration pages.
+// Scoped via the .dep_tree and #department_tree selectors.
+
+// Moodle-specific: not applicable in SPA
+// body[class*="iomad_company_admin"] #page.drawers .main-inner
+// body[class*="iomad_company_admin"] .header-maxwidth
+// body[class*="iomad_company_admin"] #region-main
+
+// Department tree container.
+.dep_tree {
+    background: $smgp-bg;
+    border: 1px solid $smgp-border;
+    border-radius: $smgp-radius-xl;
+    padding: $smgp-space-xl $smgp-space-2xl;
+    margin-bottom: $smgp-space-xl;
+    box-shadow: $smgp-shadow-sm;
+
+    #department_tree {
+
+        // Every department row.
+        .tree_item {
+            padding: $smgp-space-md $smgp-space-lg;
+            margin: $smgp-space-xs 0;
+            border-radius: $smgp-radius-lg;
+            border: 1px solid transparent;
+            transition: all $smgp-transition-base;
+            cursor: pointer;
+
+            &:hover {
+                background: $smgp-gray-50;
+                border-color: $smgp-gray-200;
+            }
+
+            // Selected / active department.
+            &[aria-selected="true"] {
+                background: $smgp-gray-100;
+                border-color: $smgp-gray-300;
+
+                > .tree_dept_name {
+                    font-weight: 600;
+                    color: $smgp-gray-800;
+                }
+            }
+
+            // Department name — icon prefix + text.
+            .tree_dept_name {
+                font-size: $smgp-font-base;
+                padding: $smgp-space-xs $smgp-space-sm;
+                display: inline-flex;
+                align-items: center;
+                gap: $smgp-space-sm;
+
+                &::before {
+                    content: "\f07b"; // fa-folder
+                    font-family: "Font Awesome 6 Free";
+                    font-weight: 900;
+                    font-size: $smgp-font-sm;
+                    color: $smgp-gray-400;
+                }
+            }
+
+            // Selected item gets an open-folder icon.
+            &[aria-selected="true"] > .tree_dept_name::before {
+                content: "\f07c"; // fa-folder-open
+                color: $smgp-gray-700;
+            }
+
+            // Nested children group.
+            [role="group"] {
+                margin-top: $smgp-space-sm;
+                margin-left: $smgp-space-md;
+                padding-left: $smgp-space-xl;
+                border-left: 2px solid $smgp-gray-200;
+                position: relative;
+
+                .tree_item {
+                    margin-left: 0 !important;
+
+                    // Child items get a subtler icon.
+                    .tree_dept_name::before {
+                        content: "\f15b"; // fa-file
+                        font-weight: 400;
+                        font-size: $smgp-font-xs;
+                    }
+
+                    &[aria-selected="true"] > .tree_dept_name::before {
+                        content: "\f15b";
+                        color: $smgp-gray-700;
+                    }
+                }
+            }
+
+            // Parent items with children — expand hint.
+            &.haschildren > .tree_dept_name::after {
+                content: "\f078"; // fa-chevron-down
+                font-family: "Font Awesome 6 Free";
+                font-weight: 900;
+                font-size: $smgp-font-xs;
+                color: $smgp-gray-400;
+                margin-left: auto;
+            }
+
+            &.haschildren[aria-expanded="true"] > .tree_dept_name::after {
+                content: "\f077"; // fa-chevron-up
+            }
+        }
+    }
+}
+
+// Heading above the tree.
+.mform h4 {
+    font-size: $smgp-font-xl;
+    font-weight: 600;
+    margin-bottom: $smgp-space-lg;
+}
+
+// Button group (Create / Edit / Delete / Export).
+#fgroup_id_buttonarray {
+    margin-top: $smgp-space-lg;
+    padding-top: $smgp-space-lg;
+    border-top: 1px solid $smgp-border;
+
+    .d-flex.flex-wrap {
+        gap: $smgp-space-sm;
+    }
+
+    .btn {
+        padding: $smgp-space-sm $smgp-space-xl;
+        border-radius: $smgp-radius-md;
+        font-weight: 500;
+    }
+
+    // Destructive action — make it stand out.
+    #id_delete {
+        background: $smgp-danger;
+        border-color: $smgp-danger;
+        color: #fff;
+
+        &:hover {
+            background: darken($smgp-danger, 8%);
+            border-color: darken($smgp-danger, 8%);
+        }
+    }
+
+    // Export — secondary style.
+    #id_export {
+        background: transparent;
+        border-color: $smgp-border;
+        color: $smgp-text;
+
+        &:hover {
+            background: $smgp-gray-50;
+        }
+    }
+}
+
+// Hidden select — keep it hidden but remove the broken layout.
+.iomad_department_select {
+    margin: 0 !important;
+    padding: 0 !important;
+}

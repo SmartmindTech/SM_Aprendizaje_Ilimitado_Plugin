@@ -1,0 +1,15 @@
+// ============================================
+// SmartMind — Utility Classes
+// Ported from theme_smartmind/scss/smartmind/_utilities.scss
+// ============================================
+
+.smartmind-hidden { display: none !important; }
+.smartmind-hidden-mobile { @media (max-width: 767.98px) { display: none !important; } }
+.smartmind-hidden-desktop { @media (min-width: 768px) { display: none !important; } }
+.smartmind-show-mobile-only { @media (min-width: 768px) { display: none !important; } }
+.smartmind-show-desktop-only { @media (max-width: 767.98px) { display: none !important; } }
+.smartmind-no-padding { padding: 0 !important; }
+.smartmind-no-margin { margin: 0 !important; }
+.smartmind-flat-card { border: none !important; box-shadow: none !important; }
+.smartmind-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.smartmind-line-clamp { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: var(--lines, 2); overflow: hidden; }

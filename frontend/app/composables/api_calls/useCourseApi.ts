@@ -1,0 +1,47 @@
+import { useMoodleAjax } from './useMoodleAjax'
+
+/**
+ * API composable for course-related Moodle AJAX calls.
+ */
+export const useCourseApi = () => {
+  const { call } = useMoodleAjax()
+
+  const getCourseLandingData = (courseid: number) =>
+    call('local_sm_graphics_plugin_get_course_landing_data', { courseid }, { deduplicate: true })
+
+  const getCoursePageData = (courseid: number) =>
+    call('local_sm_graphics_plugin_get_course_page_data', { courseid }, { deduplicate: true })
+
+  const getMyCourses = () =>
+    call('local_sm_graphics_plugin_get_mycourses_data', {}, { deduplicate: true })
+
+  const getDashboard = () =>
+    call('local_sm_graphics_plugin_get_dashboard_data', {}, { deduplicate: true })
+
+  const getCatalogue = (categoryid: number = 0) =>
+    call('local_sm_graphics_plugin_get_catalogue_data', { categoryid }, { deduplicate: true })
+
+  const getGradesCertificates = () =>
+    call('local_sm_graphics_plugin_get_grades_certificates_data', {}, { deduplicate: true })
+
+  const getCourseProgress = (courseid: number) =>
+    call('local_sm_graphics_plugin_get_course_progress', { courseid }, { deduplicate: true })
+
+  const enrolUser = (courseid: number) =>
+    call('local_sm_graphics_plugin_enrol_user', { courseid })
+
+  const unenrolUser = (courseid: number) =>
+    call('local_sm_graphics_plugin_unenrol_user', { courseid })
+
+  return {
+    getCourseLandingData,
+    getCoursePageData,
+    getMyCourses,
+    getDashboard,
+    getCatalogue,
+    getGradesCertificates,
+    getCourseProgress,
+    enrolUser,
+    unenrolUser,
+  }
+}

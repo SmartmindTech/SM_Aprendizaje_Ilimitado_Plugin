@@ -1,0 +1,628 @@
+// ============================================================
+// Course Landing Page
+// Ported from theme_smartmind/scss/smartmind/_course_landing.scss
+// ============================================================
+
+.smgp-landing {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 2rem 3rem;
+}
+
+.smgp-landing__body {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+// ---- Main column (left ~60%) ----
+
+.smgp-landing__main {
+    flex: 1 1 55%;
+    min-width: 0;
+}
+
+.smgp-landing__heading {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: $smgp-text;
+
+    [class^="icon-"] {
+        margin-right: 0.5rem;
+        color: $smgp-text;
+    }
+}
+
+.smgp-landing__summary {
+    margin-bottom: 1.5rem;
+    color: $smgp-text-secondary;
+    line-height: 1.6;
+}
+
+// ---- Sections accordion ----
+
+.smgp-landing__section {
+    border: 1px solid $smgp-border;
+    border-radius: $smgp-radius-md;
+    margin-bottom: 0.5rem;
+    overflow: hidden;
+    background: $smgp-bg;
+}
+
+.smgp-landing__section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.15s;
+
+    &:hover {
+        background-color: rgba($smgp-primary-color, 0.04);
+    }
+}
+
+.smgp-landing__section-title {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+}
+
+.smgp-landing__section-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: $smgp-text;
+}
+
+.smgp-landing__section-count {
+    font-size: 0.8rem;
+    color: $smgp-text-secondary;
+}
+
+.smgp-landing__chevron {
+    transition: transform 0.2s;
+    color: $smgp-text-secondary;
+    font-size: 1rem;
+}
+
+.smgp-landing__section--expanded {
+    .smgp-landing__chevron {
+        transform: rotate(180deg);
+    }
+
+    .smgp-landing__section-body {
+        display: block;
+    }
+}
+
+.smgp-landing__section-body {
+    display: none;
+    border-top: 1px solid $smgp-border;
+}
+
+// ---- Activity list ----
+
+.smgp-landing__activities {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.smgp-landing__activity {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 1.25rem;
+    border-bottom: 1px solid rgba($smgp-border, 0.5);
+
+    &:last-child {
+        border-bottom: none;
+    }
+}
+
+.smgp-landing__activity-icon {
+    color: $smgp-primary;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.smgp-landing__activity-name {
+    flex: 1;
+    font-size: 0.875rem;
+    color: $smgp-text;
+}
+
+.smgp-landing__activity-type {
+    font-size: 0.75rem;
+    color: $smgp-text-secondary;
+    white-space: nowrap;
+}
+
+// ---- Sidebar (right ~40%) ----
+
+.smgp-landing__sidebar {
+    flex: 0 0 450px;
+    position: sticky;
+    top: 5rem;
+}
+
+.smgp-landing__image {
+    border-radius: $smgp-radius-md;
+    overflow: hidden;
+    margin-bottom: 1rem;
+
+    img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+}
+
+.smgp-landing__info-card {
+    background: $smgp-bg;
+    border: 1px solid $smgp-border;
+    border-radius: $smgp-radius-md;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.smgp-landing__info-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: $smgp-text;
+}
+
+.smgp-landing__info-row {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba($smgp-border, 0.5);
+
+    &:last-child {
+        border-bottom: none;
+    }
+
+    [class^="icon-"] {
+        color: $smgp-text;
+        font-size: 1rem;
+        flex-shrink: 0;
+        width: 1.25rem;
+        text-align: center;
+    }
+}
+
+.smgp-landing__info-label {
+    flex: 1;
+    font-size: 0.875rem;
+    color: $smgp-text-secondary;
+}
+
+.smgp-landing__info-value {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: $smgp-text;
+}
+
+// ---- Action button ----
+
+.smgp-landing__action {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.smgp-landing__btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.75rem 1.5rem;
+    border-radius: $smgp-radius-md;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.15s, transform 0.1s;
+
+    &--primary {
+        background-color: $smgp-primary;
+        color: #fff;
+
+        &:hover {
+            background-color: $smgp-primary-dark;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        &:active {
+            transform: scale(0.98);
+        }
+
+        &:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+    }
+}
+
+// ---- Responsive ----
+
+@media (max-width: $smgp-bp-lg) {
+    .smgp-landing__body {
+        flex-direction: column;
+    }
+
+    .smgp-landing__sidebar {
+        flex: 1 1 auto;
+        max-width: 100%;
+        position: static;
+    }
+}
+
+// ---- Admin: Add activity picker grid ----
+
+.smgp-add-picker {
+    margin: 0.75rem 0;
+    padding: 1rem 1.5rem;
+}
+
+.smgp-add-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0.6rem;
+
+    @media (max-width: 768px) {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    @media (max-width: 480px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    &__item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem 0.75rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        background: #fff;
+        cursor: pointer;
+        transition: border-color 0.2s, box-shadow 0.2s, transform 0.1s;
+
+        &:hover {
+            border-color: $smgp-primary;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transform: translateY(-1px);
+        }
+    }
+
+    &__icon {
+        font-size: 1.5rem;
+    }
+
+    &__name {
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: $smgp-text;
+        text-align: center;
+    }
+}
+
+// ---- Info card header with enrolled badge ----
+
+.smgp-landing__info-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+
+    .smgp-landing__info-title {
+        margin-bottom: 0;
+    }
+}
+
+.smgp-landing__enrolled-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: #10b981;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+
+    [class^="icon-"] {
+        font-size: 1rem;
+    }
+}
+
+// ---- Enrolled user progress + actions ----
+
+.smgp-landing__enrolled-info {
+    margin-bottom: 1rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid $smgp-border;
+}
+
+.smgp-landing__progress-section {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+}
+
+.smgp-landing__progress-label {
+    font-size: 0.8rem;
+    color: $smgp-text-secondary;
+    white-space: nowrap;
+}
+
+.smgp-landing__progress-bar {
+    flex: 1;
+    height: 8px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.06);
+
+    .progress-bar {
+        background-color: $smgp-primary;
+        border-radius: 4px;
+        transition: width 0.4s ease;
+    }
+}
+
+.smgp-landing__progress-pct {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: $smgp-primary;
+    white-space: nowrap;
+    min-width: 32px;
+    text-align: right;
+}
+
+.smgp-landing__btn--danger {
+    background: transparent;
+    border: 1.5px solid #ef4444;
+    color: #ef4444;
+    border-radius: 8px;
+    padding: 0.5rem 1.25rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+
+    &:hover {
+        background: #ef4444;
+        color: #fff;
+    }
+}
+
+// ---- Video tabs (URL vs Upload) in modal ----
+
+.smgp-video-tabs {
+    display: flex;
+    gap: 0;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    overflow: hidden;
+
+    &__tab {
+        flex: 1;
+        padding: 0.5rem 1rem;
+        border: none;
+        background: #f8fafc;
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #666;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+        transition: background 0.2s, color 0.2s;
+
+        &:not(:last-child) {
+            border-right: 1px solid #e2e8f0;
+        }
+
+        &.active {
+            background: #fff;
+            color: $smgp-primary;
+            font-weight: 600;
+        }
+
+        &:hover:not(.active) {
+            background: #eee;
+        }
+    }
+}
+
+.smgp-upload-zone {
+    text-align: center;
+    padding: 2rem 1.5rem;
+    border: 2px dashed #cbd5e1;
+    border-radius: 12px;
+    color: #666;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+
+    &:hover, &--dragover {
+        border-color: $smgp-primary;
+        background: rgba(99, 102, 241, 0.03);
+    }
+
+    &--dragover {
+        border-style: solid;
+        background: rgba(99, 102, 241, 0.06);
+    }
+
+    &--has-file {
+        border-color: #10b981;
+        background: rgba(16, 185, 129, 0.03);
+    }
+
+    &__icon {
+        font-size: 2.5rem;
+        color: #6366f1;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    &__text {
+        margin: 0;
+        font-size: 0.85rem;
+        color: #666;
+    }
+
+    &__file {
+        margin: 0.75rem 0 0;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #10b981;
+    }
+}
+
+// ---- Admin: Add/Delete activity buttons ----
+
+.smgp-landing__delete-btn {
+    background: none;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+    padding: 2px 6px;
+    margin-left: auto;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+    font-size: 0.9rem;
+
+    &:hover {
+        opacity: 1;
+    }
+}
+
+.smgp-landing__add-btn {
+    background: none;
+    border: 1px dashed #ccc;
+    border-radius: 8px;
+    color: #666;
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: border-color 0.2s, color 0.2s;
+    width: 100%;
+    justify-content: center;
+
+    &:hover {
+        border-color: $smgp-primary;
+        color: $smgp-primary;
+    }
+}
+
+.smgp-landing__activity {
+    display: flex;
+    align-items: center;
+}
+
+.smgp-landing__btn--secondary {
+    background: transparent;
+    border: 1.5px solid #e2e8f0;
+    color: $smgp-text;
+    border-radius: 8px;
+    padding: 0.5rem 1.25rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    text-decoration: none;
+    transition: border-color 0.2s;
+
+    &:hover {
+        border-color: $smgp-primary;
+        color: $smgp-primary;
+        text-decoration: none;
+    }
+}
+
+// ---- Add Activity Modal ----
+
+.smgp-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &__backdrop {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.4);
+    }
+
+    &__card {
+        position: relative;
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        width: 90%;
+        max-width: 480px;
+        padding: 0;
+        overflow: hidden;
+    }
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #eee;
+
+        h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+    }
+
+    &__close {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1.1rem;
+        color: #999;
+
+        &:hover { color: #333; }
+    }
+
+    &__body {
+        padding: 1.25rem 1.5rem;
+    }
+
+    &__footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        padding: 1rem 1.5rem;
+        border-top: 1px solid #eee;
+    }
+}

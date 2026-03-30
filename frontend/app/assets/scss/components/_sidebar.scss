@@ -1,0 +1,223 @@
+// ============================================
+// SmartMind Sidebar — Collapsible navigation
+// Ported from theme_smartmind/scss/smartmind/_navbar.scss
+// ============================================
+
+// Lucide icon base
+.smartmind-nav-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+
+  &::before {
+    font-family: 'lucide';
+    font-weight: normal;
+    font-size: 1.1rem;
+    width: 1.25em;
+    text-align: center;
+    display: inline-block;
+  }
+}
+
+// Icon color map by nav key
+.nav-item[data-key="home"] .smartmind-nav-icon::before       { content: "\e598"; color: #8b5cf6; }
+.nav-item[data-key="dashboard"] .smartmind-nav-icon::before   { content: "\e0f5"; color: #6366f1; }
+.nav-item[data-key="catalogue"] .smartmind-nav-icon::before   { content: "\e598"; color: #8b5cf6; }
+.nav-item[data-key="courses"] .smartmind-nav-icon::before     { content: "\e234"; color: #f59e0b; }
+.nav-item[data-key="grades"] .smartmind-nav-icon::before      { content: "\e04f"; color: #f59e0b; }
+.nav-item[data-key="management"] .smartmind-nav-icon::before  { content: "\e1a4"; color: #8b5cf6; }
+.nav-item[data-key="statistics"] .smartmind-nav-icon::before  { content: "\e06a"; color: #6366f1; }
+.nav-item[data-key="admin"] .smartmind-nav-icon::before       { content: "\e154"; color: #64748b; }
+
+// Sidebar container
+.sm-sidebar {
+  width: $sidebar-width-collapsed;
+  min-width: $sidebar-width-collapsed;
+  flex-shrink: 0;
+  position: relative;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: visible;
+  z-index: 1050;
+}
+
+// Sidebar card (fixed position, expands on hover)
+.sm-sidebar__card {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: $sidebar-width-collapsed;
+  height: 100vh;
+  background-color: $sidebar-bg;
+  overflow: hidden;
+  white-space: nowrap;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.3s ease;
+  will-change: width;
+  z-index: 1050;
+
+  .sm-sidebar:hover & {
+    width: $sidebar-width-expanded;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.10);
+  }
+}
+
+// Logo
+.sm-sidebar__logo {
+  display: flex;
+  align-items: center;
+  padding: $smgp-space-lg $smgp-space-md;
+  overflow: hidden;
+  text-decoration: none;
+
+  img {
+    max-width: 28px;
+    flex-shrink: 0;
+    transition: max-width 0.3s ease;
+
+    .sm-sidebar:hover & {
+      max-width: 140px;
+    }
+  }
+
+  &-text {
+    font-size: $smgp-font-lg;
+    font-weight: 700;
+    color: $smgp-gray-900;
+    opacity: 0;
+    max-width: 0;
+    overflow: hidden;
+    transition: opacity 0.2s ease 0.05s, max-width 0.3s ease;
+    margin-left: $smgp-space-sm;
+
+    .sm-sidebar:hover & {
+      opacity: 1;
+      max-width: 180px;
+    }
+  }
+}
+
+// Navigation list
+.sm-sidebar__nav {
+  flex: 1;
+  padding: $smgp-space-sm;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.sm-sidebar__nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.sm-sidebar__divider {
+  height: 1px;
+  background: $smgp-gray-200;
+  margin: $smgp-space-sm $smgp-space-md;
+}
+
+// Nav item
+.sm-sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: $smgp-space-sm;
+  padding: $smgp-space-sm $smgp-space-md;
+  border-radius: $smgp-radius-md;
+  color: $smgp-gray-700;
+  text-decoration: none;
+  transition: background $smgp-transition-fast;
+  overflow: hidden;
+
+  &:hover {
+    background: $smgp-gray-200;
+    color: $smgp-gray-900;
+    text-decoration: none;
+  }
+
+  &--active {
+    background: rgba($smgp-primary-color, 0.08);
+    color: $smgp-primary;
+  }
+}
+
+// Nav text — hidden when collapsed, visible on hover
+.sm-sidebar__text {
+  font-size: $smgp-font-sm;
+  font-weight: 500;
+  opacity: 0;
+  max-width: 0;
+  overflow: hidden;
+  transition: opacity 0.2s ease 0.05s, max-width 0.3s ease;
+  white-space: nowrap;
+
+  .sm-sidebar:hover & {
+    opacity: 1;
+    max-width: 180px;
+  }
+}
+
+// User area (bottom)
+.sm-sidebar__user {
+  padding: $smgp-space-md;
+  border-top: 1px solid $smgp-gray-200;
+  overflow: hidden;
+
+  &-name {
+    font-size: $smgp-font-sm;
+    color: $smgp-gray-600;
+    opacity: 0;
+    max-width: 0;
+    overflow: hidden;
+    transition: opacity 0.2s ease, max-width 0.3s ease;
+
+    .sm-sidebar:hover & {
+      opacity: 1;
+      max-width: 180px;
+    }
+  }
+
+  &-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: $smgp-gray-300;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: $smgp-font-xs;
+    color: $smgp-gray-600;
+    flex-shrink: 0;
+  }
+}
+
+// Main content area (next to sidebar)
+.sm-main {
+  flex: 1;
+  min-width: 0;
+  margin-left: $sidebar-width-collapsed;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.sm-main__content {
+  flex: 1;
+  padding: $smgp-space-xl $smgp-space-2xl;
+  max-width: 1200px;
+  width: 100%;
+}
+
+// Mobile
+@media (max-width: $smgp-bp-lg) {
+  .sm-sidebar {
+    display: none;
+  }
+  .sm-main {
+    margin-left: 0;
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "app": {
+    "name": "SmartMind",
+    "loading": "Carregando..."
+  },
+  "nav": {
+    "home": "Início",
+    "dashboard": "Meu espaço",
+    "catalogue": "Catálogo",
+    "courses": "Meus cursos",
+    "grades": "Notas e certificados",
+    "management": "Gestão",
+    "statistics": "Estatísticas",
+    "admin": "Administração",
+    "settings": "Configurações"
+  }
+}

@@ -1,0 +1,439 @@
+// ============================================
+// SmartMind — Catalogue (frontpage)
+// Ported from theme_smartmind/scss/smartmind/_catalogue.scss
+// ============================================
+
+// -- Header --
+.smartmind-catalogue-header {
+    &__eyebrow {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: #d97706;
+        margin-bottom: 0.25rem;
+    }
+
+    &__title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0 0 0.5rem;
+    }
+
+    &__desc {
+        font-size: 1rem;
+        color: #64748b;
+        margin: 0;
+    }
+}
+
+// -- Filter bar (search + badges) --
+.smartmind-catalogue-filters {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+
+    &__search {
+        flex: 0 0 auto;
+        min-width: 220px;
+        max-width: 300px;
+
+        input[type="text"],
+        input[type="search"] {
+            min-height: 40px;
+            font-size: 0.95rem;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+    }
+
+    &__badges {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+}
+
+.smartmind-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.4rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 20px;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    color: #0f172a;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+
+    &:hover {
+        background: #f8fafc;
+    }
+
+    &--active {
+        background: #6366f1;
+        color: #fff;
+
+        &:hover {
+            background: #6366f1
+        }
+    }
+}
+
+// -- Category color palette --
+$category-colors: (
+    "seguridad":    #fffbeb,
+    "gestion":      #ecfdf5,
+    "legal":        #fef9e7,
+    "habilidades":  #fce4ec,
+    "digital":      #e0e7ff,
+    "default":      #f1f5f9,
+);
+
+@each $name, $color in $category-colors {
+    .catalogue-card[data-category="#{$name}" i] .catalogue-card__header,
+    .catalogue-card[data-category*="#{$name}" i] .catalogue-card__header {
+        background-color: $color;
+    }
+}
+
+// -- Course card --
+.catalogue-card {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border: 1px solid #f5f3ff;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.2s ease;
+    height: 100%;
+    text-decoration: none;
+    color: inherit;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        text-decoration: none;
+        color: inherit;
+    }
+
+    // Colored header
+    &__header {
+        position: relative;
+        height: 160px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f1f5f9;
+        padding: 1rem;
+    }
+
+    &__icon {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.4s ease;
+    }
+
+    &:hover &__icon {
+        transform: scale(1.05);
+    }
+
+    &__icon-placeholder {
+        width: 64px;
+        height: 64px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        i {
+            font-size: 2.5rem;
+            color: #94a3b8;
+        }
+    }
+
+    // Category badge inside header
+    &__category-badge {
+        position: absolute;
+        bottom: 8px;
+        left: 12px;
+        padding: 2px 10px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(4px);
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        border-radius: 6px;
+        color: #0f172a;
+        z-index: 1;
+    }
+
+    // Body
+    &__body {
+        padding: 0.75rem 1rem 1rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__code {
+        font-size: 0.75rem;
+        color: #999;
+        font-weight: 500;
+        margin-bottom: 0.15rem;
+    }
+
+    &__title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #0f172a;
+        margin: 0 0 0.5rem;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    &__meta {
+        margin-top: auto;
+        font-size: 0.8rem;
+        color: #999;
+
+        span + span::before {
+            content: " \00B7  ";
+        }
+    }
+}
+
+// -- Responsive --
+@media (max-width: 576px) {
+    .smartmind-catalogue-filters {
+        flex-direction: column;
+        align-items: stretch;
+
+        &__search {
+            max-width: 100%;
+        }
+    }
+
+    .catalogue-card__header {
+        height: 120px;
+    }
+}
+
+// --------------------------------------------------
+// .course-card — used by dashboard and block templates
+// --------------------------------------------------
+.course-card {
+    position: relative;
+    background: #fff;
+    border: 1px solid #f1f5f9;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.2s ease;
+    height: 100%;
+    cursor: pointer;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+
+        .course-card__image {
+            transform: scale(1.05);
+        }
+    }
+
+    &__image-wrapper {
+        position: relative;
+        height: 180px;
+        overflow: hidden;
+        background: #f8fafc;
+    }
+
+    &__image {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        overflow: hidden;
+        transition: transform 0.4s ease;
+    }
+
+    &__image-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+
+        i {
+            font-size: 3rem;
+            color: #94a3b8;
+        }
+    }
+
+    &__moodle-badge {
+        position: absolute;
+        top: 145px;
+        left: 12px;
+        padding: 3px 8px;
+        font-size: 10px;
+        font-weight: 700;
+        color: #fff;
+        border-radius: 4px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        z-index: 3;
+
+        &--enrolled {
+            background: #10b981;
+        }
+
+        &--enrol {
+            background: #6366f1;
+            text-decoration: none;
+
+            &:hover {
+                background: #4f46e5;
+                color: #fff;
+                text-decoration: none;
+            }
+        }
+    }
+
+    &__content {
+        padding: 1rem 1rem 0.5rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__title {
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: #0f172a;
+        margin: 0 0 0.5rem;
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+
+        a {
+            color: inherit;
+            text-decoration: none;
+
+            &:hover {
+                color: #6366f1;
+            }
+        }
+    }
+
+    &__summary {
+        font-size: 0.85rem;
+        color: #64748b;
+        margin: 0 0 0.75rem;
+        line-height: 1.5;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        flex-grow: 1;
+    }
+
+    &__stats {
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        gap: 0.7rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    &__stat {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1px;
+        font-size: 9.5px;
+        color: #64748b;
+
+        i {
+            font-size: 0.85rem;
+            opacity: 0.7;
+        }
+
+        span {
+            white-space: nowrap;
+        }
+    }
+
+    &__progress {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        margin-bottom: 0.5rem;
+    }
+
+    &__progress-text {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #6366f1;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    &__progress .progress {
+        flex: 1;
+        height: 4px;
+        border-radius: 2px;
+        background: #e2e8f0;
+        overflow: hidden;
+        margin: 0;
+    }
+
+    &__progress .progress-bar {
+        background: #6366f1;
+        border-radius: 2px;
+    }
+}
+
+@media (max-width: 576px) {
+    .course-card {
+        &__image-wrapper {
+            height: 140px;
+        }
+
+        &__content {
+            padding: 0.75rem;
+        }
+
+        &__title {
+            font-size: 0.95rem;
+        }
+
+        &__stats {
+            gap: 0.5rem;
+        }
+
+        &__stat {
+            font-size: 8.5px;
+        }
+    }
+}

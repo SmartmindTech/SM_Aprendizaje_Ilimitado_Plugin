@@ -82,29 +82,85 @@ function local_sm_graphics_plugin_extend_navigation(global_navigation $navigatio
     // Detect current script path reliably (works even before $PAGE->url is set).
     $scriptpath = isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : '';
 
-    // Redirect enrolment page to our course landing page.
+    // ── SPA redirects ─────────────────────────────────────────────────────
+    // Set to false to temporarily disable SPA and use old Mustache pages.
+    $spa_enabled = (bool) get_config('local_sm_graphics_plugin', 'spa_enabled');
+    if (!$spa_enabled) {
+        // SPA disabled — fall through to old Mustache pages.
+        // Re-enable: Site admin > Plugins > Local > SM Graphics > set spa_enabled = 1
+        // Or run: php -r "require('config.php'); set_config('spa_enabled', '1', 'local_sm_graphics_plugin');"
+
+        // Restore old redirects for manager dashboard.
+        if (substr($scriptpath, -13) === '/my/index.php' || $scriptpath === '/my/') {
+            $managerrec = local_sm_graphics_plugin_get_manager_record($USER->id);
+            if ($managerrec) {
+                redirect(new moodle_url('/local/sm_graphics_plugin/pages/usermanagement.php'));
+            }
+        }
+        if (strpos($scriptpath, '/enrol/index.php') !== false) {
+            $courseid = optional_param('id', 0, PARAM_INT);
+            if ($courseid && isloggedin() && !isguestuser()) {
+                redirect(new moodle_url('/local/sm_graphics_plugin/pages/course_landing.php', ['id' => $courseid]));
+            }
+        }
+        if (strpos($scriptpath, 'iomad_company_admin/index.php') !== false) {
+            $managerrec = local_sm_graphics_plugin_get_manager_record($USER->id);
+            if ($managerrec) {
+                redirect(new moodle_url('/local/sm_graphics_plugin/pages/othermanagement.php'));
+            } else if (is_siteadmin()) {
+                redirect(new moodle_url('/local/sm_graphics_plugin/pages/iomaddashboard.php'));
+            }
+        }
+        return; // Skip all SPA redirects below.
+    }
+
+    // Redirect Moodle core pages and plugin pages to the Vue SPA.
+    $spapage = '/local/sm_graphics_plugin/pages/spa.php';
+
+    // Enrolment page → SPA course landing.
     if (strpos($scriptpath, '/enrol/index.php') !== false) {
         $courseid = optional_param('id', 0, PARAM_INT);
         if ($courseid && isloggedin() && !isguestuser()) {
-            redirect(new moodle_url('/local/sm_graphics_plugin/pages/course_landing.php', ['id' => $courseid]));
+            redirect(new moodle_url($spapage, [], 'courses/' . $courseid . '/landing'));
         }
     }
 
-    // Redirect company managers from the dashboard to the user management page.
+    // Personal Space (/my/) → SPA dashboard.
     if (substr($scriptpath, -13) === '/my/index.php' || $scriptpath === '/my/') {
-        $managerrec = local_sm_graphics_plugin_get_manager_record($USER->id);
-        if ($managerrec) {
-            redirect(new moodle_url('/local/sm_graphics_plugin/pages/usermanagement.php'));
+        if (isloggedin() && !isguestuser()) {
+            redirect(new moodle_url($spapage, [], 'dashboard'));
         }
     }
 
-    // Redirect IOMAD dashboard to SmartMind card-based dashboard.
+    // Course catalogue (/?redirect=0 or site home) → SPA catalogue.
+    if ($scriptpath === '/index.php' && optional_param('redirect', -1, PARAM_INT) === 0) {
+        if (isloggedin() && !isguestuser()) {
+            redirect(new moodle_url($spapage, [], 'catalogue'));
+        }
+    }
+
+    // IOMAD dashboard → SPA admin IOMAD dashboard.
     if (strpos($scriptpath, 'iomad_company_admin/index.php') !== false) {
         $managerrec = local_sm_graphics_plugin_get_manager_record($USER->id);
-        if ($managerrec) {
-            redirect(new moodle_url('/local/sm_graphics_plugin/pages/othermanagement.php'));
-        } else if (is_siteadmin()) {
-            redirect(new moodle_url('/local/sm_graphics_plugin/pages/iomaddashboard.php'));
+        if ($managerrec || is_siteadmin()) {
+            redirect(new moodle_url($spapage, [], 'admin/iomad-dashboard'));
+        }
+    }
+
+    // IOMAD company edit → SPA company editor.
+    if (strpos($scriptpath, 'company_edit_form.php') !== false) {
+        $managerrec = local_sm_graphics_plugin_get_manager_record($USER->id);
+        if ($managerrec || is_siteadmin()) {
+            $companyid = optional_param('companyid', 0, PARAM_INT);
+            redirect(new moodle_url($spapage, [], 'admin/company-editor' . ($companyid ? '?companyid=' . $companyid : '')));
+        }
+    }
+
+    // IOMAD user creation → SPA create user.
+    if (strpos($scriptpath, 'company_user_create_form.php') !== false) {
+        $managerrec = local_sm_graphics_plugin_get_manager_record($USER->id);
+        if ($managerrec || is_siteadmin()) {
+            redirect(new moodle_url($spapage, [], 'admin/create-user'));
         }
     }
 

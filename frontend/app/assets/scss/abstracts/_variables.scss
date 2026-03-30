@@ -1,0 +1,98 @@
+// ========================================
+// SmartMind Design System — Variables
+// Ported from theme_smartmind/scss/smartmind/_variables.scss
+// ========================================
+
+// Brand & Theme Colours (Modern palette — Indigo/Slate)
+$primary:              #6366f1;
+$secondary:            #e2e8f0;
+$success:              #10b981;
+$info:                 #06b6d4;
+$warning:              #f59e0b;
+$danger:               #ef4444;
+
+// Body
+$body-bg:              #f5f3ef;
+$body-color:           #0f172a;
+
+// SmartMind Graphics Plugin Variables
+$smgp-primary:       #6366f1 !default;
+$smgp-primary-dark:  #4f46e5 !default;
+$smgp-primary-light: #818cf8 !default;
+$smgp-primary-color: #6366f1;
+$smgp-secondary:     #64748b !default;
+$smgp-success:       #10b981 !default;
+$smgp-danger:        #ef4444 !default;
+$smgp-warning:       #f59e0b !default;
+$smgp-info:          #06b6d4 !default;
+
+// Accent colours
+$smgp-accent-violet:  #8b5cf6;
+$smgp-accent-pink:    #ec4899;
+$smgp-accent-amber:   #f59e0b;
+$smgp-accent-emerald: #10b981;
+$smgp-accent-cyan:    #06b6d4;
+
+// Grays — Slate-based
+$smgp-gray-50:  #f8fafc;
+$smgp-gray-100: #f1f5f9;
+$smgp-gray-200: #e2e8f0;
+$smgp-gray-300: #cbd5e1;
+$smgp-gray-400: #94a3b8;
+$smgp-gray-500: #64748b;
+$smgp-gray-600: #475569;
+$smgp-gray-700: #334155;
+$smgp-gray-800: #1e293b;
+$smgp-gray-900: #0f172a;
+
+// Semantic
+$smgp-bg:             #ffffff;
+$smgp-bg-secondary:   #f8fafc;
+$smgp-text:           $smgp-gray-900;
+$smgp-text-secondary: $smgp-gray-500;
+$smgp-border:         $smgp-gray-200;
+$smgp-header-bg:      #0f172a;
+
+// Typography
+$smgp-font-xs:   0.75rem;
+$smgp-font-sm:   0.875rem;
+$smgp-font-base: 1rem;
+$smgp-font-lg:   1.125rem;
+$smgp-font-xl:   1.25rem;
+$smgp-font-2xl:  1.5rem;
+$smgp-font-3xl:  1.875rem;
+
+// Spacing
+$smgp-space-xs:  0.25rem;
+$smgp-space-sm:  0.5rem;
+$smgp-space-md:  1rem;
+$smgp-space-lg:  1.5rem;
+$smgp-space-xl:  2rem;
+$smgp-space-2xl: 3rem;
+
+// Border radius
+$smgp-radius-sm:   6px;
+$smgp-radius-md:   8px;
+$smgp-radius-lg:   12px;
+$smgp-radius-xl:   16px;
+$smgp-radius-full: 9999px;
+
+// Shadows
+$smgp-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+$smgp-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+$smgp-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+$smgp-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+
+// Transitions
+$smgp-transition-fast: 150ms ease-in-out;
+$smgp-transition-base: 200ms ease-in-out;
+
+// Breakpoints
+$smgp-bp-sm:  576px;
+$smgp-bp-lg:  992px;
+$smgp-bp-xl:  1200px;
+
+// Sidebar
+$sidebar-width-collapsed: 56px;
+$sidebar-width-expanded: 240px;
+$sidebar-bg: $smgp-gray-100;

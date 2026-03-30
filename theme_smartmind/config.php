@@ -170,7 +170,13 @@ $THEME->layouts = [
                 'notitle' => false,
             ],
         ],
-    )
+    ),
+    // Clean layout for the Vue/Nuxt SPA — no Moodle CSS/chrome.
+    'spa' => array(
+        'file' => 'spa.php',
+        'regions' => array(),
+        'options' => array('nofooter' => true, 'nonavbar' => true, 'noactivityheader' => true),
+    ),
 ];
 
 $THEME->parents = ['boost'];

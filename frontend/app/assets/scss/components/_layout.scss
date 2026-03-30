@@ -1,0 +1,25 @@
+// ============================================
+// SmartMind — Layout Overrides
+// Ported from theme_smartmind/scss/smartmind/_layout.scss
+// ============================================
+
+// -- Decorative background -- gradient mesh with soft orbs --
+// Applies to the main page body behind all content.
+// Creates a modern, lively feel even when the page has little content.
+
+// Note: body background is already set in main.scss base styles.
+// This is kept for reference: background-color: #f5f3ef;
+
+// Moodle-specific: not applicable in SPA
+// #page.drawers
+// .drawer-toggles
+// #page.drawers.show-drawer-left .drawer-left-toggle
+// #page.drawers.show-drawer-right .drawer-right-toggle
+// #page-content
+// #region-main-box
+// #region-main
+// .main-inner
+// body.pagelayout-frontpage #page.drawers .main-inner
+// body.pagelayout-admin #page.drawers .main-inner
+// body.pagelayout-standard.path-admin #page.drawers .main-inner
+// .header-maxwidth
