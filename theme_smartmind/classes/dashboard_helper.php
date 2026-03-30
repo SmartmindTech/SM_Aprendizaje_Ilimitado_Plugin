@@ -252,6 +252,69 @@ class dashboard_helper {
     }
 
     /**
+     * Recommend courses based on the custom categories of finished courses.
+     *
+     * Looks up which local_smgp_categories the user's completed courses belong to,
+     * then picks other visible courses from those same categories that the user
+     * has NOT completed and is NOT enrolled in. Returns up to $limit results
+     * chosen randomly across all matching categories.
+     *
+     * @param array $completedids  IDs of courses the user has completed.
+     * @param array $enrolledids   IDs of courses the user is currently enrolled in.
+     * @param int   $limit         Maximum number of courses to return.
+     * @return array  Formatted course arrays ready for templates.
+     */
+    public static function get_courses_based_on_finished(array $completedids, array $enrolledids = [], int $limit = 4): array {
+        global $DB;
+
+        if (empty($completedids)) {
+            return [];
+        }
+
+        // 1. Find custom category IDs for completed courses.
+        list($insql, $params) = $DB->get_in_or_equal($completedids, SQL_PARAMS_NAMED);
+        $catlinks = $DB->get_records_select('local_smgp_course_category', "courseid $insql", $params);
+        if (empty($catlinks)) {
+            return [];
+        }
+
+        $categoryids = array_unique(array_column($catlinks, 'categoryid'));
+
+        // 2. Find all courses in those categories.
+        list($catinsql, $catparams) = $DB->get_in_or_equal($categoryids, SQL_PARAMS_NAMED);
+        $alllinks = $DB->get_records_select('local_smgp_course_category', "categoryid $catinsql", $catparams);
+        $candidateids = array_unique(array_column($alllinks, 'courseid'));
+
+        // 3. Exclude completed + enrolled courses.
+        $excludeids = array_merge($completedids, $enrolledids);
+        $candidateids = array_diff($candidateids, $excludeids);
+
+        if (empty($candidateids)) {
+            return [];
+        }
+
+        // 4. Fetch visible courses and pick random ones.
+        list($cinsql, $cparams) = $DB->get_in_or_equal(array_values($candidateids), SQL_PARAMS_NAMED);
+        $courses = $DB->get_records_select('course', "id $cinsql AND visible = 1", $cparams);
+
+        if (empty($courses)) {
+            return [];
+        }
+
+        // Shuffle and limit.
+        $courses = array_values($courses);
+        shuffle($courses);
+        $courses = array_slice($courses, 0, $limit);
+
+        $formatted = [];
+        foreach ($courses as $course) {
+            $formatted[] = self::build_course_base($course, false);
+        }
+
+        return $formatted;
+    }
+
+    /**
      * Fetch SmartMind custom catalogue categories (local_smgp_categories)
      * with their linked courses for the dashboard.
      *

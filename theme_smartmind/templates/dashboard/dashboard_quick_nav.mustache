@@ -1,18 +1,15 @@
 {{!
     @template theme_smartmind/dashboard/dashboard_quick_nav
 
-    SmartMind Dashboard — Quick navigation icons row.
-    6 rounded square buttons with colored icons. Disabled items are greyed out.
+    SmartMind Dashboard — Quick navigation with emojis on colored squares.
 
     Context variables:
-      * quicknav - Array of {icon, label, url, color, disabled}
+      * quicknav - Array of {emoji, label, url, color, disabled}
 }}
 <div class="dashboard-quicknav">
     {{#quicknav}}
     <a href="{{url}}" class="dashboard-quicknav__item dashboard-quicknav__item--{{color}} {{#disabled}}dashboard-quicknav__item--disabled{{/disabled}}">
-        <span class="dashboard-quicknav__icon">
-            <i class="fas {{icon}}"></i>
-        </span>
+        <span class="dashboard-quicknav__icon">{{{emoji}}}</span>
         <span class="dashboard-quicknav__label">{{label}}</span>
     </a>
     {{/quicknav}}

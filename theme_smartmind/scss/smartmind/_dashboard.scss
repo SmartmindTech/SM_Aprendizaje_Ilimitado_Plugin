@@ -6,14 +6,31 @@
 //
 
 // ─── FA6 icon fallbacks (not compiled by Moodle core) ────────────
+// Must include font-family explicitly because Moodle may not compile _icons.scss.
 .fa-video::before,
-.fas.fa-video::before        { content: "\f03d" !important; }
+.fas.fa-video::before {
+    font-family: 'Font Awesome 6 Free' !important;
+    font-weight: 900 !important;
+    content: "\f03d" !important;
+}
 .fa-route::before,
-.fas.fa-route::before        { content: "\f4d7" !important; }
+.fas.fa-route::before {
+    font-family: 'Font Awesome 6 Free' !important;
+    font-weight: 900 !important;
+    content: "\f4d7" !important;
+}
 .fa-chart-line::before,
-.fas.fa-chart-line::before   { content: "\f201" !important; }
+.fas.fa-chart-line::before {
+    font-family: 'Font Awesome 6 Free' !important;
+    font-weight: 900 !important;
+    content: "\f201" !important;
+}
 .fa-pen-to-square::before,
-.fas.fa-pen-to-square::before { content: "\f14b" !important; }
+.fas.fa-pen-to-square::before {
+    font-family: 'Font Awesome 6 Free' !important;
+    font-weight: 900 !important;
+    content: "\f14b" !important;
+}
 
 
 // ─── Page-level overrides ────────────────────────────────────────
@@ -226,18 +243,13 @@ section.block_timeline {
     &__item--teal   .dashboard-quicknav__icon { background: #e0f2f1; color: #0d9488; }
     &__item--green  .dashboard-quicknav__icon { background: #dcfce7; color: #16a34a; }
 
-    // Disabled state — greyed out, no interaction.
+    // Disabled state — visible but not interactive.
     &__item--disabled {
         pointer-events: none;
-        opacity: 0.45;
-
-        .dashboard-quicknav__icon {
-            background: $smgp-gray-100 !important;
-            color: $smgp-gray-300 !important;
-        }
+        opacity: 0.6;
 
         .dashboard-quicknav__label {
-            color: $smgp-gray-300;
+            color: $smgp-gray-400;
         }
     }
 }
@@ -297,8 +309,30 @@ section.block_timeline {
         padding: $smgp-space-xl $smgp-space-md;
         color: $smgp-gray-400;
         font-size: $smgp-font-sm;
-        background: $smgp-gray-50;
+        background: #fff;
         border-radius: $smgp-radius-lg;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+
+        i {
+            font-size: 1.5rem;
+            color: $smgp-gray-300;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        p { margin: 0 0 8px; }
+    }
+
+    &__empty-link {
+        color: #2e7d32;
+        font-weight: 600;
+        text-decoration: none;
+        font-size: $smgp-font-sm;
+
+        &:hover {
+            color: #1b5e20;
+            text-decoration: underline;
+        }
     }
 
     // Section header icon — all green for consistency.
@@ -419,6 +453,35 @@ section.block_timeline {
     }
 
     &__diffuse { @extend %diffuse-overlay; }
+
+    // ── Play button — visible on hover ──
+    &__play {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.85);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: rgba(46, 125, 50, 0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 3;
+        opacity: 0;
+        transition: opacity 0.2s ease, transform 0.2s ease;
+
+        i {
+            color: #fff;
+            font-size: 14px;
+            margin-left: 2px;
+        }
+
+        .course-card:hover & {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+    }
 
     // ── Body: text left + ring right ──
     &__body {

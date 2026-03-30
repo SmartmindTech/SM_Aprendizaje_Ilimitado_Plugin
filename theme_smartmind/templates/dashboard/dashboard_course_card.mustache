@@ -2,7 +2,7 @@
     @template theme_smartmind/dashboard/dashboard_course_card
 
     SmartMind Dashboard — Course card.
-    White bg, image with diffuse, title + subtitle, circular progress ring on right.
+    White bg, image with diffuse, play button on hover, progress ring, title + subtitle.
 }}
 <article class="course-card {{#hasprogress}}course-card--enrolled{{/hasprogress}}" data-course-id="{{{id}}}">
     <a href="{{#hasprogress}}{{resumeurl}}{{/hasprogress}}{{^hasprogress}}{{viewurl}}{{/hasprogress}}" class="course-card__thumb">
@@ -13,6 +13,12 @@
         <img src="https://picsum.photos/seed/course{{{id}}}/600/340" class="course-card__thumb-img" alt="{{fullname}}" loading="lazy">
         {{/courseimage}}
         <div class="course-card__diffuse"></div>
+
+        {{#hasprogress}}
+        <div class="course-card__play">
+            <i class="fa fa-play"></i>
+        </div>
+        {{/hasprogress}}
     </a>
     <div class="course-card__body">
         <div class="course-card__text">

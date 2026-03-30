@@ -84,7 +84,7 @@
         transform: translate(-50%, -50%);
         width: 48px;
         height: 48px;
-        background: #059669;
+        background: #1b5e20;
         border-radius: 50%;
         display: flex;
         align-items: center;
@@ -113,7 +113,7 @@
         border-radius: 6px;
 
         &--complete {
-            background: #10b981;
+            background: #2e7d32;
             color: #fff;
         }
 
@@ -197,12 +197,12 @@
         color: #fff;
         text-align: center;
         text-decoration: none;
-        background: #10b981;
+        background: #2e7d32;
         border-radius: 10px;
         transition: all 0.15s ease;
 
         &:hover {
-            background: #059669;
+            background: #1b5e20;
             color: #fff;
             text-decoration: none;
         }

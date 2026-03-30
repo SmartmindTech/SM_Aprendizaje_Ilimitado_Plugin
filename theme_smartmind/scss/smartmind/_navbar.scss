@@ -67,11 +67,11 @@
         }
 
         &--active {
-            background: #10b981;
+            background: #2e7d32;
             color: #fff;
 
             &:hover {
-                background: #059669;
+                background: #1b5e20;
                 color: #fff;
                 text-decoration: none;
             }
@@ -157,7 +157,7 @@
 
 // Map icons by data-key
 [data-key="home"] .smartmind-nav-icon::before { content: "\e598"; color: #8b5cf6; }
-[data-key="myhome"] .smartmind-nav-icon::before { content: "\e0f5"; color: #6366f1; }
+[data-key="myhome"] .smartmind-nav-icon::before { content: "\e0f5"; color: #2e7d32; }
 [data-key="mycourses"] .smartmind-nav-icon::before { content: "\e234"; color: #f59e0b; }
 [data-key="siteadminnode"] .smartmind-nav-icon::before { content: "\e154"; color: #64748b; }
 [data-key="calendar"] .smartmind-nav-icon::before { content: "\e063"; color: #f59e0b; }
@@ -168,12 +168,12 @@
 // SmartMind plugin pages
 [data-key="sm-mycourses"] .smartmind-nav-icon::before { content: "\e234"; color: #f59e0b; }
 [data-key="sm-gradescerts"] .smartmind-nav-icon::before { content: "\e04f"; color: #f59e0b; }
-[data-key="sm-profile"] .smartmind-nav-icon::before { content: "\e19f"; color: #10b981; } // user
+[data-key="sm-profile"] .smartmind-nav-icon::before { content: "\e19f"; color: #2e7d32; } // user
 
 // Company manager sidebar
 [data-key="sm-usermanagement"] .smartmind-nav-icon::before { content: "\e1a4"; color: #8b5cf6; }
 [data-key="sm-othermanagement"] .smartmind-nav-icon::before { content: "\e154"; color: #64748b; }
-[data-key="sm-statistics"] .smartmind-nav-icon::before { content: "\e06a"; color: #6366f1; }
+[data-key="sm-statistics"] .smartmind-nav-icon::before { content: "\e06a"; color: #2e7d32; }
 
 // Active item overrides icon color to white
 .smgp-topnav__item--active .smartmind-nav-icon::before {

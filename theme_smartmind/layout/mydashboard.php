@@ -109,13 +109,16 @@ if (isloggedin() && !isguestuser()) {
     $enrolledcourses = dashboard_helper::format_active_courses($rawcourses, $completedids);
 
     // Browsed courses — visited landing page but not enrolled.
-    $rawbrowsed = \local_sm_graphics_plugin\external\get_browsed_courses::execute(6);
+    $rawbrowsed = \local_sm_graphics_plugin\external\get_browsed_courses::execute(4);
     $viewedcourses = dashboard_helper::format_browsed_courses($rawbrowsed);
 
     // TODO: Replace all fake lists with real API calls when available.
     $recommendedcourses = dashboard_helper::get_fake_recommended_courses();
-    $recexplored        = dashboard_helper::get_fake_rec_explored();
-    $reccompleted       = dashboard_helper::get_fake_rec_completed();
+    // "Because you explored" uses real browsed-but-not-enrolled data.
+    $recexplored        = $viewedcourses;
+    // "Keep advancing" — real recommendations based on completed course categories.
+    $enrolledids  = array_column($rawcourses, 'id');
+    $reccompleted = dashboard_helper::get_courses_based_on_finished($completedids, $enrolledids, 4);
     $fakevideos         = dashboard_helper::get_fake_videos();
     $fakeactivities     = dashboard_helper::get_fake_activities();
     $fakeitineraries    = dashboard_helper::get_fake_itineraries();
@@ -152,14 +155,14 @@ $streakdays = 12;
 $xppoints = '[FAKE] ' . number_format(2403, 0, ',', '.');
 $userlevel = 5;
 
-// Quick navigation items.
+// Quick navigation items — emojis on colored backgrounds.
 $quicknav = [
-    ['icon' => 'fa-graduation-cap', 'label' => get_string('dashboard_nav_cursos', 'theme_smartmind'), 'url' => (new moodle_url('/'))->out(false), 'color' => 'blue',   'disabled' => false],
-    ['icon' => 'fa-bolt',           'label' => get_string('dashboard_nav_pildoras', 'theme_smartmind'), 'url' => '#', 'color' => 'red',    'disabled' => true],
-    ['icon' => 'fa-video',          'label' => get_string('dashboard_nav_videos', 'theme_smartmind'),   'url' => '#', 'color' => 'purple', 'disabled' => true],
-    ['icon' => 'fa-star',           'label' => get_string('dashboard_nav_recomendaciones', 'theme_smartmind'), 'url' => '#', 'color' => 'orange', 'disabled' => true],
-    ['icon' => 'fa-route',          'label' => get_string('dashboard_nav_rutas', 'theme_smartmind'),    'url' => '#', 'color' => 'teal',   'disabled' => true],
-    ['icon' => 'fa-chart-line',     'label' => get_string('dashboard_nav_actividad', 'theme_smartmind'), 'url' => '#', 'color' => 'green',  'disabled' => true],
+    ['emoji' => '&#x1F4DA;', 'label' => get_string('dashboard_nav_cursos', 'theme_smartmind'), 'url' => (new moodle_url('/'))->out(false), 'color' => 'blue',   'disabled' => false],
+    ['emoji' => '&#x26A1;',  'label' => get_string('dashboard_nav_pildoras', 'theme_smartmind'), 'url' => '#', 'color' => 'red',    'disabled' => true],
+    ['emoji' => '&#x1F3AC;', 'label' => get_string('dashboard_nav_videos', 'theme_smartmind'),   'url' => '#', 'color' => 'purple', 'disabled' => true],
+    ['emoji' => '&#x2B50;',  'label' => get_string('dashboard_nav_recomendaciones', 'theme_smartmind'), 'url' => '#', 'color' => 'orange', 'disabled' => true],
+    ['emoji' => '&#x1F5FA;', 'label' => get_string('dashboard_nav_rutas', 'theme_smartmind'),    'url' => '#', 'color' => 'teal',   'disabled' => true],
+    ['emoji' => '&#x1F4CA;', 'label' => get_string('dashboard_nav_actividad', 'theme_smartmind'), 'url' => '#', 'color' => 'green',  'disabled' => true],
 ];
 
 // Category sections — 3 random categories with content, refreshed each page load.

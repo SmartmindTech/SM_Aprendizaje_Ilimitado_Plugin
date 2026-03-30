@@ -49,15 +49,15 @@
                 }
 
                 &.active {
-                    background: #6366f1 !important;
+                    background: #2e7d32 !important;
                     color: #fff !important;
-                    border-color: #6366f1 !important;
+                    border-color: #2e7d32 !important;
                     box-shadow: none;
 
                     &:hover,
                     &:focus {
-                        background: #4f46e5 !important;
-                        border-color: #4f46e5 !important;
+                        background: #1b5e20 !important;
+                        border-color: #1b5e20 !important;
                     }
                 }
             }
@@ -100,7 +100,7 @@
 
                         &.active,
                         &[aria-current="true"] {
-                            background: #6366f1;
+                            background: #2e7d32;
                             color: #fff;
 
                             &::before { color: #fff; }

@@ -2,22 +2,31 @@
     @template theme_smartmind/dashboard/dashboard_rec_completed
 
     SmartMind Dashboard — Recommended based on completed courses.
+    Uses real data from get_courses_based_on_finished. Shows placeholder if empty.
 }}
-{{#hasreccompleted}}
 <div class="catalog-section catalog-section--rec-completed">
     <div class="catalog-section__header">
         <div>
-            <h5 class="catalog-section__title"><i class="fas fa-trophy catalog-section__icon catalog-section__icon--amber"></i> {{#str}}dashboard_rec_completed, theme_smartmind{{/str}}</h5>
+            <h5 class="catalog-section__title"><i class="fa fa-trophy catalog-section__icon catalog-section__icon--green"></i> {{#str}}dashboard_rec_completed, theme_smartmind{{/str}}</h5>
             <p class="catalog-section__desc">{{#str}}dashboard_rec_completed_desc, theme_smartmind{{/str}}</p>
         </div>
+        {{#hasreccompleted}}
         <a href="#" class="catalog-section__viewall">{{#str}}dashboard_viewall, theme_smartmind{{/str}}</a>
+        {{/hasreccompleted}}
     </div>
     <div class="catalog-section__content">
+        {{#hasreccompleted}}
         <div class="dashboard-section-grid dashboard-section-grid--4">
             {{#reccompleted}}
                 {{> theme_smartmind/dashboard/dashboard_course_card }}
             {{/reccompleted}}
         </div>
+        {{/hasreccompleted}}
+        {{^hasreccompleted}}
+        <div class="catalog-section__empty">
+            <i class="fa fa-trophy"></i>
+            <p>{{#str}}dashboard_rec_completed_empty, theme_smartmind{{/str}}</p>
+        </div>
+        {{/hasreccompleted}}
     </div>
 </div>
-{{/hasreccompleted}}

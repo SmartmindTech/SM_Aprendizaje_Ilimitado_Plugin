@@ -110,5 +110,46 @@ $string['stat_completed'] = 'Concluídos';
 $string['stat_hours'] = 'Horas de formação';
 $string['stat_certs'] = 'Certificados';
 
+// Dashboard new sections.
+$string['dashboard_greeting_morning'] = 'Bom dia, {$a}!';
+$string['dashboard_greeting_afternoon'] = 'Boa tarde, {$a}!';
+$string['dashboard_greeting_evening'] = 'Boa noite, {$a}!';
+$string['dashboard_streak_message'] = 'Não perca sua sequência de {$a} dias! Uma pílula de 5 min basta';
+$string['dashboard_suggestion'] = 'Sugerimos começar com uma';
+$string['dashboard_suggestion_link'] = 'pílula de 5 min sobre IA';
+$string['dashboard_stat_streak'] = '{$a} dias de sequência';
+$string['dashboard_stat_xp'] = '{$a} XP';
+$string['dashboard_stat_level'] = 'Nível {$a}';
+$string['dashboard_recommended'] = 'Recomendado para você';
+$string['dashboard_recommended_desc'] = 'Personalizado com base no seu perfil, interesses e atividade';
+$string['dashboard_seguir'] = 'Continue aprendendo';
+$string['dashboard_seguir_desc'] = 'Retome de onde parou · desafie e revise';
+$string['dashboard_pildoras_count'] = '{$a} pílulas';
+$string['dashboard_pildoras_desc'] = 'Microlearning de 5 a 10 min, perfeito para aprender nos momentos livres';
+$string['dashboard_pildora'] = 'Pílula';
+$string['dashboard_min'] = '{$a} min';
+$string['dashboard_nav_cursos'] = 'Cursos';
+$string['dashboard_nav_pildoras'] = 'Pílulas';
+$string['dashboard_nav_videos'] = 'Vídeos';
+$string['dashboard_nav_recomendaciones'] = 'Recomendações';
+$string['dashboard_nav_rutas'] = 'Trilhas';
+$string['dashboard_nav_actividad'] = 'Atividade';
+$string['dashboard_rec_explored'] = 'Porque você explorou';
+$string['dashboard_rec_explored_desc'] = 'Cursos semelhantes aos que você visitou recentemente';
+$string['dashboard_rec_explored_empty'] = 'Você ainda não explorou nenhum curso';
+$string['dashboard_rec_explored_cta'] = 'Navegue no catálogo para encontrar sugestões';
+$string['dashboard_rec_completed'] = 'Continue avançando';
+$string['dashboard_rec_completed_desc'] = 'Recomendações baseadas nos cursos que você já concluiu';
+$string['dashboard_rec_completed_empty'] = 'Conclua seus cursos para começar a receber recomendações';
+$string['dashboard_videos'] = 'Vídeos';
+$string['dashboard_videos_desc'] = 'Conteúdo em vídeo para aprender de forma visual';
+$string['dashboard_activities'] = 'Atividades';
+$string['dashboard_activities_desc'] = 'Exercícios e desafios para praticar o aprendizado';
+$string['dashboard_itineraries'] = 'Trilhas';
+$string['dashboard_itineraries_desc'] = 'Percursos de aprendizagem que agrupam vários cursos';
+$string['dashboard_itinerary_courses'] = '{$a} cursos';
+$string['dashboard_duration'] = '{$a} min';
+$string['dashboard_progress_title'] = 'Seu progresso';
+
 // Company selector.
 $string['select_company'] = 'Selecionar Empresa';
