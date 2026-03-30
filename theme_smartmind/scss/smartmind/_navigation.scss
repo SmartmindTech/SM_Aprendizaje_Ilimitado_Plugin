@@ -35,17 +35,17 @@
                 font-size: 0.875rem;
                 font-weight: 500;
                 border-radius: 20px !important;
-                border: 1px solid #e2e8f0 !important;
+                border: 1px solid #e5e7eb !important;
                 background: #fff;
-                color: #0f172a;
+                color: #374151;
                 transition: all 0.15s ease;
                 white-space: nowrap;
                 margin: 0;
 
                 &:hover,
                 &:focus {
-                    background: #f8fafc;
-                    border-color: #cbd5e1 !important;
+                    background: #f3f4f6;
+                    border-color: #d1d5db !important;
                 }
 
                 &.active {
@@ -112,15 +112,16 @@
     }
 }
 
-// Admin page header — catalogue-style heading
-.path-admin #page-header {
+// Admin page header — Stratoos-style heading
+.path-admin #page-header,
+.pagelayout-admin #page-header {
     margin-bottom: 0.5rem;
 
     .page-context-header {
         .page-header-headings h2 {
-            font-size: 1.75rem;
+            font-size: 2rem;
             font-weight: 700;
-            color: #0f172a;
+            color: #1a1a1a;
             margin: 0;
         }
     }

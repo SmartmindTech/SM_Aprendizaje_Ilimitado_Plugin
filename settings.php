@@ -170,3 +170,25 @@ if ($ADMIN->fulltree) {
         $updatehtml
     ));
 }
+
+// -----------------------------------------------------------------------
+// Add shortcut links directly under the "users" admin category
+// so the "Usuarios" row is not empty on the admin settings page.
+// -----------------------------------------------------------------------
+if ($hassiteconfig) {
+    $ADMIN->add('users', new admin_externalpage(
+        'smgp_userlist',
+        get_string('usermgmt_userlist', 'local_sm_graphics_plugin'),
+        new moodle_url('/admin/user.php')
+    ));
+    $ADMIN->add('users', new admin_externalpage(
+        'smgp_adduser',
+        get_string('usermgmt_createuser', 'local_sm_graphics_plugin'),
+        new moodle_url('/user/editadvanced.php', ['id' => -1])
+    ));
+    $ADMIN->add('users', new admin_externalpage(
+        'smgp_uploadusers',
+        get_string('usermgmt_uploadusers', 'local_sm_graphics_plugin'),
+        new moodle_url('/admin/tool/uploaduser/index.php')
+    ));
+}

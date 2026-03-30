@@ -418,6 +418,52 @@ function xmldb_local_sm_graphics_plugin_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026033001, 'local', 'sm_graphics_plugin');
     }
 
+    if ($oldversion < 2026033003) {
+        // Safety net: ensure all course_meta columns and activity_duration table exist.
+        $dbman = $DB->get_manager();
+
+        $metatable = new xmldb_table('local_smgp_course_meta');
+        if ($dbman->table_exists($metatable)) {
+            $cols = [
+                ['description',            XMLDB_TYPE_TEXT,    null,  null, null, null, null,       'duration_hours'],
+                ['course_category',        XMLDB_TYPE_CHAR,    '255', null, null, null, null,       'description'],
+                ['smartmind_code',         XMLDB_TYPE_CHAR,    '50',  null, null, null, null,       'course_category'],
+                ['sepe_code',              XMLDB_TYPE_CHAR,    '255', null, null, null, null,       'smartmind_code'],
+                ['level',                  XMLDB_TYPE_CHAR,    '20',  null, null, null, 'beginner', 'sepe_code'],
+                ['completion_percentage',  XMLDB_TYPE_INTEGER, '3',   null, XMLDB_NOTNULL, null, '100', 'level'],
+            ];
+            foreach ($cols as $c) {
+                $field = new xmldb_field($c[0], $c[1], $c[2], $c[3], $c[4], $c[5], $c[6], $c[7]);
+                if (!$dbman->field_exists($metatable, $field)) {
+                    $dbman->add_field($metatable, $field);
+                }
+            }
+            // Drop old sepe_category if it still exists.
+            $oldfield = new xmldb_field('sepe_category');
+            if ($dbman->field_exists($metatable, $oldfield)) {
+                $dbman->drop_field($metatable, $oldfield);
+            }
+        }
+
+        // Ensure activity_duration table exists.
+        $durtable = new xmldb_table('local_smgp_activity_duration');
+        if (!$dbman->table_exists($durtable)) {
+            $durtable->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE);
+            $durtable->add_field('cmid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL);
+            $durtable->add_field('courseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL);
+            $durtable->add_field('duration_minutes', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $durtable->add_field('estimation_source', XMLDB_TYPE_CHAR, '50', null, XMLDB_NOTNULL, null, 'fallback');
+            $durtable->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $durtable->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $durtable->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+            $durtable->add_index('cmid_unique', XMLDB_INDEX_UNIQUE, ['cmid']);
+            $durtable->add_index('ix_courseid', XMLDB_INDEX_NOTUNIQUE, ['courseid']);
+            $dbman->create_table($durtable);
+        }
+
+        upgrade_plugin_savepoint(true, 2026033003, 'local', 'sm_graphics_plugin');
+    }
+
     if ($oldversion < 2026033002) {
         $dbman = $DB->get_manager();
         $table = new xmldb_table('local_smgp_course_translations');
