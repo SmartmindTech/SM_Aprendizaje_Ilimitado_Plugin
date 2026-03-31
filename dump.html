@@ -32,7 +32,10 @@ M.yui.loader = {modules: {}};
 
     <div>
     <a class="visually-hidden-focusable" href="#maincontent">Salta al contenido principal</a>
-</div><script src="http://localhost:8081/lib/javascript.php/-1/lib/polyfills/polyfill.js"></script>
+</div>
+
+
+<script src="http://localhost:8081/lib/javascript.php/-1/lib/polyfills/polyfill.js"></script>
 <script src="http://localhost:8081/theme/yui_combo.php?rollup/3.18.1/yui-moodlesimple-min.js"></script><script src="http://localhost:8081/lib/javascript.php/-1/lib/javascript-static.js"></script>
 <script>
 //<![CDATA[
@@ -1589,26 +1592,25 @@ document.body.className += ' jsenabled';
                     <i class="bi bi-collection-play"></i>
                     <p>Selecciona una actividad para comenzar</p>
                 </div>
-            </div>
-
-            <div class="smgp-course-nav">
-                <button class="smgp-course-nav__btn smgp-course-nav__prev" id="smgp-nav-prev" disabled>
-                    <i class="bi bi-chevron-left"></i>
-                    <span>Anterior</span>
-                </button>
-                <div class="smgp-course-nav__center">
-                    <div class="smgp-course-progress-bar" id="smgp-course-progress-bar">
-                        <div class="smgp-course-progress-bar__track">
-                            <div class="smgp-course-progress-bar__fill" id="smgp-progress-fill" style="width:0%"></div>
-                            <div class="smgp-course-progress-bar__cursor" id="smgp-progress-cursor" style="left:0%"></div>
+                <div class="smgp-course-nav">
+                    <button class="smgp-course-nav__btn smgp-course-nav__prev" id="smgp-nav-prev" disabled>
+                        <i class="bi bi-chevron-left"></i>
+                        <span>Anterior</span>
+                    </button>
+                    <div class="smgp-course-nav__center">
+                        <div class="smgp-course-progress-bar" id="smgp-course-progress-bar">
+                            <div class="smgp-course-progress-bar__track">
+                                <div class="smgp-course-progress-bar__fill" id="smgp-progress-fill" style="width:0%"></div>
+                                <div class="smgp-course-progress-bar__cursor" id="smgp-progress-cursor" style="left:0%"></div>
+                            </div>
                         </div>
+                        <div class="smgp-course-nav__item-counter" id="smgp-activity-item-counter" style="display:none;"></div>
                     </div>
-                    <div class="smgp-course-nav__item-counter" id="smgp-activity-item-counter" style="display:none;"></div>
+                    <button class="smgp-course-nav__btn smgp-course-nav__next" id="smgp-nav-next" disabled>
+                        <span>Siguiente</span>
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
                 </div>
-                <button class="smgp-course-nav__btn smgp-course-nav__next" id="smgp-nav-next" disabled>
-                    <span>Siguiente</span>
-                    <i class="bi bi-chevron-right"></i>
-                </button>
             </div>
 
             <div class="smgp-course-activity-info" id="smgp-course-activity-info" style="display:none;">

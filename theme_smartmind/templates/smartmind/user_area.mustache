@@ -20,4 +20,35 @@
     {{#usermenu}}
         {{> core/user_menu }}
     {{/usermenu}}
+    <button type="button" class="smgp-topnav__btn" id="smgp-lang-toggle" aria-label="Change language">
+        <i class="icon-globe"></i>
+        <span id="smgp-lang-code">ES</span>
+    </button>
 </div>
+
+
+<script>
+    var langBtn = document.getElementById('smgp-lang-toggle');
+    var langCode = document.getElementById('smgp-lang-code');
+    var langs = ['es', 'en'];
+    var langLabels = {'es': 'ES', 'en': 'EN'};
+
+    if (langBtn) {
+        langBtn.addEventListener('click', function() {
+            // Redirect with lang parameter — Moodle handles the switch.
+            var currentLang = document.documentElement.getAttribute('lang');
+            // Normalize: Moodle uses "en" not "en_us", "pt-br" not "pt_br" in HTML.
+            currentLang = currentLang.replace('-', '_').toLowerCase();
+            var idx = langs.indexOf(currentLang);
+            var nextLang = langs[(idx + 1) % langs.length];
+            // Moodle language switch URL.
+            window.location.href = '{{wwwroot}}/login/index.php?lang=' + nextLang;
+        });
+
+        // Show current lang code.
+        if (langCode) {
+            var curLang = (document.documentElement.getAttribute('lang')).replace('-', '_').toLowerCase();
+            langCode.textContent = langLabels[curLang] || curLang.toUpperCase().substring(0, 2);
+        }
+    }
+</script>
