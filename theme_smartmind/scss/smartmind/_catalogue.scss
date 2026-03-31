@@ -52,8 +52,8 @@
         }
 
         &:focus {
-            border-color: #2e7d32;
-            box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.12);
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12);
         }
     }
 }
@@ -93,13 +93,13 @@
     }
 
     &--active {
-        background: #2e7d32;
+        background: #10b981;
         color: #fff;
-        border-color: #2e7d32;
+        border-color: #10b981;
 
         &:hover {
-            background: #1b5e20;
-            border-color: #1b5e20;
+            background: #059669;
+            border-color: #059669;
         }
     }
 }
@@ -134,13 +134,13 @@
     }
 
     &--active {
-        background: #2e7d32;
+        background: #10b981;
         color: #fff;
-        border-color: #2e7d32;
+        border-color: #10b981;
 
         &:hover {
-            background: #1b5e20;
-            border-color: #1b5e20;
+            background: #059669;
+            border-color: #059669;
         }
     }
 }
@@ -157,19 +157,19 @@
 
 // ── Category label colors (text below image) ──
 $cat-label-colors: (
-    "inteligencia artificial": #2e7d32,
+    "inteligencia artificial": #10b981,
     "liderazgo":               #f59e0b,
     "desarrollo web":          #3b82f6,
     "diseño":                  #8b5cf6,
     "seguridad":               #ef4444,
     "datos":                   #06b6d4,
-    "cloud":                   #2e7d32,
+    "cloud":                   #10b981,
     "soft skills":             #ec4899,
     "programación":            #14b8a6,
     "metodologías":            #f97316,
     "productividad":           #8b5cf6,
-    "bienestar":               #2e7d32,
-    "tendencias":              #2e7d32,
+    "bienestar":               #10b981,
+    "tendencias":              #10b981,
     "default":                 #6b7280,
 );
 
@@ -248,7 +248,7 @@ $cat-label-colors: (
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.05em;
-        background: #2e7d32;
+        background: #10b981;
         color: #fff;
         border-radius: 6px;
         z-index: 2;
@@ -433,15 +433,15 @@ $cat-label-colors: (
         z-index: 3;
 
         &--enrolled {
-            background: #2e7d32;
+            background: #10b981;
         }
 
         &--enrol {
-            background: #2e7d32;
+            background: #10b981;
             text-decoration: none;
 
             &:hover {
-                background: #1b5e20;
+                background: #059669;
                 color: #fff;
                 text-decoration: none;
             }
@@ -472,7 +472,7 @@ $cat-label-colors: (
             text-decoration: none;
 
             &:hover {
-                color: #2e7d32;
+                color: #10b981;
             }
         }
     }
@@ -527,7 +527,7 @@ $cat-label-colors: (
     &__progress-text {
         font-size: 0.7rem;
         font-weight: 600;
-        color: #2e7d32;
+        color: #10b981;
         white-space: nowrap;
         flex-shrink: 0;
     }
@@ -542,7 +542,7 @@ $cat-label-colors: (
     }
 
     &__progress .progress-bar {
-        background: #2e7d32;
+        background: #10b981;
         border-radius: 2px;
     }
 }
@@ -593,13 +593,13 @@ $cat-label-colors: (
     }
 
     &--active {
-        background: #2e7d32;
+        background: #10b981;
         color: #fff;
-        border-color: #2e7d32;
+        border-color: #10b981;
 
         &:hover {
-            background: #1b5e20;
-            border-color: #1b5e20;
+            background: #059669;
+            border-color: #059669;
         }
     }
 }

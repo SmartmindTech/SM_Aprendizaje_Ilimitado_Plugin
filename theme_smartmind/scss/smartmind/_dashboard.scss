@@ -156,15 +156,15 @@ section.block_timeline {
         }
 
         &-link {
-            color: #2e7d32;
+            color: #10b981;
             font-weight: 600;
             text-decoration: underline;
-            text-decoration-color: rgba(46, 125, 50, 0.3);
+            text-decoration-color: rgba(16, 185, 129, 0.3);
             text-underline-offset: 2px;
 
             &:hover {
-                color: #1b5e20;
-                text-decoration-color: #1b5e20;
+                color: #059669;
+                text-decoration-color: #059669;
             }
         }
     }
@@ -214,7 +214,7 @@ section.block_timeline {
 
         &:hover {
             transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(46, 125, 50, 0.12);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.12);
             text-decoration: none;
         }
     }
@@ -237,12 +237,12 @@ section.block_timeline {
     }
 
     // Color variants — pastel bg with saturated icon.
-    &__item--blue   .dashboard-quicknav__icon { background: #dbeafe; color: #1d4ed8; }
-    &__item--red    .dashboard-quicknav__icon { background: #fce4ec; color: #c62828; }
-    &__item--purple .dashboard-quicknav__icon { background: #ede7f6; color: #7c3aed; }
-    &__item--orange .dashboard-quicknav__icon { background: #fff3e0; color: #e65100; }
-    &__item--teal   .dashboard-quicknav__icon { background: #e0f2f1; color: #0d9488; }
-    &__item--green  .dashboard-quicknav__icon { background: #dcfce7; color: #16a34a; }
+    &__item--blue   .dashboard-quicknav__icon { background: #dcfce7; color: #10b981; }
+    &__item--red    .dashboard-quicknav__icon { background: #dcfce7; color: #10b981; }
+    &__item--purple .dashboard-quicknav__icon { background: #dcfce7; color: #10b981; }
+    &__item--orange .dashboard-quicknav__icon { background: #dcfce7; color: #10b981; }
+    &__item--teal   .dashboard-quicknav__icon { background: #dcfce7; color: #10b981; }
+    &__item--green  .dashboard-quicknav__icon { background: #dcfce7; color: #10b981; }
 
     // Disabled state — visible but not interactive.
     &__item--disabled {
@@ -285,7 +285,7 @@ section.block_timeline {
     &__viewall {
         font-size: 13px;
         font-weight: 500;
-        color: #2e7d32;
+        color: #10b981;
         text-decoration: none;
         white-space: nowrap;
         transition: color $smgp-transition-fast;
@@ -293,7 +293,7 @@ section.block_timeline {
 
         &:hover {
             text-decoration: underline;
-            color: #1b5e20;
+            color: #059669;
         }
     }
 
@@ -325,13 +325,13 @@ section.block_timeline {
     }
 
     &__empty-link {
-        color: #2e7d32;
+        color: #10b981;
         font-weight: 600;
         text-decoration: none;
         font-size: $smgp-font-sm;
 
         &:hover {
-            color: #1b5e20;
+            color: #059669;
             text-decoration: underline;
         }
     }
@@ -341,14 +341,14 @@ section.block_timeline {
         margin-right: 6px;
         font-size: 15px;
         vertical-align: -1px;
-        color: #2e7d32;
+        color: #10b981;
 
         &--purple,
         &--amber,
         &--red,
         &--green,
         &--teal,
-        &--blue { color: #2e7d32; }
+        &--blue { color: #10b981; }
     }
 }
 
@@ -392,7 +392,7 @@ section.block_timeline {
 
     &:hover {
         transform: translateY(-3px);
-        box-shadow: 0 6px 20px rgba(46, 125, 50, 0.12);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.12);
     }
 }
 
@@ -464,7 +464,7 @@ section.block_timeline {
         width: 40px;
         height: 40px;
         border-radius: 50%;
-        background: rgba(46, 125, 50, 0.6);
+        background: rgba(16, 185, 129, 0.6);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -532,7 +532,7 @@ section.block_timeline {
 
     &__ring-fill {
         fill: none;
-        stroke: #2e7d32;
+        stroke: #10b981;
         stroke-width: 3;
         stroke-linecap: round;
         transition: stroke-dasharray 0.4s ease;
@@ -546,7 +546,7 @@ section.block_timeline {
         justify-content: center;
         font-size: 9px;
         font-weight: 700;
-        color: #2e7d32;
+        color: #10b981;
     }
 }
 
@@ -565,7 +565,7 @@ section.block_timeline {
 .pildora-subsection {
     margin-top: 20px;
     padding-left: 20px;
-    border-left: 3px solid rgba(46, 125, 50, 0.15);
+    border-left: 3px solid rgba(16, 185, 129, 0.15);
 
     &__header {
         display: flex;
@@ -584,7 +584,7 @@ section.block_timeline {
         font-size: 12px;
         color: $smgp-gray-400;
         text-decoration: none;
-        &:hover { color: #2e7d32; text-decoration: underline; }
+        &:hover { color: #10b981; text-decoration: underline; }
     }
 }
 
@@ -603,7 +603,7 @@ section.block_timeline {
 
     &:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(46, 125, 50, 0.1);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1);
     }
 
     &__thumb {
@@ -625,8 +625,8 @@ section.block_timeline {
     &__badge {
         display: inline-block; align-self: flex-start;
         font-size: 8px; font-weight: 700;
-        color: #2e7d32; text-transform: uppercase; letter-spacing: 0.03em;
-        background: rgba(46, 125, 50, 0.08);
+        color: #10b981; text-transform: uppercase; letter-spacing: 0.03em;
+        background: rgba(16, 185, 129, 0.08);
         padding: 1px 6px; border-radius: $smgp-radius-full;
         margin-bottom: 3px;
     }
@@ -676,8 +676,8 @@ section.block_timeline {
     &__badge {
         display: inline-block; align-self: flex-start;
         font-size: 11px; font-weight: 600;
-        color: #2e7d32;
-        background: rgba(46, 125, 50, 0.08);
+        color: #10b981;
+        background: rgba(16, 185, 129, 0.08);
         padding: 2px 10px; border-radius: $smgp-radius-full;
     }
 
@@ -715,7 +715,7 @@ section.block_timeline {
 
     &__duration {
         position: absolute; top: 8px; right: 8px;
-        background: #2e7d32; color: #fff;
+        background: #10b981; color: #fff;
         font-size: 10px; font-weight: 600;
         padding: 2px 8px; border-radius: $smgp-radius-sm;
         z-index: 3;
@@ -726,7 +726,7 @@ section.block_timeline {
         position: absolute; top: 50%; left: 50%;
         transform: translate(-50%, -50%) scale(0.9);
         width: 38px; height: 38px; border-radius: 50%;
-        background: rgba(46, 125, 50, 0.5); backdrop-filter: blur(6px);
+        background: rgba(16, 185, 129, 0.5); backdrop-filter: blur(6px);
         display: flex; align-items: center; justify-content: center;
         z-index: 3; opacity: 0;
         transition: opacity 0.2s ease, transform 0.2s ease;
@@ -742,8 +742,8 @@ section.block_timeline {
     &__tag {
         display: inline-block; align-self: flex-start;
         font-size: 10px; font-weight: 600;
-        color: #2e7d32;
-        background: rgba(46, 125, 50, 0.08);
+        color: #10b981;
+        background: rgba(16, 185, 129, 0.08);
         padding: 1px 8px; border-radius: $smgp-radius-full;
         margin-bottom: 4px;
     }
@@ -776,7 +776,7 @@ section.block_timeline {
 
     &__duration {
         position: absolute; top: 8px; right: 8px;
-        background: #2e7d32; color: #fff;
+        background: #10b981; color: #fff;
         font-size: 10px; font-weight: 600;
         padding: 2px 8px; border-radius: $smgp-radius-sm;
         z-index: 3;
@@ -791,8 +791,8 @@ section.block_timeline {
     &__type {
         display: inline-block; align-self: flex-start;
         font-size: 10px; font-weight: 600;
-        color: #2e7d32;
-        background: rgba(46, 125, 50, 0.08);
+        color: #10b981;
+        background: rgba(16, 185, 129, 0.08);
         padding: 1px 8px; border-radius: $smgp-radius-full;
         margin-bottom: 4px;
     }

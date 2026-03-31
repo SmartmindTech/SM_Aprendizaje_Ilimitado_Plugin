@@ -1,0 +1,657 @@
+//
+// SmartMind — Dark Mode
+//
+// Uses html.smgp-dark class on <html>.
+// Overrides all hardcoded light colors from other SmartMind partials.
+//
+
+html.smgp-dark {
+
+    // ── Body ──
+    body {
+        background-color: #0b1120 !important;
+        color: #e2e8f0 !important;
+    }
+
+
+    // ── Navbar ──
+    .smgp-topnav {
+        background: rgba(11, 17, 32, 0.85) !important;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border-bottom-color: #111c30;
+
+        &__center {
+            background-color: rgba(17, 28, 48, 0.6);
+        }
+
+        &__item {
+            color: #94a3b8;
+
+            &:hover {
+                background: #111c30;
+                color: #f1f5f9;
+            }
+
+            &--active {
+                background: #10b981;
+                color: #fff;
+
+                &:hover {
+                    background: #059669;
+                    color: #fff;
+                }
+            }
+        }
+    }
+
+    .smgp-topnav__dropdown {
+        .dropdown-menu {
+            background: #111c30;
+            border-color: #1a2d4a;
+        }
+
+        .dropdown-item {
+            color: #cbd5e1;
+
+            &:hover {
+                background: #1a2d4a;
+                color: #f1f5f9;
+            }
+        }
+    }
+
+    // ── Company dropdown ──
+    .smgp-company-dropdown {
+        &__toggle {
+            color: #e2e8f0;
+            &:hover { color: #818cf8; }
+        }
+
+        &__menu {
+            background: #111c30;
+            border-color: #1a2d4a;
+        }
+
+        &__item {
+            color: #cbd5e1;
+            &:hover {
+                background: #1a2d4a;
+                color: #f1f5f9;
+            }
+            &--active { color: #818cf8; }
+        }
+    }
+
+    // ── Layout ──
+    #page-wrapper {
+        background: #0b1120 !important;
+    }
+
+    #page,
+    #page.drawers {
+        background-color: #0b1120 !important;
+    }
+
+    // Dashboard page (ID selector needs higher specificity)
+    body#page-my-index {
+        background-color: #0b1120 !important;
+    }
+
+    .main-inner,
+    #region-main {
+        background-color: transparent !important;
+    }
+
+    // ── Drawers ──
+    .drawer .drawercontent {
+        background: #111c30;
+        border-color: #1a2d4a;
+    }
+
+    .drawerheader {
+        background: #111c30;
+        border-color: #1a2d4a;
+    }
+
+    .courseindex .courseindex-item {
+        background-color: #111c30;
+
+        .courseindex-link,
+        .courseindex-chevron {
+            color: #cbd5e1;
+        }
+    }
+
+    // ── Forms ──
+    .mform fieldset {
+        background: #111c30;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+
+        .ftoggler h3,
+        .ftoggler .h3 {
+            color: #f1f5f9;
+        }
+    }
+
+    .mform .fitem {
+        border-bottom-color: #1a2d4a;
+
+        .fitemtitle label {
+            color: #cbd5e1;
+        }
+    }
+
+    .mform {
+        .form-control,
+        input[type="text"],
+        input[type="password"],
+        input[type="email"],
+        input[type="url"],
+        input[type="number"],
+        textarea,
+        select {
+            background: #081018 !important;
+            border-color: #1a2d4a !important;
+            color: #e2e8f0 !important;
+
+            &:focus {
+                border-color: #10b981 !important;
+                box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2) !important;
+            }
+        }
+    }
+
+    // ── Buttons ──
+    .btn-secondary {
+        background: #111c30 !important;
+        border-color: #1a2d4a !important;
+        color: #cbd5e1 !important;
+
+        &:hover, &:focus {
+            background: #1a2d4a !important;
+            border-color: #243a5c !important;
+            color: #f1f5f9 !important;
+        }
+    }
+
+    // ── Tables ──
+    .generaltable,
+    .admintable,
+    table.flexible {
+        background: #111c30;
+        border-color: #1a2d4a;
+
+        thead th {
+            background: #081018 !important;
+            border-bottom-color: #1a2d4a !important;
+            color: #94a3b8;
+        }
+
+        tbody tr {
+            &:hover { background: #081018; }
+
+            td {
+                border-bottom-color: #1a2d4a;
+                color: #cbd5e1;
+            }
+        }
+    }
+
+    // ── Cards ──
+    .card,
+    #region-main > .card {
+        background: #111c30 !important;
+        border-color: #1a2d4a !important;
+    }
+
+    .path-admin #region-main > .card,
+    .path-admin #region-main > div > .card {
+        border-color: #1a2d4a !important;
+    }
+
+    // ── Alerts ──
+    .alert.alert-info    { background: #064e3b; color: #a7f3d0; }
+    .alert.alert-warning { background: #451a03; color: #fde68a; }
+    .alert.alert-danger  { background: #450a0a; color: #fca5a5; }
+    .alert.alert-success { background: #064e3b; color: #a7f3d0; }
+
+    // ── Modals ──
+    .modal-content {
+        background: #111c30 !important;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5) !important;
+    }
+
+    .modal-header {
+        border-bottom-color: #1a2d4a;
+
+        .modal-title { color: #f1f5f9; }
+    }
+
+    .modal-footer { border-top-color: #1a2d4a; }
+
+    // ── Dropdowns ──
+    .dropdown-menu {
+        background: #111c30;
+        border-color: #1a2d4a;
+
+        .dropdown-item {
+            color: #cbd5e1;
+
+            &:hover, &:focus { background: #1a2d4a; color: #f1f5f9; }
+            &.active, &:active { background: #10b981; color: #fff; }
+        }
+
+        .dropdown-divider { border-color: #1a2d4a; }
+    }
+
+    // ── Breadcrumbs ──
+    .breadcrumb-item {
+        color: #64748b;
+
+        a { color: #94a3b8; &:hover { color: #10b981; } }
+        &.active { color: #cbd5e1; }
+        + .breadcrumb-item::before { color: #243a5c; }
+    }
+
+    // ── Pagination ──
+    .pagination .page-item {
+        .page-link {
+            background: #111c30;
+            border-color: #1a2d4a;
+            color: #cbd5e1;
+
+            &:hover { background: #1a2d4a; border-color: #243a5c; }
+        }
+
+        &.active .page-link {
+            background: #10b981;
+            border-color: #10b981;
+            color: #fff;
+        }
+    }
+
+    // ── Popover regions ──
+    .popover-region-container {
+        background: #111c30;
+        border-color: #1a2d4a !important;
+    }
+
+    // ── Form autocomplete ──
+    .form-autocomplete-suggestions {
+        background: #111c30;
+        border-color: #1a2d4a !important;
+
+        li {
+            color: #cbd5e1;
+            &:hover { background: #1a2d4a !important; color: #f1f5f9; }
+            &[data-value=""] { background: #081018 !important; color: #64748b; }
+        }
+    }
+
+    .form-autocomplete-selection {
+        border-color: #1a2d4a !important;
+        background: #081018;
+
+        [data-value] { background: #064e3b; color: #a7f3d0; }
+    }
+
+    // ── Admin settings ──
+    #adminsettings .form-defaultinfo,
+    #adminsettings .form-description {
+        color: #64748b;
+    }
+
+    #page-admin-setting .settingsform > fieldset,
+    #adminsettings > fieldset,
+    #adminsettings fieldset.adminsettings,
+    #page-admin-category #region-main > form > fieldset fieldset.adminsettings {
+        background: #111c30;
+        border-color: #1a2d4a !important;
+    }
+
+    #adminsettings h3,
+    #page-admin-setting .settingsform h3 {
+        color: #f1f5f9;
+        border-bottom-color: #1a2d4a;
+
+        a { color: #f1f5f9; &:hover { color: #10b981; } }
+    }
+
+    .tab-content > .tab-pane > .container-fluid > .row {
+        background: #111c30;
+        border-color: #1a2d4a;
+
+        .col-sm-3 h4,
+        .col-sm-3 h4 a,
+        .col-sm-3:not(:has(*))::before {
+            color: #f1f5f9;
+        }
+
+        .list-unstyled li a { color: #94a3b8; &:hover { color: #10b981; } }
+    }
+
+    .path-admin #page-header .page-context-header .page-header-headings h2,
+    #page-admin-category #region-main > form > fieldset > h3 a {
+        color: #f1f5f9;
+    }
+
+    // ── Catalogue ──
+    .smartmind-catalogue-header__title { color: #f1f5f9; }
+    .smartmind-catalogue-header__desc { color: #94a3b8; }
+
+    .smartmind-catalogue-search__input {
+        background: #081018 !important;
+        border-color: #1a2d4a;
+        color: #e2e8f0;
+
+        &::placeholder { color: #64748b; }
+        &:focus { border-color: #10b981; }
+    }
+
+    .smartmind-type-badge,
+    .smartmind-cat-badge,
+    .smartmind-badge {
+        background: #111c30;
+        border-color: #1a2d4a;
+        color: #cbd5e1;
+
+        &:hover { background: #1a2d4a; border-color: #243a5c; }
+        &--active {
+            background: #10b981;
+            color: #fff;
+            border-color: #10b981;
+            &:hover { background: #059669; border-color: #059669; }
+        }
+    }
+
+    .smartmind-catalogue-results__count { color: #f1f5f9; }
+
+    .catalogue-card {
+        background: #111c30;
+        border-color: #1a2d4a;
+
+        &__image-wrap::after {
+            background: linear-gradient(to top, rgba(17, 28, 48, 0.85) 0%, transparent 100%);
+        }
+
+        &__title { color: #f1f5f9; }
+        &__author { color: #94a3b8; }
+        &__meta { color: #64748b; }
+    }
+
+    // ── Course card (dashboard & catalogue) ──
+    .course-card {
+        background: #111c30;
+        border-color: #1a2d4a;
+
+        &__image-wrapper { background: #081018; }
+        &__title { color: #f1f5f9; a { color: #f1f5f9; &:hover { color: #818cf8; } } }
+        &__summary { color: #94a3b8; }
+        &__stats { border-bottom-color: #1a2d4a; }
+        &__stat { color: #94a3b8; }
+    }
+
+    // ── Dashboard ──
+    .dashboard-banner {
+        background: linear-gradient(to right, #111c30 0%, #111c30 40%, #162825 100%);
+        border-color: #1a2d4a;
+
+        &__greeting { color: #f1f5f9; }
+        &__streak { color: #94a3b8; }
+        &__suggestion { background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2); color: #94a3b8; }
+        &__badge { background: #081018; border-color: #1a2d4a; color: #94a3b8; }
+    }
+
+    .dashboard-quicknav__item {
+        background: #111c30;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+
+        &:hover { box-shadow: 0 6px 20px rgba(16, 185, 129, 0.15); }
+    }
+
+    .dashboard-quicknav__label { color: #94a3b8; }
+
+    .catalog-section__title { color: #f1f5f9; }
+    .catalog-section__desc { color: #64748b; }
+    .catalog-section__viewall { color: #10b981; &:hover { color: #34d399; } }
+    .catalog-section__empty { background: #081018; color: #64748b; }
+
+    .catalog-stats__card {
+        background: #111c30;
+        border-color: #1a2d4a;
+    }
+    .catalog-stats__label { color: #64748b; }
+    .catalog-stats__value { color: #f1f5f9; }
+
+    .pildora-block {
+        background: #111c30;
+    }
+
+    .pildora-subsection {
+        border-left-color: rgba(16, 185, 129, 0.2);
+        &__title { color: #cbd5e1; }
+    }
+
+    .pildora-card {
+        background: #111c30;
+        box-shadow: 0 0 0 1px #1a2d4a;
+        &__title { color: #f1f5f9; }
+    }
+
+    .recommended-card__title { color: #f1f5f9; }
+    .recommended-card__info { color: #cbd5e1; }
+
+    .video-card__body { color: #cbd5e1; }
+    .video-card__title { color: #f1f5f9; }
+
+    .activity-card__body { color: #cbd5e1; }
+    .activity-card__title { color: #f1f5f9; }
+
+    .itinerary-card__title { color: #f1f5f9; }
+    .itinerary-card__desc { color: #94a3b8; }
+
+    // White diffuse overlay → dark
+    .course-card__diffuse,
+    .pildora-card__diffuse,
+    .recommended-card__diffuse,
+    .video-card__diffuse,
+    .activity-card__diffuse,
+    .itinerary-card__diffuse {
+        background: linear-gradient(to top, rgba(17, 28, 48, 0.85) 0%, rgba(17, 28, 48, 0.5) 35%, transparent 100%) !important;
+    }
+
+    // ── Scroll buttons ──
+    .smartmind-scroll__btn {
+        background: #111c30;
+        border-color: #1a2d4a;
+        color: #94a3b8;
+
+        &:hover { background: #1a2d4a; color: #f1f5f9; border-color: #243a5c; }
+    }
+
+    // ── Course page ──
+    body.smgp-course-player {
+        #page-wrapper { background: #0b1120 !important; }
+        .navbar_right_content { background-color: #0b1120 !important; }
+    }
+
+    .smgp-course-body { background: #0b1120; }
+    .smgp-course-content { background: #111c30; color: #e2e8f0; }
+    .smgp-course-content__iframe-wrap { border-color: #1a2d4a; }
+    .smgp-course-nav { background: #0b1120; }
+    .smgp-course-nav__btn {
+        border-color: #1a2d4a;
+        color: #e2e8f0;
+        &:hover:not(:disabled) { background: #6366f1; border-color: #6366f1; color: #fff; }
+    }
+    .smgp-course-nav .smgp-course-nav__next:not(:disabled) {
+        background: #6366f1;
+        border-color: #6366f1;
+        &:hover { background: #4f46e5; border-color: #4f46e5; }
+    }
+
+    .smgp-course-breadcrumb { color: #64748b; }
+    .smgp-course-breadcrumb__current { color: #94a3b8; }
+    .smgp-course-activity-info__title { color: #f1f5f9; }
+    .smgp-course-activity-info__meta { color: #64748b; }
+
+    .smgp-course-sidebar {
+        background: #111c30;
+        border-left-color: #1a2d4a;
+
+        &__header { background: #081018; border-bottom-color: #1a2d4a; }
+        &__title { color: #f1f5f9; }
+    }
+
+    .smgp-course-sidebar__toggle {
+        background: #111c30;
+        border-color: #1a2d4a;
+        color: #64748b;
+        &:hover { background: #1a2d4a; color: #f1f5f9; }
+    }
+
+    .smgp-course-activity {
+        border-bottom-color: #1a2d4a;
+        &:hover { background: #1a2d4a; }
+        &--active { background: #1e3a5f; border-left-color: #6366f1; }
+
+        &__text p { color: #e2e8f0; }
+        &__duration { color: #64748b; }
+        &__icon-box { background: #312e81; color: #818cf8; }
+        &__check { color: #10b981; }
+    }
+
+    .smgp-activity-ring__bg { stroke: #1a2d4a; }
+
+    // ── Login ──
+    .smgp-login-wrapper { background: #0b1120 !important; }
+    .smgp-login-card {
+        background: #111c30 !important;
+
+        input[type="text"],
+        input[type="password"],
+        input[type="email"] {
+            background: #081018 !important;
+            border-color: #1a2d4a !important;
+            color: #e2e8f0 !important;
+        }
+    }
+    .smgp-login-button__feature {
+        background: #111c30 !important;
+        color: #cbd5e1 !important;
+        &:hover { background: #1a2d4a !important; }
+    }
+
+    // ── Toast ──
+    .toast {
+        background: #111c30 !important;
+        color: #e2e8f0;
+    }
+
+    // ── User menu ──
+    .usermenu .dropdown-toggle {
+        color: #e2e8f0;
+    }
+
+    // ── Misc Moodle overrides ──
+    #region-main {
+        color: #e2e8f0;
+    }
+
+    a { color: #818cf8; }
+    a:hover { color: #a5b4fc; }
+
+    h1, h2, h3, h4, h5, h6 {
+        color: #f1f5f9;
+    }
+
+    hr { border-color: #1a2d4a; }
+
+    // ── My Courses ──
+    .smgp-mycourses__row {
+        background: #111c30;
+        border-color: #1a2d4a;
+    }
+
+    .smgp-mycourses__course-name { color: #f1f5f9; }
+    .smgp-mycourses__meta { color: #64748b; }
+    .smgp-mycourses__progress-bar { background: #1a2d4a; }
+
+    .smgp-mycourses__image {
+        background: linear-gradient(135deg, #111c30 0%, #1a2d4a 100%);
+
+        &::after {
+            background: linear-gradient(to left, rgba(17, 28, 48, 0.7) 0%, transparent 100%);
+        }
+    }
+
+    .smgp-mycourses__image-placeholder i { color: #1a2d4a; }
+
+    .smgp-mycourses__action {
+        border-top-color: #1a2d4a;
+    }
+
+    .smgp-mycourses__empty { color: #64748b; }
+
+    // ── Profile ──
+    .smgp-profile__header-card,
+    .smgp-profile__stat,
+    .smgp-profile__weekly-card,
+    .smgp-profile__level-card {
+        background: #111c30 !important;
+        border-color: #1a2d4a !important;
+        color: #e2e8f0;
+    }
+
+    .smgp-profile__milestone-icon { background: #111c30; }
+    .smgp-profile__streak-fill { background: #10b981; }
+
+    // ── Course landing ──
+    .course-landing__draggable,
+    .course-landing__option-tile,
+    .course-landing__modal-card {
+        background: #111c30 !important;
+        border-color: #1a2d4a !important;
+        color: #e2e8f0;
+    }
+
+    .course-landing__tab.active {
+        background: #111c30 !important;
+        color: #f1f5f9 !important;
+    }
+
+    // ── Grades & Certificates ──
+    .smgp-grades-certificates__card {
+        background: #111c30 !important;
+        border-color: #1a2d4a !important;
+        color: #e2e8f0;
+    }
+
+    // ── Navigation (Moodle default nav buttons) ──
+    .navbar .nav-item .btn,
+    .navbar .dropdownmoremenu .dropdown-toggle {
+        background: #111c30 !important;
+        color: #cbd5e1 !important;
+
+        &:hover { background: #1a2d4a !important; }
+    }
+
+    // ── Dashboard extras ──
+    .dashboard-pigeon__card {
+        background: #111c30 !important;
+        border-color: #1a2d4a !important;
+        color: #e2e8f0;
+    }
+
+    .dashboard-habits__btn {
+        background: #111c30 !important;
+        border-color: #1a2d4a !important;
+        color: #cbd5e1 !important;
+    }
+
+    // ── Dark mode toggle button ──
+    .smgp-topnav__btn {
+        color: #cbd5e1;
+    }
+}

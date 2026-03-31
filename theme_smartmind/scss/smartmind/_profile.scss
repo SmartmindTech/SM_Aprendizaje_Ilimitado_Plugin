@@ -37,7 +37,7 @@
         right: -4px;
         width: 28px;
         height: 28px;
-        background: #2e7d32;
+        background: #10b981;
         color: #fff;
         font-size: 0.75rem;
         font-weight: 700;
@@ -91,7 +91,7 @@
 
         &--xp { color: #f59e0b; }
         &--streak { color: #ef4444; }
-        &--courses { color: #2e7d32; }
+        &--courses { color: #10b981; }
         &--hours { color: #3b82f6; }
     }
 
@@ -108,7 +108,7 @@
 
     // ── Streak card ──
     &__streak-card {
-        background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
         border-radius: 16px;
         padding: 1.5rem 2rem;
         color: #fff;
@@ -192,7 +192,7 @@
         .smgp-profile__milestone--reached & {
             background: #fff;
             border-color: #fff;
-            color: #2e7d32;
+            color: #10b981;
         }
 
         i {
@@ -312,13 +312,13 @@
     &__chart-value {
         font-size: 0.7rem;
         font-weight: 600;
-        color: #2e7d32;
+        color: #10b981;
     }
 
     &__chart-bar {
         width: 70%;
         min-height: 4px;
-        background: #2e7d32;
+        background: #10b981;
         border-radius: 4px 4px 0 0;
         transition: height 0.4s ease;
 
@@ -370,7 +370,7 @@
         transform: translate(-50%, -50%);
         font-size: 2rem;
         font-weight: 700;
-        color: #2e7d32;
+        color: #10b981;
     }
 
     &__level-label {

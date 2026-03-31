@@ -4,7 +4,7 @@
     SmartMind — User navigation area (right side of top navbar).
 
     Contains: search box, language menu, plugin output (notifications, messages),
-    company selector, user menu (avatar dropdown).
+    company selector, user menu (avatar dropdown), dark mode toggle, language toggle.
 }}
 <div id="usernavigation" class="smgp-topnav__user-area">
     {{# output.search_box }}
@@ -20,6 +20,9 @@
     {{#usermenu}}
         {{> core/user_menu }}
     {{/usermenu}}
+    <button type="button" class="smgp-topnav__btn smgp-darkmode-toggle" aria-label="Toggle dark mode">
+        <span class="smgp-darkmode-toggle__icon"></span>
+    </button>
     <button type="button" class="smgp-topnav__btn" id="smgp-lang-toggle" aria-label="Change language">
         <i class="icon-globe"></i>
         <span id="smgp-lang-code">ES</span>
@@ -28,27 +31,56 @@
 
 
 <script>
-    var langBtn = document.getElementById('smgp-lang-toggle');
-    var langCode = document.getElementById('smgp-lang-code');
-    var langs = ['es', 'en'];
-    var langLabels = {'es': 'ES', 'en': 'EN'};
+    document.addEventListener('DOMContentLoaded', function() {
+        // Guard: only run once even if this template is included multiple times.
+        if (window._smgpUserAreaInit) return;
+        window._smgpUserAreaInit = true;
 
-    if (langBtn) {
-        langBtn.addEventListener('click', function() {
-            // Redirect with lang parameter — Moodle handles the switch.
-            var currentLang = document.documentElement.getAttribute('lang');
-            // Normalize: Moodle uses "en" not "en_us", "pt-br" not "pt_br" in HTML.
-            currentLang = currentLang.replace('-', '_').toLowerCase();
-            var idx = langs.indexOf(currentLang);
-            var nextLang = langs[(idx + 1) % langs.length];
-            // Moodle language switch URL.
-            window.location.href = '{{wwwroot}}/login/index.php?lang=' + nextLang;
+        // ── Dark mode toggle ──
+        var html = document.documentElement;
+        var buttons = document.querySelectorAll('.smgp-darkmode-toggle');
+        var icons = document.querySelectorAll('.smgp-darkmode-toggle__icon');
+
+        function isDark() {
+            return html.classList.contains('smgp-dark');
+        }
+
+        function updateIcons() {
+            var mode = isDark() ? 'dark' : 'light';
+            icons.forEach(function(icon) {
+                icon.setAttribute('data-mode', mode);
+            });
+        }
+
+        updateIcons();
+
+        buttons.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                html.classList.toggle('smgp-dark');
+                localStorage.setItem('smgp-theme', isDark() ? 'dark' : 'light');
+                updateIcons();
+            });
         });
 
-        // Show current lang code.
-        if (langCode) {
-            var curLang = (document.documentElement.getAttribute('lang')).replace('-', '_').toLowerCase();
-            langCode.textContent = langLabels[curLang] || curLang.toUpperCase().substring(0, 2);
+        // ── Language toggle ──
+        var langBtn = document.getElementById('smgp-lang-toggle');
+        var langCode = document.getElementById('smgp-lang-code');
+        var langs = ['es', 'en'];
+        var langLabels = {'es': 'ES', 'en': 'EN'};
+
+        if (langBtn) {
+            langBtn.addEventListener('click', function() {
+                var currentLang = html.getAttribute('lang');
+                currentLang = currentLang.replace('-', '_').toLowerCase();
+                var idx = langs.indexOf(currentLang);
+                var nextLang = langs[(idx + 1) % langs.length];
+                window.location.href = '{{wwwroot}}/login/index.php?lang=' + nextLang;
+            });
+
+            if (langCode) {
+                var curLang = (html.getAttribute('lang')).replace('-', '_').toLowerCase();
+                langCode.textContent = langLabels[curLang] || curLang.toUpperCase().substring(0, 2);
+            }
         }
-    }
+    });
 </script>

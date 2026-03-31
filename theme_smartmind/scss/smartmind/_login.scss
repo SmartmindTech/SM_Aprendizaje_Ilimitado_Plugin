@@ -215,14 +215,14 @@ html.smgp-dark {
         width: 36px;
         height: 36px;
         border-radius: 10px;
-        background: rgba(46, 125, 50, 0.08);
+        background: rgba(16, 185, 129, 0.08);
         display: flex;
         align-items: center;
         justify-content: center;
 
         [class^="icon-"] {
             font-size: 1.1rem;
-            color: #2e7d32;
+            color: #10b981;
         }
     }
 
@@ -250,13 +250,13 @@ html.smgp-dark {
         transition: background-color 200ms ease, box-shadow 200ms ease, transform 100ms ease;
 
         &--signin {
-            background-color: #2e7d32;
-            border-color: #2e7d32;
+            background-color: #10b981;
+            border-color: #10b981;
             color: #ffffff;
 
             &:hover {
-                background-color: #1b5e20;
-                box-shadow: 0 4px 14px rgba(46, 125, 50, 0.4);
+                background-color: #059669;
+                box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
                 color: #ffffff;
             }
 
@@ -268,12 +268,12 @@ html.smgp-dark {
         &--verify {
             background-color: transparent;
             border: 1.5px solid #e2e8f0;
-            color: #2e7d32;
+            color: #10b981;
 
             &:hover {
-                border-color: #2e7d32;
-                background-color: rgba(46, 125, 50, 0.04);
-                color: #2e7d32;
+                border-color: #10b981;
+                background-color: rgba(16, 185, 129, 0.04);
+                color: #10b981;
             }
         }
     }
@@ -301,7 +301,7 @@ html.smgp-dark {
     transition: color 200ms ease;
 
     &:hover {
-        color: #2e7d32;
+        color: #10b981;
     }
 }
 
@@ -392,8 +392,8 @@ html.smgp-dark {
         }
 
         &:focus {
-            border-color: #2e7d32;
-            box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.12);
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12);
             outline: none;
         }
     }
@@ -425,8 +425,8 @@ html.smgp-dark {
         width: 100%;
         height: 48px;
         border-radius: 12px;
-        background-color: #2e7d32 !important;
-        border-color: #2e7d32 !important;
+        background-color: #10b981 !important;
+        border-color: #10b981 !important;
         color: #fff !important;
         font-family: 'Inter', sans-serif;
         font-weight: 600;
@@ -434,9 +434,9 @@ html.smgp-dark {
         transition: background-color 200ms ease, box-shadow 200ms ease;
 
         &:hover {
-            background-color: #1b5e20 !important;
-            border-color: #1b5e20 !important;
-            box-shadow: 0 4px 14px rgba(46, 125, 50, 0.3);
+            background-color: #059669 !important;
+            border-color: #059669 !important;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
         }
 
         &:active {
@@ -451,11 +451,11 @@ html.smgp-dark {
 
     a {
         font-size: 0.8rem;
-        color: #2e7d32;
+        color: #10b981;
         text-decoration: none;
 
         &:hover {
-            color: #1b5e20;
+            color: #059669;
             text-decoration: underline;
         }
     }
@@ -485,7 +485,7 @@ html.smgp-dark {
         transition: border-color 200ms ease;
 
         &:hover {
-            border-color: #2e7d32;
+            border-color: #10b981;
         }
     }
 }
@@ -497,12 +497,12 @@ html.smgp-dark {
     .btn {
         border-radius: 12px;
         border: 1.5px solid #e2e8f0;
-        color: #2e7d32;
+        color: #10b981;
         font-weight: 500;
 
         &:hover {
-            border-color: #2e7d32;
-            background-color: rgba(46, 125, 50, 0.04);
+            border-color: #10b981;
+            background-color: rgba(16, 185, 129, 0.04);
         }
     }
 }
@@ -532,7 +532,7 @@ html.smgp-dark {
     border: none;
     padding: 0;
     cursor: pointer;
-    color: #2e7d32;
+    color: #10b981;
     font-size: 0.9rem;
     font-weight: 500;
     font-family: 'Inter', sans-serif;
@@ -547,7 +547,7 @@ html.smgp-dark {
     }
 
     &:hover {
-        color: #1b5e20;
+        color: #059669;
         text-decoration: underline;
     }
 }
@@ -560,8 +560,8 @@ html.smgp-dark {
     .smgp-verify-submit .btn {
         border-radius: 12px;
         height: 48px;
-        background-color: #2e7d32;
-        border-color: #2e7d32;
+        background-color: #10b981;
+        border-color: #10b981;
         color: #fff;
         font-weight: 600;
         display: flex;
@@ -570,8 +570,8 @@ html.smgp-dark {
         gap: 0.5rem;
 
         &:hover {
-            background-color: #1b5e20;
-            border-color: #1b5e20;
+            background-color: #059669;
+            border-color: #059669;
         }
     }
 }
@@ -591,14 +591,14 @@ html.smgp-dark {
 
     [class^="icon-"] {
         font-size: 2rem;
-        color: #2e7d32;
+        color: #10b981;
     }
 }
 
 .smgp-verify-success-text {
     text-align: center;
     font-weight: 600;
-    color: #2e7d32;
+    color: #10b981;
     margin-bottom: 1rem;
     font-size: 0.95rem;
 }

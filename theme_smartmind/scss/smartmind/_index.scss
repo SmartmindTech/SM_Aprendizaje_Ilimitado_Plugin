@@ -52,5 +52,8 @@
 @import "filepicker";
 @import "backup_restore";
 
+// Dark mode
+@import "darkmode";
+
 // Utilities — must come last (contains !important helpers)
 @import "utilities";

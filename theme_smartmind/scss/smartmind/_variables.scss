@@ -10,9 +10,9 @@
 // ========================================
 // Brand & Theme Colours (Green palette)
 // ========================================
-$primary:              #2e7d32;
+$primary:              #10b981;
 $secondary:            #e2e8f0;
-$success:              #2e7d32;
+$success:              #10b981;
 $info:                 #06b6d4;
 $warning:              #f59e0b;
 $danger:               #ef4444;
@@ -70,12 +70,12 @@ $calendar-event-other-bg:      #f3e8ff;  // Purple-100
 // ========================================
 // Activity Icons — Modern palette
 // ========================================
-$activity-icon-administration-bg:   #2e7d32;  // Green
-$activity-icon-assessment-bg:       #ec4899;  // Pink
-$activity-icon-collaboration-bg:    #f97316;  // Orange
-$activity-icon-communication-bg:    #2e7d32;  // Green
-$activity-icon-content-bg:          #3b82f6;  // Blue
-$activity-icon-interactivecontent-bg: #ef4444; // Red
+$activity-icon-administration-bg:   #10b981;  // Green
+$activity-icon-assessment-bg:       #10b981;  // Green
+$activity-icon-collaboration-bg:    #10b981;  // Green
+$activity-icon-communication-bg:    #10b981;  // Green
+$activity-icon-content-bg:          #10b981;  // Green
+$activity-icon-interactivecontent-bg: #10b981; // Green
 
 // ========================================
 // Icons
@@ -90,12 +90,12 @@ $activity-icon-interactivecontent-bg: #ef4444; // Red
 // and other plugin-specific components.
 
 // Colours — Green palette
-$smgp-primary:       #2e7d32 !default;  // Green-800
-$smgp-primary-dark:  #1b5e20 !default;  // Green-900
-$smgp-primary-light: #4caf50 !default;  // Green-500
-$smgp-primary-color: #2e7d32;           // Sass-native color for rgba() calls
+$smgp-primary:       #10b981 !default;  // Green-800
+$smgp-primary-dark:  #059669 !default;  // Green-900
+$smgp-primary-light: #34d399 !default;  // Green-500
+$smgp-primary-color: #10b981;           // Sass-native color for rgba() calls
 $smgp-secondary:     #64748b !default;  // Slate-500
-$smgp-success:       #2e7d32 !default;  // Green-800
+$smgp-success:       #10b981 !default;  // Green-800
 $smgp-danger:        #ef4444 !default;  // Red-500
 $smgp-warning:       #f59e0b !default;  // Amber-500
 $smgp-info:          #06b6d4 !default;  // Cyan-500
@@ -104,7 +104,7 @@ $smgp-info:          #06b6d4 !default;  // Cyan-500
 $smgp-accent-violet:  #8b5cf6;  // Violet-500
 $smgp-accent-pink:    #ec4899;  // Pink-500
 $smgp-accent-amber:   #f59e0b;  // Amber-500
-$smgp-accent-emerald: #2e7d32;  // Green-800
+$smgp-accent-emerald: #10b981;  // Green-800
 $smgp-accent-cyan:    #06b6d4;  // Cyan-500
 
 // Grays — Slate-based (blue-tinted, more refined)

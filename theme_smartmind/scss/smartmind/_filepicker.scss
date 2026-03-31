@@ -101,15 +101,15 @@
 // Order: contentbank(1), local(2), recent(3), upload(4), url(5), user/private(6), wikimedia(7).
 .file-picker .fp-repo-area .fp-repo:nth-child(1) .fp-repo-name::before {
     content: "\e234"; // graduation-cap
-    color: $smgp-primary;
+    color: $smgp-success;
 }
 .file-picker .fp-repo-area .fp-repo:nth-child(2) .fp-repo-name::before {
     content: "\e0d7"; // folder
-    color: #f59e0b;
+    color: $smgp-success;
 }
 .file-picker .fp-repo-area .fp-repo:nth-child(3) .fp-repo-name::before {
     content: "\e087"; // clock
-    color: #06b6d4;
+    color: $smgp-success;
 }
 .file-picker .fp-repo-area .fp-repo:nth-child(4) .fp-repo-name::before {
     content: "\e19e"; // upload
@@ -117,15 +117,15 @@
 }
 .file-picker .fp-repo-area .fp-repo:nth-child(5) .fp-repo-name::before {
     content: "\e102"; // link
-    color: #3b82f6;
+    color: $smgp-success;
 }
 .file-picker .fp-repo-area .fp-repo:nth-child(6) .fp-repo-name::before {
     content: "\e10b"; // lock (private)
-    color: $smgp-accent-violet;
+    color: $smgp-success;
 }
 .file-picker .fp-repo-area .fp-repo:nth-child(7) .fp-repo-name::before {
     content: "\e0e8"; // globe (wikimedia)
-    color: #64748b;
+    color: $smgp-success;
 }
 // Active state — all icons white.
 .file-picker .fp-repo-area .fp-repo .nav-link.active .fp-repo-name::before {

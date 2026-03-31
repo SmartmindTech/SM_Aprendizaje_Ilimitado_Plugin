@@ -71,14 +71,14 @@ body[class*="iomad_company_admin"] {
                     font-family: "Font Awesome 6 Free";
                     font-weight: 900;
                     font-size: $smgp-font-sm;
-                    color: $smgp-gray-400;
+                    color: $smgp-success;
                 }
             }
 
             // Selected item gets an open-folder icon.
             &[aria-selected="true"] > .tree_dept_name::before {
                 content: "\f07c"; // fa-folder-open
-                color: $smgp-gray-700;
+                color: darken($smgp-success, 10%);
             }
 
             // Nested children group.
@@ -101,7 +101,7 @@ body[class*="iomad_company_admin"] {
 
                     &[aria-selected="true"] > .tree_dept_name::before {
                         content: "\f15b";
-                        color: $smgp-gray-700;
+                        color: darken($smgp-success, 10%);
                     }
                 }
             }
@@ -112,7 +112,7 @@ body[class*="iomad_company_admin"] {
                 font-family: "Font Awesome 6 Free";
                 font-weight: 900;
                 font-size: $smgp-font-xs;
-                color: $smgp-gray-400;
+                color: $smgp-success;
                 margin-left: auto;
             }
 

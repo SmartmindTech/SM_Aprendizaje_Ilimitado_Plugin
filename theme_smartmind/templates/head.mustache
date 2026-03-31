@@ -20,6 +20,18 @@
 {{{ output.doctype }}}
 <html {{{ output.htmlattributes }}}>
 <head>
+    <script>
+        // Apply dark mode BEFORE paint to prevent white flash.
+        (function() {
+            if (localStorage.getItem('smgp-theme') === 'dark') {
+                document.documentElement.classList.add('smgp-dark');
+            }
+        })();
+    </script>
+    <style>
+        html.smgp-dark body { background-color: #0b1120 !important; color: #e2e8f0 !important; }
+        html.smgp-dark #page, html.smgp-dark #page.drawers, html.smgp-dark #page-wrapper { background-color: #0b1120 !important; }
+    </style>
     <title>{{{ output.page_title }}}</title>
     <link rel="shortcut icon" href="{{{ output.favicon }}}" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
