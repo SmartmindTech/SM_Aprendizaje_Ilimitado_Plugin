@@ -230,6 +230,9 @@ $string['objectives_placeholder']     = 'Digite um objetivo de aprendizagem...';
 $string['objectives_remove']          = 'Remover';
 $string['objectives_drag']            = 'Arrastar para reordenar';
 $string['objectives_error_max']       = 'Máximo 20 objetivos permitidos.';
+$string['objectives_restore_hint']    = 'Um objetivo por linha';
+$string['restore_desc_hint']          = 'Descrição do curso na página de apresentação. Será traduzida automaticamente.';
+$string['restore_objectives_hint']    = 'Adicione objetivos de aprendizagem. Serão traduzidos automaticamente para outros idiomas.';
 
 // Página de Notas e Diplomas.
 $string['gradescerts_nav']            = 'Notas e Diplomas';
