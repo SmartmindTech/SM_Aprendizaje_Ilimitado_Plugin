@@ -391,6 +391,40 @@ body.sm-activity-embed-mode .que .answer input[type="checkbox"] {
     margin-top: 0.25em !important;
 }
 
+/* Quiz view page — reorganized layout styles */
+body.sm-activity-embed-mode h3 {
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+    color: var(--sl-text) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    margin: 1.25rem 0 0.75rem !important;
+}
+
+.smgp-quiz-attempts-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    padding: 0.15rem 0.6rem !important;
+    background: var(--sl-bg-tertiary, #f1f5f9) !important;
+    color: var(--sl-text-secondary, #64748b) !important;
+    font-size: 0.8rem !important;
+    font-weight: 500 !important;
+    border-radius: var(--sl-radius-full, 9999px) !important;
+    white-space: nowrap !important;
+}
+
+.smgp-quiz-grade-summary {
+    background: var(--sl-bg-secondary, #f8fafc) !important;
+    border: 1px solid var(--sl-border, #e2e8f0) !important;
+    border-radius: var(--sl-radius-lg, 0.5rem) !important;
+    padding: 0.75rem 1.25rem !important;
+    margin: 0.75rem 0 1rem !important;
+    font-size: 0.95rem !important;
+    font-weight: 500 !important;
+    color: var(--sl-text) !important;
+}
+
 /* Quiz navigation block */
 body.sm-activity-embed-mode #mod_quiz_navblock {
     background-color: var(--sl-bg) !important;
@@ -964,15 +998,13 @@ ol.breadcrumb,
     flex: 0 0 100% !important;
 }
 
-/* --- CENTER CONTENT IN IFRAME --- */
-/* The SmartLearning frontend zooms the iframe (1.0x-1.30x via CSS transform),
-   so the iframe CSS viewport is narrower than the visual area (~700-900px).
-   max-width centering won't work since viewport is already small.
-   Instead, use symmetric padding to visually center the content.
-   The scrollbar is hidden (overlay) so it doesn't take layout space. */
+/* --- CONTENT FILLS IFRAME --- */
+/* Let content fill the full iframe width with minimal padding. */
 body.sm-activity-embed-mode #region-main {
-    padding-left: 5% !important;
-    padding-right: 5% !important;
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+    max-width: 100% !important;
+    width: 100% !important;
 }
 
 /* Remove top offset caused by hidden fixed navbar */
@@ -1137,10 +1169,6 @@ img {
 .table-responsive,
 table {
     max-width: 100% !important;
-}
-
-table:not(.table-responsive table):not(.fp-filename-field):not(.filemanager table):not(.foldertree table) {
-    display: block !important;
     overflow-x: auto !important;
 }
 
@@ -1312,10 +1340,23 @@ HTML;
     vertical-align: middle !important;
 }
 
+/* Prevent horizontal scroll */
+html, body {
+    overflow-x: hidden !important;
+    max-width: 100vw !important;
+}
+
+#region-main {
+    max-width: 100% !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
 /* Question content - FULL WIDTH, no constraints */
 .que {
     width: 100% !important;
     max-width: 100% !important;
+    box-sizing: border-box !important;
 }
 
 .que .info {
@@ -1327,6 +1368,7 @@ HTML;
     margin-left: 130px !important;
     width: auto !important;
     max-width: none !important;
+    overflow-x: auto !important;
 }
 
 .que .formulation,
@@ -1334,6 +1376,7 @@ HTML;
 .que .answer {
     width: 100% !important;
     max-width: none !important;
+    box-sizing: border-box !important;
 }
 
 /* Essay textarea full width */
@@ -1342,6 +1385,18 @@ HTML;
 .que .qtype_essay_response {
     width: 100% !important;
     max-width: none !important;
+}
+
+/* Images and tables inside questions — constrain to container */
+.que img {
+    max-width: 100% !important;
+    height: auto !important;
+}
+
+.que table {
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    display: block !important;
 }
 </style>
 HTML;
@@ -1367,6 +1422,92 @@ HTML;
     if (pageEl) {
         pageEl.classList.remove('show-drawer-right');
         pageEl.style.marginRight = '0';
+    }
+
+    // Quiz view page: reorganize layout for better UX.
+    // Only runs on /mod/quiz/view.php (not attempt or review pages).
+    if (window.location.pathname.indexOf('/mod/quiz/view.php') !== -1) {
+        (function() {
+            var regionMain = document.getElementById('region-main');
+            if (!regionMain) return;
+
+            // Find key elements.
+            var attemptsHeading = null;
+            var headings = regionMain.querySelectorAll('h3');
+            headings.forEach(function(h) {
+                if (!attemptsHeading && h.textContent.trim().toLowerCase().indexOf('attempt') !== -1) {
+                    attemptsHeading = h;
+                }
+            });
+
+            var quizInfoTable = regionMain.querySelector('.quizinfo');
+            var attemptTable = regionMain.querySelector('.quizattemptsummary, table.generaltable');
+            var startBtn = regionMain.querySelector('.quizstartbuttondiv, .singlebutton');
+
+            // Find "Attempts allowed" text and extract the number.
+            var attemptsAllowedEl = null;
+            var attemptsAllowed = '';
+            var paragraphs = regionMain.querySelectorAll('p, .box.generalbox');
+            paragraphs.forEach(function(p) {
+                var text = p.textContent.trim().toLowerCase();
+                if (text.indexOf('attempts allowed') !== -1 || text.indexOf('intentos permitidos') !== -1) {
+                    attemptsAllowedEl = p;
+                    var match = p.textContent.match(/(\d+|unlimited|ilimitados)/i);
+                    if (match) attemptsAllowed = match[1];
+                }
+            });
+
+            // Find grade text ("Your final grade..." / "Tu calificación final...").
+            var gradeEl = null;
+            regionMain.querySelectorAll('p, .box.generalbox, div').forEach(function(el) {
+                if (gradeEl) return;
+                var text = el.textContent.trim().toLowerCase();
+                if ((text.indexOf('final grade') !== -1 || text.indexOf('calificación final') !== -1
+                    || text.indexOf('nota final') !== -1)
+                    && el.children.length <= 2 && el.textContent.length < 200) {
+                    gradeEl = el;
+                }
+            });
+
+            // Count existing attempts from the table rows.
+            var attemptCount = 0;
+            if (attemptTable) {
+                attemptCount = attemptTable.querySelectorAll('tbody tr').length;
+            }
+
+            // Merge "Attempts allowed" into the attempts heading.
+            if (attemptsHeading && attemptsAllowed) {
+                var badge = document.createElement('span');
+                badge.className = 'smgp-quiz-attempts-badge';
+                badge.textContent = attemptCount + ' / ' + attemptsAllowed;
+                attemptsHeading.appendChild(document.createTextNode(' '));
+                attemptsHeading.appendChild(badge);
+            }
+
+            // Hide the original "Attempts allowed" text.
+            if (attemptsAllowedEl) {
+                attemptsAllowedEl.style.display = 'none';
+            }
+
+            // Move grade below the attempt table.
+            if (gradeEl && attemptTable) {
+                gradeEl.classList.add('smgp-quiz-grade-summary');
+                attemptTable.parentNode.insertBefore(gradeEl, attemptTable.nextSibling);
+            }
+
+            // Move start button below everything.
+            if (startBtn) {
+                var target = gradeEl || attemptTable || quizInfoTable;
+                if (target && target.parentNode) {
+                    target.parentNode.insertBefore(startBtn, target.nextSibling);
+                }
+            }
+
+            // Hide quizinfo table if it duplicates info already shown in attempt table.
+            if (quizInfoTable && attemptTable) {
+                quizInfoTable.style.display = 'none';
+            }
+        })();
     }
 JS;
         } else {

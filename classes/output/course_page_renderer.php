@@ -260,7 +260,7 @@ class course_page_renderer {
                     $activities[] = $activity;
                     $activityindex++;
 
-                    if (!$isforum) {
+                    if (!$isforum && !$islabel) {
                         $totalcount++;
                         if ($iscomplete) {
                             $completedcount++;

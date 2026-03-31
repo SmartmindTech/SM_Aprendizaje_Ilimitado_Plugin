@@ -398,8 +398,12 @@ class course_landing_renderer {
             $completion = new \completion_info($course);
         }
 
-        // Load activity durations.
-        $durations = $DB->get_records('local_smgp_activity_duration', ['courseid' => $course->id], '', 'cmid, duration_minutes');
+        // Load activity durations (table may not exist yet on older installs).
+        $durations = [];
+        $dbman = $DB->get_manager();
+        if ($dbman->table_exists('local_smgp_activity_duration')) {
+            $durations = $DB->get_records('local_smgp_activity_duration', ['courseid' => $course->id], '', 'cmid, duration_minutes');
+        }
 
         $sectionnumber = 0;
         foreach ($modinfo->get_section_info_all() as $sectionnum => $sectioninfo) {

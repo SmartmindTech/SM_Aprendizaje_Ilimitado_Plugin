@@ -1,13 +1,14 @@
 //
-// SmartMind — Course Page Overrides
+// SmartMind — Course View Page (Minimal Green Design)
 //
-// Base files: _course.scss (912 lines), _courselisting.scss (151 lines),
-//             _coursemanagement.scss (315 lines)
-// Template override: templates/core_course/coursecard.mustache
+// Unified with the dashboard design language:
+// - Warm off-white background (#f5f3ef)
+// - White cards with subtle shadows
+// - Green (#2e7d32) as accent color
+// - Rounded corners, clean typography
 //
 
-// Course pages — content fills available width
-// body prefix required to match specificity of body.limitedwidth in layout.scss
+// ─── Layout — constrained centered content ──────────────────────
 body.pagelayout-course,
 body.pagelayout-incourse,
 body.pagelayout-report,
@@ -18,60 +19,138 @@ body.pagelayout-admin {
         margin-right: auto !important;
     }
 
-    // Header: remove the 830px cap, keep centered with content
     #page-header.header-maxwidth {
         max-width: 100%;
     }
 }
 
-// -------------------------------------------------------------------------
-// Course Banner — dark overlay on course image
-// -------------------------------------------------------------------------
+// Warm background for course pages (matching dashboard).
+// Content locked to viewport height — no page scroll.
+body.pagelayout-course,
+body.pagelayout-incourse {
+    background-color: #f5f3ef !important;
+    overflow: hidden !important;
+    height: 100vh !important;
+
+    #page-wrapper {
+        height: 100vh !important;
+        overflow: hidden !important;
+    }
+
+    #page.drawers {
+        height: calc(100vh - 60px) !important; // 60px = navbar height
+        overflow: hidden !important;
+    }
+
+    .main-inner {
+        height: 100% !important;
+        overflow: hidden !important;
+        display: flex !important;
+        flex-direction: column !important;
+        padding-bottom: 0 !important;
+        margin-bottom: 0 !important;
+    }
+
+    #page-content {
+        flex: 1 !important;
+        min-height: 0 !important;
+        overflow: hidden !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    #region-main-box {
+        flex: 1 !important;
+        min-height: 0 !important;
+        overflow: hidden !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    #region-main {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        flex: 1 !important;
+        min-height: 0 !important;
+        overflow: hidden !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    // Course content — scrollable area within the viewport.
+    .course-content {
+        flex: 1 !important;
+        min-height: 0 !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        padding-bottom: 1rem;
+
+        // Subtle scrollbar.
+        &::-webkit-scrollbar {
+            width: 5px;
+        }
+        &::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        &::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.12);
+            border-radius: 3px;
+        }
+        scrollbar-width: thin;
+        scrollbar-color: rgba(0,0,0,0.12) transparent;
+    }
+}
+
+
+// ═══════════════════════════════════════════════════════════════════
+// COURSE BANNER — Clean, light design (replaces dark overlay)
+// ═══════════════════════════════════════════════════════════════════
 .smartmind-course-banner {
     position: relative;
     width: 100%;
-    min-height: 200px;
-    background-color: #0f172a;
+    min-height: 140px;
+    background-color: #e8f5e9;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    border-radius: $border-radius-lg;
+    border-radius: 16px;
     overflow: hidden;
     margin-bottom: 1.5rem;
 
     &__overlay {
         position: absolute;
         inset: 0;
-        background: linear-gradient(135deg, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.5) 100%);
+        background: linear-gradient(135deg, rgba(255,255,255,0.88) 0%, rgba(255,255,255,0.7) 60%, rgba(255,255,255,0.4) 100%);
         display: flex;
         align-items: center;
     }
 
     &__content {
-        padding: 1.5rem 2rem;
-        color: #fff;
+        padding: 1.25rem 2rem;
         width: 100%;
+        position: relative;
+        z-index: 1;
     }
 
     &__category {
         display: inline-block;
-        background-color: rgba(255, 255, 255, 0.2);
-        color: #fff;
-        font-size: 0.75rem;
+        background: rgba(46, 125, 50, 0.1);
+        color: #2e7d32;
+        font-size: 0.7rem;
         font-weight: 600;
-        padding: 0.2rem 0.75rem;
-        border-radius: $border-radius;
-        margin-bottom: 0.5rem;
+        padding: 2px 10px;
+        border-radius: 9999px;
+        margin-bottom: 0.4rem;
         text-transform: uppercase;
-        letter-spacing: 0.03em;
+        letter-spacing: 0.04em;
     }
-f
+
     &__title {
-        font-size: 1.75rem;
+        font-size: 1.5rem;
         font-weight: 700;
-        color: #fff;
-        margin: 0 0 0.5rem;
-        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+        color: $smgp-gray-900;
+        margin: 0 0 0.4rem;
     }
 
     &__meta {
@@ -79,23 +158,19 @@ f
         flex-wrap: wrap;
         gap: 1rem;
         font-size: 0.8rem;
-        color: rgba(255, 255, 255, 0.8);
+        color: $smgp-gray-500;
     }
 
     &__meta-item {
         display: inline-flex;
         align-items: center;
-        gap: 0.35rem;
+        gap: 0.3rem;
 
-        i {
-            font-size: 0.85rem;
-            opacity: 0.8;
-        }
+        i { font-size: 0.8rem; }
     }
 
-    // Fallback when no course image is set.
     &:not(.has-image) {
-        background: linear-gradient(135deg, #0a0a14 0%, #0e1220 50%, #0a1a30 100%);
+        background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 50%, #f5f3ef 100%);
 
         .smartmind-course-banner__overlay {
             background: none;
@@ -103,37 +178,34 @@ f
     }
 }
 
-// -------------------------------------------------------------------------
-// Generic Page Banner — dark banner for non-course pages
-// -------------------------------------------------------------------------
+
+// ═══════════════════════════════════════════════════════════════════
+// PAGE BANNER — Clean header for non-course pages
+// ═══════════════════════════════════════════════════════════════════
 .smartmind-page-banner {
     width: 100%;
     display: flex;
     align-items: center;
-    margin-bottom: 1.0rem;
+    margin-bottom: 1rem;
     overflow: hidden;
-    color: black;
-    font-family: 'SansSerif', sans-serif;
 
     &__content {
-        padding: 1.25rem 2rem;
+        padding: 1rem 0;
         width: 100%;
     }
 
     &__title {
-        font-weight: bold;
-        color: black;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: $smgp-gray-900;
         margin: 0;
-        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
 }
 
-// Hide the dark banner on the dashboard — use a clean heading instead.
 body#page-my-index .smartmind-page-banner {
     display: none !important;
 }
 
-// Warm off-white background (matches the cleaner dashboard reference).
 body#page-my-index {
     background-color: #f5f3ef !important;
 
@@ -143,7 +215,6 @@ body#page-my-index {
     }
 }
 
-// Dashboard welcome: lighter, closer, no separator line.
 body#page-my-index .smartmind-dashboard {
     > h4 {
         font-size: 1.5rem;
@@ -152,65 +223,223 @@ body#page-my-index .smartmind-dashboard {
         margin-bottom: 0.25rem !important;
     }
 
-    > hr {
-        display: none;
+    > hr { display: none; }
+}
+
+
+// ═══════════════════════════════════════════════════════════════════
+// COURSE SECTIONS — White cards on warm background
+// ═══════════════════════════════════════════════════════════════════
+.course-content {
+
+    // Section list — clean spacing.
+    ul.topics,
+    ul.weeks,
+    ul.section-list {
+        padding: 0;
+        margin: 0;
+    }
+
+    // Each section — white card.
+    .course-section {
+        margin-bottom: 1rem;
+        list-style: none;
+
+        .section-item {
+            background: #fff;
+            border: none;
+            border-radius: 14px;
+            padding: 1.25rem 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            transition: box-shadow 0.2s ease;
+
+            &:hover {
+                box-shadow: 0 4px 12px rgba(46, 125, 50, 0.08);
+            }
+        }
+
+        // Current/highlighted section.
+        &.current > .section-item {
+            border-left: 3px solid #2e7d32;
+        }
+
+        // Section header.
+        .course-section-header {
+            margin-bottom: 0.75rem;
+
+            .sectionname {
+                font-size: 1.1rem;
+                font-weight: 700;
+                color: $smgp-gray-900;
+                margin: 0;
+
+                a {
+                    color: inherit;
+                    text-decoration: none;
+
+                    &:hover { color: #2e7d32; }
+                }
+            }
+        }
+
+        // Section summary text.
+        .section_availability,
+        .summarytext {
+            font-size: 0.875rem;
+            color: $smgp-gray-500;
+            line-height: 1.5;
+        }
     }
 }
 
-// Course Content Container
-.course-content {}
-.course-content ul.section-list {}
 
-// Sections
-.course-section {}
-.course-content .section-item {}
-.section-collapsemenu {}
+// ═══════════════════════════════════════════════════════════════════
+// ACTIVITY ITEMS — Clean rows inside section cards
+// ═══════════════════════════════════════════════════════════════════
+.activity-item {
+    border-radius: 10px;
+    padding: 0.6rem 0.75rem !important;
+    margin-bottom: 2px;
+    transition: background 0.15s ease;
 
-// Activities
-.activity {}
-.activity-item {}
-.activity-item .activity-icon {}
-.activity-item .activityname {}
-.activity-item .activity-basis {}
-.activity-item .activity-actions {}
+    &:hover {
+        background: rgba(46, 125, 50, 0.03);
+    }
 
-// Activity Completion
-.activity-item .activity-completion {}
-.activity-item .completion-info {}
+    // Activity icon — green tint.
+    .activityiconcontainer {
+        border-radius: 8px;
 
-// Drag & Drop (editing mode)
-.section .draggable .activity-item .dragicon {}
-.course-content .section.dropready {}
+        &.courseicon {
+            background-color: rgba(46, 125, 50, 0.08) !important;
+        }
+    }
 
-// Add Content Dividers
-.course-content .divider {}
-.course-content .divider .btn.add-content {}
+    // Activity name.
+    .activityname {
+        .instancename,
+        .activityname a {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: $smgp-gray-800;
+            text-decoration: none;
 
-// Bulk Actions (editing mode)
-.bulkenabled {}
-.sticky-footer-content.bulkactions {}
+            &:hover { color: #2e7d32; }
+        }
+    }
 
-// Subsections
-.activity.subsection {}
+    // Completion checkbox — green.
+    .completion-info {
+        .btn-outline-secondary {
+            border-color: $smgp-gray-200;
+            border-radius: 6px;
 
-// Indentation
-.mod-indent-outer {}
-.mod-indent {}
+            &:hover {
+                border-color: #2e7d32;
+                background: rgba(46, 125, 50, 0.05);
+            }
+        }
 
-// Course Cards (listings)
-.coursebox {}
-.course-card {}
-.coursebox > .info > .coursename {}
-.coursebox .content .courseimage img {}
+        .btn.btn-success,
+        .icon[title*="Completed"],
+        .icon[title*="Completado"] {
+            color: #2e7d32 !important;
+        }
+    }
 
-// Front Page Course Lists
-#frontpage-available-course-list {}
-#frontpage-course-list {}
+    // Activity dates/info — subtle.
+    .activity-altcontent,
+    .activity-dates {
+        font-size: 0.8rem;
+        color: $smgp-gray-400;
+    }
 
-// Course Category Listings
-.course_category_tree {}
-.course_category_tree .category > .info > .categoryname {}
+    // Editing mode — green outline.
+    .editing & {
+        &:hover {
+            outline: 2px solid rgba(46, 125, 50, 0.3);
+            box-shadow: 0 2px 8px rgba(46, 125, 50, 0.08);
+        }
+    }
+}
 
-// Course Management (admin)
-#course-category-listings {}
-#course-listing {}
+// Dividers between activities.
+.course-content .divider {
+    .btn.add-content {
+        font-size: 0.8rem;
+        color: $smgp-gray-400;
+        border-color: $smgp-gray-200;
+        border-radius: 8px;
+
+        &:hover {
+            color: #2e7d32;
+            border-color: #2e7d32;
+            background: rgba(46, 125, 50, 0.04);
+        }
+    }
+}
+
+
+// ═══════════════════════════════════════════════════════════════════
+// ACTIVITY HEADER — Inside activity pages (quiz, assign, etc.)
+// ═══════════════════════════════════════════════════════════════════
+.activity-header {
+    .description-inner {
+        font-size: 0.9rem;
+        color: $smgp-gray-600;
+        line-height: 1.6;
+    }
+
+    .activity-dates {
+        font-size: 0.8rem;
+        color: $smgp-gray-400;
+        padding: 0.5rem 0;
+    }
+}
+
+// Completion conditions — minimal.
+.automatic-completion-conditions,
+.completionrequirements {
+    font-size: 0.8rem;
+    color: $smgp-gray-400;
+    border-color: $smgp-gray-100;
+
+    .badge {
+        font-size: 0.7rem;
+    }
+}
+
+
+// ═══════════════════════════════════════════════════════════════════
+// SECONDARY NAVIGATION — Already styled in _navigation.scss
+// Reinforced here for course context.
+// ═══════════════════════════════════════════════════════════════════
+body.pagelayout-incourse .secondary-navigation {
+    .nav-tabs .nav-link.active {
+        background: #2e7d32 !important;
+        color: #fff !important;
+        border-color: #2e7d32 !important;
+    }
+}
+
+
+// ═══════════════════════════════════════════════════════════════════
+// RESPONSIVE
+// ═══════════════════════════════════════════════════════════════════
+@media (max-width: 768px) {
+    .smartmind-course-banner {
+        min-height: 100px;
+
+        &__title { font-size: 1.2rem; }
+        &__content { padding: 1rem; }
+    }
+
+    .course-content .course-section .section-item {
+        padding: 1rem;
+        border-radius: 12px;
+    }
+
+    .activity-item {
+        padding: 0.5rem !important;
+    }
+}

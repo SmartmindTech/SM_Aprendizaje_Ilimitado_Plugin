@@ -30,7 +30,11 @@
     <div class="smgp-course-body">
         {{! === Main Content Area === }}
         <div class="smgp-course-main">
-            {{! ===== Breadcrumb ===== }}
+            {{! ===== Activity title (main heading) + Breadcrumb (subtitle) ===== }}
+            <div class="smgp-course-activity-info" id="smgp-course-activity-info" style="display:none;">
+                <h2 class="smgp-course-activity-info__title" id="smgp-activity-info-title"></h2>
+                <p class="smgp-course-activity-info__meta" id="smgp-activity-info-meta"></p>
+            </div>
             <div class="smgp-course-breadcrumb" id="smgp-course-breadcrumb">
                 <span class="smgp-course-breadcrumb__link" id="smgp-breadcrumb-mycourses" data-url="{{mycoursesurl}}">
                     {{#str}}course_page_mycourses_breadcrumb, local_sm_graphics_plugin{{/str}}
@@ -67,17 +71,11 @@
                 </button>
             </div>
 
-            {{! Activity Info (below navigation bar) }}
-            <div class="smgp-course-activity-info" id="smgp-course-activity-info" style="display:none;">
-                <h2 class="smgp-course-activity-info__title" id="smgp-activity-info-title"></h2>
-                <p class="smgp-course-activity-info__meta" id="smgp-activity-info-meta"></p>
-            </div>
+            {{! Activity info is now above the breadcrumb (top of page) }}
 
-            {{! ===== Tabs Section (hidden — uncomment to restore) ===== }}
-            <div class="smgp-course-tabs" style="display:none;"></div>
         </div>
 
-        {{! === Module Content Sidebar (flat list) === }}
+        {{! === Module Content Sidebar (grouped by section) === }}
         <aside class="smgp-course-sidebar" id="smgp-course-sidebar">
             <div class="smgp-course-sidebar__header">
                 <span class="smgp-course-sidebar__title">
@@ -107,7 +105,7 @@
                             </div>
                             <div class="smgp-course-activity__completion">
                                 {{#iscomplete}}
-                                    <i class="bi bi-check-circle-fill smgp-course-activity__check"></i>
+                                    <i class="icon-check-circle smgp-course-activity__check"></i>
                                 {{/iscomplete}}
                                 {{^iscomplete}}
                                     <svg class="smgp-activity-ring" viewBox="0 0 20 20">
