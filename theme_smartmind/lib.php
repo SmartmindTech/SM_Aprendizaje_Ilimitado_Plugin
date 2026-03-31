@@ -410,6 +410,7 @@ function theme_smartmind_rename_primary_nav(array &$primarymenu) {
             'text' => get_string('nav_coursemanagement', 'local_sm_graphics_plugin'),
             'url'  => (new \moodle_url('/local/sm_graphics_plugin/pages/coursemanagement.php'))->out(false),
         ];
+        $removenodes[] = 'myhome';
     } else {
         $removenodes[] = 'mycourses';
     }

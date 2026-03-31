@@ -386,10 +386,14 @@ function local_sm_graphics_plugin_before_standard_top_of_body_html(): string {
             . '});</script>';
     }
 
-    // Inject SmartMind fields into the restore schema page (step 4).
-    // TODO: implement restore_schema_fields when needed.
-    if (strpos($pagetype, 'backup-restore') !== false) {
-        return '';
+    // Inject SmartMind fields into the restore schema page (step 4 only).
+    if ($pagetype === 'backup-restore') {
+        return local_sm_graphics_plugin_restore_schema_fields();
+    }
+
+    // Restyle the restore file upload page.
+    if ($pagetype === 'backup-restorefile') {
+        return local_sm_graphics_plugin_restore_file_styles();
     }
 
     // After a course restore, save the custom field values from sessionStorage to the DB.
@@ -407,7 +411,8 @@ function local_sm_graphics_plugin_before_standard_top_of_body_html(): string {
                     sessionStorage.removeItem("smgp_restore_fields");
                     var courseid = ' . (int) $courseid . ';
                     require(["core/ajax"], function(Ajax) {
-                        var fields = {
+                        // Save meta fields.
+                        var metaFields = {
                             "duration_hours": data.smgp_duration_hours || "",
                             "smartmind_code": data.smgp_smartmind_code || "",
                             "sepe_code": data.smgp_sepe_code || "",
@@ -415,19 +420,48 @@ function local_sm_graphics_plugin_before_standard_top_of_body_html(): string {
                             "completion_percentage": data.smgp_completion_percentage || "100",
                             "description": data.smgp_description || ""
                         };
-                        Object.keys(fields).forEach(function(field) {
-                            if (fields[field]) {
+                        Object.keys(metaFields).forEach(function(field) {
+                            if (metaFields[field]) {
                                 Ajax.call([{
                                     methodname: "local_sm_graphics_plugin_update_course_info",
-                                    args: {courseid: courseid, field: field, value: fields[field]}
+                                    args: {courseid: courseid, field: field, value: metaFields[field]}
                                 }]);
                             }
                         });
+                        // Also save description to course.summary (used by hero banner + translation).
+                        if (data.smgp_description && data.smgp_description.trim()) {
+                            Ajax.call([{
+                                methodname: "local_sm_graphics_plugin_update_course_info",
+                                args: {courseid: courseid, field: "summary", value: data.smgp_description}
+                            }]);
+                        }
+                        // Save category.
                         if (data.smgp_catalogue_cat && data.smgp_catalogue_cat !== "0") {
                             Ajax.call([{
                                 methodname: "local_sm_graphics_plugin_update_course_info",
                                 args: {courseid: courseid, field: "categoryid", value: data.smgp_catalogue_cat}
                             }]);
+                        }
+                        // Save learning objectives + auto-translate.
+                        if (data.smgp_objectives_data && data.smgp_objectives_data !== "[]") {
+                            try {
+                                var objs = JSON.parse(data.smgp_objectives_data);
+                                if (Array.isArray(objs) && objs.length > 0) {
+                                    Ajax.call([{
+                                        methodname: "local_sm_graphics_plugin_save_objectives",
+                                        args: {courseid: courseid, objectives_json: data.smgp_objectives_data, translate: true}
+                                    }]);
+                                }
+                            } catch(ex) {}
+                        }
+                        // Trigger description translation (needs summary saved first, slight delay).
+                        if (data.smgp_description && data.smgp_description.trim()) {
+                            setTimeout(function() {
+                                Ajax.call([{
+                                    methodname: "local_sm_graphics_plugin_translate_course",
+                                    args: {courseid: courseid}
+                                }]);
+                            }, 2000);
                         }
                     });
                 } catch(e) {}
@@ -1064,6 +1098,162 @@ function local_sm_graphics_plugin_inject_embed_tracking(): string {
  *
  * @return string
  */
+/**
+ * Restyle the restore file upload page with icons, colors, and better layout.
+ *
+ * @return string
+ */
+function local_sm_graphics_plugin_restore_file_styles(): string {
+    return '<style>
+    /* Page heading */
+    #page-backup-restorefile [role="main"] > h2:first-of-type {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #1e293b;
+    }
+    #page-backup-restorefile [role="main"] > h2:first-of-type::before {
+        content: "\e148";
+        font-family: "lucide" !important;
+        margin-right: 0.5rem;
+        color: #6366f1;
+    }
+    /* Subtitle text */
+    #page-backup-restorefile [role="main"] > .pb-3 {
+        color: #64748b;
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem !important;
+    }
+    /* Import section heading */
+    #page-backup-restorefile [role="main"] > h2:nth-of-type(2) {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1e293b;
+        padding: 1rem 1.25rem;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px 10px 0 0;
+        margin-bottom: 0 !important;
+    }
+    #page-backup-restorefile [role="main"] > h2:nth-of-type(2)::before {
+        content: "\e19e";
+        font-family: "lucide" !important;
+        margin-right: 0.5rem;
+        color: #3b82f6;
+    }
+    /* Form wrapper */
+    #page-backup-restorefile [role="main"] > div:has(.mform) {
+        border: 1px solid #e2e8f0;
+        border-top: none;
+        border-radius: 0 0 10px 10px;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+        background: #fff;
+    }
+    /* Restore button */
+    #page-backup-restorefile .mform input[type="submit"] {
+        background: #6366f1 !important;
+        color: #fff !important;
+        border: none !important;
+        border-radius: 8px !important;
+        padding: 0.5rem 1.5rem !important;
+        font-weight: 600 !important;
+        font-size: 0.9rem !important;
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+    #page-backup-restorefile .mform input[type="submit"]:hover {
+        background: #4f46e5 !important;
+    }
+    /* Section headings (h3) */
+    #page-backup-restorefile h3 {
+        font-size: 1.15rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-top: 2rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+    #page-backup-restorefile h3::before {
+        font-family: "lucide" !important;
+        margin-right: 0.4rem;
+        font-size: 1.1rem;
+    }
+    /* Course backup zone icon */
+    #page-backup-restorefile h3:first-of-type::before {
+        content: "\e0d7";
+        color: #f59e0b;
+    }
+    /* User backup zone icon */
+    #page-backup-restorefile h3:nth-of-type(2)::before {
+        content: "\e19f";
+        color: #6366f1;
+    }
+    /* Backup section description */
+    #page-backup-restorefile h3 + .mb-3 {
+        color: #64748b;
+        font-size: 0.875rem;
+    }
+    /* Tables */
+    #page-backup-restorefile .backup-files-table {
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    #page-backup-restorefile .backup-files-table thead th {
+        background: #f8fafc !important;
+        color: #475569;
+        font-weight: 600;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        border-bottom: 2px solid #e2e8f0;
+    }
+    #page-backup-restorefile .backup-files-table td {
+        font-size: 0.875rem;
+        color: #334155;
+    }
+    #page-backup-restorefile .backup-files-table td a {
+        color: #6366f1;
+        font-weight: 500;
+    }
+    #page-backup-restorefile .backup-files-table td a:hover {
+        color: #4f46e5;
+    }
+    /* Manage backups button */
+    #page-backup-restorefile .singlebutton input[type="submit"],
+    #page-backup-restorefile .singlebutton button {
+        background: transparent !important;
+        color: #6366f1 !important;
+        border: 1.5px solid #e2e8f0 !important;
+        border-radius: 8px !important;
+        padding: 0.4rem 1rem !important;
+        font-weight: 500 !important;
+        font-size: 0.85rem !important;
+        transition: border-color 0.15s, color 0.15s;
+    }
+    #page-backup-restorefile .singlebutton input[type="submit"]:hover,
+    #page-backup-restorefile .singlebutton button:hover {
+        border-color: #6366f1 !important;
+    }
+    /* File picker button */
+    #page-backup-restorefile .fp-btn-choose {
+        background: #6366f1 !important;
+        color: #fff !important;
+        border-radius: 8px !important;
+        border: none !important;
+        font-weight: 500 !important;
+    }
+
+    /* File picker button */
+    #page-backup-restorefile .fp-btn-choose {
+        background: #6366f1 !important;
+        color: #fff !important;
+        border-radius: 8px !important;
+        border: none !important;
+        font-weight: 500 !important;
+    }
+    </style>';
+}
+
 function local_sm_graphics_plugin_restore_schema_fields(): string {
     global $DB;
 
@@ -1078,6 +1268,16 @@ function local_sm_graphics_plugin_restore_schema_fields(): string {
     $levelMedium   = addslashes(get_string('level_medium', 'local_sm_graphics_plugin'));
     $levelAdvanced = addslashes(get_string('level_advanced', 'local_sm_graphics_plugin'));
     $completionLabel = addslashes(get_string('completion_percentage', 'local_sm_graphics_plugin'));
+    $objectivesLabel = addslashes(get_string('objectives_header', 'local_sm_graphics_plugin'));
+    $objectivesHint  = addslashes(get_string('objectives_restore_hint', 'local_sm_graphics_plugin'));
+
+    // Help texts for tooltip hints.
+    $durationHint   = addslashes(get_string('course_hours_help', 'local_sm_graphics_plugin'));
+    $categoryHint   = addslashes(get_string('course_category_field_help', 'local_sm_graphics_plugin'));
+    $smcodeHint     = addslashes(get_string('smartmind_code_help', 'local_sm_graphics_plugin'));
+    $sepeHint       = addslashes(get_string('sepe_code_help', 'local_sm_graphics_plugin'));
+    $levelHint      = addslashes(get_string('course_level_help', 'local_sm_graphics_plugin'));
+    $completionHint = addslashes(get_string('completion_percentage_help', 'local_sm_graphics_plugin'));
 
     // Build category dropdown from DB.
     $catOptions = '<option value="0">' . htmlspecialchars($categoryNone) . '</option>';
@@ -1089,14 +1289,48 @@ function local_sm_graphics_plugin_restore_schema_fields(): string {
         }
     }
 
+    // Helper: build a label with icon and info tooltip.
+    $lbl = function($icon, $text, $hint = '') {
+        $h = '<label class="form-label fw-semibold d-flex align-items-center gap-1" style="color:#1e293b;">'
+           . '<i class="' . $icon . '" style="margin-right:0.2rem;"></i>' . $text;
+        if ($hint) {
+            $h .= ' <i class="icon-info" style="font-size:0.8rem;color:#94a3b8;cursor:help;" title="' . $hint . '"></i>';
+        }
+        $h .= '</label>';
+        return $h;
+    };
+
     $html = '<div class="smgp-restore-fields" style="display:none"><div class="normal_setting">'
-        . '<div class="fitem row form-group mb-3"><div class="col-md-3 col-form-label d-flex pb-0 pe-md-0"><label>' . $descLabel . '</label></div><div class="col-md-9 form-inline felement"><textarea name="smgp_description" class="form-control" rows="2" style="max-width:400px"></textarea></div></div>'
-        . '<div class="fitem row form-group mb-3"><div class="col-md-3 col-form-label d-flex pb-0 pe-md-0"><label>' . $durationLabel . '</label></div><div class="col-md-9 form-inline felement"><input type="number" name="smgp_duration_hours" class="form-control" step="0.1" min="0" value="0" style="max-width:200px"></div></div>'
-        . '<div class="fitem row form-group mb-3"><div class="col-md-3 col-form-label d-flex pb-0 pe-md-0"><label>' . $categoryLabel . '</label></div><div class="col-md-9 form-inline felement"><select name="smgp_catalogue_cat" class="form-select" style="max-width:400px">' . $catOptions . '</select></div></div>'
-        . '<div class="fitem row form-group mb-3"><div class="col-md-3 col-form-label d-flex pb-0 pe-md-0"><label>' . $smcodeLabel . '</label></div><div class="col-md-9 form-inline felement"><input type="text" name="smgp_smartmind_code" class="form-control" style="max-width:200px"></div></div>'
-        . '<div class="fitem row form-group mb-3"><div class="col-md-3 col-form-label d-flex pb-0 pe-md-0"><label>' . $sepeLabel . '</label></div><div class="col-md-9 form-inline felement"><input type="text" name="smgp_sepe_code" class="form-control" style="max-width:200px"></div></div>'
-        . '<div class="fitem row form-group mb-3"><div class="col-md-3 col-form-label d-flex pb-0 pe-md-0"><label>' . $levelLabel . '</label></div><div class="col-md-9 form-inline felement"><select name="smgp_level" class="form-select" style="max-width:200px"><option value="beginner" selected>' . $levelBeginner . '</option><option value="medium">' . $levelMedium . '</option><option value="advanced">' . $levelAdvanced . '</option></select></div></div>'
-        . '<div class="fitem row form-group mb-3"><div class="col-md-3 col-form-label d-flex pb-0 pe-md-0"><label>' . $completionLabel . '</label></div><div class="col-md-9 form-inline felement"><input type="number" name="smgp_completion_percentage" class="form-control" min="0" max="100" value="100" style="max-width:120px"> %</div></div>'
+        // Section header.
+        . '<h4 style="margin:1.5rem 0 1rem;font-weight:600;color:#1e293b;border-bottom:2px solid #e2e8f0;padding-bottom:0.5rem;">'
+        . '<i class="icon-settings" style="margin-right:0.4rem;"></i> SmartMind</h4>'
+        // Row 1: 4 equal columns — Hours, Level, Completion %, Category.
+        . '<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,0.8fr) minmax(0,1.7fr);gap:1rem;" class="mb-3">'
+        . '<div style="min-width:0;">' . $lbl('icon-clock', $durationLabel, $durationHint)
+        . '<input type="number" name="smgp_duration_hours" class="form-control" step="0.1" min="0" value="0"></div>'
+        . '<div style="min-width:0;">' . $lbl('icon-gauge', $levelLabel, $levelHint)
+        . '<select name="smgp_level" class="form-select"><option value="beginner" selected>' . $levelBeginner . '</option><option value="medium">' . $levelMedium . '</option><option value="advanced">' . $levelAdvanced . '</option></select></div>'
+        . '<div style="min-width:0;">' . $lbl('icon-badge-check', $completionLabel, $completionHint)
+        . '<div class="d-flex align-items-center gap-1"><input type="number" name="smgp_completion_percentage" class="form-control smgp-completion-input" min="0" max="100" value="100"><span>%</span></div></div>'
+        . '<div style="min-width:0;">' . $lbl('icon-bookmark', $categoryLabel, $categoryHint)
+        . '<select name="smgp_catalogue_cat" class="form-select">' . $catOptions . '</select></div>'
+        . '</div>'
+        // Row 2: 2 columns — SmartMind Code, SEPE Code.
+        . '<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;" class="mb-3">'
+        . '<div>' . $lbl('icon-qr-code', $smcodeLabel, $smcodeHint)
+        . '<input type="text" name="smgp_smartmind_code" class="form-control"></div>'
+        . '<div>' . $lbl('icon-file-code', $sepeLabel, $sepeHint)
+        . '<input type="text" name="smgp_sepe_code" class="form-control"></div>'
+        . '</div>'
+        // Row 3: Full-width — Course description with editor.
+        . '<div class="mb-3">' . $lbl('icon-file-text', $descLabel, addslashes(get_string('restore_desc_hint', 'local_sm_graphics_plugin')))
+        . '<div id="smgp-restore-editor-wrap">'
+        . '<textarea name="smgp_description" id="smgp-restore-description" class="form-control" rows="5"></textarea>'
+        . '</div></div>'
+        // Row 4: Full-width — Learning objectives.
+        . '<div class="mb-3">' . $lbl('icon-list-checks', $objectivesLabel, addslashes(get_string('restore_objectives_hint', 'local_sm_graphics_plugin')))
+        . '<input type="hidden" name="smgp_objectives_data" value="[]">'
+        . '<div id="smgp-objectives-container" class="smgp-objectives-editor"></div></div>'
         . '</div></div>';
 
     $html .= '<script>
@@ -1107,21 +1341,73 @@ function local_sm_graphics_plugin_restore_schema_fields(): string {
         var container = document.getElementById("id_coursesettingscontainer");
         if (!container) return;
 
-        var normalSettings = container.querySelectorAll(":scope > .normal_setting");
-        if (!normalSettings.length) {
-            fields.style.display = "";
-            container.appendChild(fields);
-            return;
-        }
+        // --- Restyle existing Moodle fields ---
+        var moodleFields = [
+            {id: "id_setting_course_course_fullname_label", icon: "icon-type",
+             fitem: "fitem_id_setting_course_course_fullname"},
+            {id: "id_setting_course_course_shortname_label", icon: "icon-hash",
+             fitem: "fitem_id_setting_course_course_shortname"},
+            {id: "id_setting_course_course_startdate_label", icon: "icon-calendar",
+             fitem: "fitem_id_setting_course_course_startdate"}
+        ];
+        moodleFields.forEach(function(f) {
+            // Add icon to the visible <p> label.
+            var el = document.getElementById(f.id);
+            if (el && !el.querySelector(".smgp-icon-added")) {
+                el.style.fontWeight = "600";
+                el.style.color = "#1e293b";
+                el.style.fontSize = "0.9rem";
+                var icon = document.createElement("i");
+                icon.className = f.icon + " smgp-icon-added";
+                icon.style.marginRight = "0.3rem";
+                el.insertBefore(icon, el.firstChild);
+            }
+            // Restyle the fitem: label on top, input below (instead of side-by-side).
+            var fitem = document.getElementById(f.fitem);
+            if (fitem) {
+                fitem.classList.remove("row");
+                fitem.style.display = "flex";
+                fitem.style.flexDirection = "column";
+                fitem.style.gap = "0.25rem";
+                // Remove col-md-3/col-md-9 column classes.
+                var labelCol = fitem.querySelector(".col-md-3");
+                var inputCol = fitem.querySelector(".col-md-9");
+                if (labelCol) {
+                    labelCol.classList.remove("col-md-3", "col-form-label", "d-flex", "pb-0", "pe-md-0");
+                    labelCol.style.padding = "0";
+                }
+                if (inputCol) {
+                    inputCol.classList.remove("col-md-9");
+                    inputCol.style.padding = "0";
+                }
+            }
+        });
 
-        var lastSetting = normalSettings[normalSettings.length - 1];
+        // Place SmartMind section after the 3rd normal_setting (startdate).
+        // Force it to span both columns of the fcontainer grid.
+        var settingDivs = container.querySelectorAll(":scope > .normal_setting");
         fields.style.display = "";
-        lastSetting.parentNode.insertBefore(fields, lastSetting.nextSibling);
+        var insertAfter = settingDivs[2] || settingDivs[settingDivs.length - 1];
+        if (insertAfter) {
+            insertAfter.after(fields);
+        } else {
+            container.appendChild(fields);
+        }
+        // Override styles for the restore page.
+        var style = document.createElement("style");
+        style.textContent = ""
+            // Force SmartMind section full width (override float:left width:50%).
+            + ".smgp-restore-fields, .smgp-restore-fields > .normal_setting "
+            + "{ width: 100% !important; float: none !important; clear: both !important; display: block !important; }"
+            + ".smgp-restore-fields .form-control, .smgp-restore-fields .form-select "
+            + "{ width: 100% !important; max-width: 100% !important; }";
+        document.head.appendChild(style);
 
         // --- Preserve values across restore steps via sessionStorage ---
         var storageKey = "smgp_restore_fields";
         var fieldNames = ["smgp_description", "smgp_duration_hours", "smgp_catalogue_cat",
-                          "smgp_smartmind_code", "smgp_sepe_code", "smgp_level", "smgp_completion_percentage"];
+                          "smgp_smartmind_code", "smgp_sepe_code", "smgp_level", "smgp_completion_percentage",
+                          "smgp_objectives_data"];
 
         // Restore saved values from previous step.
         try {
@@ -1134,9 +1420,11 @@ function local_sm_graphics_plugin_restore_schema_fields(): string {
             });
         } catch(e) {}
 
-        // Save values to sessionStorage when any form on the page submits.
-        document.addEventListener("submit", function() {
+        // Helper: save all field values to sessionStorage.
+        function saveToSession() {
             try {
+                // Sync TinyMCE content to textarea before reading.
+                if (window.tinymce) { try { window.tinymce.triggerSave(); } catch(x) {} }
                 var data = {};
                 fieldNames.forEach(function(name) {
                     var el = fields.querySelector("[name=\'" + name + "\']");
@@ -1144,21 +1432,64 @@ function local_sm_graphics_plugin_restore_schema_fields(): string {
                 });
                 sessionStorage.setItem(storageKey, JSON.stringify(data));
             } catch(e) {}
-        }, true);
+        }
 
-        // Also save on any button click (restore steps use button clicks, not form submit).
+        // Save on form submit and button clicks.
+        document.addEventListener("submit", saveToSession, true);
         document.addEventListener("click", function(e) {
             var btn = e.target.closest("input[type=\'submit\'], button[type=\'submit\'], .btn-primary");
-            if (!btn) return;
-            try {
-                var data = {};
-                fieldNames.forEach(function(name) {
-                    var el = fields.querySelector("[name=\'" + name + "\']");
-                    if (el) data[name] = el.value;
-                });
-                sessionStorage.setItem(storageKey, JSON.stringify(data));
-            } catch(e) {}
+            if (btn) saveToSession();
         }, true);
+
+        // Initialize drag-and-drop objectives editor (reuse AMD module).
+        if (typeof require !== "undefined") {
+            require(["local_sm_graphics_plugin/course_objectives"], function(Obj) {
+                Obj.init();
+            });
+        }
+
+        // Initialize TinyMCE rich text editor on description field.
+        (function initEditor() {
+            var descEl = document.getElementById("smgp-restore-description");
+            if (!descEl) return;
+
+            // Try loading TinyMCE from Moodle\'s lib path.
+            function loadTiny() {
+                if (window.tinymce) {
+                    startTiny();
+                    return;
+                }
+                var script = document.createElement("script");
+                script.src = M.cfg.wwwroot + "/lib/editor/tiny/js/tinymce/tinymce.min.js";
+                script.onload = startTiny;
+                script.onerror = function() {}; // Fallback: plain textarea.
+                document.head.appendChild(script);
+            }
+
+            function startTiny() {
+                if (!window.tinymce) return;
+                window.tinymce.init({
+                    target: descEl,
+                    menubar: false,
+                    statusbar: false,
+                    toolbar: "bold italic underline strikethrough | bullist numlist | link removeformat",
+                    plugins: "lists link",
+                    height: 220,
+                    skin: "oxide",
+                    content_css: false,
+                    promotion: false,
+                    branding: false,
+                    setup: function(editor) {
+                        // Sync editor content back to textarea on change (for sessionStorage).
+                        editor.on("change input", function() {
+                            editor.save();
+                        });
+                    }
+                });
+            }
+
+            loadTiny();
+        })();
     });
     </script>';
 

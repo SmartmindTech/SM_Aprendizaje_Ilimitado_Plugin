@@ -119,6 +119,22 @@ $functions = [
         'ajax'        => true,
         'capabilities' => 'moodle/course:update',
     ],
+    'local_sm_graphics_plugin_save_objectives' => [
+        'classname'   => 'local_sm_graphics_plugin\external\save_objectives',
+        'methodname'  => 'execute',
+        'description' => 'Save learning objectives and optionally translate them',
+        'type'        => 'write',
+        'ajax'        => true,
+        'capabilities' => 'moodle/course:update',
+    ],
+    'local_sm_graphics_plugin_translate_course' => [
+        'classname'   => 'local_sm_graphics_plugin\external\translate_course',
+        'methodname'  => 'execute',
+        'description' => 'Trigger translation of course summary to all supported languages',
+        'type'        => 'write',
+        'ajax'        => true,
+        'capabilities' => 'moodle/course:update',
+    ],
     'local_sm_graphics_plugin_add_activity' => [
         'classname'   => 'local_sm_graphics_plugin\external\add_activity',
         'methodname'  => 'execute',
