@@ -3,3 +3,4 @@ image*.png
 .env
 .xcopy-exclude
 .claude
+dump*.html
