@@ -233,6 +233,11 @@ $string['objectives_error_max']       = 'Máximo 20 objetivos permitidos.';
 $string['objectives_restore_hint']    = 'Um objetivo por linha';
 $string['restore_desc_hint']          = 'Descrição do curso na página de apresentação. Será traduzida automaticamente.';
 $string['restore_objectives_hint']    = 'Adicione objetivos de aprendizagem. Serão traduzidos automaticamente para outros idiomas.';
+$string['restore_select_company']     = 'Selecione uma empresa';
+$string['restore_select_all']         = 'Selecionar todas';
+$string['restore_company']            = 'Empresa';
+$string['restore_company_short']      = 'Nome curto';
+$string['restore_new_course']         = 'Restaurar como novo curso';
 
 // Página de Notas e Diplomas.
 $string['gradescerts_nav']            = 'Notas e Diplomas';
