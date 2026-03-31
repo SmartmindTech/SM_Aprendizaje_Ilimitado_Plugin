@@ -79,6 +79,8 @@ theme_smartmind_rename_primary_nav($primarymenu);
 $companymanagernav = theme_smartmind_get_companymanager_nav();
 theme_smartmind_inject_student_nav($primarymenu, $companymanagernav, $PAGE);
 
+// theme_smartmind_filter_usermenu($primarymenu);
+
 $buildregionmainsettings = !$PAGE->include_region_main_settings_in_header_actions()
     && !$PAGE->has_secondary_navigation();
 $regionmainsettingsmenu = $buildregionmainsettings ? $OUTPUT->region_main_settings_menu() : false;

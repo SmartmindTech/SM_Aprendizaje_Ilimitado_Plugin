@@ -88,6 +88,9 @@ theme_smartmind_inject_student_nav($primarymenu, $companymanagernav, $PAGE);
 // Ensure only one nav item is active — custom items (sm-*) take priority.
 theme_smartmind_fix_active_nav($primarymenu);
 
+// DEBUG: dump user menu structure to a temp file.
+file_put_contents(__DIR__ . '/usermenu_debug.json', json_encode($primarymenu['user'], JSON_PRETTY_PRINT));
+// theme_smartmind_filter_usermenu($primarymenu);
 
 $buildregionmainsettings = !$PAGE->include_region_main_settings_in_header_actions() && !$PAGE->has_secondary_navigation();
 // If the settings menu will be included in the header then don't add it here.
