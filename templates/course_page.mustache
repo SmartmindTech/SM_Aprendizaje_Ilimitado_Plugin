@@ -30,17 +30,17 @@
     <div class="smgp-course-body">
         {{! === Main Content Area === }}
         <div class="smgp-course-main">
-            {{! ===== Activity title (main heading) + Breadcrumb (subtitle) ===== }}
-            <div class="smgp-course-activity-info" id="smgp-course-activity-info" style="display:none;">
-                <h2 class="smgp-course-activity-info__title" id="smgp-activity-info-title"></h2>
-                <p class="smgp-course-activity-info__meta" id="smgp-activity-info-meta"></p>
-            </div>
+            {{! ===== Breadcrumb (route) then Activity title ===== }}
             <div class="smgp-course-breadcrumb" id="smgp-course-breadcrumb">
                 <span class="smgp-course-breadcrumb__link" id="smgp-breadcrumb-mycourses" data-url="{{mycoursesurl}}">
                     {{#str}}course_page_mycourses_breadcrumb, local_sm_graphics_plugin{{/str}}
                 </span>
                 <span class="smgp-course-breadcrumb__sep">/</span>
                 <span class="smgp-course-breadcrumb__current">{{coursename}}</span>
+            </div>
+            <div class="smgp-course-activity-info" id="smgp-course-activity-info" style="display:none;">
+                <h2 class="smgp-course-activity-info__title" id="smgp-activity-info-title"></h2>
+                <p class="smgp-course-activity-info__meta" id="smgp-activity-info-meta"></p>
             </div>
             {{! Single activity content loaded via AJAX }}
             <div class="smgp-course-content" id="smgp-course-content-area">
@@ -126,7 +126,7 @@
         {{! Sidebar Toggle }}
         <button class="smgp-course-sidebar__toggle" id="smgp-sidebar-toggle"
                 title="{{#str}}course_page_collapse_sidebar, local_sm_graphics_plugin{{/str}}">
-            <i class="bi bi-chevron-right"></i>
+            <i class="icon-chevron-right"></i>
         </button>
     </div>
 

@@ -1036,22 +1036,37 @@ class get_activity_content extends external_api {
 
             $filesize = display_size($file->get_filesize());
             $mimetype = $file->get_mimetype();
+            $filename = $file->get_filename();
+            $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
             $isimage = strpos($mimetype, 'image/') === 0;
             $ispdf = ($mimetype === 'application/pdf');
             $isvideo = (strpos($mimetype, 'video/') === 0);
             $isaudio = (strpos($mimetype, 'audio/') === 0);
+            $isdocument = in_array($ext, [
+                'ppt', 'pptx', 'doc', 'docx', 'xls', 'xlsx', 'odt', 'ods', 'odp',
+            ]);
 
             if ($isimage) {
                 $filehtml = '<div class="smgp-activity-content__preview">'
-                    . '<img src="' . $fileurl . '" alt="' . s($file->get_filename())
+                    . '<img src="' . $fileurl . '" alt="' . s($filename)
                     . '" style="max-width:100%;height:auto;border-radius:8px;">'
                     . '</div>';
             } else if ($ispdf) {
-                $filehtml = '<div class="smgp-activity-content__preview">'
-                    . '<object data="' . $fileurl . '" type="application/pdf" '
-                    . 'width="100%" height="500px" style="border-radius:8px;border:1px solid var(--sl-border,#e5e7eb);">'
-                    . '<p>Cannot preview PDF. <a href="' . $fileurl . '">Download</a></p>'
-                    . '</object></div>';
+                // PDF: native browser viewer, fills content area.
+                $filehtml = '<div class="smgp-activity-content__document">'
+                    . '<iframe src="' . $fileurl . '#toolbar=1&navpanes=0" '
+                    . 'class="smgp-activity-content__document-frame" '
+                    . 'title="' . s($filename) . '">'
+                    . '</iframe></div>';
+            } else if ($isdocument) {
+                // Office documents: Google Docs Viewer for inline preview.
+                $encodedurl = urlencode($fileurl);
+                $viewerurl = 'https://docs.google.com/gview?url=' . $encodedurl . '&embedded=true';
+                $filehtml = '<div class="smgp-activity-content__document">'
+                    . '<iframe src="' . $viewerurl . '" '
+                    . 'class="smgp-activity-content__document-frame" '
+                    . 'title="' . s($filename) . '">'
+                    . '</iframe></div>';
             } else if ($isvideo) {
                 $filehtml = '<div class="smgp-activity-content__video-player">'
                     . '<video controls preload="metadata" class="smgp-video-player">'
@@ -1065,12 +1080,12 @@ class get_activity_content extends external_api {
                     . '</audio></div>';
             }
 
-            // Show download button only for non-media files (skip for video/audio).
-            if (!$isvideo && !$isaudio) {
+            // Download button: skip for video, audio, PDF, and embedded documents.
+            if (!$isvideo && !$isaudio && !$ispdf && !$isdocument) {
                 $filehtml .= '<div class="smgp-activity-content__file mt-2">'
                     . '<a href="' . $fileurl . '" class="btn btn-primary btn-sm">'
                     . '<i class="icon-download"></i> Download '
-                    . s($file->get_filename()) . ' (' . $filesize . ')</a></div>';
+                    . s($filename) . ' (' . $filesize . ')</a></div>';
             }
         }
 
