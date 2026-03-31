@@ -332,9 +332,11 @@ function local_sm_graphics_plugin_before_standard_top_of_body_html(): string {
         return $css;
     }
 
-    // Inject SmartMind fields into the restore schema page (step 4 only).
+    // Inject SmartMind fields + destination page enhancements into restore pages.
     if ($pagetype === 'backup-restore') {
-        return local_sm_graphics_plugin_restore_schema_fields();
+        return local_sm_graphics_plugin_restore_schema_fields()
+            . local_sm_graphics_plugin_restore_destination_js()
+            . local_sm_graphics_plugin_restore_settings_js();
     }
 
     // Restyle the restore file upload page.
@@ -409,6 +411,23 @@ function local_sm_graphics_plugin_before_standard_top_of_body_html(): string {
                                 }]);
                             }, 2000);
                         }
+
+                        // Assign course to selected companies (from restore destination page).
+                        try {
+                            var companyIds = sessionStorage.getItem("smgp_restore_companies");
+                            if (companyIds) {
+                                sessionStorage.removeItem("smgp_restore_companies");
+                                var ids = JSON.parse(companyIds);
+                                if (Array.isArray(ids)) {
+                                    ids.forEach(function(compId) {
+                                        Ajax.call([{
+                                            methodname: "local_sm_graphics_plugin_assign_course_company",
+                                            args: {courseid: courseid, companyid: parseInt(compId)}
+                                        }]);
+                                    });
+                                }
+                            }
+                        } catch(ex) {}
                     });
                 } catch(e) {}
             })();
@@ -1200,6 +1219,408 @@ function local_sm_graphics_plugin_restore_file_styles(): string {
     </style>';
 }
 
+/**
+ * JS enhancements for the restore destination page (step 2).
+ * Relocates search bars to top-right of section cards and makes
+ * "Seleccione" detail-pairs full-width.
+ *
+ * @return string
+ */
+function local_sm_graphics_plugin_restore_destination_js(): string {
+    global $DB;
+
+    // Pre-fetch companies with their category IDs for JS.
+    $companies = [];
+    $dbman = $DB->get_manager();
+    if ($dbman->table_exists('company')) {
+        $recs = $DB->get_records_sql(
+            "SELECT c.id, c.name, c.shortname, c.category
+               FROM {company} c ORDER BY c.name ASC"
+        );
+        foreach ($recs as $r) {
+            $companies[] = [
+                'id' => (int) $r->id,
+                'name' => format_string($r->name),
+                'shortname' => $r->shortname,
+                'categoryid' => (int) $r->category,
+            ];
+        }
+    }
+    $companiesJson = json_encode($companies);
+
+    // Lang strings.
+    $selectCompany = addslashes(get_string('restore_select_company', 'local_sm_graphics_plugin'));
+    $selectAll = addslashes(get_string('restore_select_all', 'local_sm_graphics_plugin'));
+    $companyLabel = addslashes(get_string('restore_company', 'local_sm_graphics_plugin'));
+    $companyShort = addslashes(get_string('restore_company_short', 'local_sm_graphics_plugin'));
+
+    return '<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var selector = document.querySelector(".backup-course-selector");
+        if (!selector) return;
+
+        var companies = ' . $companiesJson . ';
+
+        // ===== "RESTAURAR COMO CURSO NUEVO" section =====
+        var newSection = selector.querySelector(".bcs-new-course");
+        if (newSection && companies.length > 0) {
+            // Find the "Seleccione una categoría" detail-pair.
+            var searchDiv = newSection.querySelector(".restore-course-search");
+            var tableParent = searchDiv ? searchDiv.closest(".detail-pair") : null;
+
+            if (tableParent) {
+                tableParent.classList.add("smgp-select-fullwidth");
+
+                // Change label text to "Seleccione una empresa".
+                var label = tableParent.querySelector(".detail-pair-label");
+                if (label) {
+                    // Build search input inline with label.
+                    var searchHtml = \'<div class="smgp-search-relocated">\' +
+                        \'<input type="text" id="smgp-company-search" placeholder="' . $selectCompany . '..." class="form-control">\' +
+                        \'<span class="smgp-search-btn"><i class="fa fa-search"></i></span>\' +
+                        \'</div>\';
+                    label.innerHTML = \'' . $selectCompany . '\' + searchHtml;
+                    label.style.display = "flex";
+                    label.style.justifyContent = "space-between";
+                    label.style.alignItems = "center";
+                }
+
+                // Build company table with checkboxes.
+                var valueDiv = tableParent.querySelector(".detail-pair-value");
+                if (valueDiv) {
+                    var tableHtml = \'<table class="generaltable table table-hover" id="smgp-company-table" style="width:100%">\' +
+                        \'<thead><tr>\' +
+                        \'<th style="width:44px;text-align:center;vertical-align:middle;"><span id="smgp-select-all" class="smgp-fake-radio" title="' . $selectAll . '"></span></th>\' +
+                        \'<th>' . $companyLabel . '</th>\' +
+                        \'<th>' . $companyShort . '</th>\' +
+                        \'</tr></thead><tbody>\';
+
+                    companies.forEach(function(c) {
+                        tableHtml += \'<tr data-name="\' + c.name.toLowerCase() + \' \' + c.shortname.toLowerCase() + \'">\' +
+                            \'<td style="width:44px;text-align:center;vertical-align:middle;">\' +
+                            \'<input type="radio" name="smgp_company_radio" value="\' + c.id + \'" data-catid="\' + c.categoryid + \'" style="accent-color:#6366f1;cursor:pointer;">\' +
+                            \'</td>\' +
+                            \'<td><strong>\' + c.name + \'</strong></td>\' +
+                            \'<td style="color:#94a3b8;font-size:0.8rem;">\' + c.shortname + \'</td>\' +
+                            \'</tr>\';
+                    });
+
+                    tableHtml += \'</tbody></table>\';
+                    valueDiv.innerHTML = tableHtml;
+
+                    // Make radios work as multi-select toggles (click to toggle on/off).
+                    var companyRadios = document.querySelectorAll("#smgp-company-table tbody input[type=radio]");
+                    companyRadios.forEach(function(radio) {
+                        radio.addEventListener("click", function(e) {
+                            // Prevent default radio single-select behavior.
+                            if (radio.dataset.wasChecked === "true") {
+                                radio.checked = false;
+                                radio.dataset.wasChecked = "false";
+                            } else {
+                                // Allow multiple: dont uncheck others.
+                                companyRadios.forEach(function(r) { r.dataset.wasChecked = r.checked ? "true" : "false"; });
+                                radio.dataset.wasChecked = "true";
+                            }
+                        });
+                        radio.addEventListener("mousedown", function() {
+                            radio.dataset.wasChecked = radio.checked ? "true" : "false";
+                        });
+                    });
+
+                    // Select-all toggle (fake radio span).
+                    var selectAllBtn = document.getElementById("smgp-select-all");
+                    if (selectAllBtn) {
+                        selectAllBtn.addEventListener("click", function() {
+                            var isOn = selectAllBtn.classList.toggle("smgp-fake-radio--checked");
+                            companyRadios.forEach(function(r) {
+                                if (r.closest("tr").style.display !== "none") {
+                                    r.checked = isOn;
+                                    r.dataset.wasChecked = isOn ? "true" : "false";
+                                }
+                            });
+                        });
+                    }
+
+                    // Real-time search filtering.
+                    var searchInput = document.getElementById("smgp-company-search");
+                    if (searchInput) {
+                        searchInput.addEventListener("input", function() {
+                            var q = searchInput.value.toLowerCase().trim();
+                            var rows = document.querySelectorAll("#smgp-company-table tbody tr");
+                            rows.forEach(function(row) {
+                                var text = row.getAttribute("data-name") || "";
+                                row.style.display = (!q || text.indexOf(q) !== -1) ? "" : "none";
+                            });
+                        });
+                    }
+                }
+
+                // Intercept "Continuar" to set the category from the first selected company.
+                var form = newSection.closest("form");
+                if (form) {
+                    form.addEventListener("submit", function(e) {
+                        var checked = document.querySelectorAll("#smgp-company-table tbody input[type=radio]:checked");
+                        if (checked.length === 0) return;
+
+                        // Set the Moodle category radio to the first selected company\'s category.
+                        var catId = checked[0].getAttribute("data-catid");
+                        // Find or create hidden input for category.
+                        var catInput = form.querySelector("input[name=\'targetid\']");
+                        if (!catInput) {
+                            catInput = document.createElement("input");
+                            catInput.type = "hidden";
+                            catInput.name = "targetid";
+                            form.appendChild(catInput);
+                        }
+                        catInput.value = catId;
+
+                        // Store all selected company IDs in sessionStorage for post-restore assignment.
+                        var ids = [];
+                        checked.forEach(function(cb) { ids.push(cb.value); });
+                        sessionStorage.setItem("smgp_restore_companies", JSON.stringify(ids));
+                    });
+                }
+            }
+        }
+
+        // ===== "RESTAURAR EN UN CURSO EXISTENTE" section =====
+        var existingSection = selector.querySelector(".bcs-existing-course");
+        if (existingSection) {
+            var searchDiv2 = existingSection.querySelector(".restore-course-search");
+            var tableParent2 = searchDiv2 ? searchDiv2.closest(".detail-pair") : null;
+
+            if (tableParent2) {
+                tableParent2.classList.add("smgp-select-fullwidth");
+
+                // Real-time search for courses.
+                var label2 = tableParent2.querySelector(".detail-pair-label");
+                if (label2) {
+                    var labelText = label2.textContent.trim();
+                    var searchHtml2 = \'<div class="smgp-search-relocated">\' +
+                        \'<input type="text" id="smgp-course-search" placeholder="\' + labelText + \'..." class="form-control">\' +
+                        \'<span class="smgp-search-btn"><i class="fa fa-search"></i></span>\' +
+                        \'</div>\';
+                    label2.innerHTML = labelText + searchHtml2;
+                    label2.style.display = "flex";
+                    label2.style.justifyContent = "space-between";
+                    label2.style.alignItems = "center";
+                }
+
+                // Hide ALL original search elements below the table.
+                var hideTargets = searchDiv2.querySelectorAll("form, input, button");
+                hideTargets.forEach(function(el) {
+                    if (!el.closest(".smgp-search-relocated") && !el.closest("table")) {
+                        el.style.display = "none";
+                    }
+                });
+
+                // Fix the course table header — ensure the radio column header matches.
+                // Style course table headers and inject a CSS rule
+                // to extend the header background over the radio column area.
+                var courseTable = tableParent2.querySelector("table");
+                if (courseTable) {
+                    courseTable.id = "smgp-course-table";
+                    // Style ALL header cells (th AND td.header).
+                    var headerCells = courseTable.querySelectorAll("thead th, thead td");
+                    var maxH = 0;
+                    headerCells.forEach(function(cell) {
+                        cell.style.background = "#f8fafc";
+                        cell.style.borderBottom = "1px solid #e2e8f0";
+                        cell.style.borderTop = "none";
+                        cell.style.borderLeft = "none";
+                        cell.style.borderRight = "none";
+                        cell.style.padding = "0.6rem 1rem";
+                        cell.style.boxSizing = "border-box";
+                        var h = cell.getBoundingClientRect().height;
+                        if (h > maxH) maxH = h;
+                    });
+                    // Force all to the tallest height.
+                    if (maxH > 0) {
+                        headerCells.forEach(function(cell) {
+                            cell.style.height = maxH + "px";
+                        });
+                    }
+                }
+
+                var courseSearch = document.getElementById("smgp-course-search");
+                if (courseSearch) {
+                    courseSearch.addEventListener("input", function() {
+                        var q = courseSearch.value.toLowerCase().trim();
+                        var table = tableParent2.querySelector("table");
+                        if (!table) return;
+                        var rows = table.querySelectorAll("tbody tr");
+                        rows.forEach(function(row) {
+                            var text = row.textContent.toLowerCase();
+                            row.style.display = (!q || text.indexOf(q) !== -1) ? "" : "none";
+                        });
+                    });
+                }
+            }
+        }
+    });
+    </script>';
+}
+
+/**
+ * JS enhancements for the restore settings page (step 3).
+ * Restyles the checkbox/settings list with bullets, checkboxes at end, full-width grid.
+ *
+ * @return string
+ */
+function local_sm_graphics_plugin_restore_settings_js(): string {
+    return '<style>
+    /* Settings page (step 3) — injected to win specificity */
+    /* Scoped to #id_rootsettingscontainer — step 3 settings only */
+    #id_rootsettingscontainer {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 0 2rem !important;
+    }
+    #id_rootsettingscontainer > .root_setting,
+    #id_rootsettingscontainer > .include_setting,
+    #id_rootsettingscontainer > .normal_setting {
+        float: none !important;
+        display: block !important;
+        width: 100% !important;
+        padding: 0 !important;
+    }
+    #id_rootsettingscontainer .fitem.row {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        flex-wrap: nowrap !important;
+        padding: 0.5rem 0.5rem !important;
+        margin: 0 !important;
+        border-bottom: 1px solid #f8fafc;
+        border-radius: 6px;
+        transition: background 0.1s;
+    }
+    #id_rootsettingscontainer .fitem.row:hover {
+        background: #f8fafc;
+    }
+    #id_rootsettingscontainer .fitem.row > .col-md-3 {
+        flex: 1 !important;
+        width: auto !important;
+        max-width: none !important;
+        padding: 0 !important;
+        order: 1 !important;
+        text-align: left !important;
+    }
+    #id_rootsettingscontainer .fitem.row > .col-md-3 label,
+    #id_rootsettingscontainer .fitem.row > .col-md-3 p,
+    #id_rootsettingscontainer .fitem.row > .col-md-3 span {
+        font-size: 0.875rem !important;
+        font-weight: 500 !important;
+        color: #0f172a !important;
+        margin: 0 !important;
+        text-align: left !important;
+    }
+    #id_rootsettingscontainer .fitem.row > .col-md-9 {
+        flex: 0 0 auto !important;
+        width: auto !important;
+        max-width: none !important;
+        padding: 0 !important;
+        order: 2 !important;
+        text-align: right !important;
+    }
+    #id_rootsettingscontainer .fitem.row > .col-md-9 input[type="checkbox"] {
+        accent-color: #6366f1;
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+    }
+    /* Settings fieldset padding — scoped to step 3 only */
+    .path-backup .mform fieldset:has(#id_rootsettingscontainer) {
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+    }
+    .path-backup .mform fieldset:has(#id_rootsettingscontainer) .ftoggler h3,
+    .path-backup .mform fieldset:has(#id_rootsettingscontainer) > .d-flex > h3,
+    .path-backup .mform fieldset:has(#id_rootsettingscontainer) > legend {
+        margin-bottom: 0.75rem !important;
+        padding-bottom: 0.5rem !important;
+        border-bottom: none !important;
+    }
+    /* Buttons centered */
+    .path-backup .mform #id_submitbuttons {
+        display: flex !important;
+        justify-content: center !important;
+        gap: 0.75rem !important;
+        padding-top: 1rem !important;
+        border-top: 1px solid #e2e8f0 !important;
+        margin-top: 0.5rem !important;
+        grid-column: 1 / -1 !important;
+    }
+    .path-backup .mform #id_submitbuttons .col-md-9,
+    .path-backup .mform #id_submitbuttons .col-md-3 {
+        width: auto !important;
+        max-width: none !important;
+        flex: none !important;
+        padding: 0 !important;
+    }
+    </style>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Find setting items ONLY in step 3 container (not step 4 schema).
+        var rootContainer = document.getElementById("id_rootsettingscontainer");
+        if (!rootContainer) return;
+        var items = rootContainer.querySelectorAll(".root_setting, .include_setting, .normal_setting");
+        if (!items.length) return;
+        var n = 1;
+        items.forEach(function(item) {
+            var fitem = item.querySelector(".fitem");
+            if (!fitem) return;
+
+            var col3 = fitem.querySelector(".col-md-3");
+            var col9 = fitem.querySelector(".col-md-9");
+            if (!col3 || !col9) return;
+
+            // Find label text element.
+            var label = col3.querySelector("span.d-inline-block");
+            var isCheckbox = false;
+            if (!label) {
+                label = col9.querySelector("label");
+                isCheckbox = true;
+            }
+            if (!label) label = col3.querySelector("label, p");
+            if (!label || label.querySelector(".smgp-num")) return;
+
+            // For checkbox items: move label text to col-md-3, checkbox to col-md-9.
+            if (isCheckbox) {
+                var checkbox = col9.querySelector("input[type=checkbox]");
+                var labelText = label.textContent.trim();
+
+                // Put label text in col-md-3.
+                var newLabel = document.createElement("span");
+                newLabel.className = "d-inline-block";
+                newLabel.textContent = labelText;
+                col3.insertBefore(newLabel, col3.firstChild);
+
+                // Keep only checkbox in col-md-9.
+                if (checkbox) {
+                    col9.innerHTML = "";
+                    col9.appendChild(checkbox);
+                    col9.style.textAlign = "right";
+                }
+
+                label = newLabel;
+            }
+
+            // Add number badge.
+            var num = document.createElement("span");
+            num.className = "smgp-num";
+            num.style.cssText = "display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;border-radius:50%;background:#e2e8f0;color:#475569;font-size:0.7rem;font-weight:600;margin-right:0.5rem;flex-shrink:0;";
+            num.textContent = n;
+            label.style.display = "flex";
+            label.style.alignItems = "center";
+            label.insertBefore(num, label.firstChild);
+            n++;
+        });
+    });
+    </script>';
+}
+
 function local_sm_graphics_plugin_restore_schema_fields(): string {
     global $DB;
 
@@ -1283,6 +1704,115 @@ function local_sm_graphics_plugin_restore_schema_fields(): string {
     document.addEventListener("DOMContentLoaded", function() {
         var fields = document.querySelector(".smgp-restore-fields");
         if (!fields) return;
+
+        // Check which step we are on.
+        var currentStep = document.querySelector(".backup_stage_current");
+        var stepText = currentStep ? currentStep.textContent.trim() : "";
+        var isSchema = (stepText.indexOf("4") !== -1 || stepText.indexOf("Schema") !== -1 || stepText.indexOf("Esquema") !== -1);
+
+        // On Review page (step 5) — show read-only summary of SmartMind values.
+        if (!isSchema) {
+            var container = document.getElementById("id_coursesettingscontainer");
+            if (!container) return;
+            try {
+                var saved = JSON.parse(sessionStorage.getItem("smgp_restore_fields") || "{}");
+                if (!saved || typeof saved !== "object") return;
+                var hasValues = Object.keys(saved).some(function(k) { return saved[k] && saved[k] !== "[]"; });
+                if (!hasValues) return;
+
+                var smLabels = ' . json_encode([
+                    'smgp_duration_hours' => get_string('course_hours', 'local_sm_graphics_plugin'),
+                    'smgp_level' => get_string('course_level', 'local_sm_graphics_plugin'),
+                    'smgp_completion_percentage' => get_string('completion_percentage', 'local_sm_graphics_plugin'),
+                    'smgp_catalogue_cat' => get_string('course_category_field', 'local_sm_graphics_plugin'),
+                    'smgp_smartmind_code' => get_string('smartmind_code', 'local_sm_graphics_plugin'),
+                    'smgp_sepe_code' => get_string('sepe_code', 'local_sm_graphics_plugin'),
+                    'smgp_description' => get_string('course_description', 'local_sm_graphics_plugin'),
+                ]) . ';
+                var smLevelLabels = ' . json_encode([
+                    'beginner' => get_string('level_beginner', 'local_sm_graphics_plugin'),
+                    'medium' => get_string('level_medium', 'local_sm_graphics_plugin'),
+                    'advanced' => get_string('level_advanced', 'local_sm_graphics_plugin'),
+                ]) . ';
+                var smObjLabel = ' . json_encode(get_string('objectives_header', 'local_sm_graphics_plugin')) . ';
+
+                var h = "<div class=\\"smgp-restore-fields\\" style=\\"margin-top:1rem;\\">" +
+                    "<div class=\\"normal_setting\\" style=\\"width:100%!important;float:none!important;clear:both!important;display:block!important;\\">" +
+                    "<h4 style=\\"margin:1rem 0 0.75rem;font-weight:600;color:#1e293b;border-bottom:2px solid #e2e8f0;padding-bottom:0.5rem;\\">" +
+                    "<i class=\\"icon-settings\\" style=\\"margin-right:0.4rem;\\"></i> SmartMind</h4>" +
+                    "<div style=\\"display:grid;grid-template-columns:1fr 1fr;gap:0.5rem 2rem;\\">";
+
+                ["smgp_duration_hours","smgp_level","smgp_completion_percentage","smgp_catalogue_cat","smgp_smartmind_code","smgp_sepe_code"].forEach(function(key) {
+                    var val = saved[key] || "-";
+                    if (key === "smgp_level") val = smLevelLabels[val] || val;
+                    if (key === "smgp_completion_percentage" && val !== "-") val = val + "%";
+                    h += "<div style=\\"padding:0.35rem 0;border-bottom:1px solid #f1f5f9;\\">" +
+                        "<span style=\\"font-size:0.8rem;color:#64748b;\\">" + smLabels[key] + "</span><br>" +
+                        "<span style=\\"font-size:0.875rem;font-weight:500;color:#1e293b;\\">" + val + "</span></div>";
+                });
+                h += "</div>";
+
+                // Description — always show.
+                var descVal = saved.smgp_description || "-";
+                h += "<div style=\\"margin-top:0.5rem;padding:0.35rem 0;border-bottom:1px solid #f1f5f9;\\">" +
+                    "<span style=\\"font-size:0.8rem;color:#64748b;\\">" + smLabels.smgp_description + "</span><br>" +
+                    "<div style=\\"font-size:0.875rem;color:#1e293b;margin-top:0.25rem;\\">" + descVal + "</div></div>";
+
+                // Objectives — always show.
+                var objsHtml = "-";
+                if (saved.smgp_objectives_data && saved.smgp_objectives_data !== "[]") {
+                    try {
+                        var objs = JSON.parse(saved.smgp_objectives_data);
+                        if (Array.isArray(objs) && objs.length > 0) {
+                            objsHtml = "<ul style=\\"margin:0.25rem 0 0 1rem;padding:0;font-size:0.875rem;color:#1e293b;\\">";
+                            objs.forEach(function(o) { if (o.trim()) objsHtml += "<li>" + o + "</li>"; });
+                            objsHtml += "</ul>";
+                        }
+                    } catch(ex) {}
+                }
+                h += "<div style=\\"margin-top:0.5rem;padding:0.35rem 0;border-bottom:1px solid #f1f5f9;\\">" +
+                    "<span style=\\"font-size:0.8rem;color:#64748b;\\">" + smObjLabel + "</span><br>" +
+                    "<div style=\\"font-size:0.875rem;color:#1e293b;margin-top:0.25rem;\\">" + objsHtml + "</div></div>";
+
+                h += "</div></div>";
+
+                var settingDivs = container.querySelectorAll(":scope > .normal_setting");
+                var lastSetting = settingDivs[settingDivs.length - 1];
+                if (lastSetting) {
+                    lastSetting.insertAdjacentHTML("afterend", h);
+                }
+
+                // Restyle Moodle fields to match SmartMind layout (label on top, value below).
+                settingDivs.forEach(function(sd) {
+                    var fitem = sd.querySelector(".fitem");
+                    if (!fitem) return;
+                    var col3 = fitem.querySelector(".col-md-3");
+                    var col9 = fitem.querySelector(".col-md-9");
+                    if (!col3 || !col9) return;
+
+                    var labelEl = col3.querySelector("span.d-inline-block, label, p");
+                    var valueEl = col9.querySelector(".form-control-static, input, select");
+                    var labelText = labelEl ? labelEl.textContent.trim() : "";
+                    var valueText = valueEl ? valueEl.textContent.trim() : "";
+
+                    fitem.style.cssText = "display:block!important;padding:0.35rem 0;border-bottom:1px solid #f1f5f9;";
+                    fitem.classList.remove("row");
+                    col3.style.cssText = "width:100%!important;max-width:none!important;padding:0!important;";
+                    col3.classList.remove("col-md-3","col-form-label","d-flex","pb-0","pe-md-0");
+                    col9.style.cssText = "width:100%!important;max-width:none!important;padding:0!important;";
+                    col9.classList.remove("col-md-9");
+
+                    if (labelEl) {
+                        labelEl.style.cssText = "font-size:0.8rem;color:#64748b;display:block;margin-bottom:0.1rem;";
+                    }
+                    if (valueEl) {
+                        valueEl.style.cssText = "font-size:0.875rem;font-weight:500;color:#1e293b;";
+                    }
+                });
+
+            } catch(e) {}
+            return;
+        }
 
         var container = document.getElementById("id_coursesettingscontainer");
         if (!container) return;

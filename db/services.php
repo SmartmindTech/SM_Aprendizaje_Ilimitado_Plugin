@@ -119,6 +119,14 @@ $functions = [
         'ajax'        => true,
         'capabilities' => 'moodle/course:update',
     ],
+    'local_sm_graphics_plugin_assign_course_company' => [
+        'classname'   => 'local_sm_graphics_plugin\external\assign_course_company',
+        'methodname'  => 'execute',
+        'description' => 'Assign a course to an IOMAD company',
+        'type'        => 'write',
+        'ajax'        => true,
+        'capabilities' => 'moodle/course:update',
+    ],
     'local_sm_graphics_plugin_save_objectives' => [
         'classname'   => 'local_sm_graphics_plugin\external\save_objectives',
         'methodname'  => 'execute',
