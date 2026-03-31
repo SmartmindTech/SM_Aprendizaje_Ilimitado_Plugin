@@ -311,6 +311,11 @@ $string['objectives_error_max']       = 'Maximum 20 objectives allowed.';
 $string['objectives_restore_hint']    = 'One objective per line';
 $string['restore_desc_hint']          = 'Course description shown on the landing page. Will be auto-translated.';
 $string['restore_objectives_hint']    = 'Add learning objectives. They will be auto-translated to other languages.';
+$string['restore_select_company']     = 'Select a company';
+$string['restore_select_all']         = 'Select all';
+$string['restore_company']            = 'Company';
+$string['restore_company_short']      = 'Short name';
+$string['restore_new_course']         = 'Restore as new course';
 
 // Grades & Certificates page.
 $string['gradescerts_nav']            = 'Notas y Diplomas';
