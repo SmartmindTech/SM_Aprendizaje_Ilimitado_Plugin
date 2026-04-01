@@ -9,6 +9,24 @@
     margin: 0 auto;
 }
 
+// ---- Remove wrapper spacing so hero banner sits flush under navbar ----
+#page.drawers:has(.smgp-landing) {
+    .main-inner {
+        padding-top: 0;
+        margin-top: 0;
+    }
+    #region-main {
+        padding-top: 0;
+        margin-top: 0;
+    }
+    #page-header {
+        display: none;
+    }
+    .drawer-toggles {
+        display: none;
+    }
+}
+
 // ============================================================
 // Hero Banner
 // ============================================================
