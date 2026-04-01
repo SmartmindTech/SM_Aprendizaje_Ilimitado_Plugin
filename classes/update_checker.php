@@ -30,7 +30,7 @@ defined('MOODLE_INTERNAL') || die();
 class update_checker {
 
     /** @var string URL to the update.xml file */
-    const UPDATE_URL = 'https://raw.githubusercontent.com/SmartmindTech/SM_Moodle_Graphic_Layer_Plugin/dev/update.xml';
+    const UPDATE_URL = 'https://raw.githubusercontent.com/SmartmindTech/SM_Aprendizaje_Ilimitado_Plugin/main/update.xml';
 
     /** @var string Config key for cached update info */
     const CONFIG_UPDATE_INFO = 'cached_update_info';
@@ -83,10 +83,69 @@ class update_checker {
             $result->url = $updateinfo['url'] ?? '';
             $result->currentversion = $currentversion;
             $result->currentrelease = $plugin->release ?? $currentversion;
+
+            self::send_notification_if_needed($result);
+
             return $result;
         }
 
         return null;
+    }
+
+    /**
+     * Send Moodle notifications to all site administrators if not already notified.
+     *
+     * @param object $updateinfo Update info object.
+     */
+    public static function send_notification_if_needed(object $updateinfo): void {
+        global $USER;
+
+        if (!is_siteadmin($USER)) {
+            return;
+        }
+
+        $lastnotified = get_config('local_sm_graphics_plugin', 'last_notified_version');
+        if ($lastnotified == $updateinfo->version) {
+            return;
+        }
+
+        $admins = get_admins();
+        if (empty($admins)) {
+            return;
+        }
+
+        $subject = get_string('updateavailable_subject', 'local_sm_graphics_plugin', $updateinfo->release);
+
+        $messagedata = new \stdClass();
+        $messagedata->currentversion = $updateinfo->currentrelease;
+        $messagedata->newversion = $updateinfo->release;
+
+        $fullmessage = get_string('updateavailable_message', 'local_sm_graphics_plugin', $messagedata);
+        $htmlmessage = get_string('updateavailable_message_html', 'local_sm_graphics_plugin', $messagedata);
+
+        $noreplyuser = \core_user::get_noreply_user();
+
+        foreach ($admins as $admin) {
+            $message = new \core\message\message();
+            $message->component = 'local_sm_graphics_plugin';
+            $message->name = 'updatenotification';
+            $message->userfrom = $noreplyuser;
+            $message->userto = $admin;
+            $message->subject = $subject;
+            $message->fullmessage = $fullmessage;
+            $message->fullmessageformat = FORMAT_PLAIN;
+            $message->fullmessagehtml = $htmlmessage;
+            $message->smallmessage = $subject;
+            $message->notification = 1;
+
+            try {
+                message_send($message);
+            } catch (\Exception $e) {
+                debugging('SM Graphics Plugin: Failed to notify ' . $admin->username, DEBUG_DEVELOPER);
+            }
+        }
+
+        set_config('last_notified_version', $updateinfo->version, 'local_sm_graphics_plugin');
     }
 
     /**

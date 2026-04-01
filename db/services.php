@@ -174,4 +174,12 @@ $functions = [
         'ajax'        => true,
         'capabilities' => 'moodle/course:update',
     ],
+    'local_sm_graphics_plugin_save_restore_fields' => [
+        'classname'   => 'local_sm_graphics_plugin\external\save_restore_fields',
+        'methodname'  => 'execute',
+        'description' => 'Stage SmartMind restore fields in PHP session for course_restored event',
+        'type'        => 'write',
+        'ajax'        => true,
+        'capabilities' => 'moodle/course:update',
+    ],
 ];
