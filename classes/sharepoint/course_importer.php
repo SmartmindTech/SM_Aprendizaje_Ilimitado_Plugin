@@ -122,7 +122,7 @@ class course_importer {
      * @return int|null New course ID or null on failure.
      */
     private static function restore_mbz(array $manifest, int $categoryid): ?int {
-        global $CFG, $USER;
+        global $CFG, $USER, $DB;
 
         require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
 
