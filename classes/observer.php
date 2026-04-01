@@ -363,6 +363,91 @@ class observer {
             $now = time();
         }
         self::apply_restore_overrides($courseid, $fields, $now);
+
+        // Apply course structure changes (renames, reorders) if present.
+        if (!empty($fields['smgp_course_structure'])) {
+            self::apply_structure_changes($courseid, $fields['smgp_course_structure']);
+        }
+    }
+
+    /**
+     * Apply course structure changes after restore: rename sections/activities,
+     * reorder them based on user edits from the schema step editor.
+     */
+    public static function apply_structure_changes(int $courseid, string $json): void {
+        global $DB, $CFG;
+        require_once($CFG->dirroot . '/course/lib.php');
+
+        $structure = json_decode($json, true);
+        if (!is_array($structure)) {
+            return;
+        }
+
+        $course = $DB->get_record('course', ['id' => $courseid]);
+        if (!$course) {
+            return;
+        }
+
+        foreach ($structure as $secdata) {
+            $sectionKey = $secdata['sectionKey'] ?? '';
+            $newName    = $secdata['name'] ?? '';
+            $origName   = $secdata['origName'] ?? '';
+
+            // Extract section number from key: "setting_section_section_N_included" → N
+            if (preg_match('/setting_section_section_(\d+)_included/', $sectionKey, $m)) {
+                $sectionnum = (int) $m[1];
+                // Rename section if changed.
+                if ($newName !== $origName && $newName !== '') {
+                    $section = $DB->get_record('course_sections',
+                        ['course' => $courseid, 'section' => $sectionnum]);
+                    if ($section) {
+                        $DB->set_field('course_sections', 'name', $newName,
+                            ['id' => $section->id]);
+                    }
+                }
+
+                // Process activity renames within this section.
+                $activities = $secdata['activities'] ?? [];
+                foreach ($activities as $actdata) {
+                    $actKey  = $actdata['actKey'] ?? '';
+                    $actName = $actdata['name'] ?? '';
+                    $actOrig = $actdata['origName'] ?? '';
+
+                    // Skip new (placeholder) activities and unchanged names.
+                    if (strpos($actKey, 'smgp_new_') === 0 || $actName === $actOrig || $actName === '') {
+                        continue;
+                    }
+
+                    // Extract module name and instance from key: "setting_activity_MODNAME_N_included"
+                    if (preg_match('/setting_activity_(\w+)_(\d+)_included/', $actKey, $am)) {
+                        $modname = $am[1];
+                        $cmid    = (int) $am[2];
+                        // The N in the key is the backup ID, not the cmid.
+                        // We need to find the actual cm by matching module name and instance.
+                        // Since after restore the IDs change, try matching by original name.
+                        $modtable = $modname;
+                        if ($DB->get_manager()->table_exists($modtable)) {
+                            // Find instances in this course section with the original name.
+                            $instances = $DB->get_records_sql(
+                                "SELECT m.id, m.name, cm.id AS cmid
+                                   FROM {{$modtable}} m
+                                   JOIN {course_modules} cm ON cm.instance = m.id AND cm.module = (
+                                       SELECT id FROM {modules} WHERE name = ?
+                                   )
+                                  WHERE cm.course = ? AND m.name = ?",
+                                [$modname, $courseid, $actOrig]
+                            );
+                            foreach ($instances as $inst) {
+                                $DB->set_field($modtable, 'name', $actName, ['id' => $inst->id]);
+                                break; // Rename the first match only.
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        rebuild_course_cache($courseid, true);
     }
 
     /**
