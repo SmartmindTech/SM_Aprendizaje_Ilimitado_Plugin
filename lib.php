@@ -324,9 +324,10 @@ function local_sm_graphics_plugin_before_standard_top_of_body_html(): string {
             . '#page-wrapper{display:block!important}'
             // Content area — full width, no horizontal overflow.
             . '#region-main{border:none!important;box-shadow:none!important;border-radius:0!important;'
-            . 'padding:1rem!important;margin:0 auto!important;max-width:100%!important;width:100%!important}'
+            . 'padding:0!important;margin:0!important;max-width:100%!important;width:100%!important}'
             . 'html,body{overflow-x:hidden!important;max-width:100vw!important}'
-            . '.main-inner,.header-maxwidth{max-width:100%!important}'
+            . '.main-inner,.header-maxwidth{max-width:100%!important;padding:0!important;margin:0!important}'
+            . '#region-main-box{padding:0!important;margin:0!important;max-width:100%!important}'
             . '</style>';
         // Quiz: keep right drawer for question navigation.
         $pagepathEmbed = $_SERVER['SCRIPT_NAME'] ?? '';
@@ -334,57 +335,19 @@ function local_sm_graphics_plugin_before_standard_top_of_body_html(): string {
             $css .= '<style>#mod_quiz_navblock{display:block!important}</style>';
         }
         $css .= '<script>document.body.classList.add("smgp-embedded");</script>';
+
+        // Append full SmartLearning activity styling (quiz questions, answers, theme tokens).
+        $pagepathAssets = $_SERVER['SCRIPT_NAME'] ?? '';
+        if (strpos($pagepathAssets, '/mod/quiz/') !== false) {
+            $css .= \local_sm_graphics_plugin\embed\activity_embed_assets::get_quiz_css_js();
+        } else {
+            $css .= \local_sm_graphics_plugin\embed\activity_embed_assets::get_css_js();
+        }
+
         return $css;
     }
 
-    // Assignment: move submission button below the status table.
-    $scriptpath = $_SERVER['SCRIPT_NAME'] ?? '';
-    if (strpos($scriptpath, '/mod/assign/') !== false) {
-        $output .= '<script>document.addEventListener("DOMContentLoaded",function(){'
-            . 'var t=document.querySelector(".submissionstatustable");'
-            . 'if(!t)return;'
-            . 'var btns=t.parentNode.querySelectorAll(".singlebutton,form[data-action],.box.generalbox .btn-primary");'
-            . 'btns.forEach(function(b){t.parentNode.appendChild(b);});'
-            . '});</script>';
-    }
-    // Quiz view: reorganize layout — merge attempts info, move grade below table.
-    if (strpos($scriptpath, '/mod/quiz/view.php') !== false) {
-        $output .= '<script>document.addEventListener("DOMContentLoaded",function(){'
-            . 'var rm=document.getElementById("region-main");if(!rm)return;'
-            // Find "Your attempts" heading.
-            . 'var ah=null;rm.querySelectorAll("h3").forEach(function(h){'
-            . 'if(!ah&&(h.textContent.toLowerCase().indexOf("attempt")!==-1'
-            . '||h.textContent.toLowerCase().indexOf("intento")!==-1))ah=h;});'
-            // Find attempts allowed text and extract number.
-            . 'var aaEl=null,aa="";rm.querySelectorAll("p,.box.generalbox").forEach(function(p){'
-            . 'var t=p.textContent.trim().toLowerCase();'
-            . 'if(t.indexOf("attempts allowed")!==-1||t.indexOf("intentos permitidos")!==-1){'
-            . 'aaEl=p;var m=p.textContent.match(/(\\d+|unlimited|ilimitados)/i);if(m)aa=m[1];}});'
-            // Count attempts from table.
-            . 'var at=rm.querySelector(".quizattemptsummary,table.generaltable");'
-            . 'var ac=at?at.querySelectorAll("tbody tr").length:0;'
-            // Merge into heading as badge.
-            . 'if(ah&&aa){var b=document.createElement("span");'
-            . 'b.className="smgp-quiz-attempts-badge";b.textContent=ac+" / "+aa;'
-            . 'ah.appendChild(document.createTextNode(" "));ah.appendChild(b);}'
-            // Hide original attempts allowed text.
-            . 'if(aaEl)aaEl.style.display="none";'
-            // Find grade text and move below table.
-            . 'var ge=null;rm.querySelectorAll("p,.box.generalbox,div").forEach(function(el){'
-            . 'if(ge)return;var t=el.textContent.trim().toLowerCase();'
-            . 'if((t.indexOf("final grade")!==-1||t.indexOf("calificación final")!==-1'
-            . '||t.indexOf("nota final")!==-1)&&el.children.length<=2&&el.textContent.length<200)ge=el;});'
-            . 'if(ge&&at){ge.classList.add("smgp-quiz-grade-summary");'
-            . 'at.parentNode.insertBefore(ge,at.nextSibling);}'
-            // Move start button below everything.
-            . 'var sb=rm.querySelector(".quizstartbuttondiv,.singlebutton");'
-            . 'if(sb){var tg=ge||at||rm.querySelector(".quizinfo");'
-            . 'if(tg&&tg.parentNode)tg.parentNode.insertBefore(sb,tg.nextSibling);}'
-            // Hide quizinfo if attempt table exists (avoids duplication).
-            . 'var qi=rm.querySelector(".quizinfo");'
-            . 'if(qi&&at)qi.style.display="none";'
-            . '});</script>';
-    }
+    // Quiz view: layout is handled by theme renderer override (quiz_renderer.php).
 
     // Inject SmartMind fields + destination page enhancements into restore pages.
     if ($pagetype === 'backup-restore') {

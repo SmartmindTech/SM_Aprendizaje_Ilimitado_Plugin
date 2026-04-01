@@ -1,0 +1,34 @@
+{{!
+    @template mod_quiz/list_of_attempts
+
+    SmartMind override — renders quiz attempt cards with clean styling.
+    Removes the default heading (handled by the renderer override).
+}}
+{{#hasattempts}}
+<div class="smgp-quiz-attempts">
+    {{#attempts}}
+    <div class="smgp-quiz-attempt-card">
+        <div class="smgp-quiz-attempt-card__header">
+            <h4 class="smgp-quiz-attempt-card__title">{{name}}</h4>
+            {{#reviewlink}}
+            <div class="smgp-quiz-attempt-card__review">{{{reviewlink}}}</div>
+            {{/reviewlink}}
+        </div>
+        {{#summarydata}}
+            {{#hasitems}}
+            <table class="smgp-quiz-attempt-card__table">
+                <tbody>
+                {{#items}}
+                    <tr>
+                        <th scope="row">{{{title}}}</th>
+                        <td>{{{content}}}</td>
+                    </tr>
+                {{/items}}
+                </tbody>
+            </table>
+            {{/hasitems}}
+        {{/summarydata}}
+    </div>
+    {{/attempts}}
+</div>
+{{/hasattempts}}

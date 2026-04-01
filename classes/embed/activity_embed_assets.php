@@ -90,11 +90,11 @@ class activity_embed_assets {
 
 /* --- CSS CUSTOM PROPERTIES (Design Tokens) --- */
 :root {
-    /* Primary Colors — Modern Indigo/Slate */
-    --sl-primary: #6366f1;
-    --sl-primary-dark: #4f46e5;
-    --sl-primary-light: #818cf8;
-    --sl-primary-rgb: 99, 102, 241;
+    /* Primary Colors — SmartMind Green */
+    --sl-primary: #10b981;
+    --sl-primary-dark: #059669;
+    --sl-primary-light: #34d399;
+    --sl-primary-rgb: 16, 185, 129;
 
     /* Semantic Colors */
     --sl-secondary: #64748b;
@@ -340,89 +340,363 @@ body.sm-activity-embed-mode select:focus {
     outline: none !important;
 }
 
-/* --- QUIZ SPECIFIC STYLES --- */
-body.sm-activity-embed-mode .que {
-    background-color: var(--sl-bg) !important;
-    border: 1px solid var(--sl-border) !important;
-    border-radius: var(--sl-radius-lg) !important;
-    margin-bottom: var(--sl-spacing-lg) !important;
-    box-shadow: var(--sl-shadow-sm) !important;
+/* ============================================================
+ * QUIZ QUESTION STYLES — SmartMind redesign (renderer override)
+ * Uses .smgp-que classes from theme_smartmind_core_question_renderer.
+ * ============================================================ */
+
+/* --- Response form container — full width inside iframe --- */
+#responseform {
+    max-width: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 1rem 0 !important;
 }
 
-body.sm-activity-embed-mode .que .info {
-    background-color: var(--sl-bg-secondary) !important;
-    border-radius: var(--sl-radius-lg) var(--sl-radius-lg) 0 0 !important;
-    padding: var(--sl-spacing-md) !important;
-    border-bottom: 1px solid var(--sl-border) !important;
+/* --- Question wrapper — reset Moodle/theme defaults on .que --- */
+.smgp-que {
+    margin-bottom: 1.5rem !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    display: block !important;
+    overflow: visible !important;
+    border-radius: 0 !important;
+    float: none !important;
+    clear: none !important;
 }
 
-body.sm-activity-embed-mode .que .content {
-    padding: var(--sl-spacing-lg) !important;
+/* Remove default .info/.content layout when custom renderer is active */
+.smgp-que .info {
+    display: none !important;
 }
 
-body.sm-activity-embed-mode .que .qtext {
-    color: var(--sl-text) !important;
-    font-size: var(--sl-font-size-base) !important;
-    line-height: 1.6 !important;
-    margin-bottom: var(--sl-spacing-md) !important;
+.smgp-que .content {
+    margin: 0 !important;
+    margin-left: 0 !important;
+    width: 100% !important;
 }
 
-body.sm-activity-embed-mode .que .answer {
-    margin-top: var(--sl-spacing-md) !important;
+/* --- Header bar: back button + number + status + marks --- */
+.smgp-que__header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    padding: 0.6rem 1.25rem;
+    background: #F9F7F4;
+    border: 1px solid #E2DDD6;
+    border-radius: 10px;
+    margin-bottom: 0.75rem;
+    border-left: 3px solid #2e7d32;
 }
 
-body.sm-activity-embed-mode .que .answer label {
+/* Back button before question number */
+.smgp-que__back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 1px solid #E2DDD6;
+    border-radius: 8px;
+    background: #fff;
+    color: #6B6660;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s;
+}
+
+.smgp-que__back:hover {
+    background: #F0EDE8;
+    color: #1A1814;
+}
+
+/* Number badge */
+.smgp-que__number {
+    background: #2e7d32;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.85rem;
+    min-width: 28px;
+    height: 28px;
+    padding: 0 8px;
+    border-radius: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.smgp-que__number--info {
+    background: #6B6660;
+}
+
+.smgp-que__status,
+.smgp-que__marks {
+    font-size: 0.8rem;
+    color: #6B6660;
+}
+
+.smgp-que__status .que_comment,
+.smgp-que__status div {
+    display: inline;
+}
+
+.smgp-que__marks {
+    margin-left: auto;
+}
+
+.smgp-que__flag {
+    flex-shrink: 0;
+}
+
+/* --- Content area --- */
+.smgp-que__content {
+    padding: 0;
+}
+
+/* --- Formulation: question text card + answer cards --- */
+.smgp-que__formulation {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+}
+
+/* Reset Moodle's alert-style formulation (blue bg/color from question.scss) */
+.smgp-que__formulation .formulation,
+.smgp-que .formulation {
+    background: transparent !important;
+    background-image: none !important;
+    border: none !important;
+    padding: 0 !important;
+    color: #1A1814 !important;
+}
+
+/* Question text — distinct card */
+.smgp-que .qtext {
+    color: #1A1814;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    margin-bottom: 0.75rem;
+    padding: 1.25rem 1.5rem;
+    background: #F9F7F4;
+    border: 1px solid #E2DDD6;
+    border-radius: 12px;
+    border-left: 3px solid #2e7d32;
+}
+
+/* --- Answer options --- */
+.smgp-que .answer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0;
+}
+
+.smgp-que .answer > div {
+    margin: 0;
+    padding: 0;
+}
+
+/* Answer row card — targets Moodle's .r0/.r1 divs (radio + answer-label div) */
+.smgp-que .answer > div.r0,
+.smgp-que .answer > div.r1 {
+    display: flex;
+    align-items: center;
+    padding: 0.7rem 1rem;
+    border: 1px solid #E2DDD6;
+    border-radius: 10px;
+    cursor: pointer;
+    background: #FFFFFF;
+    transition: all 0.15s ease;
+    font-size: 0.95rem;
+    color: #1A1814;
+    line-height: 1.5;
+}
+
+.smgp-que .answer > div.r0:hover,
+.smgp-que .answer > div.r1:hover {
+    background: #F9F7F4;
+    border-color: #2e7d32;
+}
+
+/* Selected answer — row containing a checked input */
+.smgp-que .answer > div.r0:has(input:checked),
+.smgp-que .answer > div.r1:has(input:checked) {
+    background: rgba(46, 125, 50, 0.06);
+    border-color: #2e7d32;
+    font-weight: 500;
+}
+
+/* Fallback: also support label wrapping (some question types) */
+.smgp-que .answer label {
+    display: flex;
+    align-items: center;
+    padding: 0.7rem 1rem;
+    margin: 0;
+    border: 1px solid #E2DDD6;
+    border-radius: 10px;
+    cursor: pointer;
+    background: #FFFFFF;
+    transition: all 0.15s ease;
+    font-size: 0.95rem;
+    color: #1A1814;
+    line-height: 1.5;
+}
+
+/* Only style label as card when NOT inside r0/r1 (avoid double border) */
+.smgp-que .answer > div.r0 label,
+.smgp-que .answer > div.r1 label {
+    border: none;
+    padding: 0;
+    background: transparent;
+    border-radius: 0;
+}
+
+.smgp-que .answer label:hover {
+    background: #F9F7F4;
+    border-color: #2e7d32;
+}
+
+.smgp-que .answer label:has(input:checked) {
+    background: rgba(46, 125, 50, 0.06);
+    border-color: #2e7d32;
+    font-weight: 500;
+}
+
+/* Radio / checkbox inputs */
+.smgp-que .answer input[type="radio"],
+.smgp-que .answer input[type="checkbox"] {
+    margin-right: 0.75rem;
+    margin-top: 0;
+    accent-color: #2e7d32;
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+}
+
+/* Answer label text layout */
+.smgp-que .answer div[data-region="answer-label"] {
+    display: flex;
+    align-items: baseline;
+}
+
+.smgp-que .answer .answernumber {
+    font-weight: 600;
+    color: #6B6660;
+    margin-right: 0.25rem;
+    flex-shrink: 0;
+}
+
+.smgp-que .answer .qtype_multichoice_clearchoice {
+    margin-top: 0.25rem;
+    font-size: 0.8rem;
+}
+
+/* --- Feedback states (header bar border color) --- */
+.smgp-que.correct .smgp-que__header { border-left-color: #2e7d32; }
+.smgp-que.correct .smgp-que__number { background: #2e7d32; }
+
+.smgp-que.incorrect .smgp-que__header { border-left-color: #d32f2f; }
+.smgp-que.incorrect .smgp-que__number { background: #d32f2f; }
+
+.smgp-que.partiallycorrect .smgp-que__header { border-left-color: #f59e0b; }
+.smgp-que.partiallycorrect .smgp-que__number { background: #f59e0b; }
+
+/* Answer feedback colors — targets both .r0/.r1 rows and label wrapping */
+.smgp-que .answer > div.r0.correct,
+.smgp-que .answer > div.r1.correct,
+.smgp-que .answer label.correct {
+    border-color: #2e7d32 !important;
+    background: rgba(46, 125, 50, 0.06) !important;
+}
+
+.smgp-que .answer > div.r0.incorrect,
+.smgp-que .answer > div.r1.incorrect,
+.smgp-que .answer label.incorrect {
+    border-color: #d32f2f !important;
+    background: rgba(211, 47, 47, 0.04) !important;
+}
+
+/* --- Outcome / feedback --- */
+.smgp-que__outcome {
+    margin-top: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    border: 1px solid #E2DDD6;
+    background: #F9F7F4;
+}
+
+.smgp-que.correct .smgp-que__outcome {
+    background: rgba(46, 125, 50, 0.05);
+    border-color: rgba(46, 125, 50, 0.2);
+    color: #1b5e20;
+}
+
+.smgp-que.incorrect .smgp-que__outcome {
+    background: rgba(211, 47, 47, 0.04);
+    border-color: rgba(211, 47, 47, 0.15);
+    color: #b71c1c;
+}
+
+.smgp-que.partiallycorrect .smgp-que__outcome {
+    background: rgba(245, 158, 11, 0.05);
+    border-color: rgba(245, 158, 11, 0.2);
+    color: #92400e;
+}
+
+/* --- Comment --- */
+.smgp-que__comment {
+    margin-top: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    border: 1px solid #E2DDD6;
+    background: #FFFFFF;
+}
+
+/* --- Submit / navigation buttons --- */
+.submitbtns {
+    margin-top: 1rem !important;
     display: flex !important;
-    align-items: flex-start !important;
-    padding: var(--sl-spacing-sm) var(--sl-spacing-md) !important;
-    margin-bottom: var(--sl-spacing-xs) !important;
-    border-radius: var(--sl-radius-md) !important;
-    cursor: pointer !important;
-    transition: background-color var(--sl-transition-fast) !important;
-}
-
-body.sm-activity-embed-mode .que .answer label:hover {
-    background-color: var(--sl-bg-secondary) !important;
-}
-
-body.sm-activity-embed-mode .que .answer input[type="radio"],
-body.sm-activity-embed-mode .que .answer input[type="checkbox"] {
-    margin-right: var(--sl-spacing-sm) !important;
-    margin-top: 0.25em !important;
-}
-
-/* Quiz view page — reorganized layout styles */
-body.sm-activity-embed-mode h3 {
-    font-size: 1.1rem !important;
-    font-weight: 600 !important;
-    color: var(--sl-text) !important;
-    display: flex !important;
-    align-items: center !important;
     gap: 0.5rem !important;
-    margin: 1.25rem 0 0.75rem !important;
 }
 
-.smgp-quiz-attempts-badge {
-    display: inline-flex !important;
-    align-items: center !important;
-    padding: 0.15rem 0.6rem !important;
-    background: var(--sl-bg-tertiary, #f1f5f9) !important;
-    color: var(--sl-text-secondary, #64748b) !important;
-    font-size: 0.8rem !important;
-    font-weight: 500 !important;
-    border-radius: var(--sl-radius-full, 9999px) !important;
-    white-space: nowrap !important;
+.submitbtns .btn-primary {
+    background: #2e7d32 !important;
+    border-color: #2e7d32 !important;
+    color: #fff !important;
+    border-radius: 8px !important;
+    padding: 0.5rem 1.5rem !important;
+    font-weight: 600 !important;
+    font-size: 0.9rem !important;
 }
 
-.smgp-quiz-grade-summary {
-    background: var(--sl-bg-secondary, #f8fafc) !important;
-    border: 1px solid var(--sl-border, #e2e8f0) !important;
-    border-radius: var(--sl-radius-lg, 0.5rem) !important;
-    padding: 0.75rem 1.25rem !important;
-    margin: 0.75rem 0 1rem !important;
-    font-size: 0.95rem !important;
-    font-weight: 500 !important;
-    color: var(--sl-text) !important;
+.submitbtns .btn-primary:hover {
+    background: #1b5e20 !important;
+    border-color: #1b5e20 !important;
+}
+
+/* Hide next/prev page buttons — navigation handled by parent player */
+.mod_quiz-next-nav,
+.mod_quiz-prev-nav {
+    display: none !important;
+}
+
+/* Hide Back to course button and secondary nav in embed mode */
+body.sm-activity-embed-mode .secondary-navigation {
+    display: none !important;
+}
+
+body.sm-activity-embed-mode .singlebutton .btn-secondary,
+body.sm-activity-embed-mode .box.generalbox .singlebutton:last-child .btn-secondary {
+    display: none !important;
 }
 
 /* Quiz navigation block */
@@ -435,45 +709,12 @@ body.sm-activity-embed-mode #mod_quiz_navblock .qnbutton {
     font-weight: 500 !important;
 }
 
-/* Quiz timer - should scroll with content, not be fixed/sticky */
+/* Hide quiz timer and toggle-timer in embed mode */
 body.sm-activity-embed-mode #quiz-timer-wrapper,
 body.sm-activity-embed-mode #quiz-timer,
 body.sm-activity-embed-mode .quiz-timer-inner,
 body.sm-activity-embed-mode #toggle-timer {
-    position: static !important;
-    position: relative !important;
-    top: auto !important;
-    right: auto !important;
-    left: auto !important;
-    bottom: auto !important;
-    z-index: auto !important;
-    float: none !important;
-    transform: none !important;
-}
-
-/* Quiz timer wrapper - display as block, no special positioning */
-body.sm-activity-embed-mode #quiz-timer-wrapper {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: flex-end !important;
-    margin-bottom: var(--sl-spacing-md) !important;
-    padding: var(--sl-spacing-sm) !important;
-    background-color: var(--sl-bg-secondary) !important;
-    border-radius: var(--sl-radius-md) !important;
-}
-
-/* Timer inner styling */
-body.sm-activity-embed-mode #quiz-timer {
-    background-color: var(--sl-primary) !important;
-    color: white !important;
-    padding: var(--sl-spacing-xs) var(--sl-spacing-sm) !important;
-    border-radius: var(--sl-radius-sm) !important;
-    font-weight: 500 !important;
-}
-
-/* Hide/show button */
-body.sm-activity-embed-mode #toggle-timer {
-    margin-left: var(--sl-spacing-sm) !important;
+    display: none !important;
 }
 
 /* Make quiz questions use full width */
@@ -493,13 +734,13 @@ body.sm-activity-embed-mode .que .formulation {
     width: 100% !important;
 }
 
-/* Quiz attempt page - full width content, override the 5% centering padding */
+/* Quiz attempt page - full width content, no side padding */
 body.sm-activity-embed-mode #page-mod-quiz-attempt #region-main,
 body.sm-activity-embed-mode #page-mod-quiz-review #region-main {
     max-width: none !important;
     width: 100% !important;
-    padding-left: var(--sl-spacing-md) !important;
-    padding-right: var(--sl-spacing-md) !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
 }
 
 /* Remove Bootstrap container constraints */
@@ -507,8 +748,8 @@ body.sm-activity-embed-mode .path-mod-quiz #region-main-box,
 body.sm-activity-embed-mode .path-mod-quiz .container-fluid {
     max-width: none !important;
     width: 100% !important;
-    padding-left: var(--sl-spacing-md) !important;
-    padding-right: var(--sl-spacing-md) !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
 }
 
 /* Allow question content to expand - remove any explicit widths */
@@ -986,6 +1227,12 @@ ol.breadcrumb,
 .pagelayout-mydashboard #page-content,
 .pagelayout-frontpage #page-content {
     display: block !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
 }
 
 /* Remove columns layout — force single column */
@@ -999,10 +1246,10 @@ ol.breadcrumb,
 }
 
 /* --- CONTENT FILLS IFRAME --- */
-/* Let content fill the full iframe width with minimal padding. */
+/* Let content fill the full iframe width with no side padding. */
 body.sm-activity-embed-mode #region-main {
-    padding-left: 1.5rem !important;
-    padding-right: 1.5rem !important;
+    padding: 0 !important;
+    margin: 0 !important;
     max-width: 100% !important;
     width: 100% !important;
 }
@@ -1035,7 +1282,7 @@ body {
 
 /* page-content fills available space */
 #page-content {
-    padding-bottom: 20px !important;
+    padding-bottom: 0 !important;
 }
 
 /* Page wrapper - don't force min-height that prevents scrolling */
@@ -1111,7 +1358,7 @@ body.sm-activity-embed-mode #page-wrapper > #page {
 
 /* Page content area */
 body.sm-activity-embed-mode #page-content {
-    padding-bottom: 20px !important;
+    padding-bottom: 0 !important;
 }
 
 /* Region main - let content flow naturally */
@@ -1122,6 +1369,10 @@ body.sm-activity-embed-mode #region-main {
 
 body.sm-activity-embed-mode #region-main-box {
     overflow: visible !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
 }
 
 /* Page module content - remove any height restrictions */
@@ -1254,6 +1505,36 @@ table {
 .folder-download-button,
 .singlebutton {
     margin-top: var(--sl-spacing-md) !important;
+    display: flex !important;
+    justify-content: flex-end !important;
+}
+
+/* Quiz/assign action buttons — right-aligned */
+.quizstartbuttondiv {
+    display: flex !important;
+    justify-content: flex-end !important;
+    margin-top: var(--sl-spacing-md) !important;
+}
+
+/* Assignment/Quiz: move button containers below tables, right-aligned */
+body.path-mod-assign [role="main"],
+body.path-mod-quiz [role="main"] {
+    display: flex !important;
+    flex-direction: column !important;
+    margin-top: var(--sl-spacing-lg, 1.5rem) !important;
+}
+
+body.path-mod-assign [role="main"] > .container-fluid:has(.singlebutton),
+body.path-mod-quiz [role="main"] > .tertiary-navigation,
+body.path-mod-quiz .quizstartbuttondiv {
+    order: 99 !important;
+    display: flex !important;
+    justify-content: flex-end !important;
+}
+
+.quizstartbuttondiv .btn,
+.singlebutton .btn {
+    width: auto !important;
 }
 
 .folder-download-button input[type="submit"],
@@ -1321,23 +1602,11 @@ HTML;
     margin-right: 0 !important;
 }
 
-/* Quiz timer - ensure it does NOT float/overlay content */
-#quiz-timer-wrapper {
-    position: static !important;
-    display: block !important;
-    width: 100% !important;
-    text-align: right !important;
-    margin-bottom: 1rem !important;
-    padding: 0.5rem !important;
-    background: #f8fafc !important;
-    border-radius: 0.375rem !important;
-}
-
-#quiz-timer-wrapper #quiz-timer,
-#quiz-timer-wrapper #toggle-timer {
-    position: static !important;
-    display: inline-block !important;
-    vertical-align: middle !important;
+/* Hide quiz timer in embed mode */
+#quiz-timer-wrapper,
+#quiz-timer,
+#toggle-timer {
+    display: none !important;
 }
 
 /* Prevent horizontal scroll */
@@ -1359,12 +1628,13 @@ html, body {
     box-sizing: border-box !important;
 }
 
-.que .info {
+/* Default layout only when custom renderer is NOT active */
+.que:not(.smgp-que) .info {
     float: left !important;
     width: 120px !important;
 }
 
-.que .content {
+.que:not(.smgp-que) .content {
     margin-left: 130px !important;
     width: auto !important;
     max-width: none !important;
@@ -1424,91 +1694,6 @@ HTML;
         pageEl.style.marginRight = '0';
     }
 
-    // Quiz view page: reorganize layout for better UX.
-    // Only runs on /mod/quiz/view.php (not attempt or review pages).
-    if (window.location.pathname.indexOf('/mod/quiz/view.php') !== -1) {
-        (function() {
-            var regionMain = document.getElementById('region-main');
-            if (!regionMain) return;
-
-            // Find key elements.
-            var attemptsHeading = null;
-            var headings = regionMain.querySelectorAll('h3');
-            headings.forEach(function(h) {
-                if (!attemptsHeading && h.textContent.trim().toLowerCase().indexOf('attempt') !== -1) {
-                    attemptsHeading = h;
-                }
-            });
-
-            var quizInfoTable = regionMain.querySelector('.quizinfo');
-            var attemptTable = regionMain.querySelector('.quizattemptsummary, table.generaltable');
-            var startBtn = regionMain.querySelector('.quizstartbuttondiv, .singlebutton');
-
-            // Find "Attempts allowed" text and extract the number.
-            var attemptsAllowedEl = null;
-            var attemptsAllowed = '';
-            var paragraphs = regionMain.querySelectorAll('p, .box.generalbox');
-            paragraphs.forEach(function(p) {
-                var text = p.textContent.trim().toLowerCase();
-                if (text.indexOf('attempts allowed') !== -1 || text.indexOf('intentos permitidos') !== -1) {
-                    attemptsAllowedEl = p;
-                    var match = p.textContent.match(/(\d+|unlimited|ilimitados)/i);
-                    if (match) attemptsAllowed = match[1];
-                }
-            });
-
-            // Find grade text ("Your final grade..." / "Tu calificación final...").
-            var gradeEl = null;
-            regionMain.querySelectorAll('p, .box.generalbox, div').forEach(function(el) {
-                if (gradeEl) return;
-                var text = el.textContent.trim().toLowerCase();
-                if ((text.indexOf('final grade') !== -1 || text.indexOf('calificación final') !== -1
-                    || text.indexOf('nota final') !== -1)
-                    && el.children.length <= 2 && el.textContent.length < 200) {
-                    gradeEl = el;
-                }
-            });
-
-            // Count existing attempts from the table rows.
-            var attemptCount = 0;
-            if (attemptTable) {
-                attemptCount = attemptTable.querySelectorAll('tbody tr').length;
-            }
-
-            // Merge "Attempts allowed" into the attempts heading.
-            if (attemptsHeading && attemptsAllowed) {
-                var badge = document.createElement('span');
-                badge.className = 'smgp-quiz-attempts-badge';
-                badge.textContent = attemptCount + ' / ' + attemptsAllowed;
-                attemptsHeading.appendChild(document.createTextNode(' '));
-                attemptsHeading.appendChild(badge);
-            }
-
-            // Hide the original "Attempts allowed" text.
-            if (attemptsAllowedEl) {
-                attemptsAllowedEl.style.display = 'none';
-            }
-
-            // Move grade below the attempt table.
-            if (gradeEl && attemptTable) {
-                gradeEl.classList.add('smgp-quiz-grade-summary');
-                attemptTable.parentNode.insertBefore(gradeEl, attemptTable.nextSibling);
-            }
-
-            // Move start button below everything.
-            if (startBtn) {
-                var target = gradeEl || attemptTable || quizInfoTable;
-                if (target && target.parentNode) {
-                    target.parentNode.insertBefore(startBtn, target.nextSibling);
-                }
-            }
-
-            // Hide quizinfo table if it duplicates info already shown in attempt table.
-            if (quizInfoTable && attemptTable) {
-                quizInfoTable.style.display = 'none';
-            }
-        })();
-    }
 JS;
         } else {
             $quizJs = <<<'JS'
@@ -1595,6 +1780,7 @@ JS;
     });
 {$quizJs}
 
+
     // ============================================================
     // FALLBACK PROTECTION
     // Detect when page navigates away from allowed pages.
@@ -1662,6 +1848,26 @@ JS;
                 // Allow form submission if we can't parse the URL
             }
         }, true);
+    })();
+
+    // Report content height to parent so the iframe can auto-resize.
+    (function() {
+        var lastHeight = 0;
+        function reportHeight() {
+            var h = document.documentElement.scrollHeight || document.body.scrollHeight;
+            if (h && h !== lastHeight) {
+                lastHeight = h;
+                window.parent.postMessage({ type: 'smgp-iframe-resize', height: h }, '*');
+            }
+        }
+        // Report on load, resize, and DOM mutations.
+        reportHeight();
+        window.addEventListener('load', reportHeight);
+        window.addEventListener('resize', reportHeight);
+        var mo = new MutationObserver(reportHeight);
+        mo.observe(document.body, { childList: true, subtree: true, attributes: true });
+        // Periodic fallback for dynamic content.
+        setInterval(reportHeight, 500);
     })();
 })();
 </script>

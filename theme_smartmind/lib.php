@@ -544,6 +544,78 @@ function theme_smartmind_fix_active_nav(array &$primarymenu) {
 }
 
 /**
+ * Strip user-menu items, keeping only Preferences and Log out.
+ *
+ * @param array &$primarymenu The primary menu array from export_for_template().
+ */
+function theme_smartmind_filter_usermenu(array &$primarymenu) {
+    if (empty($primarymenu['user']['items'])) {
+        return;
+    }
+
+    $keepurls = [
+        '/user/preferences.php',
+        '/login/logout.php',
+    ];
+
+    $filtered = [];
+    foreach ($primarymenu['user']['items'] as $item) {
+        // Items may be arrays or stdClass objects.
+        $arr = is_object($item) ? (array) $item : $item;
+
+        // Keep dividers that sit right before a kept item (we'll clean up later).
+        if (!empty($arr['divider'])) {
+            $filtered[] = $item;
+            continue;
+        }
+
+        $url = '';
+        if (!empty($arr['link'])) {
+            $link = is_object($arr['link']) ? (array) $arr['link'] : $arr['link'];
+            $url = $link['url'] ?? '';
+        } else if (!empty($arr['submenulink'])) {
+            // Submenu links (e.g. Language) — drop them.
+            continue;
+        }
+
+        $keep = false;
+        foreach ($keepurls as $pattern) {
+            if (strpos($url, $pattern) !== false) {
+                $keep = true;
+                break;
+            }
+        }
+
+        if (!$keep) {
+            // Remove the divider that preceded this dropped item.
+            if (!empty($filtered)) {
+                $last = is_object(end($filtered)) ? (array) end($filtered) : end($filtered);
+                if (!empty($last['divider'])) {
+                    array_pop($filtered);
+                }
+            }
+            continue;
+        }
+
+        $filtered[] = $item;
+    }
+
+    // Remove leading/trailing dividers.
+    $isDivider = function ($el) {
+        $a = is_object($el) ? (array) $el : $el;
+        return !empty($a['divider']);
+    };
+    while (!empty($filtered) && $isDivider(reset($filtered))) {
+        array_shift($filtered);
+    }
+    while (!empty($filtered) && $isDivider(end($filtered))) {
+        array_pop($filtered);
+    }
+
+    $primarymenu['user']['items'] = array_values($filtered);
+}
+
+/**
  * Get SCSS to prepend.
  *
  * @param theme_config $theme The theme config object.

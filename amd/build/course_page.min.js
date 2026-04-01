@@ -547,6 +547,9 @@ define(['core/ajax', 'core/str'], function(Ajax, Str) {
             });
         }
 
+        // Clean up previous iframe.
+        els.contentArea.querySelector('.smgp-course-content__iframe');
+
         els.contentArea.innerHTML = '<div class="smgp-course-content__loading">'
             + '<div class="spinner-border text-primary" role="status"></div>'
             + '</div>';
@@ -693,6 +696,9 @@ define(['core/ajax', 'core/str'], function(Ajax, Str) {
         wrap.appendChild(iframe);
         els.contentArea.innerHTML = '';
         els.contentArea.appendChild(wrap);
+
+        // Height is handled purely by CSS (position: absolute inside the wrap).
+        // No JS resize handler needed — the iframe scrolls internally.
     };
 
     /**
