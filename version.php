@@ -25,11 +25,11 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_sm_graphics_plugin';
-$plugin->version = 2026033100;  // YYYYMMDDXX format.
+$plugin->version = 2026040100;  // YYYYMMDDXX format.
 $plugin->requires = 2022112800; // Moodle 4.1+
 $plugin->maturity = MATURITY_ALPHA;
 $plugin->release = '1.0.0';  // MATURITY_ALPHA, MATURITY_BETA, MATURITY_RC, MATURITY_STABLE
 
 // GitHub update server - allows automatic update notifications.
 // Point to the raw update.xml file in the GitHub repository.
-$plugin->updateserver = 'https://raw.githubusercontent.com/SmartmindTech/SM_Moodle_Graphic_Layer_Plugin/dev/update.xml';
+$plugin->updateserver = 'https://raw.githubusercontent.com/SmartmindTech/SM_Aprendizaje_Ilimitado_Plugin/main/update.xml';
