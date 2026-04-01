@@ -1096,8 +1096,9 @@ function local_sm_graphics_plugin_restore_file_styles(): string {
     #page-backup-restorefile [role="main"] > h2:first-of-type::before {
         content: "\e148";
         font-family: "lucide" !important;
+        color: #10b981;
         margin-right: 0.5rem;
-        color: #6366f1;
+        color: #10b981;
     }
     /* Subtitle text */
     #page-backup-restorefile [role="main"] > .pb-3 {
@@ -1119,8 +1120,8 @@ function local_sm_graphics_plugin_restore_file_styles(): string {
     #page-backup-restorefile [role="main"] > h2:nth-of-type(2)::before {
         content: "\e19e";
         font-family: "lucide" !important;
+        color: #10b981;
         margin-right: 0.5rem;
-        color: #3b82f6;
     }
     /* Form wrapper */
     #page-backup-restorefile [role="main"] > div:has(.mform) {
@@ -1133,7 +1134,7 @@ function local_sm_graphics_plugin_restore_file_styles(): string {
     }
     /* Restore button */
     #page-backup-restorefile .mform input[type="submit"] {
-        background: #6366f1 !important;
+        background: #10b981 !important;
         color: #fff !important;
         border: none !important;
         border-radius: 8px !important;
@@ -1144,7 +1145,7 @@ function local_sm_graphics_plugin_restore_file_styles(): string {
         transition: background 0.15s;
     }
     #page-backup-restorefile .mform input[type="submit"]:hover {
-        background: #4f46e5 !important;
+        background: #059669 !important;
     }
     /* Section headings (h3) */
     #page-backup-restorefile h3 {
@@ -1159,20 +1160,81 @@ function local_sm_graphics_plugin_restore_file_styles(): string {
         margin-right: 0.4rem;
         font-size: 1.1rem;
     }
-    /* Course backup zone icon */
+    /* Course backup zone icon — green */
     #page-backup-restorefile h3:first-of-type::before {
         content: "\e0d7";
-        color: #f59e0b;
+        color: #10b981;
     }
-    /* User backup zone icon */
+    /* User backup zone icon — green */
     #page-backup-restorefile h3:nth-of-type(2)::before {
         content: "\e19f";
-        color: #6366f1;
+        color: #10b981;
+    }
+    /* Section headings — align icon with text */
+    #page-backup-restorefile h3 {
+        display: flex;
+        align-items: center;
     }
     /* Backup section description */
     #page-backup-restorefile h3 + .mb-3 {
         color: #64748b;
         font-size: 0.875rem;
+        margin-left: 0.25rem;
+    }
+    /* Form field row — stack label on top, picker below */
+    #page-backup-restorefile .mform .fitem {
+        display: block !important;
+        padding: 0.75rem 1.5rem;
+        margin: 0 !important;
+    }
+    /* Remove fieldset bottom padding/margin */
+    #page-backup-restorefile .mform fieldset {
+        margin: 0 !important;
+        padding: 0.5rem 0 !important;
+    }
+    #page-backup-restorefile .mform .fitem .col-md-3 {
+        width: 100% !important;
+        max-width: none !important;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0 0 0.5rem 0 !important;
+        float: none !important;
+    }
+    #page-backup-restorefile .mform .fitem .col-md-3 p {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: #1e293b;
+        margin: 0;
+    }
+    #page-backup-restorefile .mform .fitem .col-md-9 {
+        width: 100% !important;
+        max-width: none !important;
+        padding: 0 !important;
+        float: none !important;
+    }
+    /* Required icon — next to label, smaller */
+    #page-backup-restorefile .mform .fitem .col-md-3 .form-label-addon {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    #page-backup-restorefile .mform .fitem .col-md-3 .text-danger {
+        font-size: 0.7rem;
+    }
+    /* File picker button — left aligned */
+    #page-backup-restorefile .fp-btn-choose {
+        display: inline-block !important;
+        margin: 0 0 0.75rem 0 !important;
+    }
+    /* Import card — inner padding */
+    #page-backup-restorefile [role="main"] > div:has(.mform) {
+        padding: 1.5rem !important;
+    }
+    /* Required text at bottom */
+    #page-backup-restorefile .fdescription.required {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.8rem;
+        color: #94a3b8;
     }
     /* Tables */
     #page-backup-restorefile .backup-files-table {
@@ -1194,17 +1256,17 @@ function local_sm_graphics_plugin_restore_file_styles(): string {
         color: #334155;
     }
     #page-backup-restorefile .backup-files-table td a {
-        color: #6366f1;
+        color: #10b981;
         font-weight: 500;
     }
     #page-backup-restorefile .backup-files-table td a:hover {
-        color: #4f46e5;
+        color: #059669;
     }
     /* Manage backups button */
     #page-backup-restorefile .singlebutton input[type="submit"],
     #page-backup-restorefile .singlebutton button {
         background: transparent !important;
-        color: #6366f1 !important;
+        color: #10b981 !important;
         border: 1.5px solid #e2e8f0 !important;
         border-radius: 8px !important;
         padding: 0.4rem 1rem !important;
@@ -1214,26 +1276,209 @@ function local_sm_graphics_plugin_restore_file_styles(): string {
     }
     #page-backup-restorefile .singlebutton input[type="submit"]:hover,
     #page-backup-restorefile .singlebutton button:hover {
-        border-color: #6366f1 !important;
-    }
-    /* File picker button */
-    #page-backup-restorefile .fp-btn-choose {
-        background: #6366f1 !important;
-        color: #fff !important;
-        border-radius: 8px !important;
-        border: none !important;
-        font-weight: 500 !important;
+        border-color: #10b981 !important;
     }
 
-    /* File picker button */
+    /* Better spacing */
+    #page-backup-restorefile [role="main"] > h2 {
+        margin-top: 0.5rem !important;
+    }
+    #page-backup-restorefile .backup-files-table {
+        margin-top: 0.75rem;
+    }
+    /* 1 — Hide label col, remove Bootstrap gutter so drag-drop is flush/centered */
+    #page-backup-restorefile #fitem_id_backupfile > .col-md-3 {
+        display: none !important;
+    }
+    #page-backup-restorefile #fitem_id_backupfile {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+    #page-backup-restorefile #fitem_id_backupfile > .col-md-9 {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    #page-backup-restorefile .mform .fitem .col-md-9,
+    #page-backup-restorefile .mform .fitem .felement,
+    #page-backup-restorefile .mform .fitem .felement > fieldset,
+    #page-backup-restorefile .mdl-left,
+    #page-backup-restorefile .filepicker-filelist,
+    #page-backup-restorefile [id^="filepicker-wrapper-"] {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    /* 2 — Drag-drop container: flex column, centered content */
+    #page-backup-restorefile .filepicker-filelist {
+        border: none !important;
+        overflow: visible !important;
+    }
+    #page-backup-restorefile .filepicker-container {
+        position: relative !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        min-height: 130px !important;
+        width: 100% !important;
+        border: 2px dashed #10b981 !important;
+        border-radius: 12px !important;
+        padding: 1.5rem !important;
+        background: rgba(16, 185, 129, 0.02) !important;
+        box-sizing: border-box !important;
+    }
+    /* 3 — Message: flex column, icon on top (JS puts arrow first), text below */
+    #page-backup-restorefile .dndupload-message {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 0.75rem !important;
+        width: 100% !important;
+        border: none !important;
+        color: #64748b;
+        font-size: 0.9rem;
+        padding: 0 !important;
+        background: transparent !important;
+        text-align: center !important;
+    }
+    #page-backup-restorefile .dndupload-arrow {
+        margin: 0 !important;
+        display: flex !important;
+        justify-content: center !important;
+    }
+    #page-backup-restorefile .dndupload-arrow i,
+    #page-backup-restorefile .dndupload-arrow i::before {
+        color: #10b981 !important;
+        margin: 0 !important;
+    }
+    /* Remove separator lines and dark-mode background from form elements */
+    #page-backup-restorefile .mform .fitem,
+    #page-backup-restorefile .mform .felement {
+        border: none !important;
+    }
+    #page-backup-restorefile .mform fieldset {
+        border: none !important;
+        background: transparent !important;
+        padding: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+    }
+    #page-backup-restorefile .mform hr {
+        display: none !important;
+    }
+    /* Restaurar button — centered */
+    #page-backup-restorefile .mform input[name="submitbutton"] {
+        display: block !important;
+        margin: 0.25rem auto 0 !important;
+    }
+    /* File picker button — green, left-aligned above drag area */
     #page-backup-restorefile .fp-btn-choose {
-        background: #6366f1 !important;
+        background: #10b981 !important;
         color: #fff !important;
         border-radius: 8px !important;
         border: none !important;
-        font-weight: 500 !important;
+        font-weight: 600 !important;
+        padding: 0.5rem 1.25rem !important;
+        margin-bottom: 0.75rem;
     }
-    </style>';
+    #page-backup-restorefile .fp-btn-choose:hover {
+        background: #059669 !important;
+    }
+    /* Hide ALL empty col-md-3 spacers (the ones after col-md-9, and the submit fitem label) */
+    #page-backup-restorefile .fitem .col-md-9 ~ .col-md-3,
+    #page-backup-restorefile .fitem[data-fieldtype="submit"] .col-md-3 {
+        display: none !important;
+    }
+    /* Form label — bold, left aligned */
+    #page-backup-restorefile .mform .fitem .col-md-3 label,
+    #page-backup-restorefile .mform .fitem .col-md-3 span {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: #1e293b;
+    }
+    /* Required icon — smaller, muted */
+    #page-backup-restorefile .mform .fitem .col-md-3 .text-danger {
+        font-size: 0.75rem;
+    }
+    /* Manage backups button — green hover */
+    #page-backup-restorefile .singlebutton input[type="submit"]:hover,
+    #page-backup-restorefile .singlebutton button:hover {
+        border-color: #10b981 !important;
+        background: rgba(16, 185, 129, 0.04) !important;
+    }
+    /* Table rows — hover effect */
+    #page-backup-restorefile .backup-files-table tbody tr:hover {
+        background: #f8fafc;
+    }
+    /* Status check marks — green */
+    #page-backup-restorefile .backup-files-table .text-success,
+    #page-backup-restorefile .backup-files-table .fa-check {
+        color: #10b981 !important;
+    }
+    /* Overall page max width */
+    #page-backup-restorefile [role="main"] {
+        max-width: 960px;
+        margin: 0 auto;
+    }
+    </style>
+    <script>
+    // Wait for Moodle YUI filepicker to create the drag-drop area.
+    function smgpFixFilepicker() {
+        // Remove separator line between file picker and submit button.
+        var fitem = document.querySelector("#page-backup-restorefile .mform #fitem_id_backupfile");
+        if (fitem) fitem.style.borderBottom = "none";
+        // Also hide any hr elements.
+        document.querySelectorAll("#page-backup-restorefile .mform hr").forEach(function(hr) { hr.style.display = "none"; });
+        // Reduce space before Restaurar.
+        var submitBtn = document.querySelector("#page-backup-restorefile .mform input[name=submitbutton]");
+        if (submitBtn && submitBtn.parentElement) {
+            submitBtn.parentElement.style.borderTop = "none";
+            submitBtn.parentElement.style.paddingTop = "0.5rem";
+        }
+    }
+    // Retry until the dndupload-message exists (Moodle creates it after page load).
+    var smgpRetries = 0;
+    var smgpInterval = setInterval(function() {
+        smgpRetries++;
+        var dndMsg = document.querySelector("#page-backup-restorefile .dndupload-message");
+        if (dndMsg || smgpRetries > 50) {
+            clearInterval(smgpInterval);
+            if (dndMsg) {
+                // Extract text and arrow, rebuild as real elements so flex works reliably.
+                var arrow = dndMsg.querySelector(".dndupload-arrow");
+                var textContent = "";
+                dndMsg.childNodes.forEach(function(n) {
+                    if (n.nodeType === 3 && n.textContent.trim()) textContent += n.textContent.trim();
+                });
+                dndMsg.innerHTML = "";
+                // Arrow first (top).
+                if (arrow) {
+                    arrow.className = "";
+                    var icon = arrow.querySelector("i");
+                    if (icon) { icon.className = "fa fa-arrow-circle-o-down fa-3x"; icon.style.color = "#10b981"; }
+                    dndMsg.appendChild(arrow);
+                }
+                // Text below.
+                if (textContent) {
+                    var txt = document.createElement("span");
+                    txt.textContent = textContent;
+                    dndMsg.appendChild(txt);
+                }
+            }
+            smgpFixFilepicker();
+            // Hide ALL empty/tiny col-md-3 divs on the page (spacers).
+            document.querySelectorAll("#page-backup-restorefile .col-md-3").forEach(function(col) {
+                if (col.offsetHeight < 15 && col.textContent.trim() === "") {
+                    col.style.display = "none";
+                }
+            });
+        }
+    }, 200);
+    </script>';
 }
 
 /**
@@ -1276,6 +1521,44 @@ function local_sm_graphics_plugin_restore_destination_js(): string {
         var selector = document.querySelector(".backup-course-selector");
         if (!selector) return;
 
+        // Fix vertical layout — convert float-based detail-pairs to block layout.
+        selector.querySelectorAll(".backup-section").forEach(function(sec) {
+            // Make the section a vertical flex container.
+            sec.style.display = "flex";
+            sec.style.flexDirection = "column";
+            sec.style.alignItems = "stretch";
+
+            sec.querySelectorAll(".detail-pair").forEach(function(dp) {
+                // Remove float layout — make each detail-pair a full-width row.
+                dp.style.display = "flex";
+                dp.style.width = "100%";
+                dp.style.float = "none";
+                dp.style.clear = "both";
+                dp.style.padding = "0.5rem 0";
+
+                var lbl = dp.querySelector(".detail-pair-label");
+                var val = dp.querySelector(".detail-pair-value");
+                if (lbl) {
+                    lbl.style.width = "auto";
+                    lbl.style.float = "none";
+                    lbl.style.flex = "1";
+                    lbl.style.fontWeight = "500";
+                    lbl.style.fontSize = "0.875rem";
+                    lbl.style.color = "#475569";
+                }
+                if (val) {
+                    val.style.width = "auto";
+                    val.style.float = "none";
+                    val.style.flexShrink = "0";
+                }
+            });
+        });
+
+        // Green icon override for search magnifier.
+        var gs = document.createElement("style");
+        gs.textContent = ".smgp-green-icon, .smgp-green-icon::before { color: #10b981 !important; }";
+        document.head.appendChild(gs);
+
         var companies = ' . $companiesJson . ';
 
         // ===== "RESTAURAR COMO CURSO NUEVO" section =====
@@ -1294,7 +1577,7 @@ function local_sm_graphics_plugin_restore_destination_js(): string {
                     // Build search input inline with label.
                     var searchHtml = \'<div class="smgp-search-relocated">\' +
                         \'<input type="text" id="smgp-company-search" placeholder="' . $selectCompany . '..." class="form-control">\' +
-                        \'<span class="smgp-search-btn"><i class="fa fa-search"></i></span>\' +
+                        \'<span class="smgp-search-btn"><i class="fa fa-search smgp-green-icon"></i></span>\' +
                         \'</div>\';
                     label.innerHTML = \'' . $selectCompany . '\' + searchHtml;
                     label.style.display = "flex";
@@ -1315,7 +1598,7 @@ function local_sm_graphics_plugin_restore_destination_js(): string {
                     companies.forEach(function(c) {
                         tableHtml += \'<tr data-name="\' + c.name.toLowerCase() + \' \' + c.shortname.toLowerCase() + \'">\' +
                             \'<td style="width:44px;text-align:center;vertical-align:middle;">\' +
-                            \'<input type="radio" name="smgp_company_radio" value="\' + c.id + \'" data-catid="\' + c.categoryid + \'" style="accent-color:#6366f1;cursor:pointer;">\' +
+                            \'<input type="radio" name="smgp_company_radio" value="\' + c.id + \'" data-catid="\' + c.categoryid + \'" style="cursor:pointer;">\' +
                             \'</td>\' +
                             \'<td><strong>\' + c.name + \'</strong></td>\' +
                             \'<td style="color:#94a3b8;font-size:0.8rem;">\' + c.shortname + \'</td>\' +
@@ -1415,7 +1698,7 @@ function local_sm_graphics_plugin_restore_destination_js(): string {
                     var labelText = label2.textContent.trim();
                     var searchHtml2 = \'<div class="smgp-search-relocated">\' +
                         \'<input type="text" id="smgp-course-search" placeholder="\' + labelText + \'..." class="form-control">\' +
-                        \'<span class="smgp-search-btn"><i class="fa fa-search"></i></span>\' +
+                        \'<span class="smgp-search-btn"><i class="fa fa-search smgp-green-icon"></i></span>\' +
                         \'</div>\';
                     label2.innerHTML = labelText + searchHtml2;
                     label2.style.display = "flex";
@@ -1542,7 +1825,7 @@ function local_sm_graphics_plugin_restore_settings_js(): string {
         text-align: right !important;
     }
     #id_rootsettingscontainer .fitem.row > .col-md-9 input[type="checkbox"] {
-        accent-color: #6366f1;
+        accent-color: #10b981;
         width: 16px;
         height: 16px;
         cursor: pointer;

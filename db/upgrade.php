@@ -43,6 +43,32 @@ function xmldb_local_sm_graphics_plugin_upgrade($oldversion) {
     local_sm_graphics_plugin_deploy_certificate_type();
     local_sm_graphics_plugin_enable_activity_modules();
 
+    // Safety net: ensure course_meta table exists regardless of the starting version.
+    // install.xml creates it on fresh installs, but upgrades from early versions may
+    // lack both course_pricing (original name) and course_meta (final name) because
+    // no upgrade block ever had a CREATE TABLE for this table.
+    $dbman = $DB->get_manager();
+    if (!$dbman->table_exists(new xmldb_table('local_smgp_course_meta'))
+            && !$dbman->table_exists(new xmldb_table('local_smgp_course_pricing'))) {
+        $metatable = new xmldb_table('local_smgp_course_meta');
+        $metatable->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE);
+        $metatable->add_field('courseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL);
+        $metatable->add_field('amount', XMLDB_TYPE_NUMBER, '10, 2', null, XMLDB_NOTNULL, null, '0');
+        $metatable->add_field('currency', XMLDB_TYPE_CHAR, '3', null, XMLDB_NOTNULL, null, 'EUR');
+        $metatable->add_field('duration_hours', XMLDB_TYPE_NUMBER, '6, 1', null, XMLDB_NOTNULL, null, '0');
+        $metatable->add_field('description', XMLDB_TYPE_TEXT);
+        $metatable->add_field('course_category', XMLDB_TYPE_CHAR, '255');
+        $metatable->add_field('smartmind_code', XMLDB_TYPE_CHAR, '50');
+        $metatable->add_field('sepe_code', XMLDB_TYPE_CHAR, '255');
+        $metatable->add_field('level', XMLDB_TYPE_CHAR, '20', null, null, null, 'beginner');
+        $metatable->add_field('completion_percentage', XMLDB_TYPE_INTEGER, '3', null, XMLDB_NOTNULL, null, '100');
+        $metatable->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $metatable->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $metatable->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $metatable->add_index('courseid_unique', XMLDB_INDEX_UNIQUE, ['courseid']);
+        $dbman->create_table($metatable);
+    }
+
     if ($oldversion < 2026031303) {
         get_string_manager()->reset_caches();
     }
