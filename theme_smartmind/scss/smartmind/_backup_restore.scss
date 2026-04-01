@@ -185,24 +185,52 @@ a.backup_stage_complete {
     }
 }
 
-// ---- Checkboxes and settings forms ----
-.path-backup .mform fieldset {
-    padding: 1rem 0 !important;
+// ---- Schema page — section/activity cards internal padding ----
+.path-backup .mform .grouped_settings.section_level,
+.path-backup .mform .grouped_settings.subsection_level {
+    padding: 1.25rem 1.5rem !important;
 }
 
-.path-backup .mform fieldset legend,
-.path-backup .mform fieldset > .d-flex > h3 {
-    font-size: 1.1rem !important;
-    font-weight: 700 !important;
-    color: $smgp-text !important;
+.path-backup .mform .grouped_settings.activity_level {
+    padding: 0.75rem 1.5rem !important;
 }
 
-// Setting rows — remove float layout, use flex.
-.path-backup .mform .include_setting,
-.path-backup .mform .normal_setting {
+// Also ensure the include/normal settings inside have padding.
+.path-backup .mform .grouped_settings .include_setting .fitem,
+.path-backup .mform .grouped_settings .normal_setting .fitem {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+}
+
+// ---- Checkboxes and settings forms (minimal — no global overrides) ----
+
+// Disabled/locked settings (× icon).
+.path-backup .mform .text-danger {
+    font-size: 0.8rem;
+}
+
+// Bottom buttons row — centered.
+.path-backup .mform #id_submitbuttons,
+.path-backup .mform > .row:last-child,
+.path-backup .mform > div:last-child:has(.btn) {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center;
+    gap: 0.75rem;
+    padding-top: 1rem !important;
+    border-top: 1px solid $smgp-gray-100;
+    margin-top: 0.5rem;
+    width: 100% !important;
     float: none !important;
-    display: inline-block;
-    width: 50%;
+    clear: both !important;
+    grid-column: 1 / -1;
+
+    .col-md-9, .col-md-3 {
+        width: auto !important;
+        max-width: none !important;
+        flex: none !important;
+        padding: 0 !important;
+    }
 }
 
 // ---- Sub-sections (course sections, activities) ----
@@ -443,6 +471,12 @@ a.backup_stage_complete {
     border-collapse: collapse !important;
     font-size: $smgp-font-sm;
 
+    // Remove all internal borders.
+    td {
+        border: none !important;
+    }
+
+    // Header row — uniform background and bottom border on ALL columns.
     thead th {
         background: $smgp-gray-50 !important;
         color: $smgp-gray-400 !important;
@@ -450,9 +484,16 @@ a.backup_stage_complete {
         font-size: 0.7rem;
         text-transform: uppercase;
         letter-spacing: 0.06em;
-        border: none !important;
+        border-top: none !important;
+        border-left: none !important;
+        border-right: none !important;
         border-bottom: 1px solid $smgp-border !important;
         padding: 0.6rem 1rem !important;
+    }
+
+    // Radio/checkbox column header.
+    thead th:first-child {
+        width: 44px;
     }
 
     tbody tr {
@@ -470,14 +511,13 @@ a.backup_stage_complete {
     tbody td {
         padding: 0.6rem 1rem !important;
         vertical-align: middle !important;
-        border: none !important;
         border-bottom: 1px solid $smgp-gray-50 !important;
         color: $smgp-text;
     }
 
     // Radio button column.
     tbody td:first-child {
-        width: 40px;
+        width: 44px;
         text-align: center;
 
         input[type="radio"] {
@@ -521,12 +561,34 @@ a.backup_stage_complete {
     padding: 0.4rem 0.75rem !important;
 }
 
-// ---- "Continuar" / action buttons ----
+// ---- "Continuar" / action buttons — centered ----
 .path-backup .backup-section .singlebutton,
 .path-backup .backup-section > form > div:last-child {
     margin-top: 1rem;
     padding-top: 0.75rem;
     border-top: 1px solid $smgp-gray-100;
+    text-align: center;
+}
+
+// Continuar button detail-pair rows — full width, centered.
+.path-backup .backup-course-selector .detail-pair:last-child {
+    display: block !important;
+    width: 100% !important;
+    float: none !important;
+    clear: both !important;
+    text-align: center;
+    padding-top: 0.75rem !important;
+    border-top: 1px solid $smgp-gray-100;
+
+    .detail-pair-label {
+        display: none !important;
+    }
+    .detail-pair-value {
+        width: 100% !important;
+        float: none !important;
+        text-align: center;
+        padding: 0 !important;
+    }
 }
 
 // ---- Detail pair labels as links ----
@@ -542,28 +604,27 @@ a.backup_stage_complete {
 // ---- Destination page (step 2) — course selector ----
 .path-backup .backup-course-selector {
 
-    // Remove w-75 constraint on search result tables.
-    .rcs-results {
-        width: 100% !important;
-        max-width: 100% !important;
-    }
-
-    .restore-course-search {
-        width: 100%;
-    }
-
-    // Detail-pair layout — keep Moodle's float but fix widths.
-    .detail-pair {
-        clear: both !important;
+    // Override Moodle float layout — make everything stack properly.
+    .backup-section {
         overflow: hidden;
+    }
+
+    .detail-pair {
+        display: flex !important;
+        align-items: center;
+        width: 100% !important;
+        float: none !important;
+        clear: both !important;
         padding: 0.4rem 0;
     }
 
     .detail-pair-label {
         width: 35% !important;
+        float: none !important;
         font-weight: 500 !important;
         color: $smgp-gray-600 !important;
         font-size: $smgp-font-sm !important;
+        flex-shrink: 0;
 
         label {
             cursor: pointer;
@@ -573,6 +634,18 @@ a.backup_stage_complete {
 
     .detail-pair-value {
         width: 65% !important;
+        float: none !important;
+        flex: 1;
+    }
+
+    // Remove w-75 constraint on tables.
+    .rcs-results {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .restore-course-search {
+        width: 100%;
     }
 
     // Radio buttons.
@@ -583,12 +656,149 @@ a.backup_stage_complete {
         cursor: pointer;
     }
 
-    // "Too many results" message.
-    .rcs-results ~ div,
+    // Search bar (inline in label row) — Moodle native style.
+    .smgp-search-relocated {
+        display: flex !important;
+        align-items: stretch;
+        margin-left: auto;
+        height: 34px;
+
+        input[type="text"] {
+            width: 200px !important;
+            border: 1px solid $smgp-border !important;
+            border-right: none !important;
+            border-radius: $smgp-radius-md 0 0 $smgp-radius-md !important;
+            padding: 0 0.75rem !important;
+            font-size: $smgp-font-sm !important;
+            font-weight: 400 !important;
+            height: 100%;
+
+            &:focus {
+                border-color: $smgp-primary !important;
+                outline: none !important;
+                box-shadow: none !important;
+            }
+        }
+
+        .smgp-search-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 0.65rem;
+            border: 1px solid $smgp-border;
+            border-left: none;
+            border-radius: 0 $smgp-radius-md $smgp-radius-md 0;
+            background: $smgp-gray-50;
+            cursor: pointer;
+            color: $smgp-gray-500;
+            font-size: 0.85rem;
+            height: 100%;
+            transition: background 0.15s;
+
+            &:hover {
+                background: $smgp-gray-100;
+                color: $smgp-primary;
+            }
+        }
+    }
+
+    // All checkboxes and radios in tables — vertically centered.
+    .generaltable tbody td:first-child {
+        vertical-align: middle !important;
+        text-align: center !important;
+    }
+
+    .generaltable tbody td:first-child input[type="radio"] {
+        vertical-align: middle;
+    }
+
+    // Company table radios — match Moodle native radio style exactly.
+    #smgp-company-table input[type="radio"] {
+        accent-color: $smgp-primary;
+        cursor: pointer;
+        margin: 0;
+    }
+
+    // Fake radio button (for select-all toggle).
+    .smgp-fake-radio {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid $smgp-gray-400;
+        border-radius: 50%;
+        cursor: pointer;
+        position: relative;
+        vertical-align: middle;
+        transition: border-color 0.15s;
+
+        &:hover {
+            border-color: $smgp-primary;
+        }
+
+        &--checked {
+            border-color: $smgp-primary;
+            background: $smgp-primary;
+
+            &::after {
+                content: "";
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 6px;
+                height: 6px;
+                background: #fff;
+                border-radius: 50%;
+            }
+        }
+    }
+
+    // Course table — style radio column header.
+    #smgp-course-table thead {
+        td.header,
+        td:first-child {
+            background: $smgp-gray-50 !important;
+            border-bottom: 1px solid $smgp-border !important;
+            border-top: none !important;
+            border-left: none !important;
+            border-right: none !important;
+            padding: 0.6rem 1rem !important;
+        }
+    }
+
+    // Hide original Moodle search form below tables.
+    .restore-course-search > form {
+        display: none !important;
+    }
+    // Also hide any "too many results" message standalone divs.
     .restore-course-search > div:not(.rcs-results) {
+        text-align: center;
         font-size: $smgp-font-sm;
         color: $smgp-gray-500;
-        margin-top: 0.5rem;
+    }
+
+    // "Seleccione" label made full-width (via JS — class added dynamically).
+    .smgp-select-fullwidth {
+        display: block !important;
+        width: 100% !important;
+        float: none !important;
+        clear: both !important;
+        padding: 0.75rem 0 0 !important;
+
+        > .detail-pair-label {
+            width: 100% !important;
+            float: none !important;
+            font-weight: 700 !important;
+            color: $smgp-text !important;
+            font-size: $smgp-font-sm !important;
+            margin-bottom: 0.5rem !important;
+        }
+
+        > .detail-pair-value {
+            width: 100% !important;
+            float: none !important;
+            padding: 0 !important;
+        }
     }
 }
 
