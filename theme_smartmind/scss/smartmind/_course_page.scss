@@ -165,6 +165,7 @@ body.smgp-course-player #page-wrapper {
     border-radius: 0;
     color-scheme: light dark;
     display: block;
+    
   }
 
   // Rounded wrapper for the iframe.
@@ -1327,6 +1328,7 @@ body.smgp-embedded {
   // Hide "Back to the course" button — user navigates via the course player sidebar.
   button[id^="single_button"].btn-secondary,
   .singlebutton .btn-secondary {
+
     display: none !important;
   }
 

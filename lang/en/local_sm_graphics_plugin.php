@@ -452,3 +452,8 @@ $string['updateavailable_message_html'] = '<p>A new version of <strong>SmartMind
 <tr><td><strong>New version:</strong></td><td>{$a->newversion}</td></tr>
 </table>
 <p>To install the update, go to <strong>Site Administration &gt; Plugins &gt; Install plugins</strong> and upload the new ZIP.</p>';
+$string['updateplugin'] = 'Update SmartMind Plugin';
+$string['update_manual_title'] = 'Manual update instructions';
+$string['update_manual_step1'] = 'Download the latest ZIP from GitHub:';
+$string['update_manual_step2'] = 'Go to the Moodle plugin installer:';
+$string['update_manual_step3'] = 'Upload the ZIP and follow the on-screen instructions.';
