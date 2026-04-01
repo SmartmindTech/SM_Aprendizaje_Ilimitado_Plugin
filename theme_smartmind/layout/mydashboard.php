@@ -132,6 +132,8 @@ if (isloggedin() && !isguestuser()) {
     }
 }
 
+// Company logo — now uses static SVG in theme pix/smartmind-banner-logo.svg.
+
 // User full name for the welcome message.
 global $USER;
 $userfullname = fullname($USER);
@@ -206,6 +208,7 @@ $templatecontext = [
     'enrolledcount' => $enrolledcount,
     'catalogurl' => $catalogurl,
     // Welcome banner.
+    'wwwroot' => $CFG->wwwroot,
     'greeting' => $greeting,
     'streakdays' => $streakdays,
     'xppoints' => $xppoints,

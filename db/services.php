@@ -174,6 +174,22 @@ $functions = [
         'ajax'        => true,
         'capabilities' => 'moodle/course:update',
     ],
+    'local_sm_graphics_plugin_sharepoint_scan' => [
+        'classname'    => 'local_sm_graphics_plugin\external\sharepoint_scan',
+        'methodname'   => 'execute',
+        'description'  => 'Scan a SharePoint folder and classify files for course import',
+        'type'         => 'read',
+        'ajax'         => true,
+        'capabilities' => 'local/sm_graphics_plugin:import_courses',
+    ],
+    'local_sm_graphics_plugin_sharepoint_import' => [
+        'classname'    => 'local_sm_graphics_plugin\external\sharepoint_import',
+        'methodname'   => 'execute',
+        'description'  => 'Import a course from a scanned SharePoint folder',
+        'type'         => 'write',
+        'ajax'         => true,
+        'capabilities' => 'local/sm_graphics_plugin:import_courses',
+    ],
     'local_sm_graphics_plugin_save_restore_fields' => [
         'classname'   => 'local_sm_graphics_plugin\external\save_restore_fields',
         'methodname'  => 'execute',

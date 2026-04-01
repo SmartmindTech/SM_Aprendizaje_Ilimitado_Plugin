@@ -148,6 +148,7 @@ $string['dashboard_activities_desc'] = 'Exercícios e desafios para praticar o a
 $string['dashboard_itineraries'] = 'Trilhas';
 $string['dashboard_itineraries_desc'] = 'Percursos de aprendizagem que agrupam vários cursos';
 $string['dashboard_itinerary_courses'] = '{$a} cursos';
+$string['dashboard_coming_soon'] = 'Em breve';
 $string['dashboard_duration'] = '{$a} min';
 $string['dashboard_progress_title'] = 'Seu progresso';
 

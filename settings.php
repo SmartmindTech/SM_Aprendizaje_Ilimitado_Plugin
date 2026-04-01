@@ -169,6 +169,48 @@ if ($ADMIN->fulltree) {
         get_string('update_heading', 'local_sm_graphics_plugin'),
         $updatehtml
     ));
+
+    // -----------------------------------------------------------------------
+    // SharePoint integration (Course Loader)
+    // -----------------------------------------------------------------------
+    $settings->add(new admin_setting_heading(
+        'local_sm_graphics_plugin/sharepoint_heading',
+        get_string('sp_heading', 'local_sm_graphics_plugin'),
+        '<a href="' . $CFG->wwwroot . '/local/sm_graphics_plugin/pages/courseloader.php" class="btn btn-primary">'
+        . get_string('sp_courseloader_button', 'local_sm_graphics_plugin') . '</a>'
+        . '<p class="text-muted mt-2">' . get_string('sp_courseloader_button_desc', 'local_sm_graphics_plugin') . '</p>'
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'local_sm_graphics_plugin/sp_tenant_id',
+        get_string('sp_tenant_id', 'local_sm_graphics_plugin'),
+        get_string('sp_tenant_id_desc', 'local_sm_graphics_plugin'),
+        '',
+        PARAM_TEXT
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'local_sm_graphics_plugin/sp_client_id',
+        get_string('sp_client_id', 'local_sm_graphics_plugin'),
+        get_string('sp_client_id_desc', 'local_sm_graphics_plugin'),
+        '',
+        PARAM_TEXT
+    ));
+
+    $settings->add(new admin_setting_configpasswordunmask(
+        'local_sm_graphics_plugin/sp_client_secret',
+        get_string('sp_client_secret', 'local_sm_graphics_plugin'),
+        get_string('sp_client_secret_desc', 'local_sm_graphics_plugin'),
+        ''
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'local_sm_graphics_plugin/sp_site_url',
+        get_string('sp_site_url', 'local_sm_graphics_plugin'),
+        get_string('sp_site_url_desc', 'local_sm_graphics_plugin'),
+        '',
+        PARAM_URL
+    ));
 }
 
 // -----------------------------------------------------------------------

@@ -251,31 +251,8 @@ function local_sm_graphics_plugin_before_standard_top_of_body_html(): string {
         }
     }
 
-    // Track course browsing on the enrolment page (non-enrolled users).
-    if ($pagetype === 'enrol-index' && isloggedin() && !isguestuser()) {
-        global $DB, $USER;
-        $course = $PAGE->course;
-        if ($course->id != SITEID) {
-            $coursecontext = context_course::instance($course->id);
-            $isenrolled = is_enrolled($coursecontext, $USER->id, '', true);
-            if (!$isenrolled) {
-                $existing = $DB->get_record('local_smgp_course_browsing', [
-                    'userid' => $USER->id,
-                    'courseid' => $course->id,
-                ]);
-                if ($existing) {
-                    $existing->timeaccess = time();
-                    $DB->update_record('local_smgp_course_browsing', $existing);
-                } else {
-                    $DB->insert_record('local_smgp_course_browsing', (object) [
-                        'userid' => $USER->id,
-                        'courseid' => $course->id,
-                        'timeaccess' => time(),
-                    ]);
-                }
-            }
-        }
-    }
+    // Course browsing is tracked in pages/course_landing.php instead,
+    // since /enrol/index.php is always redirected there.
 
     // Wrap IOMAD admin pages in SmartMind styles for company managers and site admins.
     if (strpos($scriptpath, '/blocks/iomad_company_admin/') !== false && isloggedin()) {

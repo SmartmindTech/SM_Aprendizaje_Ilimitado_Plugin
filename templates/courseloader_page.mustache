@@ -1,0 +1,112 @@
+{{!
+    Course Loader from SharePoint page template.
+
+    @package    local_sm_graphics_plugin
+    @copyright  2026 SmartMind Technologies
+    @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+}}
+
+<div class="container-fluid px-4 py-3" id="smgp-courseloader">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="mb-1">{{title}}</h2>
+            <p class="text-muted">{{subtitle}}</p>
+        </div>
+    </div>
+
+    {{^configured}}
+    <div class="alert alert-warning">
+        {{{no_config_msg}}}
+        <a href="{{settings_url}}" class="btn btn-sm btn-primary ml-3">Configurar</a>
+    </div>
+    {{/configured}}
+
+    {{#configured}}
+    {{! ---- Input form ---- }}
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="form-group mb-3">
+                <label for="smgp-cl-url"><strong>{{str.folder_url}}</strong></label>
+                <input type="url" class="form-control" id="smgp-cl-url"
+                       placeholder="{{str.folder_placeholder}}" />
+            </div>
+            <div class="form-group mb-3">
+                <label for="smgp-cl-category"><strong>{{str.category}}</strong></label>
+                <select class="form-control" id="smgp-cl-category">
+                    {{#categories}}
+                    <option value="{{id}}">{{name}}</option>
+                    {{/categories}}
+                </select>
+            </div>
+            <button class="btn btn-primary mr-2" id="smgp-cl-scan-btn">
+                <i class="fa fa-search mr-1"></i> {{str.scan}}
+            </button>
+            <button class="btn btn-success d-none" id="smgp-cl-import-btn">
+                <i class="fa fa-download mr-1"></i> {{str.import}}
+            </button>
+        </div>
+    </div>
+
+    {{! ---- Scanning spinner ---- }}
+    <div class="d-none mb-4" id="smgp-cl-scanning">
+        <div class="d-flex align-items-center">
+            <div class="spinner-border spinner-border-sm text-primary mr-2" role="status"></div>
+            <span>{{str.scanning}}</span>
+        </div>
+    </div>
+
+    {{! ---- Scan results ---- }}
+    <div class="d-none mb-4" id="smgp-cl-results">
+        <h4>{{str.scan_results}}</h4>
+        <div id="smgp-cl-folder-name" class="mb-2 font-weight-bold"></div>
+        <table class="table table-sm table-bordered">
+            <thead class="thead-light">
+                <tr>
+                    <th>{{str.type}}</th>
+                    <th>{{str.count}}</th>
+                    <th>{{str.names}}</th>
+                </tr>
+            </thead>
+            <tbody id="smgp-cl-results-body"></tbody>
+        </table>
+
+        {{! Warnings }}
+        <div class="d-none" id="smgp-cl-warnings">
+            <h5 class="text-warning"><i class="fa fa-exclamation-triangle mr-1"></i> {{str.warnings}}</h5>
+            <ul id="smgp-cl-warnings-list"></ul>
+        </div>
+    </div>
+
+    {{! ---- Import progress ---- }}
+    <div class="d-none mb-4" id="smgp-cl-progress">
+        <div class="d-flex align-items-center mb-2">
+            <div class="spinner-border spinner-border-sm text-success mr-2" role="status"></div>
+            <span>{{str.importing}}</span>
+        </div>
+    </div>
+
+    {{! ---- Import log ---- }}
+    <div class="d-none mb-4" id="smgp-cl-log">
+        <h5>Log</h5>
+        <pre id="smgp-cl-log-content" class="bg-dark text-light p-3 rounded" style="max-height:400px;overflow-y:auto;font-size:0.85rem;"></pre>
+    </div>
+
+    {{! ---- Success ---- }}
+    <div class="d-none mb-4" id="smgp-cl-success">
+        <div class="alert alert-success">
+            <i class="fa fa-check-circle mr-1"></i>
+            <strong>{{str.success}}</strong>
+            <a href="#" id="smgp-cl-course-link" class="btn btn-sm btn-primary ml-3">{{str.go_to_course}}</a>
+        </div>
+    </div>
+
+    {{! ---- Error ---- }}
+    <div class="d-none mb-4" id="smgp-cl-error">
+        <div class="alert alert-danger">
+            <i class="fa fa-times-circle mr-1"></i>
+            <strong>{{str.error}}</strong>
+            <span id="smgp-cl-error-msg"></span>
+        </div>
+    </div>
+    {{/configured}}
+</div>
