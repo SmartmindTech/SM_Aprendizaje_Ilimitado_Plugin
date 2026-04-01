@@ -147,6 +147,7 @@ $string['dashboard_activities_desc'] = 'Exercises and challenges to put learning
 $string['dashboard_itineraries'] = 'Itineraries';
 $string['dashboard_itineraries_desc'] = 'Learning paths that group several courses into a guided journey';
 $string['dashboard_itinerary_courses'] = '{$a} courses';
+$string['dashboard_coming_soon'] = 'Coming soon';
 $string['dashboard_progress_title'] = 'Your progress';
 $string['dashboard_duration'] = '{$a} min';
 $string['card_progress_label'] = 'completed';

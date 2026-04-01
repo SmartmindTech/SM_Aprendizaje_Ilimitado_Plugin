@@ -242,4 +242,278 @@ class observer {
             local_sm_graphics_plugin_save_company_limit((int) $companyid, $maxstudents);
         }
     }
+
+    /**
+     * Save SmartMind custom fields after a course is restored.
+     *
+     * Two data sources, applied in order (later overrides earlier):
+     * 1. Copy from the ORIGINAL course (always available via $event->other['originalcourseid']).
+     * 2. Override with values from $SESSION->smgp_restore_pending (staged by
+     *    the save_restore_fields AJAX endpoint on the restore schema form).
+     *
+     * This guarantees data is preserved even if the AJAX staging didn't complete
+     * (e.g. page navigated before the XHR finished).
+     *
+     * @param \core\event\course_restored $event
+     */
+    public static function course_restored(\core\event\course_restored $event): void {
+        global $DB, $SESSION;
+
+        $courseid = (int) $event->courseid;
+        if ($courseid <= 0) {
+            return;
+        }
+
+        $other          = $event->other ?? [];
+        $originalid     = (int) ($other['originalcourseid'] ?? 0);
+        $now            = time();
+
+        // DEBUG logging.
+        error_log('[SMGP-RESTORE] course_restored fired: courseid=' . $courseid
+            . ', originalid=' . $originalid
+            . ', SESSION pending=' . (empty($SESSION->smgp_restore_pending) ? 'EMPTY' : json_encode($SESSION->smgp_restore_pending)));
+
+        // --- Step 1: Copy all SmartMind data from the original course ---
+        if ($originalid > 0) {
+            self::copy_smgp_data($originalid, $courseid, $now);
+            error_log('[SMGP-RESTORE] Copied data from course ' . $originalid . ' to ' . $courseid);
+        }
+
+        // --- Step 2: Override with session-staged values (if user modified on the schema form) ---
+        if (!empty($SESSION->smgp_restore_pending)) {
+            $pending = $SESSION->smgp_restore_pending;
+            unset($SESSION->smgp_restore_pending);
+            $fields = (array) ($pending['fields'] ?? []);
+            error_log('[SMGP-RESTORE] Applying overrides: ' . json_encode($fields));
+            self::apply_restore_overrides($courseid, $fields, $now);
+        }
+    }
+
+    /**
+     * Copy all SmartMind custom data from one course to another.
+     */
+    private static function copy_smgp_data(int $sourceid, int $targetid, int $now): void {
+        global $DB;
+
+        // --- Copy local_smgp_course_meta ---
+        $srcmeta = $DB->get_record('local_smgp_course_meta', ['courseid' => $sourceid]);
+        if ($srcmeta) {
+            // Remove any existing meta for the target (in case of restore-over-existing).
+            $DB->delete_records('local_smgp_course_meta', ['courseid' => $targetid]);
+            $newmeta = clone $srcmeta;
+            unset($newmeta->id);
+            $newmeta->courseid     = $targetid;
+            $newmeta->timecreated  = $now;
+            $newmeta->timemodified = $now;
+            $DB->insert_record('local_smgp_course_meta', $newmeta);
+        }
+
+        // --- Copy catalogue category link ---
+        $srccat = $DB->get_record('local_smgp_course_category', ['courseid' => $sourceid]);
+        if ($srccat) {
+            $DB->delete_records('local_smgp_course_category', ['courseid' => $targetid]);
+            $DB->insert_record('local_smgp_course_category', (object) [
+                'courseid'   => $targetid,
+                'categoryid' => (int) $srccat->categoryid,
+            ]);
+        }
+
+        // --- Copy learning objectives (all languages) ---
+        $dbman = $DB->get_manager();
+        if ($dbman->table_exists('local_smgp_learning_objectives')) {
+            $srcobjs = $DB->get_records('local_smgp_learning_objectives', ['courseid' => $sourceid], 'lang, sortorder');
+            if ($srcobjs) {
+                $DB->delete_records('local_smgp_learning_objectives', ['courseid' => $targetid]);
+                foreach ($srcobjs as $obj) {
+                    $newobj = clone $obj;
+                    unset($newobj->id);
+                    $newobj->courseid     = $targetid;
+                    $newobj->timecreated  = $now;
+                    $newobj->timemodified = $now;
+                    $DB->insert_record('local_smgp_learning_objectives', $newobj);
+                }
+            }
+        }
+
+        // --- Copy course translations ---
+        if ($dbman->table_exists('local_smgp_course_translations')) {
+            $srctrans = $DB->get_records('local_smgp_course_translations', ['courseid' => $sourceid]);
+            if ($srctrans) {
+                $DB->delete_records('local_smgp_course_translations', ['courseid' => $targetid]);
+                foreach ($srctrans as $tr) {
+                    $newtr = clone $tr;
+                    unset($newtr->id);
+                    $newtr->courseid     = $targetid;
+                    $newtr->timecreated  = $now;
+                    $newtr->timemodified = $now;
+                    $DB->insert_record('local_smgp_course_translations', $newtr);
+                }
+            }
+        }
+    }
+
+    /**
+     * Write SmartMind field values to the DB for a given course.
+     * Used both by the course_restored observer and the save_restore_fields
+     * AJAX endpoint (post-restore fallback). Only modifies values that were
+     * explicitly set (non-empty, non-default values).
+     */
+    public static function write_restore_fields(int $courseid, array $fields, int $now = 0): void {
+        if ($now <= 0) {
+            $now = time();
+        }
+        self::apply_restore_overrides($courseid, $fields, $now);
+    }
+
+    /**
+     * Apply field overrides on top of existing SmartMind data.
+     */
+    private static function apply_restore_overrides(int $courseid, array $fields, int $now): void {
+        global $DB;
+
+        // Check if user actually filled in any non-default values.
+        $hasOverrides = false;
+        foreach ($fields as $k => $v) {
+            if ($v !== '' && $v !== '0' && $v !== '[]' && $v !== 'beginner' && $v !== '100') {
+                $hasOverrides = true;
+                break;
+            }
+        }
+        if (!$hasOverrides) {
+            return;
+        }
+
+        // --- Update local_smgp_course_meta ---
+        $meta = $DB->get_record('local_smgp_course_meta', ['courseid' => $courseid]);
+        if (!$meta) {
+            $meta = (object) [
+                'courseid'       => $courseid,
+                'amount'         => 0,
+                'currency'       => 'EUR',
+                'duration_hours' => 0,
+                'timecreated'    => $now,
+                'timemodified'   => $now,
+            ];
+            $meta->id = $DB->insert_record('local_smgp_course_meta', $meta);
+        }
+
+        if (!empty($fields['smgp_duration_hours'])) {
+            $meta->duration_hours = (float) str_replace(',', '.', $fields['smgp_duration_hours']);
+        }
+        if (!empty($fields['smgp_level']) && $fields['smgp_level'] !== 'beginner') {
+            $meta->level = in_array($fields['smgp_level'], ['beginner', 'medium', 'advanced'])
+                           ? $fields['smgp_level'] : $meta->level;
+        }
+        if (!empty($fields['smgp_completion_percentage']) && $fields['smgp_completion_percentage'] !== '100') {
+            $meta->completion_percentage = max(0, min(100, (int) $fields['smgp_completion_percentage']));
+        }
+        if (!empty($fields['smgp_smartmind_code'])) {
+            $meta->smartmind_code = clean_param($fields['smgp_smartmind_code'], PARAM_TEXT);
+        }
+        if (!empty($fields['smgp_sepe_code'])) {
+            $meta->sepe_code = clean_param($fields['smgp_sepe_code'], PARAM_TEXT);
+        }
+        if (!empty($fields['smgp_description'])) {
+            $meta->description = clean_param($fields['smgp_description'], PARAM_TEXT);
+        }
+        $meta->timemodified = $now;
+        $DB->update_record('local_smgp_course_meta', $meta);
+
+        // --- Override catalogue category ---
+        $catid = isset($fields['smgp_catalogue_cat']) ? (int) $fields['smgp_catalogue_cat'] : 0;
+        if ($catid > 0) {
+            $DB->delete_records('local_smgp_course_category', ['courseid' => $courseid]);
+            $DB->insert_record('local_smgp_course_category', (object) [
+                'courseid'   => $courseid,
+                'categoryid' => $catid,
+            ]);
+        }
+
+        // --- Override description in course.summary + translate ---
+        if (!empty($fields['smgp_description']) && trim(strip_tags($fields['smgp_description'])) !== '') {
+            $course = $DB->get_record('course', ['id' => $courseid]);
+            if ($course) {
+                $course->summary      = $fields['smgp_description'];
+                $course->timemodified = $now;
+                $DB->update_record('course', $course);
+                rebuild_course_cache($courseid, true);
+            }
+            // Translate summary.
+            $dbman = $DB->get_manager();
+            if ($dbman->table_exists('local_smgp_course_translations')) {
+                $sourcelang  = 'es';
+                $targetlangs = array_diff(['en', 'es', 'pt_br'], [$sourcelang]);
+                $plaintext   = strip_tags($fields['smgp_description']);
+                foreach ($targetlangs as $targetlang) {
+                    $translated = \local_sm_graphics_plugin\gemini::translate($plaintext, $sourcelang, $targetlang);
+                    if ($translated) {
+                        $existing = $DB->get_record('local_smgp_course_translations',
+                            ['courseid' => $courseid, 'lang' => $targetlang]);
+                        if ($existing) {
+                            $existing->summary      = $translated;
+                            $existing->timemodified = $now;
+                            $DB->update_record('local_smgp_course_translations', $existing);
+                        } else {
+                            $DB->insert_record('local_smgp_course_translations', (object) [
+                                'courseid'     => $courseid,
+                                'lang'         => $targetlang,
+                                'summary'      => $translated,
+                                'timecreated'  => $now,
+                                'timemodified' => $now,
+                            ]);
+                        }
+                    }
+                }
+            }
+        }
+
+        // --- Override learning objectives + translate ---
+        $objectivesjson = $fields['smgp_objectives_data'] ?? '[]';
+        if ($objectivesjson && $objectivesjson !== '[]') {
+            $dbman = $DB->get_manager();
+            if ($dbman->table_exists('local_smgp_learning_objectives')) {
+                $objectives = json_decode($objectivesjson, true);
+                if (is_array($objectives) && !empty($objectives)) {
+                    $sourcelang = 'es';
+                    $DB->delete_records('local_smgp_learning_objectives', ['courseid' => $courseid]);
+                    $cleantexts = [];
+                    foreach ($objectives as $text) {
+                        $text = trim($text);
+                        if ($text === '') {
+                            continue;
+                        }
+                        $cleantext    = clean_param($text, PARAM_TEXT);
+                        $cleantexts[] = $cleantext;
+                        $DB->insert_record('local_smgp_learning_objectives', (object) [
+                            'courseid'     => $courseid,
+                            'objective'    => $cleantext,
+                            'sortorder'    => count($cleantexts) - 1,
+                            'lang'         => $sourcelang,
+                            'timecreated'  => $now,
+                            'timemodified' => $now,
+                        ]);
+                    }
+                    if (!empty($cleantexts)) {
+                        foreach (array_diff(['en', 'es', 'pt_br'], [$sourcelang]) as $targetlang) {
+                            $translated = \local_sm_graphics_plugin\gemini::translate_batch(
+                                $cleantexts, $sourcelang, $targetlang
+                            );
+                            if ($translated) {
+                                foreach ($translated as $i => $ttext) {
+                                    $DB->insert_record('local_smgp_learning_objectives', (object) [
+                                        'courseid'     => $courseid,
+                                        'objective'    => clean_param(trim($ttext), PARAM_TEXT),
+                                        'sortorder'    => $i,
+                                        'lang'         => $targetlang,
+                                        'timecreated'  => $now,
+                                        'timemodified' => $now,
+                                    ]);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
