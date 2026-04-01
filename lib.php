@@ -235,6 +235,16 @@ function local_sm_graphics_plugin_before_standard_top_of_body_html(): string {
     if ($isRealCourseView && empty($_GET['smgp_enter'])) {
         $course = $PAGE->course;
         if ($course->id != SITEID && isloggedin() && !isguestuser()) {
+            // Write any pending restore fields to DB before redirecting.
+            // This fires when Moodle redirects to /course/view.php after restore.
+            global $SESSION;
+            if (!empty($SESSION->smgp_restore_pending)) {
+                $pending = $SESSION->smgp_restore_pending;
+                unset($SESSION->smgp_restore_pending);
+                $fields = (array) ($pending['fields'] ?? []);
+                error_log('[SMGP-RESTORE] Writing pending fields to DB for course ' . $course->id);
+                \local_sm_graphics_plugin\observer::write_restore_fields((int) $course->id, $fields);
+            }
             // ALL users see the landing page first (course hub/dashboard).
             // The landing page has Start/Continue button that links to the player with smgp_enter=1.
             redirect(new moodle_url('/local/sm_graphics_plugin/pages/course_landing.php', ['id' => $course->id]));
@@ -351,6 +361,40 @@ function local_sm_graphics_plugin_before_standard_top_of_body_html(): string {
 
     // Inject SmartMind fields + destination page enhancements into restore pages.
     if ($pagetype === 'backup-restore') {
+        // Capture SmartMind fields from POST when the schema form is submitted.
+        // This is the only reliable server-side capture point — the fields are
+        // raw HTML (not Moodle form elements), so they appear in $_POST but not
+        // in Moodle's $form->get_data(). Store in $SESSION for the observer.
+        global $SESSION;
+        $smgpFields = [
+            'smgp_duration_hours', 'smgp_level', 'smgp_completion_percentage',
+            'smgp_catalogue_cat', 'smgp_smartmind_code', 'smgp_sepe_code',
+            'smgp_description', 'smgp_objectives_data',
+        ];
+        $hasSmgpPost = false;
+        foreach ($smgpFields as $f) {
+            if (isset($_POST[$f])) {
+                $hasSmgpPost = true;
+                break;
+            }
+        }
+        // DEBUG: log what we see in POST.
+        error_log('[SMGP-RESTORE] pagetype=backup-restore, hasSmgpPost=' . ($hasSmgpPost ? 'YES' : 'NO')
+            . ', POST keys: ' . implode(',', array_keys($_POST)));
+        if ($hasSmgpPost) {
+            $clean = [];
+            foreach ($smgpFields as $f) {
+                if (isset($_POST[$f])) {
+                    $clean[$f] = clean_param($_POST[$f], PARAM_RAW);
+                }
+            }
+            $SESSION->smgp_restore_pending = [
+                'courseid' => 0,
+                'fields'   => $clean,
+            ];
+            error_log('[SMGP-RESTORE] Staged in SESSION: ' . json_encode($clean));
+        }
+
         return local_sm_graphics_plugin_restore_schema_fields()
             . local_sm_graphics_plugin_restore_destination_js()
             . local_sm_graphics_plugin_restore_settings_js();
@@ -376,38 +420,16 @@ function local_sm_graphics_plugin_before_standard_top_of_body_html(): string {
                     sessionStorage.removeItem("smgp_restore_fields");
                     var courseid = ' . (int) $courseid . ';
                     require(["core/ajax"], function(Ajax) {
-                        // Save meta fields.
-                        var metaFields = {
-                            "duration_hours": data.smgp_duration_hours || "",
-                            "smartmind_code": data.smgp_smartmind_code || "",
-                            "sepe_code": data.smgp_sepe_code || "",
-                            "level": data.smgp_level || "beginner",
-                            "completion_percentage": data.smgp_completion_percentage || "100",
-                            "description": data.smgp_description || ""
-                        };
-                        Object.keys(metaFields).forEach(function(field) {
-                            if (metaFields[field]) {
-                                Ajax.call([{
-                                    methodname: "local_sm_graphics_plugin_update_course_info",
-                                    args: {courseid: courseid, field: field, value: metaFields[field]}
-                                }]);
+                        // Single batched call saves all meta fields atomically (no race condition).
+                        Ajax.call([{
+                            methodname: "local_sm_graphics_plugin_save_restore_fields",
+                            args: {
+                                courseid:    courseid,
+                                fields_json: JSON.stringify(data)
                             }
-                        });
-                        // Also save description to course.summary (used by hero banner + translation).
-                        if (data.smgp_description && data.smgp_description.trim()) {
-                            Ajax.call([{
-                                methodname: "local_sm_graphics_plugin_update_course_info",
-                                args: {courseid: courseid, field: "summary", value: data.smgp_description}
-                            }]);
-                        }
-                        // Save category.
-                        if (data.smgp_catalogue_cat && data.smgp_catalogue_cat !== "0") {
-                            Ajax.call([{
-                                methodname: "local_sm_graphics_plugin_update_course_info",
-                                args: {courseid: courseid, field: "categoryid", value: data.smgp_catalogue_cat}
-                            }]);
-                        }
-                        // Save learning objectives + auto-translate.
+                        }]);
+
+                        // Save learning objectives + auto-translate (separate endpoint).
                         if (data.smgp_objectives_data && data.smgp_objectives_data !== "[]") {
                             try {
                                 var objs = JSON.parse(data.smgp_objectives_data);
@@ -419,6 +441,7 @@ function local_sm_graphics_plugin_before_standard_top_of_body_html(): string {
                                 }
                             } catch(ex) {}
                         }
+
                         // Trigger description translation (needs summary saved first, slight delay).
                         if (data.smgp_description && data.smgp_description.trim()) {
                             setTimeout(function() {
@@ -1093,7 +1116,16 @@ function local_sm_graphics_plugin_inject_embed_tracking(): string {
  * @return string
  */
 function local_sm_graphics_plugin_restore_file_styles(): string {
-    return '<style>
+    global $SESSION;
+    // A new restore is starting — discard any pending data from a previous restore.
+    unset($SESSION->smgp_restore_pending);
+
+    return '<script>
+    // Clear browser-side restore data from any previous restore session.
+    try { sessionStorage.removeItem("smgp_restore_fields"); } catch(e) {}
+    try { sessionStorage.removeItem("smgp_restore_companies"); } catch(e) {}
+    </script>
+    <style>
     /* Page heading */
     #page-backup-restorefile [role="main"] > h2:first-of-type {
         font-size: 1.75rem;
@@ -1929,7 +1961,41 @@ function local_sm_graphics_plugin_restore_settings_js(): string {
 }
 
 function local_sm_graphics_plugin_restore_schema_fields(): string {
-    global $DB;
+    global $DB, $PAGE;
+
+    // Pre-populate from existing course when restoring over an existing course.
+    $precourseid = (isset($PAGE->course->id) && $PAGE->course->id > 0 && $PAGE->course->id != SITEID)
+                   ? (int) $PAGE->course->id : 0;
+    $premeta   = ($precourseid > 0) ? $DB->get_record('local_smgp_course_meta', ['courseid' => $precourseid]) : null;
+    $precatrow = ($precourseid > 0) ? $DB->get_record('local_smgp_course_category', ['courseid' => $precourseid]) : null;
+    $preduration   = $premeta ? (float) $premeta->duration_hours : 0;
+    $prelevel      = ($premeta && in_array($premeta->level, ['beginner', 'medium', 'advanced'])) ? $premeta->level : 'beginner';
+    $precompletion = $premeta ? (int) $premeta->completion_percentage : 100;
+    $presmcode     = $premeta ? htmlspecialchars($premeta->smartmind_code ?? '') : '';
+    $presepecode   = $premeta ? htmlspecialchars($premeta->sepe_code ?? '') : '';
+    $predescription = $premeta ? htmlspecialchars($premeta->description ?? '') : '';
+    $precatid      = $precatrow ? (int) $precatrow->categoryid : 0;
+
+    // Pre-load learning objectives from source course (source language only).
+    $preobjectives = '[]';
+    if ($precourseid > 0) {
+        $dbman = $DB->get_manager();
+        if ($dbman->table_exists('local_smgp_learning_objectives')) {
+            $objs = $DB->get_records('local_smgp_learning_objectives',
+                ['courseid' => $precourseid, 'lang' => 'es'], 'sortorder ASC', 'objective');
+            if (empty($objs)) {
+                $objs = $DB->get_records_sql(
+                    "SELECT DISTINCT objective FROM {local_smgp_learning_objectives}
+                      WHERE courseid = ? ORDER BY sortorder ASC",
+                    [$precourseid]
+                );
+            }
+            if ($objs) {
+                $texts = array_values(array_map(function($o) { return $o->objective; }, $objs));
+                $preobjectives = htmlspecialchars(json_encode($texts, JSON_UNESCAPED_UNICODE));
+            }
+        }
+    }
 
     $durationLabel = addslashes(get_string('course_hours', 'local_sm_graphics_plugin'));
     $categoryLabel = addslashes(get_string('course_category_field', 'local_sm_graphics_plugin'));
@@ -1959,7 +2025,8 @@ function local_sm_graphics_plugin_restore_schema_fields(): string {
     if ($dbman->table_exists('local_smgp_categories')) {
         $cats = $DB->get_records('local_smgp_categories', null, 'sortorder ASC', 'id, name');
         foreach ($cats as $cat) {
-            $catOptions .= '<option value="' . $cat->id . '">' . htmlspecialchars($cat->name) . '</option>';
+            $selected = ($cat->id == $precatid) ? ' selected' : '';
+            $catOptions .= '<option value="' . $cat->id . '"' . $selected . '>' . htmlspecialchars($cat->name) . '</option>';
         }
     }
 
@@ -1981,29 +2048,33 @@ function local_sm_graphics_plugin_restore_schema_fields(): string {
         // Row 1: 4 equal columns — Hours, Level, Completion %, Category.
         . '<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,0.8fr) minmax(0,1.7fr);gap:1rem;" class="mb-3">'
         . '<div style="min-width:0;">' . $lbl('icon-clock', $durationLabel, $durationHint)
-        . '<input type="number" name="smgp_duration_hours" class="form-control" step="0.1" min="0" value="0"></div>'
+        . '<input type="number" name="smgp_duration_hours" class="form-control" step="0.1" min="0" value="' . $preduration . '"></div>'
         . '<div style="min-width:0;">' . $lbl('icon-gauge', $levelLabel, $levelHint)
-        . '<select name="smgp_level" class="form-select"><option value="beginner" selected>' . $levelBeginner . '</option><option value="medium">' . $levelMedium . '</option><option value="advanced">' . $levelAdvanced . '</option></select></div>'
+        . '<select name="smgp_level" class="form-select">'
+        . '<option value="beginner"' . ($prelevel === 'beginner' ? ' selected' : '') . '>' . $levelBeginner . '</option>'
+        . '<option value="medium"' . ($prelevel === 'medium' ? ' selected' : '') . '>' . $levelMedium . '</option>'
+        . '<option value="advanced"' . ($prelevel === 'advanced' ? ' selected' : '') . '>' . $levelAdvanced . '</option>'
+        . '</select></div>'
         . '<div style="min-width:0;">' . $lbl('icon-badge-check', $completionLabel, $completionHint)
-        . '<div class="d-flex align-items-center gap-1"><input type="number" name="smgp_completion_percentage" class="form-control smgp-completion-input" min="0" max="100" value="100"><span>%</span></div></div>'
+        . '<div class="d-flex align-items-center gap-1"><input type="number" name="smgp_completion_percentage" class="form-control smgp-completion-input" min="0" max="100" value="' . $precompletion . '"><span>%</span></div></div>'
         . '<div style="min-width:0;">' . $lbl('icon-bookmark', $categoryLabel, $categoryHint)
         . '<select name="smgp_catalogue_cat" class="form-select">' . $catOptions . '</select></div>'
         . '</div>'
         // Row 2: 2 columns — SmartMind Code, SEPE Code.
         . '<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;" class="mb-3">'
         . '<div>' . $lbl('icon-qr-code', $smcodeLabel, $smcodeHint)
-        . '<input type="text" name="smgp_smartmind_code" class="form-control"></div>'
+        . '<input type="text" name="smgp_smartmind_code" class="form-control" value="' . $presmcode . '"></div>'
         . '<div>' . $lbl('icon-file-code', $sepeLabel, $sepeHint)
-        . '<input type="text" name="smgp_sepe_code" class="form-control"></div>'
+        . '<input type="text" name="smgp_sepe_code" class="form-control" value="' . $presepecode . '"></div>'
         . '</div>'
         // Row 3: Full-width — Course description with editor.
         . '<div class="mb-3">' . $lbl('icon-file-text', $descLabel, addslashes(get_string('restore_desc_hint', 'local_sm_graphics_plugin')))
         . '<div id="smgp-restore-editor-wrap">'
-        . '<textarea name="smgp_description" id="smgp-restore-description" class="form-control" rows="5"></textarea>'
+        . '<textarea name="smgp_description" id="smgp-restore-description" class="form-control" rows="5">' . $predescription . '</textarea>'
         . '</div></div>'
         // Row 4: Full-width — Learning objectives.
         . '<div class="mb-3">' . $lbl('icon-list-checks', $objectivesLabel, addslashes(get_string('restore_objectives_hint', 'local_sm_graphics_plugin')))
-        . '<input type="hidden" name="smgp_objectives_data" value="[]">'
+        . '<input type="hidden" name="smgp_objectives_data" value="' . $preobjectives . '">'
         . '<div id="smgp-objectives-container" class="smgp-objectives-editor"></div></div>'
         . '</div></div>';
 
@@ -2186,13 +2257,25 @@ function local_sm_graphics_plugin_restore_schema_fields(): string {
             + "{ width: 100% !important; max-width: 100% !important; }";
         document.head.appendChild(style);
 
-        // --- Preserve values across restore steps via sessionStorage ---
+        // --- Preserve values across restore steps via sessionStorage + PHP session ---
         var storageKey = "smgp_restore_fields";
         var fieldNames = ["smgp_description", "smgp_duration_hours", "smgp_catalogue_cat",
                           "smgp_smartmind_code", "smgp_sepe_code", "smgp_level", "smgp_completion_percentage",
                           "smgp_objectives_data"];
+        // Destination course ID (0 for new-course restores, known for restore-over-existing).
+        var smgpDestCourseId = ' . (int) $precourseid . ';
 
-        // Restore saved values from previous step.
+        // If courseid is unknown from PHP, try to extract from URL (contextid -> courseid
+        // is not directly available, but we can fall back to 0 and let the observer
+        // use the event courseid instead).
+        if (!smgpDestCourseId) {
+            try {
+                var m = window.location.search.match(/[?&]course[id]?=(\d+)/i);
+                if (m) smgpDestCourseId = parseInt(m[1]);
+            } catch(ex) {}
+        }
+
+        // Restore saved values from previous step (sessionStorage fallback).
         try {
             var saved = JSON.parse(sessionStorage.getItem(storageKey) || "{}");
             fieldNames.forEach(function(name) {
@@ -2203,17 +2286,37 @@ function local_sm_graphics_plugin_restore_schema_fields(): string {
             });
         } catch(e) {}
 
-        // Helper: save all field values to sessionStorage.
+        // Helper: collect all field values.
+        function collectFields() {
+            if (window.tinymce) { try { window.tinymce.triggerSave(); } catch(x) {} }
+            var data = {};
+            fieldNames.forEach(function(name) {
+                var el = fields.querySelector("[name=\'" + name + "\']");
+                if (el) data[name] = el.value;
+            });
+            return data;
+        }
+
+        // Helper: save all field values to sessionStorage AND PHP session.
+        // Uses synchronous XHR (keepalive) to ensure the request completes
+        // even when the browser is navigating away (form submit).
         function saveToSession() {
             try {
-                // Sync TinyMCE content to textarea before reading.
-                if (window.tinymce) { try { window.tinymce.triggerSave(); } catch(x) {} }
-                var data = {};
-                fieldNames.forEach(function(name) {
-                    var el = fields.querySelector("[name=\'" + name + "\']");
-                    if (el) data[name] = el.value;
-                });
+                var data = collectFields();
                 sessionStorage.setItem(storageKey, JSON.stringify(data));
+                // Persist server-side via synchronous XHR so it survives page navigation.
+                var payload = JSON.stringify([{
+                    index: 0,
+                    methodname: "local_sm_graphics_plugin_save_restore_fields",
+                    args: {
+                        courseid:    smgpDestCourseId || 0,
+                        fields_json: JSON.stringify(data)
+                    }
+                }]);
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", M.cfg.wwwroot + "/lib/ajax/service.php?sesskey=" + M.cfg.sesskey, false);
+                xhr.setRequestHeader("Content-Type", "application/json");
+                xhr.send(payload);
             } catch(e) {}
         }
 
