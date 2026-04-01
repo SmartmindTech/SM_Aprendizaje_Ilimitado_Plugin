@@ -69,7 +69,7 @@ class save_restore_fields extends external_api {
         $allowed = [
             'smgp_duration_hours', 'smgp_level', 'smgp_completion_percentage',
             'smgp_catalogue_cat', 'smgp_smartmind_code', 'smgp_sepe_code',
-            'smgp_description', 'smgp_objectives_data',
+            'smgp_description', 'smgp_objectives_data', 'smgp_course_structure',
         ];
         $clean = [];
         foreach ($allowed as $key) {
