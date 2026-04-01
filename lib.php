@@ -369,7 +369,7 @@ function local_sm_graphics_plugin_before_standard_top_of_body_html(): string {
         $smgpFields = [
             'smgp_duration_hours', 'smgp_level', 'smgp_completion_percentage',
             'smgp_catalogue_cat', 'smgp_smartmind_code', 'smgp_sepe_code',
-            'smgp_description', 'smgp_objectives_data',
+            'smgp_description', 'smgp_objectives_data', 'smgp_course_structure',
         ];
         $hasSmgpPost = false;
         foreach ($smgpFields as $f) {
@@ -2076,6 +2076,8 @@ function local_sm_graphics_plugin_restore_schema_fields(): string {
         . '<div class="mb-3">' . $lbl('icon-list-checks', $objectivesLabel, addslashes(get_string('restore_objectives_hint', 'local_sm_graphics_plugin')))
         . '<input type="hidden" name="smgp_objectives_data" value="' . $preobjectives . '">'
         . '<div id="smgp-objectives-container" class="smgp-objectives-editor"></div></div>'
+        // Hidden input for course structure data (populated by course_structure.js).
+        . '<input type="hidden" name="smgp_course_structure" value="">'
         . '</div></div>';
 
     $html .= '<script>
@@ -2331,6 +2333,10 @@ function local_sm_graphics_plugin_restore_schema_fields(): string {
         if (typeof require !== "undefined") {
             require(["local_sm_graphics_plugin/course_objectives"], function(Obj) {
                 Obj.init();
+            });
+            // Initialize course structure editor (restyle + interactive).
+            require(["local_sm_graphics_plugin/course_structure"], function(S) {
+                S.init();
             });
         }
 
