@@ -154,6 +154,18 @@ class course_importer {
                 return null;
             }
 
+            // Read course name from the MBZ before restore (destroy cleans the extract dir).
+            $mbzfullname = '';
+            $mbzshortname = '';
+            $coursexmlpath = $extractdir . '/course/course.xml';
+            if (file_exists($coursexmlpath)) {
+                $xml = simplexml_load_file($coursexmlpath);
+                if ($xml) {
+                    $mbzfullname = (string) ($xml->fullname ?? '');
+                    $mbzshortname = (string) ($xml->shortname ?? '');
+                }
+            }
+
             // Create a placeholder course in the target category for the restore.
             $newcourse = new \stdClass();
             $newcourse->category = $categoryid;
@@ -189,33 +201,23 @@ class course_importer {
 
             if ($newcourseid) {
                 // The restore may not overwrite the placeholder course name.
-                // Read the original course info from the MBZ and update if needed.
                 $restoredcourse = $DB->get_record('course', ['id' => $newcourseid]);
                 if ($restoredcourse && ($restoredcourse->fullname === 'Importing...'
                         || strpos($restoredcourse->shortname, 'smcl_temp_') === 0)) {
-                    // Try to get the name from the backup's course.xml.
-                    $coursexmlpath = $extractdir . '/course/course.xml';
-                    if (file_exists($coursexmlpath)) {
-                        $xml = simplexml_load_file($coursexmlpath);
-                        if ($xml) {
-                            $fullname = (string) ($xml->fullname ?? '');
-                            $shortname = (string) ($xml->shortname ?? '');
-                            if ($fullname) {
-                                $restoredcourse->fullname = $fullname;
-                            }
-                            if ($shortname) {
-                                // Ensure shortname is unique.
-                                $base = $shortname;
-                                $i = 1;
-                                while ($DB->record_exists_select('course',
-                                    'shortname = ? AND id != ?', [$shortname, $newcourseid])) {
-                                    $shortname = $base . '_' . $i++;
-                                }
-                                $restoredcourse->shortname = $shortname;
-                            }
-                            $DB->update_record('course', $restoredcourse);
-                        }
+                    if ($mbzfullname) {
+                        $restoredcourse->fullname = $mbzfullname;
                     }
+                    if ($mbzshortname) {
+                        $base = $mbzshortname;
+                        $shortname = $mbzshortname;
+                        $i = 1;
+                        while ($DB->record_exists_select('course',
+                            'shortname = ? AND id != ?', [$shortname, $newcourseid])) {
+                            $shortname = $base . '_' . $i++;
+                        }
+                        $restoredcourse->shortname = $shortname;
+                    }
+                    $DB->update_record('course', $restoredcourse);
                 }
             }
 
