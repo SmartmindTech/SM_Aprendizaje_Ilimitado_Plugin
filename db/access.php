@@ -59,4 +59,14 @@ $capabilities = [
             'manager'        => CAP_ALLOW,
         ],
     ],
+
+    // Allow user to import courses from SharePoint.
+    'local/sm_graphics_plugin:import_courses' => [
+        'captype'      => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes'   => [
+            'manager' => CAP_ALLOW,
+        ],
+        'riskbitmask'  => RISK_CONFIG,
+    ],
 ];

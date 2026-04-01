@@ -88,6 +88,12 @@ $options = [
         'title'       => get_string('coursemgmt_managecat', $component),
         'description' => get_string('coursemgmt_managecat_desc', $component),
     ],
+    [
+        'url'         => (new moodle_url('/local/sm_graphics_plugin/pages/courseloader.php'))->out(),
+        'icon'        => 'fa-download',
+        'title'       => get_string('coursemgmt_sharepoint', $component),
+        'description' => get_string('coursemgmt_sharepoint_desc', $component),
+    ],
 ];
 
 // Company stats table.
