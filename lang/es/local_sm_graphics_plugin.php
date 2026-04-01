@@ -415,3 +415,20 @@ $string['profile_weekly']        = 'ACTIVIDAD SEMANAL';
 $string['profile_level']         = 'Nivel {$a}';
 $string['profile_xp_remaining']  = '{$a->xp} XP para nivel {$a->level}';
 $string['profile_since']         = 'Desde {$a}';
+
+// Notificaciones de actualización.
+$string['task:checkforupdates'] = 'Comprobar actualizaciones del plugin';
+$string['messageprovider:updatenotification'] = 'Notificaciones de actualización del plugin';
+$string['updateavailable_subject'] = 'Actualización disponible de SmartMind Graphics Plugin: v{$a}';
+$string['updateavailable_message'] = 'Hay una nueva versión de SmartMind Graphics Plugin disponible.
+
+Versión actual: {$a->currentversion}
+Nueva versión: {$a->newversion}
+
+Para instalar la actualización, ve a: Administración del sitio > Plugins > Instalar plugins y sube el nuevo ZIP.';
+$string['updateavailable_message_html'] = '<p>Hay una nueva versión de <strong>SmartMind Graphics Plugin</strong> disponible.</p>
+<table>
+<tr><td><strong>Versión actual:</strong></td><td>{$a->currentversion}</td></tr>
+<tr><td><strong>Nueva versión:</strong></td><td>{$a->newversion}</td></tr>
+</table>
+<p>Para instalar la actualización, ve a <strong>Administración del sitio &gt; Plugins &gt; Instalar plugins</strong> y sube el nuevo ZIP.</p>';
