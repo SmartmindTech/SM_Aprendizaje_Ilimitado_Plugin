@@ -39,7 +39,7 @@ a.backup_stage_complete {
 }
 
 .backup_stage_current {
-    background: $smgp-primary;
+    background: $smgp-success;
     color: #fff !important;
     font-weight: 600;
 }
@@ -165,7 +165,7 @@ a.backup_stage_complete {
     transition: background 0.15s;
 
     &:hover {
-        background: $smgp-primary-dark !important;
+        background: darken($smgp-success, 8%) !important;
     }
 }
 
@@ -183,6 +183,47 @@ a.backup_stage_complete {
         border-color: $smgp-primary !important;
         color: $smgp-primary !important;
     }
+}
+
+// ---- All restore pages — green ring+dot radio style ----
+.path-backup input[type="radio"] {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    width: 20px !important;
+    height: 20px !important;
+    border: 2px solid $smgp-gray-300 !important;
+    border-radius: 50% !important;
+    cursor: pointer;
+    position: relative;
+    transition: border-color 0.15s;
+    background: transparent !important;
+    margin: 0;
+    flex-shrink: 0;
+
+    &:checked {
+        border-color: $smgp-success !important;
+
+        &::after {
+            content: "";
+            display: block;
+            width: 10px;
+            height: 10px;
+            background: $smgp-success;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    }
+
+    &:hover {
+        border-color: $smgp-success !important;
+    }
+}
+
+.path-backup input[type="checkbox"] {
+    accent-color: $smgp-success !important;
 }
 
 // ---- Schema page — section/activity cards internal padding ----
@@ -258,7 +299,7 @@ a.backup_stage_complete {
     padding: 0 !important;
     margin-bottom: 0.75rem;
     border: 1px solid $smgp-border;
-    border-left: 3px solid $smgp-primary;
+    border-left: 3px solid $smgp-success;
     border-radius: $smgp-radius-md;
     overflow: hidden;
     background: $smgp-bg;
@@ -521,7 +562,7 @@ a.backup_stage_complete {
         text-align: center;
 
         input[type="radio"] {
-            accent-color: $smgp-primary;
+            accent-color: $smgp-success;
             width: 16px;
             height: 16px;
             cursor: pointer;
@@ -531,7 +572,7 @@ a.backup_stage_complete {
 
 // ---- Radio buttons in backup forms ----
 .path-backup .backup-section input[type="radio"] {
-    accent-color: $smgp-primary;
+    accent-color: $smgp-success;
     width: 16px;
     height: 16px;
     cursor: pointer;
@@ -550,7 +591,7 @@ a.backup_stage_complete {
     &:focus {
         border-color: $smgp-primary !important;
         outline: none !important;
-        box-shadow: 0 0 0 3px rgba($smgp-primary-color, 0.12) !important;
+        box-shadow: 0 0 0 3px rgba($smgp-success, 0.12) !important;
     }
 }
 
@@ -593,7 +634,7 @@ a.backup_stage_complete {
 
 // ---- Detail pair labels as links ----
 .path-backup .detail-pair-label a {
-    color: $smgp-primary;
+    color: $smgp-success;
     text-decoration: none;
 
     &:hover {
@@ -650,7 +691,7 @@ a.backup_stage_complete {
 
     // Radio buttons.
     input[type="radio"] {
-        accent-color: $smgp-primary;
+        accent-color: $smgp-success;
         width: 16px;
         height: 16px;
         cursor: pointer;
@@ -697,7 +738,7 @@ a.backup_stage_complete {
 
             &:hover {
                 background: $smgp-gray-100;
-                color: $smgp-primary;
+                color: $smgp-success;
             }
         }
     }
@@ -714,7 +755,7 @@ a.backup_stage_complete {
 
     // Company table radios — match Moodle native radio style exactly.
     #smgp-company-table input[type="radio"] {
-        accent-color: $smgp-primary;
+        accent-color: $smgp-success;
         cursor: pointer;
         margin: 0;
     }
@@ -722,22 +763,23 @@ a.backup_stage_complete {
     // Fake radio button (for select-all toggle).
     .smgp-fake-radio {
         display: inline-block;
-        width: 16px;
-        height: 16px;
-        border: 2px solid $smgp-gray-400;
+        width: 20px;
+        height: 20px;
+        border: 2px solid $smgp-gray-300;
         border-radius: 50%;
         cursor: pointer;
         position: relative;
         vertical-align: middle;
         transition: border-color 0.15s;
+        background: transparent;
 
         &:hover {
-            border-color: $smgp-primary;
+            border-color: $smgp-success;
         }
 
         &--checked {
-            border-color: $smgp-primary;
-            background: $smgp-primary;
+            border-color: $smgp-success;
+            background: transparent;
 
             &::after {
                 content: "";
@@ -745,9 +787,9 @@ a.backup_stage_complete {
                 top: 50%;
                 left: 50%;
                 transform: translate(-50%, -50%);
-                width: 6px;
-                height: 6px;
-                background: #fff;
+                width: 10px;
+                height: 10px;
+                background: $smgp-success;
                 border-radius: 50%;
             }
         }
