@@ -3,7 +3,7 @@
     @template theme_smartmind/dashboard/dashboard_rec_explored
 
     SmartMind Dashboard — Courses the user browsed but is not enrolled in.
-    Uses real data from get_browsed_courses. Shows placeholder if empty.
+    Uses real data from get_browsed_courses. Uses recommended-card style.
 }}
 <div class="catalog-section catalog-section--rec-explored">
     <div class="catalog-section__header">
@@ -17,9 +17,31 @@
     </div>
     <div class="catalog-section__content">
         {{#hasrecexplored}}
-        <div class="dashboard-section-grid dashboard-section-grid--4">
+        <div class="dashboard-recommended-grid">
             {{#recexplored}}
-                {{> theme_smartmind/dashboard/dashboard_course_card }}
+            <article class="recommended-card" data-course-id="{{{id}}}">
+                <a href="{{viewurl}}" class="recommended-card__thumb">
+                    {{#courseimage}}
+                    <img src="{{courseimage}}" class="recommended-card__thumb-img" alt="{{fullname}}" loading="lazy">
+                    {{/courseimage}}
+                    {{^courseimage}}
+                    <img src="https://picsum.photos/seed/rec{{{id}}}/600/400" class="recommended-card__thumb-img" alt="{{fullname}}" loading="lazy">
+                    {{/courseimage}}
+                    <div class="recommended-card__diffuse"></div>
+                </a>
+                <div class="recommended-card__info">
+                    {{#hascategory}}
+                    <span class="recommended-card__badge">{{categoryname}}</span>
+                    {{/hascategory}}
+                    <h3 class="recommended-card__title">
+                        <a href="{{viewurl}}">{{fullname}}</a>
+                    </h3>
+                    <div class="recommended-card__meta">
+                        <span><i class="fa fa-users"></i> {{studentcount}}</span>
+                        <span><i class="fa fa-book"></i> {{activitycount}}</span>
+                    </div>
+                </div>
+            </article>
             {{/recexplored}}
         </div>
         {{/hasrecexplored}}

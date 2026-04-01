@@ -146,6 +146,7 @@ $string['dashboard_activities_desc'] = 'Ejercicios y retos para poner en prácti
 $string['dashboard_itineraries'] = 'Itinerarios';
 $string['dashboard_itineraries_desc'] = 'Rutas de aprendizaje que agrupan varios cursos en un recorrido guiado';
 $string['dashboard_itinerary_courses'] = '{$a} cursos';
+$string['dashboard_coming_soon'] = 'Próximamente';
 $string['dashboard_progress_title'] = 'Tu progreso';
 $string['dashboard_duration'] = '{$a} min';
 $string['card_progress_label'] = 'completado';
