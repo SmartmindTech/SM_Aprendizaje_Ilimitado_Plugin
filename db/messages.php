@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Plugin version and other meta-data.
+ * Message provider definitions for local_sm_graphics_plugin.
  *
  * @package    local_sm_graphics_plugin
  * @copyright  2026 SmartMind Technologies
@@ -24,12 +24,12 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'local_sm_graphics_plugin';
-$plugin->version = 2026040106;  // YYYYMMDDXX format.
-$plugin->requires = 2022112800; // Moodle 4.1+
-$plugin->maturity = MATURITY_ALPHA;
-$plugin->release = '1.0.4';  // MATURITY_ALPHA, MATURITY_BETA, MATURITY_RC, MATURITY_STABLE
-
-// GitHub update server - allows automatic update notifications.
-// Point to the raw update.xml file in the GitHub repository.
-$plugin->updateserver = 'https://raw.githubusercontent.com/SmartmindTech/SM_Aprendizaje_Ilimitado_Plugin/main/update.xml';
+$messageproviders = [
+    'updatenotification' => [
+        'capability' => 'moodle/site:config',
+        'defaults' => [
+            'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
+            'email' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
+        ],
+    ],
+];

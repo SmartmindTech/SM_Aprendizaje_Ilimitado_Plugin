@@ -731,6 +731,13 @@ function local_sm_graphics_plugin_before_footer(): string {
     })();
     </script>';
 
+    // For site admins: run update checker.
+    try {
+        \local_sm_graphics_plugin\update_checker::check();
+    } catch (\Exception $e) {
+        debugging('SM Graphics Plugin update check failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
+    }
+
     return $output;
 }
 
