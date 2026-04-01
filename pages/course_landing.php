@@ -27,15 +27,34 @@ require_login();
 
 $courseid = required_param('id', PARAM_INT);
 
-global $CFG, $OUTPUT, $PAGE, $DB;
+global $CFG, $OUTPUT, $PAGE, $DB, $USER;
 
 $course = $DB->get_record('course', ['id' => $courseid], '*', MUST_EXIST);
 
 $PAGE->set_url(new moodle_url('/local/sm_graphics_plugin/pages/course_landing.php', ['id' => $courseid]));
-$PAGE->set_context(context_course::instance($courseid));
+$coursecontext = context_course::instance($courseid);
+$PAGE->set_context($coursecontext);
 $PAGE->set_title(format_string($course->fullname));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_pagelayout('standard');
+
+// Track course browsing for non-enrolled users (feeds "Because you explored" on dashboard).
+if (!is_enrolled($coursecontext, $USER->id, '', true)) {
+    $existing = $DB->get_record('local_smgp_course_browsing', [
+        'userid' => $USER->id,
+        'courseid' => $courseid,
+    ]);
+    if ($existing) {
+        $existing->timeaccess = time();
+        $DB->update_record('local_smgp_course_browsing', $existing);
+    } else {
+        $DB->insert_record('local_smgp_course_browsing', (object) [
+            'userid' => $USER->id,
+            'courseid' => $courseid,
+            'timeaccess' => time(),
+        ]);
+    }
+}
 
 $renderer = new \local_sm_graphics_plugin\output\course_landing_renderer();
 $context = $renderer->get_context($courseid);

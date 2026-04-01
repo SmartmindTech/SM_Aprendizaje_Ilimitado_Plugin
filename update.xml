@@ -2,7 +2,7 @@
 <updates>
     <update>
         <component>local_sm_graphics_plugin</component>
-        <version>2026040106</version>
+        <version>2026040107</version>
         <release>1.0.5</release>
         <requires>2022112800</requires>
         <maturity>50</maturity>
