@@ -547,11 +547,8 @@ define(['core/ajax', 'core/str'], function(Ajax, Str) {
             });
         }
 
-        // Clean up previous iframe resize listener.
-        var prevIframe = els.contentArea.querySelector('.smgp-course-content__iframe');
-        if (prevIframe && prevIframe._smgpResizeHandler) {
-            window.removeEventListener('message', prevIframe._smgpResizeHandler);
-        }
+        // Clean up previous iframe.
+        els.contentArea.querySelector('.smgp-course-content__iframe');
 
         els.contentArea.innerHTML = '<div class="smgp-course-content__loading">'
             + '<div class="spinner-border text-primary" role="status"></div>'
@@ -700,21 +697,8 @@ define(['core/ajax', 'core/str'], function(Ajax, Str) {
         els.contentArea.innerHTML = '';
         els.contentArea.appendChild(wrap);
 
-        // Auto-resize iframe to match its content height.
-        // The CSS wrapper handles max-height + overflow scroll.
-        var resizeHandler = function(event) {
-            if (!event.data || event.data.type !== 'smgp-iframe-resize') {
-                return;
-            }
-            var h = parseInt(event.data.height, 10);
-            if (h > 0) {
-                iframe.style.height = h + 'px';
-            }
-        };
-        window.addEventListener('message', resizeHandler);
-
-        // Clean up listener when iframe is removed.
-        iframe._smgpResizeHandler = resizeHandler;
+        // Height is handled purely by CSS (position: absolute inside the wrap).
+        // No JS resize handler needed — the iframe scrolls internally.
     };
 
     /**

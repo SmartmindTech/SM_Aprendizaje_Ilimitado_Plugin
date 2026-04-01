@@ -156,33 +156,37 @@ body.smgp-course-player #page-wrapper {
   }
 
   &__iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
+    height: 100%;
     border: none;
     border-radius: 0;
     color-scheme: light dark;
     display: block;
-    // Height set dynamically by JS via postMessage auto-resize.
-    // Falls back to min-height if no resize message received.
-    min-height: 70vh;
-    height: 100%;
   }
 
   // Rounded wrapper for the iframe.
+  // position: relative is the key — gives the absolute iframe a resolved height.
   &__iframe-wrap {
+    position: relative;
     width: 100%;
     flex: 1;
     overflow: hidden;
     min-width: 320px;
-    min-height: 70vh;
+    min-height: 0;
     border-radius: 14px;
   }
 
   // When content area has an iframe or document, stretch to fill.
   &:has(.smgp-course-content__iframe),
   &:has(.smgp-activity-content--resource) {
+    flex: 1 1 0;
+    min-height: 0;
     padding: 0;
     align-items: stretch;
-    overflow: visible;
+    overflow: hidden;
     max-height: none;
   }
 }
@@ -840,7 +844,7 @@ body.smgp-course-focus-active {
 
   &__toggle {
     position: absolute;
-    right: calc(320px + 24px); // sidebar width + right margin
+    right: calc(320px + 24px + clamp(1rem, 3vw, 4rem)); // sidebar width + right margin + body padding
     top: calc(16px + 47px); // sidebar top margin + header height, sits just below header
     width: 24px;
     height: 32px;
@@ -1127,8 +1131,11 @@ body.smgp-course-focus-active {
   max-height: 100%;
 }
 
-// Iframe fills its wrapper naturally — no transform zoom (breaks scroll).
+// Iframe fills its wrapper via absolute positioning — scrolls internally.
 .smgp-course-content__iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   min-width: 320px;
@@ -1218,6 +1225,12 @@ body.smgp-course-player {
 
 
 // ===== Embed Mode (iframed activity pages) =====
+// Ensure the iframe viewport can scroll (Moodle/theme may set overflow: hidden on html).
+html:has(> body.smgp-embedded) {
+  overflow: auto !important;
+  height: auto !important;
+}
+
 body.smgp-embedded {
   .navbar,
   #page-header,
@@ -1247,6 +1260,10 @@ body.smgp-embedded {
     display: none !important;
   }
 
+  // Force every Moodle wrapper to flow naturally so the iframe can scroll.
+  // Boost theme sets overflow:hidden / min-height:100vh on several of these,
+  // which clips content beyond the iframe viewport.
+  #page-wrapper,
   #page,
   #page.drawers,
   #page.drawers.drag-container {
@@ -1255,13 +1272,18 @@ body.smgp-embedded {
     margin: 0 !important;
     padding: 0 !important;
     background-color: #FFFFFF !important;
-
+    overflow: visible !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
   }
 
   #topofscroll,
   #page-content {
     margin: 0 !important;
     padding: 0 !important;
+    overflow: visible !important;
+    height: auto !important;
   }
 
   #region-main {
@@ -1274,16 +1296,21 @@ body.smgp-embedded {
     width: 100% !important;
     background: #FFFFFF !important;
     color: var(--smgp-text, $smgp-text) !important;
-    overflow-x: auto !important;
+    overflow: visible !important;
+    height: auto !important;
   }
 
   #region-main-box {
     padding: 0 !important;
     max-width: 100% !important;
     flex: 0 0 100% !important;
+    overflow: visible !important;
+    height: auto !important;
   }
 
-  // Ensure embedded body background matches the content area.
+  // Ensure embedded body scrolls and has correct background.
+  overflow: auto !important;
+  height: auto !important;
   background: #FFFFFF !important;
 
   // Hide Moodle completion condition tags ("Hecho: Ver", etc.)
@@ -1294,6 +1321,12 @@ body.smgp-embedded {
   [data-region="completion-info"],
   [data-region="completionrequirements"],
   [data-region="activity-information"] {
+    display: none !important;
+  }
+
+  // Hide "Back to the course" button — user navigates via the course player sidebar.
+  button[id^="single_button"].btn-secondary,
+  .singlebutton .btn-secondary {
     display: none !important;
   }
 
