@@ -432,3 +432,8 @@ $string['updateavailable_message_html'] = '<p>Hay una nueva versión de <strong>
 <tr><td><strong>Nueva versión:</strong></td><td>{$a->newversion}</td></tr>
 </table>
 <p>Para instalar la actualización, ve a <strong>Administración del sitio &gt; Plugins &gt; Instalar plugins</strong> y sube el nuevo ZIP.</p>';
+$string['updateplugin'] = 'Actualizar plugin SmartMind';
+$string['update_manual_title'] = 'Instrucciones de actualización manual';
+$string['update_manual_step1'] = 'Descarga el último ZIP desde GitHub:';
+$string['update_manual_step2'] = 'Ve al instalador de plugins de Moodle:';
+$string['update_manual_step3'] = 'Sube el ZIP y sigue las instrucciones en pantalla.';
