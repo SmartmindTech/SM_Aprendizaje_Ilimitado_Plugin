@@ -105,14 +105,17 @@ function xmldb_local_sm_graphics_plugin_upgrade($oldversion) {
         $dbman = $DB->get_manager();
         $table = new xmldb_table('local_smgp_course_pricing');
 
-        $field = new xmldb_field('duration_hours', XMLDB_TYPE_NUMBER, '6, 1', null, XMLDB_NOTNULL, null, '0', 'currency');
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
+        // Skip if table was created directly as course_meta by install.xml.
+        if ($dbman->table_exists($table)) {
+            $field = new xmldb_field('duration_hours', XMLDB_TYPE_NUMBER, '6, 1', null, XMLDB_NOTNULL, null, '0', 'currency');
+            if (!$dbman->field_exists($table, $field)) {
+                $dbman->add_field($table, $field);
+            }
 
-        $field2 = new xmldb_field('sepe_category', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'duration_hours');
-        if (!$dbman->field_exists($table, $field2)) {
-            $dbman->add_field($table, $field2);
+            $field2 = new xmldb_field('sepe_category', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'duration_hours');
+            if (!$dbman->field_exists($table, $field2)) {
+                $dbman->add_field($table, $field2);
+            }
         }
 
         upgrade_plugin_savepoint(true, 2026032001, 'local', 'sm_graphics_plugin');
@@ -149,30 +152,33 @@ function xmldb_local_sm_graphics_plugin_upgrade($oldversion) {
         $dbman = $DB->get_manager();
         $table = new xmldb_table('local_smgp_course_pricing');
 
-        // Add new fields.
-        $descfield = new xmldb_field('description', XMLDB_TYPE_TEXT, null, null, null, null, null, 'duration_hours');
-        if (!$dbman->field_exists($table, $descfield)) {
-            $dbman->add_field($table, $descfield);
-        }
+        // Skip if table was created directly as course_meta by install.xml.
+        if ($dbman->table_exists($table)) {
+            // Add new fields.
+            $descfield = new xmldb_field('description', XMLDB_TYPE_TEXT, null, null, null, null, null, 'duration_hours');
+            if (!$dbman->field_exists($table, $descfield)) {
+                $dbman->add_field($table, $descfield);
+            }
 
-        $catfield = new xmldb_field('course_category', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'description');
-        if (!$dbman->field_exists($table, $catfield)) {
-            $dbman->add_field($table, $catfield);
-        }
+            $catfield = new xmldb_field('course_category', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'description');
+            if (!$dbman->field_exists($table, $catfield)) {
+                $dbman->add_field($table, $catfield);
+            }
 
-        $smcodefield = new xmldb_field('smartmind_code', XMLDB_TYPE_CHAR, '50', null, null, null, null, 'course_category');
-        if (!$dbman->field_exists($table, $smcodefield)) {
-            $dbman->add_field($table, $smcodefield);
-        }
+            $smcodefield = new xmldb_field('smartmind_code', XMLDB_TYPE_CHAR, '50', null, null, null, null, 'course_category');
+            if (!$dbman->field_exists($table, $smcodefield)) {
+                $dbman->add_field($table, $smcodefield);
+            }
 
-        // Rename sepe_category → sepe_code.
-        $sepeold = new xmldb_field('sepe_category', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'smartmind_code');
-        if ($dbman->field_exists($table, $sepeold)) {
-            $dbman->rename_field($table, $sepeold, 'sepe_code');
-        } else {
-            $sepenew = new xmldb_field('sepe_code', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'smartmind_code');
-            if (!$dbman->field_exists($table, $sepenew)) {
-                $dbman->add_field($table, $sepenew);
+            // Rename sepe_category → sepe_code.
+            $sepeold = new xmldb_field('sepe_category', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'smartmind_code');
+            if ($dbman->field_exists($table, $sepeold)) {
+                $dbman->rename_field($table, $sepeold, 'sepe_code');
+            } else {
+                $sepenew = new xmldb_field('sepe_code', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'smartmind_code');
+                if (!$dbman->field_exists($table, $sepenew)) {
+                    $dbman->add_field($table, $sepenew);
+                }
             }
         }
 
@@ -284,14 +290,17 @@ function xmldb_local_sm_graphics_plugin_upgrade($oldversion) {
         $dbman = $DB->get_manager();
         $table = new xmldb_table('local_smgp_course_pricing');
 
-        $levelfield = new xmldb_field('level', XMLDB_TYPE_CHAR, '20', null, null, null, 'beginner', 'sepe_code');
-        if (!$dbman->field_exists($table, $levelfield)) {
-            $dbman->add_field($table, $levelfield);
-        }
+        // Skip if table was created directly as course_meta by install.xml.
+        if ($dbman->table_exists($table)) {
+            $levelfield = new xmldb_field('level', XMLDB_TYPE_CHAR, '20', null, null, null, 'beginner', 'sepe_code');
+            if (!$dbman->field_exists($table, $levelfield)) {
+                $dbman->add_field($table, $levelfield);
+            }
 
-        $completionfield = new xmldb_field('completion_percentage', XMLDB_TYPE_INTEGER, '3', null, XMLDB_NOTNULL, null, '100', 'level');
-        if (!$dbman->field_exists($table, $completionfield)) {
-            $dbman->add_field($table, $completionfield);
+            $completionfield = new xmldb_field('completion_percentage', XMLDB_TYPE_INTEGER, '3', null, XMLDB_NOTNULL, null, '100', 'level');
+            if (!$dbman->field_exists($table, $completionfield)) {
+                $dbman->add_field($table, $completionfield);
+            }
         }
 
         upgrade_plugin_savepoint(true, 2026032404, 'local', 'sm_graphics_plugin');
