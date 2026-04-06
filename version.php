@@ -25,10 +25,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_sm_graphics_plugin';
-$plugin->version = 2026040602;  // YYYYMMDDXX format.
+$plugin->version = 2026040603;  // YYYYMMDDXX format.
 $plugin->requires = 2022112800; // Moodle 4.1+
 $plugin->maturity = MATURITY_ALPHA;
-$plugin->release = '1.0.7';  // MATURITY_ALPHA, MATURITY_BETA, MATURITY_RC, MATURITY_STABLE
+$plugin->release = '1.0.8';  // MATURITY_ALPHA, MATURITY_BETA, MATURITY_RC, MATURITY_STABLE
 
 // GitHub update server - allows automatic update notifications.
 // Branch is configurable via UPDATE_BRANCH in .env (default: main).

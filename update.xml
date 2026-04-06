@@ -2,11 +2,11 @@
 <updates>
     <update>
         <component>local_sm_graphics_plugin</component>
-        <version>2026040601</version>
-        <release>1.0.7</release>
+        <version>2026040603</version>
+        <release>1.0.8</release>
         <requires>2022112800</requires>
         <maturity>50</maturity>
-        <download>https://github.com/SmartmindTech/SM_Aprendizaje_Ilimitado_Plugin/releases/download/v1.0.7/sm_graphics_plugin.zip</download>
-        <url>https://github.com/SmartmindTech/SM_Aprendizaje_Ilimitado_Plugin/releases/tag/v1.0.7</url>
+        <download>https://github.com/SmartmindTech/SM_Aprendizaje_Ilimitado_Plugin/releases/download/v1.0.8/sm_graphics_plugin.zip</download>
+        <url>https://github.com/SmartmindTech/SM_Aprendizaje_Ilimitado_Plugin/releases/tag/v1.0.8</url>
     </update>
 </updates>
