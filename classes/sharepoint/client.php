@@ -52,6 +52,7 @@ class client {
      */
     private static function get_config(): array {
         // Read from plugin config.php first, fall back to admin settings.
+        require_once(dirname(__DIR__, 2) . '/lib.php');
         $conf = \local_sm_graphics_plugin_load_config();
         return [
             'tenant_id'     => $conf['azure_tenant_id'] ?? get_config('local_sm_graphics_plugin', 'sp_tenant_id') ?: '',
