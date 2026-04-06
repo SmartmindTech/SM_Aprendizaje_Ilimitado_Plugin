@@ -29,8 +29,8 @@ defined('MOODLE_INTERNAL') || die();
  */
 class update_checker {
 
-    /** @var string URL to the update.xml file */
-    const UPDATE_URL = 'https://raw.githubusercontent.com/SmartmindTech/SM_Aprendizaje_Ilimitado_Plugin/main/update.xml';
+    /** @var string Base URL template — {branch} is replaced at runtime. */
+    const UPDATE_URL_TPL = 'https://raw.githubusercontent.com/SmartmindTech/SM_Aprendizaje_Ilimitado_Plugin/{branch}/update.xml';
 
     /** @var string Config key for cached update info */
     const CONFIG_UPDATE_INFO = 'cached_update_info';
@@ -149,6 +149,27 @@ class update_checker {
     }
 
     /**
+     * Resolve the update branch from .env (UPDATE_BRANCH), defaulting to 'main'.
+     *
+     * @return string Branch name.
+     */
+    private static function get_update_branch(): string {
+        $envfile = dirname(__DIR__) . '/.env';
+        if (file_exists($envfile)) {
+            $lines = file($envfile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+            foreach ($lines as $line) {
+                if (strpos($line, 'UPDATE_BRANCH=') === 0) {
+                    $branch = trim(substr($line, 14));
+                    if ($branch !== '') {
+                        return $branch;
+                    }
+                }
+            }
+        }
+        return 'main';
+    }
+
+    /**
      * Fetch update information from GitHub.
      *
      * @return array|null Update info array or null on failure.
@@ -170,7 +191,8 @@ class update_checker {
             ],
         ]);
 
-        $url = self::UPDATE_URL . '?t=' . time();
+        $branch = self::get_update_branch();
+        $url = str_replace('{branch}', $branch, self::UPDATE_URL_TPL) . '?t=' . time();
         $content = $curl->get($url);
 
         if ($curl->get_errno() || empty($content)) {
