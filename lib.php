@@ -54,6 +54,72 @@ function local_sm_graphics_plugin_enroll_user(int $userid, int $courseid, int $r
 }
 
 /**
+ * Load plugin configuration from the .env file.
+ *
+ * Keys are lowercased and returned with the same names that config.php
+ * used (e.g. SMTP_HOST → smtp_host, AZURE_TENANT_ID → azure_tenant_id)
+ * so every call-site keeps working without changes.
+ *
+ * @return array Key-value pairs from .env, or empty array if missing.
+ */
+function local_sm_graphics_plugin_load_config(): array {
+    static $cache = null;
+    if ($cache !== null) {
+        return $cache;
+    }
+    $cache = [];
+    $path = __DIR__ . '/.env';
+    if (!file_exists($path)) {
+        return $cache;
+    }
+    $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        $line = trim($line);
+        if ($line === '' || $line[0] === '#') {
+            continue;
+        }
+        $pos = strpos($line, '=');
+        if ($pos === false) {
+            continue;
+        }
+        $key = strtolower(trim(substr($line, 0, $pos)));
+        $value = trim(substr($line, $pos + 1));
+        $cache[$key] = $value;
+    }
+    return $cache;
+}
+
+/**
+ * Apply SMTP settings from the plugin's config.php to Moodle's $CFG.
+ *
+ * Called on every page load via extend_navigation. Reads credentials
+ * from config.php so they're baked into the plugin — no admin UI needed.
+ */
+function local_sm_graphics_plugin_apply_smtp_config(): void {
+    global $CFG;
+
+    // Don't override if Moodle already has SMTP configured.
+    if (!empty($CFG->smtphosts)) {
+        return;
+    }
+
+    $conf = local_sm_graphics_plugin_load_config();
+    if (empty($conf['smtp_host'])) {
+        return;
+    }
+
+    $CFG->smtphosts    = $conf['smtp_host'];
+    $CFG->smtpsecure   = $conf['smtp_security'] ?? 'tls';
+    $CFG->smtpauthtype = 'LOGIN';
+    $CFG->smtpuser     = $conf['smtp_username'] ?? '';
+    $CFG->smtppass     = $conf['smtp_password'] ?? '';
+
+    if (!empty($conf['smtp_noreply'])) {
+        $CFG->noreplyaddress = $conf['smtp_noreply'];
+    }
+}
+
+/**
  * Redirect user/profile.php to our custom profile page.
  */
 function local_sm_graphics_plugin_before_http_headers() {
@@ -80,6 +146,9 @@ function local_sm_graphics_plugin_before_http_headers() {
  */
 function local_sm_graphics_plugin_extend_navigation(global_navigation $navigation) {
     global $PAGE, $USER, $DB;
+
+    // Apply SMTP configuration from plugin settings.
+    local_sm_graphics_plugin_apply_smtp_config();
 
     $renames = [
         'home'      => get_string('nav_home',      'local_sm_graphics_plugin'),

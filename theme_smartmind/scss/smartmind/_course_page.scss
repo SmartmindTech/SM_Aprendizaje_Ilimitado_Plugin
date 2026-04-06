@@ -1090,6 +1090,12 @@ body.smgp-course-focus-active {
 @media (max-width: $smgp-bp-lg) {
   .smgp-course-body {
     flex-direction: column;
+    padding: 0;
+  }
+
+  .smgp-course-main {
+    width: 100%;
+    padding: 0.75rem 1rem;
   }
 
   .smgp-course-sidebar {
@@ -1123,9 +1129,26 @@ body.smgp-course-focus-active {
     }
   }
 
+  .smgp-course-activity-info__title {
+    font-size: 20px;
+  }
 }
 
 @media (max-width: $smgp-bp-sm) {
+  .smgp-course-body {
+    position: fixed;
+    padding: 0;
+  }
+
+  .smgp-course-main {
+    padding: 0.5rem 0.75rem;
+  }
+
+  .smgp-course-content {
+    border-radius: 10px;
+    min-height: 50vh;
+  }
+
   .smgp-course-tabs__tab {
     padding: $smgp-space-xs $smgp-space-sm;
     font-size: $smgp-font-xs;
@@ -1133,6 +1156,14 @@ body.smgp-course-focus-active {
 
   .smgp-course-activity {
     padding-left: $smgp-space-lg;
+  }
+
+  .smgp-course-activity-info__title {
+    font-size: 18px;
+  }
+
+  .smgp-course-breadcrumb {
+    font-size: 11px;
   }
 
   .smgp-grades-table__bar-cell {

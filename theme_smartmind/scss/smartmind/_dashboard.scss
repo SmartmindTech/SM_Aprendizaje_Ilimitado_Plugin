@@ -40,13 +40,6 @@ body#page-my-index {
         flex: 1 !important;
         min-width: 0;
     }
-
-    .main-inner,
-    .header-maxwidth {
-        max-width: 75% !important;
-        margin-left: auto !important;
-        margin-right: auto !important;
-    }
 }
 
 // Hide default Moodle dashboard blocks.
@@ -60,7 +53,7 @@ section.block_timeline {
 // CATALOG DASHBOARD — Main wrapper
 // ═══════════════════════════════════════════════════════════════════
 .catalog-dashboard {
-    max-width: 1100px;
+    width: 100%;
     margin: 0 auto;
     padding: $smgp-space-lg 0;
     display: flex;

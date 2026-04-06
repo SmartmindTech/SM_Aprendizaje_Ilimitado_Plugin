@@ -498,6 +498,22 @@ function theme_smartmind_reorder_nodes(array $nodes, array $order): array {
  * @param array &$primarymenu The primary menu array.
  */
 function theme_smartmind_fix_active_nav(array &$primarymenu) {
+    global $PAGE;
+
+    $currenturl = $PAGE->url->out(false);
+    $currentpath = parse_url($currenturl, PHP_URL_PATH);
+
+    // Map current page paths to the nav node key that should be active.
+    // This handles pages whose URL doesn't match the node's URL directly.
+    $pathtokeymap = [
+        '/local/sm_graphics_plugin/pages/iomaddashboard.php' => 'ioaddashboardnode',
+        '/local/sm_estratoos_plugin/index.php'               => 'ioaddashboardnode',
+        '/blocks/iomad_company_admin/index.php'              => 'ioaddashboardnode',
+        '/local/sm_graphics_plugin/pages/coursemanagement.php' => 'mycourses',
+    ];
+
+    $forcedkey = $pathtokeymap[$currentpath] ?? null;
+
     $paths = [
         ['moremenu', 'nodecollection', 'nodes'],
         ['moremenu', 'nodearray'],
@@ -517,13 +533,47 @@ function theme_smartmind_fix_active_nav(array &$primarymenu) {
             continue;
         }
 
-        // Find all active nodes and pick the best one.
+        // First pass: find match by forced key map or by URL.
+        $match = null;
+        foreach ($ref as $i => &$node) {
+            $nodekey = $node['key'] ?? '';
+
+            // Match by key map.
+            if ($forcedkey !== null && $nodekey === $forcedkey) {
+                $match = $i;
+                break;
+            }
+
+            // Match by URL path.
+            $nodeurl = $node['url'] ?? '';
+            if (is_object($nodeurl) && method_exists($nodeurl, 'out')) {
+                $nodeurl = $nodeurl->out(false);
+            }
+            if (!empty($nodeurl) && is_string($nodeurl)) {
+                $nodepath = parse_url($nodeurl, PHP_URL_PATH);
+                if ($nodepath && $currentpath === $nodepath) {
+                    $match = $i;
+                    break;
+                }
+            }
+        }
+        unset($node);
+
+        // If we found a match, mark only that node as active.
+        if ($match !== null) {
+            foreach ($ref as $i => &$node) {
+                $ref[$i]['isactive'] = ($i === $match);
+            }
+            unset($node);
+            continue;
+        }
+
+        // No match — fall back to keeping only one active node.
         $activeindexes = [];
         $customactive = null;
         foreach ($ref as $i => &$node) {
             if (!empty($node['isactive'])) {
                 $activeindexes[] = $i;
-                // Custom items (sm-*) get priority.
                 if (strpos($node['key'] ?? '', 'sm-') === 0) {
                     $customactive = $i;
                 }
@@ -531,7 +581,6 @@ function theme_smartmind_fix_active_nav(array &$primarymenu) {
         }
         unset($node);
 
-        // If more than one is active, keep only the best match.
         if (count($activeindexes) > 1) {
             $keep = $customactive !== null ? $customactive : end($activeindexes);
             foreach ($activeindexes as $idx) {

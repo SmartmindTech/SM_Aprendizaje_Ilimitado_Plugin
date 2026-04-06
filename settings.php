@@ -211,6 +211,54 @@ if ($ADMIN->fulltree) {
         '',
         PARAM_URL
     ));
+
+    // -----------------------------------------------------------------------
+    // Email / SMTP configuration
+    // -----------------------------------------------------------------------
+    $settings->add(new admin_setting_heading(
+        'local_sm_graphics_plugin/smtp_heading',
+        get_string('smtp_heading', 'local_sm_graphics_plugin'),
+        get_string('smtp_heading_desc', 'local_sm_graphics_plugin')
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'local_sm_graphics_plugin/smtp_host',
+        get_string('smtp_host', 'local_sm_graphics_plugin'),
+        get_string('smtp_host_desc', 'local_sm_graphics_plugin'),
+        'smtp.office365.com:587',
+        PARAM_TEXT
+    ));
+
+    $settings->add(new admin_setting_configselect(
+        'local_sm_graphics_plugin/smtp_security',
+        get_string('smtp_security', 'local_sm_graphics_plugin'),
+        get_string('smtp_security_desc', 'local_sm_graphics_plugin'),
+        'tls',
+        ['none' => 'Ninguno', 'ssl' => 'SSL', 'tls' => 'TLS']
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'local_sm_graphics_plugin/smtp_username',
+        get_string('smtp_username', 'local_sm_graphics_plugin'),
+        get_string('smtp_username_desc', 'local_sm_graphics_plugin'),
+        '',
+        PARAM_TEXT
+    ));
+
+    $settings->add(new admin_setting_configpasswordunmask(
+        'local_sm_graphics_plugin/smtp_password',
+        get_string('smtp_password', 'local_sm_graphics_plugin'),
+        get_string('smtp_password_desc', 'local_sm_graphics_plugin'),
+        ''
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'local_sm_graphics_plugin/smtp_noreply',
+        get_string('smtp_noreply', 'local_sm_graphics_plugin'),
+        get_string('smtp_noreply_desc', 'local_sm_graphics_plugin'),
+        'noreply-smartlearning@smartmind.net',
+        PARAM_EMAIL
+    ));
 }
 
 // -----------------------------------------------------------------------

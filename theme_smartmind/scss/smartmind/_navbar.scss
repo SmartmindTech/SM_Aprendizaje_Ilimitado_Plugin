@@ -303,9 +303,18 @@
 @media (max-width: 768px) {
     .smgp-topnav {
         padding: 0 1rem;
+        height: 50px;
 
         &__center {
             display: none; // Hide nav items on mobile — use drawer instead
+        }
+
+        &__logo img {
+            height: 26px;
+        }
+
+        &__user-area {
+            font-size: 1.25rem !important;
         }
     }
 }

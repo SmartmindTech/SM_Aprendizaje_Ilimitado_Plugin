@@ -220,6 +220,79 @@ class observer {
     }
 
     /**
+     * Send login credentials email immediately when a new user is created.
+     *
+     * @param \core\event\user_created $event
+     */
+    public static function user_created(\core\event\user_created $event): void {
+        global $DB, $CFG;
+
+        error_log("SmartMind credentials: user_created observer FIRED for relateduserid={$event->relateduserid}");
+
+        $userid = $event->relateduserid;
+        if (empty($userid)) {
+            error_log("SmartMind credentials: no relateduserid — aborting.");
+            return;
+        }
+
+        $user = $DB->get_record('user', ['id' => $userid]);
+        if (!$user || $user->deleted || $user->suspended) {
+            return;
+        }
+
+        // Prevent sending credentials more than once.
+        if (get_user_preferences('smgp_credentials_sent', false, $user->id)) {
+            return;
+        }
+
+        // Look up IOMAD company (may not exist yet for non-IOMAD users).
+        $companyrec = $DB->get_record('company_users', ['userid' => $user->id]);
+        $companyname = '';
+        if ($companyrec) {
+            // Skip managers — only send to students.
+            if (!empty($companyrec->managertype)) {
+                return;
+            }
+            $companyname = $DB->get_field('company', 'name', ['id' => $companyrec->companyid]);
+        }
+
+        // Generate a temporary password.
+        $temppassword = generate_password(12);
+        update_internal_user_password($user, $temppassword);
+        set_user_preference('auth_forcepasswordchange', 1, $user->id);
+
+        // Build email content.
+        $loginurl = $CFG->wwwroot . '/login/index.php';
+        $sitename = format_string(get_site()->fullname);
+
+        $a = (object) [
+            'firstname' => $user->firstname,
+            'username'  => $user->username,
+            'password'  => $temppassword,
+            'loginurl'  => $loginurl,
+            'sitename'  => $sitename,
+            'company'   => $companyname ?? '',
+        ];
+
+        $subject  = get_string('newuser_email_subject', 'local_sm_graphics_plugin', $a);
+        $htmlbody = get_string('newuser_email_body_html', 'local_sm_graphics_plugin', $a);
+        $textbody = get_string('newuser_email_body', 'local_sm_graphics_plugin', $a);
+
+        // Send via Microsoft Graph API.
+        require_once(__DIR__ . '/graph_mailer.php');
+        error_log("SmartMind credentials: attempting to send to {$user->email}");
+        $sent = \local_sm_graphics_plugin\graph_mailer::send($user->email, $subject, $htmlbody, $textbody);
+
+        if ($sent) {
+            set_user_preference('smgp_credentials_sent', 1, $user->id);
+            error_log("SmartMind credentials: SUCCESS sent to {$user->email}");
+        } else {
+            $error = \local_sm_graphics_plugin\graph_mailer::get_last_error();
+            error_log("SmartMind credentials: FAILED to send to {$user->email}: {$error}");
+        }
+    }
+
+    /**
      * Save the student limit when a company is created or updated.
      *
      * The "Max students" field is injected into the IOMAD company edit

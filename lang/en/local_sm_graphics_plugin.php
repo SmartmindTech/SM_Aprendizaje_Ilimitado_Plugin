@@ -80,125 +80,169 @@ $string['welcome_title']      = 'Bienvenida';
 $string['welcome_heading']    = 'Bienvenido a SmartMind';
 
 // Catalogue categories.
-$string['catalogue_category'] = 'Categoría del catálogo';
+$string['catalogue_category'] = 'Catalogue category';
 
 // Navigation label overrides.
-$string['nav_home']       = 'Catálogo';
+$string['nav_home']       = 'Catalogue';
 $string['nav_dashboard']  = 'Espacio personal';
-$string['nav_mycourses']  = 'Añadir curso';
+$string['nav_mycourses']  = 'Add course';
 
 // User management page (company managers).
-$string['usermgmt_title']             = 'Gestión de usuarios';
-$string['usermgmt_heading']           = 'Gestión de usuarios';
-$string['usermgmt_createuser']        = 'Crear usuario';
-$string['usermgmt_createuser_desc']   = 'Crear una nueva cuenta de usuario para tu empresa.';
-$string['usermgmt_editusers']         = 'Editar usuarios';
-$string['usermgmt_editusers_desc']    = 'Ver y editar los perfiles de usuarios existentes.';
-$string['usermgmt_deptusers']         = 'Usuarios por departamento';
-$string['usermgmt_deptusers_desc']    = 'Gestionar la asignación de usuarios por departamento.';
-$string['usermgmt_uploadusers']       = 'Subir usuarios';
-$string['usermgmt_uploadusers_desc']  = 'Carga masiva de usuarios desde un archivo CSV.';
-$string['usermgmt_bulkdownload']      = 'Descarga masiva de usuarios';
-$string['usermgmt_bulkdownload_desc'] = 'Descargar datos de usuarios de forma masiva.';
-$string['usermgmt_userlist']          = 'Usuarios registrados';
-$string['usermgmt_th_name']           = 'Nombre';
-$string['usermgmt_th_email']          = 'Correo electrónico';
-$string['usermgmt_th_lastaccess']     = 'Última conexión';
-$string['usermgmt_th_actions']        = 'Acciones';
-$string['usermgmt_edit']              = 'Editar';
-$string['usermgmt_delete']            = 'Eliminar';
-$string['usermgmt_delete_confirm']    = '¿Seguro que quieres eliminar este usuario? Esta acción no se puede deshacer.';
-$string['usermgmt_deleted']           = 'Usuario eliminado correctamente.';
-$string['usermgmt_never']             = 'Nunca';
-$string['usermgmt_nousers']           = 'No se encontraron usuarios registrados en tu empresa.';
+$string['usermgmt_title']             = 'User management';
+$string['usermgmt_heading']           = 'User management';
+$string['usermgmt_createuser']        = 'Create user';
+$string['usermgmt_createuser_desc']   = 'Create a new user account for your company.';
+$string['usermgmt_editusers']         = 'Edit users';
+$string['usermgmt_editusers_desc']    = 'View and edit existing user profiles.';
+$string['usermgmt_deptusers']         = 'Users by department';
+$string['usermgmt_deptusers_desc']    = 'Manage user assignment by department.';
+$string['usermgmt_uploadusers']       = 'Upload users';
+$string['usermgmt_uploadusers_desc']  = 'Bulk upload users from a CSV file.';
+$string['usermgmt_bulkdownload']      = 'Bulk user download';
+$string['usermgmt_bulkdownload_desc'] = 'Download user data in bulk.';
+$string['usermgmt_userlist']          = 'Registered users';
+$string['usermgmt_th_name']           = 'Name';
+$string['usermgmt_th_email']          = 'Email';
+$string['usermgmt_th_lastaccess']     = 'Last access';
+$string['usermgmt_th_actions']        = 'Actions';
+$string['usermgmt_edit']              = 'Edit';
+$string['usermgmt_delete']            = 'Delete';
+$string['usermgmt_delete_confirm']    = 'Are you sure you want to delete this user? This action cannot be undone.';
+$string['usermgmt_deleted']           = 'User deleted successfully.';
+$string['usermgmt_never']             = 'Never';
+$string['usermgmt_nousers']           = 'No registered users found in your company.';
 
 // Other management page — category labels (sub-options come from IOMAD lang files).
-$string['othermgmt_title']              = 'Otras gestiones';
-$string['othermgmt_heading']            = 'Otras gestiones';
-$string['othermgmt_companies']          = 'Empresas';
-$string['othermgmt_courses']            = 'Cursos';
-$string['othermgmt_licenses']           = 'Licencias';
-$string['othermgmt_competences']        = 'Competencias';
-$string['othermgmt_reports']            = 'Informes';
+$string['othermgmt_title']              = 'Other management';
+$string['othermgmt_heading']            = 'Other management';
+$string['othermgmt_companies']          = 'Companies';
+$string['othermgmt_courses']            = 'Courses';
+$string['othermgmt_licenses']           = 'Licenses';
+$string['othermgmt_competences']        = 'Competences';
+$string['othermgmt_reports']            = 'Reports';
 
 // Company student limits (admin page).
-$string['companylimits_heading']       = 'Límites de estudiantes por empresa';
-$string['companylimits_button']        = 'Gestionar límites de empresa';
-$string['companylimits_button_desc']   = 'Establece el número máximo de estudiantes que puede registrar cada empresa.';
-$string['companylimits_title']         = 'Límites de estudiantes por empresa';
-$string['companylimits_th_company']    = 'Empresa';
-$string['companylimits_th_shortname']  = 'Nombre corto';
-$string['companylimits_th_students']   = 'Estudiantes actuales';
-$string['companylimits_th_maxlimit']   = 'Máx. estudiantes';
-$string['companylimits_th_status']     = 'Estado';
-$string['companylimits_unlimited']     = 'Ilimitado';
+$string['companylimits_heading']       = 'Student limits per company';
+$string['companylimits_button']        = 'Manage company limits';
+$string['companylimits_button_desc']   = 'Set the maximum number of students each company can register.';
+$string['companylimits_title']         = 'Student limits per company';
+$string['companylimits_th_company']    = 'Company';
+$string['companylimits_th_shortname']  = 'Short name';
+$string['companylimits_th_students']   = 'Current students';
+$string['companylimits_th_maxlimit']   = 'Max. students';
+$string['companylimits_th_status']     = 'Status';
+$string['companylimits_unlimited']     = 'Unlimited';
 $string['companylimits_ok']            = 'OK';
-$string['companylimits_full']          = 'Completo';
-$string['companylimits_save']          = 'Guardar límites';
-$string['companylimits_saved']         = 'Límites de estudiantes guardados correctamente.';
-$string['companylimits_help']          = 'Pon 0 para estudiantes ilimitados.';
-$string['companylimits_field_label']   = 'Máximo de usuarios activos';
+$string['companylimits_full']          = 'Full';
+$string['companylimits_save']          = 'Save limits';
+$string['companylimits_saved']         = 'Student limits saved successfully.';
+$string['companylimits_help']          = 'Set 0 for unlimited students.';
+$string['companylimits_field_label']   = 'Maximum active users';
 
 // Upload users page.
-$string['uploadusers_title']       = 'Subir usuarios';
-$string['uploadusers_subtitle']    = 'Importar usuarios desde un archivo CSV a tu empresa.';
-$string['uploadusers_file']        = 'Seleccionar archivo CSV';
-$string['uploadusers_file_help']   = 'Formato .csv — separado por comas, codificación UTF-8';
-$string['uploadusers_type']        = 'Tipo de carga';
-$string['uploadusers_submit']      = 'Subir';
-$string['uploadusers_cancel']      = 'Cancelar';
-$string['uploadusers_nofile']      = 'No se ha subido ningún archivo. Selecciona un archivo CSV.';
-$string['uploadusers_empty']       = 'El archivo CSV está vacío o no se pudo leer.';
+$string['uploadusers_title']       = 'Upload users';
+$string['uploadusers_subtitle']    = 'Import users from a CSV file to your company.';
+$string['uploadusers_file']        = 'Select CSV file';
+$string['uploadusers_file_help']   = '.csv format — comma-separated, UTF-8 encoding';
+$string['uploadusers_type']        = 'Upload type';
+$string['uploadusers_submit']      = 'Upload';
+$string['uploadusers_cancel']      = 'Cancel';
+$string['uploadusers_nofile']      = 'No file was uploaded. Please select a CSV file.';
+$string['uploadusers_empty']       = 'The CSV file is empty or could not be read.';
 
 // User management — limit display.
-$string['usermgmt_limit_reached']      = 'Se ha alcanzado el número máximo de estudiantes de tu empresa. No puedes crear nuevos usuarios hasta que se aumente el límite.';
-$string['usermgmt_upload_exceeds']     = 'El archivo CSV contiene {$a->csvcount} usuarios, pero tu empresa solo tiene {$a->remaining} plazas disponibles (límite: {$a->limit}). No se importaron usuarios. Reduce el archivo o solicita un límite mayor.';
+$string['usermgmt_limit_reached']      = 'Your company has reached the maximum number of students. You cannot create new users until the limit is increased.';
+$string['usermgmt_upload_exceeds']     = 'The CSV file contains {$a->csvcount} users, but your company only has {$a->remaining} available slots (limit: {$a->limit}). No users were imported. Reduce the file or request a higher limit.';
 
 // Course pricing.
-$string['pricing_header']         = 'Precios';
-$string['pricing_amount']         = 'Precio';
-$string['pricing_amount_help']    = 'Establece el precio del curso. Usa 0 para cursos gratuitos.';
-$string['pricing_currency']       = 'Moneda';
-$string['pricing_error_negative'] = 'El precio no puede ser negativo.';
+$string['pricing_header']         = 'Pricing';
+$string['pricing_amount']         = 'Price';
+$string['pricing_amount_help']    = 'Set the course price. Use 0 for free courses.';
+$string['pricing_currency']       = 'Currency';
+$string['pricing_error_negative'] = 'The price cannot be negative.';
 
 // Course comments.
-$string['comments_title'] = 'Comentarios';
-$string['comments_newest'] = 'Más recientes';
-$string['comments_oldest'] = 'Más antiguos';
-$string['comments_empty'] = 'Aún no hay comentarios. ¡Sé el primero en compartir tu opinión!';
-$string['comments_load_more'] = 'Cargar más comentarios';
-$string['comments_post'] = 'Publicar comentario';
-$string['comments_post_reply'] = 'Publicar respuesta';
-$string['comments_write'] = 'Escribe un comentario...';
-$string['comments_write_reply'] = 'Escribe una respuesta...';
-$string['comments_edit'] = 'Editar';
-$string['comments_delete'] = 'Eliminar';
-$string['comments_delete_confirm'] = '¿Seguro que quieres eliminar este comentario? Esta acción no se puede deshacer.';
-$string['comments_edited'] = 'editado';
-$string['comments_reply'] = 'Responder';
-$string['comments_replies'] = 'Respuestas';
-$string['comments_search_users'] = 'Buscar usuarios...';
-$string['comments_no_users'] = 'No se encontraron usuarios';
-$string['comments_just_now'] = 'Ahora mismo';
+$string['comments_title'] = 'Comments';
+$string['comments_newest'] = 'Newest';
+$string['comments_oldest'] = 'Oldest';
+$string['comments_empty'] = 'No comments yet. Be the first to share your opinion!';
+$string['comments_load_more'] = 'Load more comments';
+$string['comments_post'] = 'Post comment';
+$string['comments_post_reply'] = 'Post reply';
+$string['comments_write'] = 'Write a comment...';
+$string['comments_write_reply'] = 'Write a reply...';
+$string['comments_edit'] = 'Edit';
+$string['comments_delete'] = 'Delete';
+$string['comments_delete_confirm'] = 'Are you sure you want to delete this comment? This action cannot be undone.';
+$string['comments_edited'] = 'edited';
+$string['comments_reply'] = 'Reply';
+$string['comments_replies'] = 'Replies';
+$string['comments_search_users'] = 'Search users...';
+$string['comments_no_users'] = 'No users found';
+$string['comments_just_now'] = 'Just now';
 $string['comments_minutes_ago'] = 'min';
 $string['comments_hours_ago'] = 'h';
 $string['comments_days_ago'] = 'd';
-$string['comments_slide'] = 'Diapositiva';
-$string['comments_question'] = 'Pregunta';
-$string['comments_chapter'] = 'Capítulo';
-$string['comments_page'] = 'Página';
-$string['comments_position'] = 'Posición';
+$string['comments_slide'] = 'Slide';
+$string['comments_question'] = 'Question';
+$string['comments_chapter'] = 'Chapter';
+$string['comments_page'] = 'Page';
+$string['comments_position'] = 'Position';
 
 // Statistics page.
-$string['stats_title']              = 'Estadísticas';
-$string['stats_heading']            = 'Estadísticas';
-$string['stats_active_5days']       = 'Conectados (últimos 5 días)';
-$string['stats_courses_started']    = 'Cursos iniciados';
-$string['stats_courses_completed']  = 'Cursos completados';
-$string['stats_completion_rate']    = 'Tasa de completado';
-$string['stats_courses_available']  = 'Cursos disponibles';
-$string['stats_weekly_completions'] = 'Cursos completados por semana';
-$string['stats_weekly_active']      = 'Usuarios únicos conectados por semana';
+$string['stats_title']              = 'Statistics';
+$string['stats_heading']            = 'Statistics';
+$string['stats_active_5days']       = 'Connected (last 5 days)';
+$string['stats_courses_started']    = 'Courses started';
+$string['stats_courses_completed']  = 'Courses completed';
+$string['stats_completion_rate']    = 'Completion rate';
+$string['stats_courses_available']  = 'Courses available';
+$string['stats_weekly_completions'] = 'Courses completed per week';
+$string['stats_weekly_active']      = 'Unique users connected per week';
+
+// New user credentials email.
+$string['messageprovider:newusercredentials'] = 'Login credentials for new users';
+$string['newuser_email_subject'] = 'Your login credentials — {$a->sitename}';
+$string['newuser_email_small']   = 'Your login credentials for {$a->sitename} have been created.';
+$string['newuser_email_body']    = 'Hello {$a->firstname},
+
+Your account has been created at {$a->sitename} ({$a->company}).
+
+Your login credentials:
+  Username: {$a->username}
+  Password: {$a->password}
+
+Log in here: {$a->loginurl}
+
+You will be asked to change your password on your first login.
+
+Best regards,
+{$a->sitename} Team';
+$string['newuser_email_body_html'] = '<p>Hello <strong>{$a->firstname}</strong>,</p>
+<p>Your account has been created at <strong>{$a->sitename}</strong> ({$a->company}).</p>
+<table style="border-collapse:collapse;margin:16px 0;width:100%;max-width:400px;">
+<tr><td style="padding:10px 16px;background:#f1f5f9;font-weight:600;border-radius:8px 0 0 0;">Username</td>
+    <td style="padding:10px 16px;background:#f8fafc;border-radius:0 8px 0 0;">{$a->username}</td></tr>
+<tr><td style="padding:10px 16px;background:#f1f5f9;font-weight:600;border-radius:0 0 0 8px;">Password</td>
+    <td style="padding:10px 16px;background:#f8fafc;font-family:monospace;letter-spacing:0.05em;border-radius:0 0 8px 0;">{$a->password}</td></tr>
+</table>
+<p><a href="{$a->loginurl}" style="display:inline-block;padding:12px 28px;background:#10b981;color:#fff;text-decoration:none;border-radius:10px;font-weight:600;font-size:1rem;">Log in to the platform</a></p>
+<p style="color:#6b7280;font-size:0.85em;">You will be asked to change your password on your first login.</p>
+<p>Best regards,<br>{$a->sitename} Team</p>';
+
+// SMTP configuration (outgoing email).
+$string['smtp_heading']       = 'Outgoing Email (SMTP)';
+$string['smtp_heading_desc']  = 'Configure the SMTP server for sending emails (user credentials, notifications, etc.).';
+$string['smtp_host']          = 'SMTP Server';
+$string['smtp_host_desc']     = 'SMTP server and port (e.g. smtp.office365.com:587).';
+$string['smtp_security']      = 'SMTP Security';
+$string['smtp_security_desc'] = 'Secure connection type for the SMTP server.';
+$string['smtp_username']      = 'SMTP Username';
+$string['smtp_username_desc'] = 'Email address to authenticate with the SMTP server.';
+$string['smtp_password']      = 'SMTP Password';
+$string['smtp_password_desc'] = 'Password or app password to authenticate with the SMTP server.';
+$string['smtp_noreply']       = 'No-reply address';
+$string['smtp_noreply_desc']  = 'Email address shown as the sender in outgoing emails.';
 
 // Capabilities.
 $string['sm_graphics_plugin:view'] = 'View SM Graphic Layer';
@@ -206,36 +250,36 @@ $string['sm_graphics_plugin:post_comments'] = 'Post course comments';
 $string['sm_graphics_plugin:delete_any_comment'] = 'Delete any course comment';
 
 // Course page (Udemy-style player).
-$string['course_page_back'] = 'Volver a cursos';
-$string['course_page_learning_route'] = 'Ruta de aprendizaje';
-$string['course_page_activities_count'] = 'Actividades';
-$string['course_page_sections'] = 'Secciones';
-$string['course_page_teachers'] = 'Profesores';
-$string['course_page_students'] = 'Alumnos';
-$string['course_page_description'] = 'Descripción';
-$string['course_page_grades'] = 'Calificaciones';
-$string['course_page_fullscreen'] = 'Pantalla completa';
-$string['course_page_exit_fullscreen'] = 'Salir de pantalla completa';
-$string['course_page_select_activity'] = 'Selecciona una actividad para empezar';
-$string['course_page_prev'] = 'Anterior';
-$string['course_page_next'] = 'Siguiente';
-$string['course_page_complete'] = 'Completar';
-$string['course_page_collapse_sidebar'] = 'Ocultar panel lateral';
-$string['course_page_expand_sidebar'] = 'Mostrar panel lateral';
-$string['course_page_grade_item'] = 'Actividad';
-$string['course_page_grade_total'] = 'Total del curso';
-$string['course_page_no_grades'] = 'Aún no hay calificaciones disponibles.';
+$string['course_page_back'] = 'Back to courses';
+$string['course_page_learning_route'] = 'Learning path';
+$string['course_page_activities_count'] = 'Activities';
+$string['course_page_sections'] = 'Sections';
+$string['course_page_teachers'] = 'Teachers';
+$string['course_page_students'] = 'Students';
+$string['course_page_description'] = 'Description';
+$string['course_page_grades'] = 'Grades';
+$string['course_page_fullscreen'] = 'Fullscreen';
+$string['course_page_exit_fullscreen'] = 'Exit fullscreen';
+$string['course_page_select_activity'] = 'Select an activity to start';
+$string['course_page_prev'] = 'Previous';
+$string['course_page_next'] = 'Next';
+$string['course_page_complete'] = 'Complete';
+$string['course_page_collapse_sidebar'] = 'Collapse sidebar';
+$string['course_page_expand_sidebar'] = 'Expand sidebar';
+$string['course_page_grade_item'] = 'Activity';
+$string['course_page_grade_total'] = 'Course total';
+$string['course_page_no_grades'] = 'No grades available yet.';
 
 // Course page counter.
-$string['course_page_counter_slide'] = 'Diapositiva';
-$string['course_page_counter_page'] = 'Página';
-$string['course_page_counter_chapter'] = 'Capítulo';
-$string['course_page_counter_question'] = 'Pregunta';
-$string['course_page_counter_video'] = 'Vídeo';
-$string['course_page_video_unsupported'] = 'Tu navegador no soporta la etiqueta de vídeo.';
+$string['course_page_counter_slide'] = 'Slide';
+$string['course_page_counter_page'] = 'Page';
+$string['course_page_counter_chapter'] = 'Chapter';
+$string['course_page_counter_question'] = 'Question';
+$string['course_page_counter_video'] = 'Video';
+$string['course_page_video_unsupported'] = 'Your browser does not support the video tag.';
 
 // Focus mode.
-$string['focus_mode'] = 'Modo concentración';
+$string['focus_mode'] = 'Focus mode';
 
 // Course landing page.
 $string['landing_program_content'] = 'Program Content';
@@ -318,84 +362,84 @@ $string['restore_company_short']      = 'Short name';
 $string['restore_new_course']         = 'Restore as new course';
 
 // Grades & Certificates page.
-$string['gradescerts_nav']            = 'Notas y Diplomas';
-$string['gradescerts_title']          = 'Notas y Diplomas';
-$string['gradescerts_heading']        = 'Notas y Diplomas';
-$string['gradescerts_desc']           = 'Diplomas obtenidos al superar los cursos. Descargables y verificables.';
-$string['gradescerts_course']         = 'Curso';
-$string['gradescerts_grade']          = 'Calificación';
-$string['gradescerts_progress']       = 'Progreso';
+$string['gradescerts_nav']            = 'Grades & Diplomas';
+$string['gradescerts_title']          = 'Grades & Diplomas';
+$string['gradescerts_heading']        = 'Grades & Diplomas';
+$string['gradescerts_desc']           = 'Diplomas earned upon completing courses. Downloadable and verifiable.';
+$string['gradescerts_course']         = 'Course';
+$string['gradescerts_grade']          = 'Grade';
+$string['gradescerts_progress']       = 'Progress';
 $string['gradescerts_certificate']    = 'Diploma';
-$string['gradescerts_download']       = 'Descargar Diploma';
-$string['gradescerts_download_all']   = 'Descargar Todos';
-$string['gradescerts_no_grade']       = 'Sin calificación';
-$string['gradescerts_not_available']  = 'Aún no disponible';
-$string['gradescerts_language']       = 'Idioma del diploma';
-$string['gradescerts_hours']          = 'horas';
-$string['gradescerts_no_courses']     = 'Sin cursos matriculados';
-$string['gradescerts_inprogress']     = 'En progreso';
-$string['gradescerts_official']       = 'Certificado oficial';
-$string['gradescerts_issued']         = 'Expedido el';
-$string['gradescerts_download_pdf']   = 'Descargar PDF';
+$string['gradescerts_download']       = 'Download Diploma';
+$string['gradescerts_download_all']   = 'Download All';
+$string['gradescerts_no_grade']       = 'No grade';
+$string['gradescerts_not_available']  = 'Not yet available';
+$string['gradescerts_language']       = 'Diploma language';
+$string['gradescerts_hours']          = 'hours';
+$string['gradescerts_no_courses']     = 'No enrolled courses';
+$string['gradescerts_inprogress']     = 'In progress';
+$string['gradescerts_official']       = 'Official certificate';
+$string['gradescerts_issued']         = 'Issued on';
+$string['gradescerts_download_pdf']   = 'Download PDF';
 
 // Certificate verification.
-$string['verify_title']         = 'Verificación de certificado';
-$string['verify_heading']       = 'Verificar un certificado';
-$string['verify_placeholder']   = 'Introduce el código de verificación';
-$string['verify_button']        = 'Verificar';
-$string['verify_student']       = 'Alumno';
-$string['verify_course']        = 'Curso';
-$string['verify_date']          = 'Fecha de finalización';
-$string['verify_company']       = 'Empresa';
-$string['verify_code']          = 'Código de verificación';
-$string['verify_success']       = 'Certificado verificado correctamente';
-$string['verify_notfound']      = 'No se encontró ningún certificado con ese código de verificación.';
-$string['verify_back_login']    = 'Volver al inicio de sesión';
+$string['verify_title']         = 'Certificate verification';
+$string['verify_heading']       = 'Verify a certificate';
+$string['verify_placeholder']   = 'Enter the verification code';
+$string['verify_button']        = 'Verify';
+$string['verify_student']       = 'Student';
+$string['verify_course']        = 'Course';
+$string['verify_date']          = 'Completion date';
+$string['verify_company']       = 'Company';
+$string['verify_code']          = 'Verification code';
+$string['verify_success']       = 'Certificate verified successfully';
+$string['verify_notfound']      = 'No certificate found with that verification code.';
+$string['verify_back_login']    = 'Back to login';
 
 // IOMAD dashboard (SmartMind card view).
-$string['iomaddashboard_heading']  = 'Administración';
-$string['iomad_configuration']     = 'Configuración';
-$string['iomad_users']             = 'Usuarios';
-$string['iomad_emailtemplates']    = 'Plantillas de correo';
-$string['iomad_shop']              = 'Tienda';
+$string['iomaddashboard_heading']  = 'Administration';
+$string['iomad_configuration']     = 'Configuration';
+$string['iomad_users']             = 'Users';
+$string['iomad_emailtemplates']    = 'Email templates';
+$string['iomad_shop']              = 'Shop';
 
 // Course management page.
-$string['nav_coursemanagement']   = 'Gestión de cursos';
-$string['coursemgmt_heading']    = 'Gestión de cursos';
-$string['coursemgmt_create']     = 'Crear curso';
-$string['coursemgmt_create_desc'] = 'Crear un nuevo curso';
-$string['coursemgmt_assign']     = 'Asignar a empresa';
-$string['coursemgmt_assign_desc'] = 'Asignar cursos a tu empresa';
-$string['coursemgmt_restore']      = 'Restaurar curso';
-$string['coursemgmt_restore_desc'] = 'Restaurar un curso desde copia de seguridad';
-$string['coursemgmt_createcat']      = 'Crear categoría';
-$string['coursemgmt_createcat_desc'] = 'Crear una nueva categoría de cursos';
+$string['nav_coursemanagement']   = 'Course management';
+$string['coursemgmt_heading']    = 'Course management';
+$string['coursemgmt_create']     = 'Create course';
+$string['coursemgmt_create_desc'] = 'Create a new course';
+$string['coursemgmt_assign']     = 'Assign to company';
+$string['coursemgmt_assign_desc'] = 'Assign courses to your company';
+$string['coursemgmt_restore']      = 'Restore course';
+$string['coursemgmt_restore_desc'] = 'Restore a course from backup';
+$string['coursemgmt_createcat']      = 'Create category';
+$string['coursemgmt_createcat_desc'] = 'Create a new course category';
 
 // Create category page.
-$string['createcat_title']      = 'Crear categoría';
-$string['createcat_name']       = 'Nombre de la categoría';
-$string['createcat_image']      = 'Imagen de fondo';
-$string['createcat_image_help'] = 'JPG, PNG o WebP. Tamaño recomendado: 600×300 px.';
-$string['createcat_sortorder']  = 'Orden';
-$string['createcat_preview']    = 'Vista previa de la tarjeta';
-$string['createcat_submit']     = 'Crear categoría';
-$string['createcat_cancel']     = 'Cancelar';
-$string['createcat_success']    = 'Categoría creada correctamente.';
+$string['createcat_title']      = 'Create category';
+$string['createcat_name']       = 'Category name';
+$string['createcat_image']      = 'Background image';
+$string['createcat_image_help'] = 'JPG, PNG or WebP. Recommended size: 600×300 px.';
+$string['createcat_sortorder']  = 'Sort order';
+$string['createcat_preview']    = 'Card preview';
+$string['createcat_submit']     = 'Create category';
+$string['createcat_cancel']     = 'Cancel';
+$string['createcat_success']    = 'Category created successfully.';
 
 // Manage categories page.
-$string['managecat_title']          = 'Gestionar categorías';
-$string['managecat_save']           = 'Guardar cambios';
-$string['managecat_updated']        = 'Categoría actualizada correctamente.';
-$string['managecat_deleted']        = 'Categoría eliminada correctamente.';
-$string['managecat_delete_confirm'] = '¿Seguro que quieres eliminar esta categoría? Los cursos asignados serán desvinculados.';
-$string['managecat_empty']          = 'No se encontraron categorías.';
-$string['coursemgmt_managecat']      = 'Gestionar categorías';
-$string['coursemgmt_managecat_desc'] = 'Ver y organizar categorías de cursos';
+$string['managecat_title']          = 'Manage categories';
+$string['managecat_save']           = 'Save changes';
+$string['managecat_updated']        = 'Category updated successfully.';
+$string['managecat_deleted']        = 'Category deleted successfully.';
+$string['managecat_delete_confirm'] = 'Are you sure you want to delete this category? Assigned courses will be unlinked.';
+$string['managecat_empty']          = 'No categories found.';
+$string['coursemgmt_managecat']      = 'Manage categories';
+$string['coursemgmt_managecat_desc'] = 'View and organize course categories';
 $string['coursemgmt_sharepoint']      = 'Import from SharePoint';
 $string['coursemgmt_sharepoint_desc'] = 'Import a full course from SharePoint';
-$string['coursemgmt_companies']    = 'Empresas';
-$string['coursemgmt_courses_col']  = 'Cursos asignados';
-$string['coursemgmt_users_col']    = 'Usuarios';
+$string['coursemgmt_companies']    = 'Companies';
+$string['coursemgmt_courses_col']  = 'Assigned courses';
+$string['coursemgmt_users_col']    = 'Users';
 
 // AI Configuration.
 $string['ai_settings_heading']      = 'AI Configuration';
@@ -407,36 +451,36 @@ $string['ai_suggested_duration']    = 'AI-suggested: {$a} hours — you can chan
 $string['ai_duration_label']        = 'AI-estimated';
 
 // Course player redesign.
-$string['course_page_module_content']       = 'Contenido del módulo';
-$string['course_page_mycourses_breadcrumb'] = 'Mis cursos';
+$string['course_page_module_content']       = 'Module content';
+$string['course_page_mycourses_breadcrumb'] = 'My courses';
 
 // My Courses page.
-$string['page_eyebrow']              = 'APRENDIZAJE ILIMITADO';
-$string['mycourses_title']           = 'Mis cursos';
-$string['mycourses_desc']            = 'Gestiona tu formación y continúa donde lo dejaste.';
-$string['mycourses_inprogress']      = 'En progreso';
-$string['mycourses_completed']       = 'Completados';
-$string['mycourses_all']             = 'Todos';
-$string['mycourses_continue']        = 'Continuar';
-$string['mycourses_review']          = 'Revisar';
-$string['mycourses_completed_label'] = 'completado';
-$string['mycourses_resource']        = 'Recurso';
-$string['mycourses_of']              = 'de';
-$string['mycourses_empty']           = 'No tienes cursos matriculados todavía.';
-$string['mycourses_nav']             = 'Mis cursos';
-$string['catalogue_modules']         = 'módulos';
+$string['page_eyebrow']              = 'UNLIMITED LEARNING';
+$string['mycourses_title']           = 'My courses';
+$string['mycourses_desc']            = 'Manage your learning and continue where you left off.';
+$string['mycourses_inprogress']      = 'In progress';
+$string['mycourses_completed']       = 'Completed';
+$string['mycourses_all']             = 'All';
+$string['mycourses_continue']        = 'Continue';
+$string['mycourses_review']          = 'Review';
+$string['mycourses_completed_label'] = 'completed';
+$string['mycourses_resource']        = 'Resource';
+$string['mycourses_of']              = 'of';
+$string['mycourses_empty']           = 'You have no enrolled courses yet.';
+$string['mycourses_nav']             = 'My courses';
+$string['catalogue_modules']         = 'modules';
 
 // Profile page.
 $string['profile_xp_total']      = 'XP Total';
-$string['profile_streak']        = 'Racha actual';
-$string['profile_contents']      = 'Contenidos';
-$string['profile_hours']         = 'Horas';
-$string['profile_streak_keep']   = 'Racha actual · ¡Sigue así!';
-$string['profile_days_to']       = '{$a->days} días para +{$a->xp} XP';
-$string['profile_weekly']        = 'ACTIVIDAD SEMANAL';
-$string['profile_level']         = 'Nivel {$a}';
-$string['profile_xp_remaining']  = '{$a->xp} XP para nivel {$a->level}';
-$string['profile_since']         = 'Desde {$a}';
+$string['profile_streak']        = 'Current streak';
+$string['profile_contents']      = 'Contents';
+$string['profile_hours']         = 'Hours';
+$string['profile_streak_keep']   = 'Current streak · Keep it up!';
+$string['profile_days_to']       = '{$a->days} days to +{$a->xp} XP';
+$string['profile_weekly']        = 'WEEKLY ACTIVITY';
+$string['profile_level']         = 'Level {$a}';
+$string['profile_xp_remaining']  = '{$a->xp} XP to level {$a->level}';
+$string['profile_since']         = 'Since {$a}';
 
 // Update notifications.
 $string['task:checkforupdates'] = 'Check for plugin updates';

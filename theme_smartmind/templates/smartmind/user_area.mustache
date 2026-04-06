@@ -75,7 +75,9 @@
                 currentLang = currentLang.replace('-', '_').toLowerCase();
                 var idx = langs.indexOf(currentLang);
                 var nextLang = langs[(idx + 1) % langs.length];
-                window.location.href = '{{wwwroot}}/login/index.php?lang=' + nextLang;
+                var url = new URL(window.location.href);
+                url.searchParams.set('lang', nextLang);
+                window.location.href = url.toString();
             });
 
             if (langCode) {

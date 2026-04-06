@@ -31,18 +31,37 @@ body {
 #region-main-box {}
 #region-main {}
 
-.main-inner,
-#page.drawers .main-inner,
-body.limitedwidth #page.drawers .main-inner,
-.pagelayout-standard #page.drawers .main-inner {
-    max-width: 75% !important;
-    width: 75% !important;
+body #page.drawers .main-inner {
+    max-width: 85% !important;
+    width: 85% !important;
     margin-left: auto !important;
     margin-right: auto !important;
+
+    @media (max-width: 991.98px) {
+        max-width: 95% !important;
+        width: 95% !important;
+    }
+
+    @media (max-width: 575.98px) {
+        max-width: 100% !important;
+        width: 100% !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
 }
 
 .header-maxwidth {
-    max-width: 75% !important;
+    max-width: 85% !important;
     margin-left: auto !important;
     margin-right: auto !important;
+
+    @media (max-width: 991.98px) {
+        max-width: 95% !important;
+    }
+
+    @media (max-width: 575.98px) {
+        max-width: 100% !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
 }
