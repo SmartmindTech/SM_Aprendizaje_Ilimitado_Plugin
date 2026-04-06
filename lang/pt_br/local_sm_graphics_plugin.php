@@ -122,6 +122,36 @@ $string['comments_chapter'] = 'Capítulo';
 $string['comments_page'] = 'Página';
 $string['comments_position'] = 'Posição';
 
+// Email de credenciais para novos usuários.
+$string['messageprovider:newusercredentials'] = 'Credenciais de acesso para novos usuários';
+$string['newuser_email_subject'] = 'Suas credenciais de acesso — {$a->sitename}';
+$string['newuser_email_small']   = 'Suas credenciais de acesso para {$a->sitename} foram criadas.';
+$string['newuser_email_body']    = 'Olá {$a->firstname},
+
+Sua conta foi criada em {$a->sitename} ({$a->company}).
+
+Suas credenciais de acesso:
+  Usuário: {$a->username}
+  Senha:   {$a->password}
+
+Acesse aqui: {$a->loginurl}
+
+Você será solicitado a alterar sua senha no primeiro acesso.
+
+Atenciosamente,
+Equipe {$a->sitename}';
+$string['newuser_email_body_html'] = '<p>Olá <strong>{$a->firstname}</strong>,</p>
+<p>Sua conta foi criada em <strong>{$a->sitename}</strong> ({$a->company}).</p>
+<table style="border-collapse:collapse;margin:16px 0;width:100%;max-width:400px;">
+<tr><td style="padding:10px 16px;background:#f1f5f9;font-weight:600;border-radius:8px 0 0 0;">Usuário</td>
+    <td style="padding:10px 16px;background:#f8fafc;border-radius:0 8px 0 0;">{$a->username}</td></tr>
+<tr><td style="padding:10px 16px;background:#f1f5f9;font-weight:600;border-radius:0 0 0 8px;">Senha</td>
+    <td style="padding:10px 16px;background:#f8fafc;font-family:monospace;letter-spacing:0.05em;border-radius:0 0 8px 0;">{$a->password}</td></tr>
+</table>
+<p><a href="{$a->loginurl}" style="display:inline-block;padding:12px 28px;background:#10b981;color:#fff;text-decoration:none;border-radius:10px;font-weight:600;font-size:1rem;">Acessar a plataforma</a></p>
+<p style="color:#6b7280;font-size:0.85em;">Você será solicitado a alterar sua senha no primeiro acesso.</p>
+<p>Atenciosamente,<br>Equipe {$a->sitename}</p>';
+
 // Capacidades.
 $string['sm_graphics_plugin:view'] = 'Ver SM Graphic Layer';
 $string['sm_graphics_plugin:post_comments'] = 'Publicar comentários do curso';

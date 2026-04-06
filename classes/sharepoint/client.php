@@ -51,11 +51,13 @@ class client {
      * @return array{tenant_id: string, client_id: string, client_secret: string, site_url: string}
      */
     private static function get_config(): array {
+        // Read from plugin config.php first, fall back to admin settings.
+        $conf = \local_sm_graphics_plugin_load_config();
         return [
-            'tenant_id'     => get_config('local_sm_graphics_plugin', 'sp_tenant_id') ?: '',
-            'client_id'     => get_config('local_sm_graphics_plugin', 'sp_client_id') ?: '',
-            'client_secret' => get_config('local_sm_graphics_plugin', 'sp_client_secret') ?: '',
-            'site_url'      => get_config('local_sm_graphics_plugin', 'sp_site_url') ?: '',
+            'tenant_id'     => $conf['azure_tenant_id'] ?? get_config('local_sm_graphics_plugin', 'sp_tenant_id') ?: '',
+            'client_id'     => $conf['azure_client_id'] ?? get_config('local_sm_graphics_plugin', 'sp_client_id') ?: '',
+            'client_secret' => $conf['azure_client_secret'] ?? get_config('local_sm_graphics_plugin', 'sp_client_secret') ?: '',
+            'site_url'      => $conf['sp_site_url'] ?? get_config('local_sm_graphics_plugin', 'sp_site_url') ?: '',
         ];
     }
 

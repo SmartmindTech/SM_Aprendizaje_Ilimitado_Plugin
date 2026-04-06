@@ -189,6 +189,50 @@ $string['comments_chapter'] = 'Capítulo';
 $string['comments_page'] = 'Página';
 $string['comments_position'] = 'Posición';
 
+// Email de credenciales para nuevos usuarios.
+$string['messageprovider:newusercredentials'] = 'Credenciales de acceso para nuevos usuarios';
+$string['newuser_email_subject'] = 'Tus credenciales de acceso — {$a->sitename}';
+$string['newuser_email_small']   = 'Se han creado tus credenciales de acceso a {$a->sitename}.';
+$string['newuser_email_body']    = 'Hola {$a->firstname},
+
+Se ha creado tu cuenta en {$a->sitename} ({$a->company}).
+
+Tus credenciales de acceso:
+  Usuario:    {$a->username}
+  Contraseña: {$a->password}
+
+Accede aquí: {$a->loginurl}
+
+Se te pedirá cambiar la contraseña en tu primer inicio de sesión.
+
+Un saludo,
+Equipo {$a->sitename}';
+$string['newuser_email_body_html'] = '<p>Hola <strong>{$a->firstname}</strong>,</p>
+<p>Se ha creado tu cuenta en <strong>{$a->sitename}</strong> ({$a->company}).</p>
+<table style="border-collapse:collapse;margin:16px 0;width:100%;max-width:400px;">
+<tr><td style="padding:10px 16px;background:#f1f5f9;font-weight:600;border-radius:8px 0 0 0;">Usuario</td>
+    <td style="padding:10px 16px;background:#f8fafc;border-radius:0 8px 0 0;">{$a->username}</td></tr>
+<tr><td style="padding:10px 16px;background:#f1f5f9;font-weight:600;border-radius:0 0 0 8px;">Contraseña</td>
+    <td style="padding:10px 16px;background:#f8fafc;font-family:monospace;letter-spacing:0.05em;border-radius:0 0 8px 0;">{$a->password}</td></tr>
+</table>
+<p><a href="{$a->loginurl}" style="display:inline-block;padding:12px 28px;background:#10b981;color:#fff;text-decoration:none;border-radius:10px;font-weight:600;font-size:1rem;">Acceder a la plataforma</a></p>
+<p style="color:#6b7280;font-size:0.85em;">Se te pedirá cambiar la contraseña en tu primer inicio de sesión.</p>
+<p>Un saludo,<br>Equipo {$a->sitename}</p>';
+
+// Configuración SMTP (correo saliente).
+$string['smtp_heading']       = 'Correo saliente (SMTP)';
+$string['smtp_heading_desc']  = 'Configura el servidor SMTP para el envío de correos electrónicos (credenciales de usuario, notificaciones, etc.).';
+$string['smtp_host']          = 'Servidor SMTP';
+$string['smtp_host_desc']     = 'Servidor y puerto SMTP (ej: smtp.office365.com:587).';
+$string['smtp_security']      = 'Seguridad SMTP';
+$string['smtp_security_desc'] = 'Tipo de conexión segura con el servidor SMTP.';
+$string['smtp_username']      = 'Usuario SMTP';
+$string['smtp_username_desc'] = 'Dirección de correo para autenticarse en el servidor SMTP.';
+$string['smtp_password']      = 'Contraseña SMTP';
+$string['smtp_password_desc'] = 'Contraseña o contraseña de aplicación para autenticarse en el servidor SMTP.';
+$string['smtp_noreply']       = 'Dirección no-reply';
+$string['smtp_noreply_desc']  = 'Dirección de correo que aparece como remitente en los correos enviados.';
+
 // Capacidades.
 $string['sm_graphics_plugin:view'] = 'Ver SM Graphic Layer';
 $string['sm_graphics_plugin:post_comments'] = 'Publicar comentarios del curso';
