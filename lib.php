@@ -245,6 +245,37 @@ function local_sm_graphics_plugin_before_standard_top_of_body_html(): string {
                 error_log('[SMGP-RESTORE] Writing pending fields to DB for course ' . $course->id);
                 \local_sm_graphics_plugin\observer::write_restore_fields((int) $course->id, $fields);
             }
+            // Apply SharePoint extras (SCORM, PDFs, evaluations) after restore.
+            if (!empty($SESSION->smgp_sp_manifest)) {
+                $manifest = $SESSION->smgp_sp_manifest;
+                $folderurl = $SESSION->smgp_sp_folder_url ?? '';
+                $categoryid = $SESSION->smgp_sp_categoryid ?? 0;
+                $spCompanyIds = $SESSION->smgp_sp_companyids ?? [];
+                unset($SESSION->smgp_sp_manifest);
+                unset($SESSION->smgp_sp_folder_url);
+                unset($SESSION->smgp_sp_categoryid);
+                unset($SESSION->smgp_sp_companyids);
+                error_log('[SMGP-RESTORE] Applying SharePoint extras for course ' . $course->id);
+                try {
+                    \local_sm_graphics_plugin\sharepoint\course_importer::apply_extras(
+                        $manifest, (int) $course->id
+                    );
+                } catch (\Throwable $e) {
+                    error_log('[SMGP-RESTORE] SP extras error: ' . $e->getMessage());
+                }
+                // Assign course to selected companies.
+                if (!empty($spCompanyIds) && function_exists('company_course_create')) {
+                    foreach ($spCompanyIds as $compId) {
+                        try {
+                            \local_sm_graphics_plugin\external\assign_course_company::execute(
+                                (int) $course->id, (int) $compId
+                            );
+                        } catch (\Throwable $e) {
+                            error_log('[SMGP-RESTORE] Company assign error: ' . $e->getMessage());
+                        }
+                    }
+                }
+            }
             // ALL users see the landing page first (course hub/dashboard).
             // The landing page has Start/Continue button that links to the player with smgp_enter=1.
             redirect(new moodle_url('/local/sm_graphics_plugin/pages/course_landing.php', ['id' => $course->id]));
@@ -372,9 +403,40 @@ function local_sm_graphics_plugin_before_standard_top_of_body_html(): string {
             error_log('[SMGP-RESTORE] Staged in SESSION: ' . json_encode($clean));
         }
 
+        // Auto-submit the role mapping form on step 6 (Proceso).
+        // Hide the page content immediately to prevent flash, then auto-click Continuar.
+        $autoRoleMap = '<script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Only on step 6 (Proceso) — detect by the stage indicator.
+            var currentStep = document.querySelector(".backup_stage_current");
+            if (!currentStep) return;
+            var stepText = currentStep.textContent.trim();
+            if (stepText.indexOf("6") === -1 && stepText.indexOf("Proceso") === -1 && stepText.indexOf("Process") === -1) return;
+
+            // Look for the role mapping heading specifically.
+            var headings = document.querySelectorAll("[role=main] h2, [role=main] h3");
+            var isRoleMapping = false;
+            headings.forEach(function(h) {
+                var t = h.textContent || "";
+                if (t.indexOf("mapeos de rol") !== -1 || t.indexOf("role mapping") !== -1 || t.indexOf("Role mapping") !== -1) {
+                    isRoleMapping = true;
+                }
+            });
+            if (!isRoleMapping) return;
+
+            // Hide and auto-submit.
+            var main = document.querySelector("[role=main]");
+            if (main) main.style.cssText = "visibility:hidden!important;height:0!important;overflow:hidden!important;";
+            var btn = document.querySelector("[role=main] form input[type=submit]");
+            if (btn) btn.click();
+        });
+        </script>';
+
         return local_sm_graphics_plugin_restore_schema_fields()
             . local_sm_graphics_plugin_restore_destination_js()
-            . local_sm_graphics_plugin_restore_settings_js();
+            . local_sm_graphics_plugin_restore_settings_js()
+            . local_sm_graphics_plugin_sp_extras_display()
+            . $autoRoleMap;
     }
 
     // Restyle the restore file upload page.
@@ -1505,7 +1567,7 @@ function local_sm_graphics_plugin_restore_file_styles(): string {
  * @return string
  */
 function local_sm_graphics_plugin_restore_destination_js(): string {
-    global $DB;
+    global $DB, $SESSION;
 
     // Pre-fetch companies with their category IDs for JS.
     $companies = [];
@@ -1525,6 +1587,9 @@ function local_sm_graphics_plugin_restore_destination_js(): string {
         }
     }
     $companiesJson = json_encode($companies);
+
+    // Pre-selected company IDs from the courseloader page (if coming from SharePoint flow).
+    $preselectedCompanyIds = !empty($SESSION->smgp_sp_companyids) ? json_encode($SESSION->smgp_sp_companyids) : '[]';
 
     // Lang strings.
     $selectCompany = addslashes(get_string('restore_select_company', 'local_sm_graphics_plugin'));
@@ -1668,6 +1733,24 @@ function local_sm_graphics_plugin_restore_destination_js(): string {
                                 row.style.display = (!q || text.indexOf(q) !== -1) ? "" : "none";
                             });
                         });
+                    }
+                }
+
+                // Pre-select companies from the courseloader page (SharePoint flow).
+                var preselected = ' . $preselectedCompanyIds . ';
+                if (preselected.length > 0) {
+                    var allSelected = true;
+                    companyRadios.forEach(function(radio) {
+                        if (preselected.indexOf(parseInt(radio.value)) !== -1) {
+                            radio.checked = true;
+                            radio.dataset.wasChecked = "true";
+                        } else {
+                            allSelected = false;
+                        }
+                    });
+                    // Toggle the "select all" if all companies are selected.
+                    if (allSelected && selectAllBtn) {
+                        selectAllBtn.classList.add("smgp-fake-radio--checked");
                     }
                 }
 
@@ -1846,6 +1929,29 @@ function local_sm_graphics_plugin_restore_settings_js(): string {
         height: 16px;
         cursor: pointer;
     }
+    /* Green checkboxes on all restore pages */
+    #page-backup-restore input[type="checkbox"],
+    #page-backup-restore .form-check-input {
+        accent-color: #10b981 !important;
+    }
+    #page-backup-restore .form-check-input:checked {
+        background-color: #10b981 !important;
+        border-color: #10b981 !important;
+    }
+    #page-backup-restore .form-check-input:focus {
+        border-color: #10b981 !important;
+        box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.25) !important;
+    }
+    /* Green check icons + align with xmark */
+    #page-backup-restore .icon.fa-check {
+        color: #10b981 !important;
+    }
+    /* Align check/xmark icons consistently */
+    #id_rootsettingscontainer .fitem.row > .col-md-9 .icon {
+        width: 18px !important;
+        text-align: center !important;
+        display: inline-block !important;
+    }
     /* Settings fieldset padding — scoped to step 3 only */
     .path-backup .mform fieldset:has(#id_rootsettingscontainer) {
         padding-left: 0.75rem !important;
@@ -1935,6 +2041,110 @@ function local_sm_graphics_plugin_restore_settings_js(): string {
         });
     });
     </script>';
+}
+
+/**
+ * Display SharePoint extras (SCORM, PDFs, evaluations) on the restore pages.
+ *
+ * On step 1 (Confirm): shows a read-only card listing the extra files from SharePoint.
+ * On step 4 (Schema): passes manifest data to the course structure editor so it can
+ * show the extras as draggable activities.
+ *
+ * @return string HTML + JS to inject.
+ */
+function local_sm_graphics_plugin_sp_extras_display(): string {
+    global $SESSION;
+
+    if (empty($SESSION->smgp_sp_manifest)) {
+        return '';
+    }
+
+    $manifest = $SESSION->smgp_sp_manifest;
+    $scorm = $manifest['scorm'] ?? [];
+    $pdf = $manifest['pdf'] ?? [];
+    $documents = $manifest['documents'] ?? [];
+    $evalAiken = $manifest['evaluations_aiken'] ?? [];
+    $evalGift = $manifest['evaluations_gift'] ?? [];
+
+    $hasExtras = !empty($scorm) || !empty($pdf) || !empty($documents) || !empty($evalAiken) || !empty($evalGift);
+    if (!$hasExtras) {
+        return '';
+    }
+
+    // Build a file list for the confirm page (read-only card).
+    $formatSize = function(int $bytes): string {
+        if ($bytes === 0) { return '0 B'; }
+        $units = ['B', 'KB', 'MB', 'GB'];
+        $i = (int) floor(log($bytes) / log(1024));
+        return round($bytes / pow(1024, $i), 1) . ' ' . $units[$i];
+    };
+
+    $buildRows = function(array $files, string $icon, string $type) use ($formatSize): string {
+        $html = '';
+        foreach ($files as $f) {
+            $name = htmlspecialchars($f['name']);
+            $size = $formatSize($f['size'] ?? 0);
+            $html .= '<div style="display:flex;align-items:center;gap:0.6rem;padding:0.5rem 0;border-bottom:1px solid #f1f5f9;">'
+                . '<i class="' . $icon . '" style="color:#10b981;font-size:0.85rem;flex-shrink:0;"></i>'
+                . '<span style="font-weight:500;font-size:0.85rem;color:#1e293b;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;">' . $name . '</span>'
+                . '<span style="font-size:0.75rem;color:#94a3b8;white-space:nowrap;">' . $type . '</span>'
+                . '<span style="font-size:0.75rem;color:#94a3b8;white-space:nowrap;min-width:55px;text-align:right;">' . $size . '</span>'
+                . '</div>';
+        }
+        return $html;
+    };
+
+    $rows = '';
+    $rows .= $buildRows($scorm, 'icon-box', 'SCORM');
+    $rows .= $buildRows($pdf, 'icon-file-text', 'PDF');
+    $rows .= $buildRows($documents, 'icon-file', 'Documento');
+    $rows .= $buildRows($evalAiken, 'icon-circle-help', 'Evaluación AIKEN');
+    $rows .= $buildRows($evalGift, 'icon-circle-help', 'Evaluación GIFT');
+
+    $totalFiles = count($scorm) + count($pdf) + count($documents) + count($evalAiken) + count($evalGift);
+
+    // Card HTML for step 1 (Confirm) — injected via JS after "Detalles del curso".
+    $cardHtml = '<style>'
+        . '.smgp-sp-extras-card i[class^="icon-"],'
+        . '.smgp-sp-extras-card i[class*=" icon-"] {'
+        . '  background: none !important; width: auto !important; height: auto !important;'
+        . '  border-radius: 0 !important; padding: 0 !important; margin: 0 !important;'
+        . '  display: inline !important; line-height: 1 !important;'
+        . '}'
+        . '</style>'
+        . '<div class="smgp-sp-extras-card" style="display:none;">'
+        . '<div style="background:#fff;border:1px solid #e5e7eb;border-left:3px solid #10b981;border-radius:12px;padding:1.25rem 1.5rem;margin:1rem 0 1.5rem;">'
+        . '<h4 style="font-weight:600;font-size:0.95rem;color:#1e293b;margin-bottom:0.75rem;display:flex;align-items:center;gap:0.4rem;">'
+        . '<i class="icon-cloud" style="color:#10b981;"></i> Contenido adicional de SharePoint'
+        . '<span style="font-size:0.75rem;font-weight:500;color:#64748b;background:#f1f5f9;padding:2px 8px;border-radius:99px;margin-left:auto;">'
+        . $totalFiles . ' archivos</span></h4>'
+        . '<div style="max-height:400px;overflow-y:auto;margin-right:-1rem;padding-right:1rem;">' . $rows . '</div>'
+        . '</div></div>';
+
+    // JSON for the structure editor on step 4.
+    $manifestJson = htmlspecialchars(json_encode($manifest, JSON_UNESCAPED_UNICODE));
+
+    $js = '<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var card = document.querySelector(".smgp-sp-extras-card");
+        if (!card) return;
+
+        // Only show on step 1 (Confirm) — after "Detalles del curso" section.
+        var courseDetails = document.getElementById("backupcoursedetailsheader");
+        if (courseDetails) {
+            var section = courseDetails.closest(".backup-section");
+            if (section) {
+                card.style.display = "";
+                section.after(card);
+                return;
+            }
+        }
+        // Not step 1 — remove the card.
+        card.remove();
+    });
+    </script>';
+
+    return $cardHtml . $js;
 }
 
 function local_sm_graphics_plugin_restore_schema_fields(): string {
@@ -2054,8 +2264,16 @@ function local_sm_graphics_plugin_restore_schema_fields(): string {
         . '<input type="hidden" name="smgp_objectives_data" value="' . $preobjectives . '">'
         . '<div id="smgp-objectives-container" class="smgp-objectives-editor"></div></div>'
         // Hidden input for course structure data (populated by course_structure.js).
-        . '<input type="hidden" name="smgp_course_structure" value="">'
-        . '</div></div>';
+        . '<input type="hidden" name="smgp_course_structure" value="">';
+
+    // Inject SharePoint manifest for the structure editor (if available from SESSION).
+    global $SESSION;
+    if (!empty($SESSION->smgp_sp_manifest)) {
+        $spManifestJson = htmlspecialchars(json_encode($SESSION->smgp_sp_manifest, JSON_UNESCAPED_UNICODE));
+        $html .= '<input type="hidden" id="smgp-sp-manifest-data" value="' . $spManifestJson . '">';
+    }
+
+    $html .= '</div></div>';
 
     $html .= '<script>
     document.addEventListener("DOMContentLoaded", function() {
@@ -2132,6 +2350,65 @@ function local_sm_graphics_plugin_restore_schema_fields(): string {
                     "<div style=\\"font-size:0.875rem;color:#1e293b;margin-top:0.25rem;\\">" + objsHtml + "</div></div>";
 
                 h += "</div></div>";
+
+                // Course structure summary (shows drag-and-drop changes).
+                var iconMap = {
+                    "Paquete SCORM": "icon-box", "SCORM": "icon-box",
+                    "PDF": "icon-file-text", "Documento": "icon-file",
+                    "URL": "icon-link", "Foro": "icon-message-circle",
+                    "Cuestionario": "icon-circle-help", "Tarea": "icon-file-text",
+                    "Recurso": "icon-file-up", "Libro": "icon-book-open",
+                    "Wiki": "icon-book-open", "H5P": "icon-circle-play",
+                    "Paquete IMS": "icon-package"
+                };
+                if (saved.smgp_course_structure && saved.smgp_course_structure !== "[]" && saved.smgp_course_structure !== "") {
+                    try {
+                        var struct = JSON.parse(saved.smgp_course_structure);
+                        if (Array.isArray(struct) && struct.length > 0) {
+                            h += "<div style=\\"margin-top:1rem;\\">" +
+                                "<h4 style=\\"margin:1rem 0 0.75rem;font-weight:600;color:#1e293b;border-bottom:2px solid #e2e8f0;padding-bottom:0.5rem;display:flex;align-items:center;gap:0.4rem;\\">" +
+                                "<i class=\\"icon-layers\\" style=\\"color:#10b981;\\"></i> Estructura del curso</h4>";
+                            struct.forEach(function(sec) {
+                                var actCount = (sec.activities || []).length;
+                                var secCheck = sec.checked !== false ?
+                                    "<i class=\\"fa fa-check\\" style=\\"color:#10b981;font-size:0.8rem;\\"></i>" :
+                                    "<i class=\\"fa fa-xmark\\" style=\\"color:#ef4444;font-size:0.8rem;\\"></i>";
+                                h += "<div style=\\"background:#fff;border:1px solid #e5e7eb;border-left:3px solid #10b981;border-radius:10px;padding:0.85rem 1.1rem;margin-bottom:0.6rem;\\">" +
+                                    "<div style=\\"display:flex;align-items:center;gap:0.5rem;\\">" +
+                                    secCheck +
+                                    "<span style=\\"font-weight:600;font-size:0.9rem;color:#1e293b;flex:1;\\">" + sec.name + "</span>" +
+                                    "<span style=\\"font-size:0.75rem;color:#94a3b8;white-space:nowrap;\\">Datos de usuario</span>" +
+                                    "<span style=\\"font-size:0.75rem;color:#1e293b;font-weight:500;\\">No</span>" +
+                                    "<span style=\\"font-size:0.7rem;font-weight:500;color:#64748b;background:#f1f5f9;padding:2px 8px;border-radius:99px;margin-left:0.5rem;\\">" +
+                                    actCount + "</span></div>";
+                                if (sec.activities && sec.activities.length > 0) {
+                                    sec.activities.forEach(function(act) {
+                                        var isSp = act.actKey && act.actKey.indexOf("sp_") === 0;
+                                        var actCheck = act.checked !== false ?
+                                            "<i class=\\"fa fa-check\\" style=\\"color:#10b981;font-size:0.75rem;\\"></i>" :
+                                            "<i class=\\"fa fa-xmark\\" style=\\"color:#ef4444;font-size:0.75rem;\\"></i>";
+                                        var actIcon = iconMap[act.modname] || "icon-file";
+                                        var badge = isSp ? "<span style=\\"font-size:0.65rem;color:#10b981;font-weight:600;background:#ecfdf5;padding:1px 6px;border-radius:4px;cursor:help;\\" title=\\"Esta actividad fue importada desde SharePoint y se creará automáticamente en el curso tras la restauración.\\">SharePoint</span>" : "";
+                                        h += "<div style=\\"display:flex;align-items:center;gap:0.5rem;padding:0.4rem 0 0.4rem 1.5rem;border-top:1px solid #f3f4f6;\\">" +
+                                            actCheck +
+                                            "<i class=\\"" + actIcon + "\\" style=\\"color:#10b981;font-size:0.8rem;flex-shrink:0;background:none!important;width:auto!important;height:auto!important;padding:0!important;\\"></i>" +
+                                            "<span style=\\"font-weight:500;font-size:0.85rem;color:#1e293b;\\">" + act.name + "</span>" +
+                                            "<span style=\\"color:#94a3b8;font-size:0.75rem;margin-left:0.75rem;\\">" + (act.modname || "") + "</span>" +
+                                            badge + "</div>";
+                                    });
+                                }
+                                h += "</div>";
+                            });
+                            h += "</div>";
+
+                            // Hide Moodle native section/activity review (duplicate info).
+                            setTimeout(function() {
+                                var groups = container.parentElement ? container.parentElement.querySelectorAll(".grouped_settings.section_level") : [];
+                                groups.forEach(function(g) { g.style.display = "none"; });
+                            }, 100);
+                        }
+                    } catch(ex) {}
+                }
 
                 var settingDivs = container.querySelectorAll(":scope > .normal_setting");
                 var lastSetting = settingDivs[settingDivs.length - 1];
@@ -2240,7 +2517,7 @@ function local_sm_graphics_plugin_restore_schema_fields(): string {
         var storageKey = "smgp_restore_fields";
         var fieldNames = ["smgp_description", "smgp_duration_hours", "smgp_catalogue_cat",
                           "smgp_smartmind_code", "smgp_sepe_code", "smgp_level", "smgp_completion_percentage",
-                          "smgp_objectives_data"];
+                          "smgp_objectives_data", "smgp_course_structure"];
         // Destination course ID (0 for new-course restores, known for restore-over-existing).
         var smgpDestCourseId = ' . (int) $precourseid . ';
 

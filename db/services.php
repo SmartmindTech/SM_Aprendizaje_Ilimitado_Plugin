@@ -198,4 +198,20 @@ $functions = [
         'ajax'        => true,
         'capabilities' => 'moodle/course:update',
     ],
+    'local_sm_graphics_plugin_sharepoint_list_courses' => [
+        'classname'    => 'local_sm_graphics_plugin\external\sharepoint_list_courses',
+        'methodname'   => 'execute',
+        'description'  => 'List available course folders from SharePoint',
+        'type'         => 'read',
+        'ajax'         => true,
+        'capabilities' => 'local/sm_graphics_plugin:import_courses',
+    ],
+    'local_sm_graphics_plugin_sharepoint_prepare_restore' => [
+        'classname'    => 'local_sm_graphics_plugin\external\sharepoint_prepare_restore',
+        'methodname'   => 'execute',
+        'description'  => 'Download MBZ from SharePoint and prepare for native restore wizard',
+        'type'         => 'write',
+        'ajax'         => true,
+        'capabilities' => 'local/sm_graphics_plugin:import_courses',
+    ],
 ];

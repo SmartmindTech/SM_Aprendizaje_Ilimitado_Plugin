@@ -6,104 +6,330 @@
     @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 }}
 
-<div class="container-fluid px-4 py-3" id="smgp-courseloader">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h2 class="mb-1">{{title}}</h2>
-            <p class="text-muted">{{subtitle}}</p>
-        </div>
-    </div>
+<style>
+    #smgp-courseloader { max-width: 900px; margin: 0 auto; }
+
+    /* ── Heading ── */
+    .smgp-cl-heading {
+        font-size: 1.75rem; font-weight: 700; color: #1e293b; margin-bottom: 0.2rem;
+        display: flex; align-items: center; gap: 0.5rem;
+    }
+    .smgp-cl-heading i { color: #10b981; }
+    .smgp-cl-subtitle { color: #64748b; font-size: 0.9rem; margin-bottom: 1.5rem; }
+
+    /* ── Sections ── */
+    .smgp-cl-section {
+        background: #fff; border: 1px solid #e5e7eb; border-left: 3px solid #10b981;
+        border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 0.75rem;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+    }
+    .smgp-cl-section-title {
+        font-weight: 600; font-size: 0.95rem; color: #1e293b; margin-bottom: 0.65rem;
+        display: flex; align-items: center; gap: 0.4rem;
+    }
+    .smgp-cl-section-title i { color: #10b981; font-size: 1rem; }
+
+    /* ── Course autocomplete ── */
+    .smgp-cl-autocomplete { position: relative; flex: 1; }
+    .smgp-cl-course-row { display: flex; gap: 0.5rem; align-items: center; }
+    #smgp-cl-course-input,
+    #smgp-cl-url {
+        width: 100%; border: 1.5px solid #e5e7eb; border-radius: 8px;
+        padding: 0.5rem 0.75rem; font-size: 0.875rem; color: #1e293b;
+        background: #fff; transition: border-color 0.15s;
+    }
+    #smgp-cl-course-input:focus,
+    #smgp-cl-url:focus { border-color: #10b981; outline: none; box-shadow: 0 0 0 3px rgba(16,185,129,0.1); }
+    .smgp-cl-dropdown {
+        display: none; position: absolute; top: 100%; left: 0; right: 0; z-index: 100;
+        background: #fff; border: 1.5px solid #e5e7eb; border-top: none;
+        border-radius: 0 0 8px 8px; max-height: 280px; overflow-y: auto;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    }
+    .smgp-cl-dropdown.open { display: block; }
+    .smgp-cl-dropdown-item {
+        padding: 0.5rem 0.75rem; font-size: 0.85rem; color: #1e293b;
+        cursor: pointer; transition: background 0.1s; border-bottom: 1px solid #f3f4f6;
+    }
+    .smgp-cl-dropdown-item:last-child { border-bottom: none; }
+    .smgp-cl-dropdown-item:hover, .smgp-cl-dropdown-item.active { background: #f0fdf4; }
+    .smgp-cl-dropdown-empty { padding: 0.75rem; font-size: 0.8rem; color: #94a3b8; text-align: center; font-style: italic; }
+    #smgp-cl-toggle-url, .smgp-cl-toggle-btn {
+        border: 1.5px solid #e5e7eb; border-radius: 8px; background: #fff;
+        padding: 0.6rem 0.75rem; font-size: 0.78rem; color: #64748b;
+        cursor: pointer; white-space: nowrap; transition: all 0.15s; font-weight: 500;
+    }
+    #smgp-cl-toggle-url:hover, .smgp-cl-toggle-btn:hover { border-color: #10b981; color: #10b981; }
+    .smgp-cl-hint { font-size: 0.75rem; color: #94a3b8; margin-top: 0.3rem; display: flex; align-items: center; gap: 0.5rem; }
+    .smgp-cl-sync-link {
+        color: #10b981; background: none; border: none; font-weight: 500;
+        font-style: normal; font-size: 0.75rem; cursor: pointer; padding: 0;
+    }
+    .smgp-cl-sync-link:hover { text-decoration: underline; }
+    .smgp-cl-sync-link:disabled { color: #94a3b8; cursor: not-allowed; text-decoration: none; }
+
+    /* ── Company table ── */
+    #smgp-cl-company-search {
+        border: 1.5px solid #e5e7eb; border-radius: 8px;
+        padding: 0.45rem 0.75rem; font-size: 0.8rem; max-width: 280px;
+        transition: border-color 0.15s;
+    }
+    #smgp-cl-company-search:focus { border-color: #10b981; outline: none; box-shadow: 0 0 0 3px rgba(16,185,129,0.1); }
+
+    .smgp-cl-company-wrap {
+        margin-top: 0.5rem;
+    }
+    .smgp-cl-company-table {
+        width: 100%; border-collapse: separate; border-spacing: 0;
+        border: 1px solid #e2e8f0; border-radius: 10px;
+    }
+    .smgp-cl-company-table thead th {
+        background: #f8fafc;
+        font-size: 0.7rem; font-weight: 600; color: #94a3b8;
+        text-transform: uppercase; letter-spacing: 0.05em;
+        padding: 0.5rem 1rem; border: 1px solid #e2e8f0 !important;
+    }
+    .smgp-cl-company-table thead th:first-child { border-top-left-radius: 9px; }
+    .smgp-cl-company-table thead th:last-child { border-top-right-radius: 9px; }
+    .smgp-cl-company-table tbody td {
+        padding: 0.55rem 1rem; border: 1px solid #e2e8f0 !important;
+        font-size: 0.85rem; color: #1e293b; transition: background 0.1s;
+    }
+    .smgp-cl-company-table tbody tr:last-child td { border-bottom: none; }
+    .smgp-cl-company-table tbody tr:last-child td:first-child { border-bottom-left-radius: 9px; }
+    .smgp-cl-company-table tbody tr:last-child td:last-child { border-bottom-right-radius: 9px; }
+    .smgp-cl-company-table tbody tr:hover td { background: #f0fdf4; }
+
+    /* ── Toggle switch (matches restore page) ── */
+    .smgp-cl-toggle { position: relative; display: inline-block; width: 36px; height: 20px; flex-shrink: 0; vertical-align: middle; }
+    .smgp-cl-toggle input { opacity: 0; width: 0; height: 0; }
+    .smgp-cl-toggle .slider {
+        position: absolute; inset: 0; background: #cbd5e1; border-radius: 20px;
+        cursor: pointer; transition: background 0.2s;
+    }
+    .smgp-cl-toggle .slider::before {
+        content: ""; position: absolute; width: 16px; height: 16px;
+        left: 2px; bottom: 2px; background: #fff; border-radius: 50%;
+        transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    }
+    .smgp-cl-toggle input:checked + .slider { background: #10b981; }
+    .smgp-cl-toggle input:checked + .slider::before { transform: translateX(16px); }
+
+    /* ── Buttons ── */
+    .smgp-cl-btn-row { display: flex; gap: 0.65rem; margin-top: 1rem; margin-bottom: 1.25rem; }
+    .smgp-cl-btn {
+        border: none; border-radius: 10px; padding: 0.55rem 1.5rem;
+        font-weight: 600; font-size: 0.875rem; cursor: pointer;
+        display: inline-flex; align-items: center; gap: 0.4rem;
+        transition: all 0.15s;
+    }
+    .smgp-cl-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+    .smgp-cl-btn--scan { background: #10b981; color: #fff !important; }
+    .smgp-cl-btn--scan:hover { background: #059669; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(16,185,129,0.25); }
+    .smgp-cl-btn--import { background: linear-gradient(135deg, #10b981, #059669); color: #fff !important; }
+    .smgp-cl-btn--import:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(16,185,129,0.3); }
+    #smgp-courseloader .smgp-cl-btn--scan i,
+    #smgp-courseloader .smgp-cl-btn--scan i::before,
+    #smgp-courseloader .smgp-cl-btn--import i,
+    #smgp-courseloader .smgp-cl-btn--import i::before { color: #fff !important; }
+
+    /* ── Results ── */
+    .smgp-cl-results-card {
+        background: #fff; border: 1px solid #e5e7eb; border-left: 3px solid #10b981;
+        border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 0.75rem;
+    }
+    .smgp-cl-results-card h4 {
+        font-size: 0.95rem; font-weight: 600; color: #1e293b; margin-bottom: 0.65rem;
+        display: flex; align-items: center; gap: 0.4rem;
+    }
+    .smgp-cl-results-card h4 i { color: #10b981; }
+    .smgp-cl-results-card table { font-size: 0.8rem; margin-bottom: 0; }
+
+    /* ── Spinner ── */
+    .smgp-cl-spinner {
+        display: flex; align-items: center; gap: 0.5rem;
+        color: #64748b; font-size: 0.875rem; padding: 0.75rem 0;
+    }
+    .smgp-cl-spinner .dot {
+        width: 7px; height: 7px; border-radius: 50%; background: #10b981;
+        animation: smgp-pulse 1s infinite;
+    }
+    .smgp-cl-spinner .dot:nth-child(2) { animation-delay: 0.15s; }
+    .smgp-cl-spinner .dot:nth-child(3) { animation-delay: 0.3s; }
+    @keyframes smgp-pulse { 0%,80%,100% { opacity: 0.25; } 40% { opacity: 1; } }
+
+    /* ── Alerts ── */
+    .smgp-cl-alert {
+        border-radius: 10px; padding: 0.85rem 1.25rem;
+        display: flex; align-items: center; gap: 0.65rem;
+        margin-bottom: 0.75rem; font-size: 0.875rem;
+    }
+    .smgp-cl-alert--ok { background: #f0fdf4; border: 1px solid #bbf7d0; }
+    .smgp-cl-alert--ok i { color: #10b981; font-size: 1.2rem; }
+    .smgp-cl-alert--ok strong { color: #166534; }
+    .smgp-cl-alert--err { background: #fef2f2; border: 1px solid #fecaca; }
+    .smgp-cl-alert--err i { color: #ef4444; font-size: 1.2rem; }
+    .smgp-cl-alert--err strong { color: #991b1b; }
+    .smgp-cl-alert a.smgp-cl-course-btn {
+        margin-left: auto; background: #10b981; color: #fff;
+        padding: 0.35rem 1rem; border-radius: 8px;
+        font-weight: 600; font-size: 0.8rem; text-decoration: none;
+        transition: background 0.15s;
+    }
+    .smgp-cl-alert a.smgp-cl-course-btn:hover { background: #059669; }
+
+    /* ── Log ── */
+    .smgp-cl-log-pre {
+        background: #0f172a; color: #e2e8f0; padding: 1rem;
+        border-radius: 10px; max-height: 400px; overflow-y: auto;
+        font-size: 0.78rem; line-height: 1.5;
+    }
+</style>
+
+<div class="px-4 py-3" id="smgp-courseloader">
+    <h2 class="smgp-cl-heading">{{title}}</h2>
+    <p class="smgp-cl-subtitle">{{subtitle}}</p>
 
     {{^configured}}
-    <div class="alert alert-warning">
-        {{{no_config_msg}}}
-        <a href="{{settings_url}}" class="btn btn-sm btn-primary ml-3">Configurar</a>
+    <div class="smgp-cl-alert smgp-cl-alert--err">
+        <i class="fa fa-exclamation-circle"></i>
+        <span>{{{no_config_msg}}}</span>
+        <a href="{{settings_url}}" class="smgp-cl-course-btn">Configurar</a>
     </div>
     {{/configured}}
 
     {{#configured}}
-    {{! ---- Input form ---- }}
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="form-group mb-3">
-                <label for="smgp-cl-url"><strong>{{str.folder_url}}</strong></label>
-                <input type="url" class="form-control" id="smgp-cl-url"
-                       placeholder="{{str.folder_placeholder}}" />
+    {{! ── Course source ── }}
+    <div class="smgp-cl-section">
+        <div class="smgp-cl-section-title"><i class="icon-cloud"></i> {{str.course_sp}}</div>
+        {{! Search mode (default) }}
+        <div id="smgp-cl-search-mode">
+            <div class="smgp-cl-course-row">
+                <div class="smgp-cl-autocomplete">
+                    <input type="text" id="smgp-cl-course-input" placeholder="{{str.search_course}}" autocomplete="off" />
+                    <input type="hidden" id="smgp-cl-course-url" />
+                    <div class="smgp-cl-dropdown" id="smgp-cl-course-dropdown"></div>
+                </div>
+                <button type="button" id="smgp-cl-toggle-url"><i class="fa fa-link"></i> URL</button>
             </div>
-            <div class="form-group mb-3">
-                <label for="smgp-cl-category"><strong>{{str.category}}</strong></label>
-                <select class="form-control" id="smgp-cl-category">
-                    {{#categories}}
-                    <option value="{{id}}">{{name}}</option>
-                    {{/categories}}
-                </select>
+        </div>
+        {{! URL mode (hidden by default) }}
+        <div class="d-none" id="smgp-cl-url-mode">
+            <div class="smgp-cl-course-row">
+                <input type="url" id="smgp-cl-url" placeholder="{{str.folder_placeholder}}" style="flex:1;" />
+                <button type="button" id="smgp-cl-toggle-list" class="smgp-cl-toggle-btn"><i class="fa fa-list"></i> Lista</button>
             </div>
-            <button class="btn btn-primary mr-2" id="smgp-cl-scan-btn">
-                <i class="fa fa-search mr-1"></i> {{str.scan}}
-            </button>
-            <button class="btn btn-success d-none" id="smgp-cl-import-btn">
-                <i class="fa fa-download mr-1"></i> {{str.import}}
-            </button>
+        </div>
+        <div class="smgp-cl-hint">
+            <span id="smgp-cl-cache-info">{{str.courses_available}}{{#last_sync}} · {{str.synced}}: {{last_sync}}{{/last_sync}}</span>
+            <button type="button" id="smgp-cl-sync-btn" class="smgp-cl-sync-link" data-url="{{{sync_url}}}">↻ {{str.sync}}</button>
+        </div>
+        <div class="d-none" id="smgp-cl-sync-log" style="margin-top:0.75rem;">
+            <pre class="smgp-cl-log-pre" id="smgp-cl-sync-log-content" style="max-height:250px;font-size:0.75rem;"></pre>
         </div>
     </div>
 
-    {{! ---- Scanning spinner ---- }}
-    <div class="d-none mb-4" id="smgp-cl-scanning">
-        <div class="d-flex align-items-center">
-            <div class="spinner-border spinner-border-sm text-primary mr-2" role="status"></div>
+    {{! ── Companies ── }}
+    <div class="smgp-cl-section">
+        <div class="smgp-cl-section-title"><i class="icon-building"></i> {{str.companies}}</div>
+        <input type="text" id="smgp-cl-company-search" placeholder="{{str.search_company}}" />
+        <div class="smgp-cl-company-wrap">
+        <table class="smgp-cl-company-table" id="smgp-cl-company-table">
+            <thead>
+                <tr>
+                    <th style="width:50px;">
+                        <label class="smgp-cl-toggle" style="margin:0;">
+                            <input type="checkbox" id="smgp-cl-select-all" />
+                            <span class="slider"></span>
+                        </label>
+                    </th>
+                    <th>{{str.company}}</th>
+                    <th>{{str.shortname}}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#companies}}
+                <tr data-company-id="{{id}}" data-category-id="{{category}}" data-search="{{name}} {{shortname}}">
+                    <td>
+                        <label class="smgp-cl-toggle" style="margin:0;">
+                            <input type="checkbox" class="smgp-cl-company-cb" value="{{id}}" data-catid="{{category}}" />
+                            <span class="slider"></span>
+                        </label>
+                    </td>
+                    <td><strong>{{name}}</strong></td>
+                    <td style="color:#94a3b8;font-size:0.8rem;">{{shortname}}</td>
+                </tr>
+                {{/companies}}
+            </tbody>
+        </table>
+        </div>
+    </div>
+
+    {{! ── Scan button ── }}
+    <div class="smgp-cl-btn-row">
+        <button class="smgp-cl-btn smgp-cl-btn--scan" id="smgp-cl-scan-btn">
+            <i class="fa fa-search"></i> {{str.scan}}
+        </button>
+    </div>
+
+    {{! ── Scanning spinner ── }}
+    <div class="d-none" id="smgp-cl-scanning">
+        <div class="smgp-cl-spinner">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
             <span>{{str.scanning}}</span>
         </div>
     </div>
 
-    {{! ---- Scan results ---- }}
-    <div class="d-none mb-4" id="smgp-cl-results">
-        <h4>{{str.scan_results}}</h4>
-        <div id="smgp-cl-folder-name" class="mb-2 font-weight-bold"></div>
-        <table class="table table-sm table-bordered">
+    {{! ── Scan results ── }}
+    <div class="d-none smgp-cl-results-card" id="smgp-cl-results">
+        <h4><i class="fa fa-folder-open"></i> {{str.scan_results}}</h4>
+        <div id="smgp-cl-folder-name" style="font-weight:600;color:#1e293b;margin-bottom:0.5rem;"></div>
+        <table class="table table-sm table-bordered" style="margin-bottom:0;">
             <thead class="thead-light">
-                <tr>
-                    <th>{{str.type}}</th>
-                    <th>{{str.count}}</th>
-                    <th>{{str.names}}</th>
-                </tr>
+                <tr><th>{{str.type}}</th><th>{{str.count}}</th><th>{{str.names}}</th></tr>
             </thead>
             <tbody id="smgp-cl-results-body"></tbody>
         </table>
-
-        {{! Warnings }}
-        <div class="d-none" id="smgp-cl-warnings">
-            <h5 class="text-warning"><i class="fa fa-exclamation-triangle mr-1"></i> {{str.warnings}}</h5>
-            <ul id="smgp-cl-warnings-list"></ul>
+        <div class="d-none" id="smgp-cl-warnings" style="margin-top:0.75rem;">
+            <h5 class="text-warning" style="font-size:0.9rem;"><i class="fa fa-exclamation-triangle mr-1"></i> {{str.warnings}}</h5>
+            <ul id="smgp-cl-warnings-list" style="font-size:0.8rem;"></ul>
         </div>
     </div>
 
-    {{! ---- Import progress ---- }}
-    <div class="d-none mb-4" id="smgp-cl-progress">
-        <div class="d-flex align-items-center mb-2">
-            <div class="spinner-border spinner-border-sm text-success mr-2" role="status"></div>
+    {{! ── Import button (below results) ── }}
+    <div class="d-none" id="smgp-cl-import-row" style="margin-bottom:1rem;">
+        <button class="smgp-cl-btn smgp-cl-btn--import" id="smgp-cl-import-btn">
+            <i class="fa fa-download"></i> {{str.import}}
+        </button>
+    </div>
+
+    {{! ── Import progress ── }}
+    <div class="d-none" id="smgp-cl-progress">
+        <div class="smgp-cl-spinner">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
             <span>{{str.importing}}</span>
         </div>
     </div>
 
-    {{! ---- Import log ---- }}
-    <div class="d-none mb-4" id="smgp-cl-log">
-        <h5>Log</h5>
-        <pre id="smgp-cl-log-content" class="bg-dark text-light p-3 rounded" style="max-height:400px;overflow-y:auto;font-size:0.85rem;"></pre>
+    {{! ── Log ── }}
+    <div class="d-none" id="smgp-cl-log" style="margin-top:0.75rem;">
+        <h5 style="font-size:0.9rem;font-weight:600;color:#1e293b;">Log</h5>
+        <pre id="smgp-cl-log-content" class="smgp-cl-log-pre"></pre>
     </div>
 
-    {{! ---- Success ---- }}
-    <div class="d-none mb-4" id="smgp-cl-success">
-        <div class="alert alert-success">
-            <i class="fa fa-check-circle mr-1"></i>
+    {{! ── Success ── }}
+    <div class="d-none" id="smgp-cl-success">
+        <div class="smgp-cl-alert smgp-cl-alert--ok">
+            <i class="fa fa-check-circle"></i>
             <strong>{{str.success}}</strong>
-            <a href="#" id="smgp-cl-course-link" class="btn btn-sm btn-primary ml-3">{{str.go_to_course}}</a>
+            <a href="#" id="smgp-cl-course-link" class="smgp-cl-course-btn">{{str.go_to_course}}</a>
         </div>
     </div>
 
-    {{! ---- Error ---- }}
-    <div class="d-none mb-4" id="smgp-cl-error">
-        <div class="alert alert-danger">
-            <i class="fa fa-times-circle mr-1"></i>
+    {{! ── Error ── }}
+    <div class="d-none" id="smgp-cl-error">
+        <div class="smgp-cl-alert smgp-cl-alert--err">
+            <i class="fa fa-times-circle"></i>
             <strong>{{str.error}}</strong>
             <span id="smgp-cl-error-msg"></span>
         </div>
