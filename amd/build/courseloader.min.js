@@ -42,6 +42,7 @@ define(['core/ajax', 'core/notification'], function(Ajax, Notification) {
         el.selectAll   = document.getElementById('smgp-cl-select-all');
         el.scanBtn     = document.getElementById('smgp-cl-scan-btn');
         el.importBtn   = document.getElementById('smgp-cl-import-btn');
+        el.importRow   = document.getElementById('smgp-cl-import-row');
         el.scanning    = document.getElementById('smgp-cl-scanning');
         el.results     = document.getElementById('smgp-cl-results');
         el.folderName  = document.getElementById('smgp-cl-folder-name');
@@ -62,7 +63,7 @@ define(['core/ajax', 'core/notification'], function(Ajax, Notification) {
 
     function resetUI() {
         hide(el.results); hide(el.warnings); hide(el.progress);
-        hide(el.log); hide(el.success); hide(el.error); hide(el.importBtn);
+        hide(el.log); hide(el.success); hide(el.error); hide(el.importRow);
         if (el.resultsBody) { el.resultsBody.innerHTML = ''; }
         if (el.warningsList) { el.warningsList.innerHTML = ''; }
         if (el.logContent) { el.logContent.textContent = ''; }
@@ -268,7 +269,7 @@ define(['core/ajax', 'core/notification'], function(Ajax, Notification) {
                 });
                 show(el.warnings);
             }
-            if (data.mbz && data.mbz.length > 0) { show(el.importBtn); }
+            if (data.mbz && data.mbz.length > 0) { show(el.importRow); }
         }).catch(function(err) {
             hide(el.scanning);
             el.scanBtn.disabled = false;
@@ -284,36 +285,27 @@ define(['core/ajax', 'core/notification'], function(Ajax, Notification) {
             alert('Selecciona al menos una empresa de destino.');
             return;
         }
-        hide(el.importBtn);
+        hide(el.importRow);
         hide(el.results);
         show(el.progress);
         el.scanBtn.disabled = true;
 
+        // Download MBZ from SharePoint and redirect to native restore wizard.
+        var companyIds = getSelectedCompanyIds();
         Ajax.call([{
-            methodname: 'local_sm_graphics_plugin_sharepoint_import',
-            args: {folder_url: url, categoryid: categoryid}
+            methodname: 'local_sm_graphics_plugin_sharepoint_prepare_restore',
+            args: {folder_url: url, categoryid: categoryid, companyids: JSON.stringify(companyIds)}
         }])[0].then(function(data) {
-            hide(el.progress);
-            el.scanBtn.disabled = false;
-            if (data.log && data.log.length > 0) {
-                el.logContent.textContent = data.log.join('\n');
-                show(el.log);
-            }
             if (data.success) {
-                el.courseLink.href = data.course_url;
-                show(el.success);
-                var companyIds = getSelectedCompanyIds();
-                if (data.courseid && companyIds.length > 0) {
-                    companyIds.forEach(function(compId) {
-                        Ajax.call([{
-                            methodname: 'local_sm_graphics_plugin_assign_course_company',
-                            args: {courseid: data.courseid, companyid: compId}
-                        }]);
-                    });
-                }
+                // Redirect to Moodle's restore wizard step 1 (Confirm).
+                window.location.href = M.cfg.wwwroot
+                    + '/backup/restore.php?contextid=' + data.contextid
+                    + '&stage=1&filename=' + encodeURIComponent(data.filename);
             } else {
+                hide(el.progress);
+                el.scanBtn.disabled = false;
                 show(el.error);
-                el.errorMsg.textContent = data.log.length > 0 ? data.log[data.log.length - 1] : 'Error desconocido.';
+                el.errorMsg.textContent = data.error || 'Error desconocido.';
             }
         }).catch(function(err) {
             hide(el.progress);

@@ -179,5 +179,21 @@
         <INDEX NAME="courseid_lang_unique" UNIQUE="true" FIELDS="courseid, lang"/>
       </INDEXES>
     </TABLE>
+    <TABLE NAME="local_smgp_sp_courses" COMMENT="Cached SharePoint course folders (synced daily)">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" COMMENT="Course folder name"/>
+        <FIELD NAME="web_url" TYPE="text" NOTNULL="true" COMMENT="SharePoint folder URL"/>
+        <FIELD NAME="parent_folder" TYPE="char" LENGTH="255" NOTNULL="false" DEFAULT="" COMMENT="Root folder name (e.g. PRIV_CATALOGO)"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="ix_name" UNIQUE="false" FIELDS="name"/>
+      </INDEXES>
+    </TABLE>
   </TABLES>
 </XMLDB>

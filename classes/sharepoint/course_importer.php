@@ -43,6 +43,46 @@ class course_importer {
      * @param int $categoryid Target Moodle course category ID.
      * @return array {success: bool, courseid: int, course_url: string, log: string[]}
      */
+    /**
+     * Apply SharePoint extras (SCORM, PDFs, evaluations) to an already-restored course.
+     *
+     * Called after the native restore wizard completes, to add the extra content
+     * that was shown in the restore UI but lives outside the MBZ file.
+     *
+     * @param array $manifest Full SharePoint manifest from course_analyzer::analyze().
+     * @param int $courseid The restored course ID.
+     */
+    public static function apply_extras(array $manifest, int $courseid): void {
+        \core_php_time_limit::raise(300);
+
+        // Save site/drive IDs for the download proxy.
+        if (!empty($manifest['site_id'])) {
+            set_config('sp_last_site_id', $manifest['site_id'], 'local_sm_graphics_plugin');
+        }
+        if (!empty($manifest['drive_id'])) {
+            set_config('sp_last_drive_id', $manifest['drive_id'], 'local_sm_graphics_plugin');
+        }
+
+        // Configure SCORM activities with external URLs.
+        if (!empty($manifest['scorm'])) {
+            self::configure_scorm_activities($courseid, $manifest);
+        }
+
+        // Create URL resources for PDFs and documents.
+        $resources = array_merge($manifest['pdf'] ?? [], $manifest['documents'] ?? []);
+        if (!empty($resources)) {
+            self::create_url_resources($courseid, $manifest);
+        }
+
+        // Import evaluations (AIKEN + GIFT).
+        $evals = array_merge($manifest['evaluations_aiken'] ?? [], $manifest['evaluations_gift'] ?? []);
+        if (!empty($evals)) {
+            self::import_evaluations($courseid, $manifest);
+        }
+
+        rebuild_course_cache($courseid, true);
+    }
+
     public static function import(array $manifest, int $categoryid): array {
         global $CFG;
 

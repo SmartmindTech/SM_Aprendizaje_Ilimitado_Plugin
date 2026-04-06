@@ -116,7 +116,7 @@
     .smgp-cl-toggle input:checked + .slider::before { transform: translateX(16px); }
 
     /* ── Buttons ── */
-    .smgp-cl-btn-row { display: flex; gap: 0.65rem; margin-top: 1rem; }
+    .smgp-cl-btn-row { display: flex; gap: 0.65rem; margin-top: 1rem; margin-bottom: 1.25rem; }
     .smgp-cl-btn {
         border: none; border-radius: 10px; padding: 0.55rem 1.5rem;
         font-weight: 600; font-size: 0.875rem; cursor: pointer;
@@ -126,8 +126,12 @@
     .smgp-cl-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
     .smgp-cl-btn--scan { background: #10b981; color: #fff !important; }
     .smgp-cl-btn--scan:hover { background: #059669; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(16,185,129,0.25); }
-    .smgp-cl-btn--import { background: linear-gradient(135deg, #10b981, #059669); color: #fff; }
+    .smgp-cl-btn--import { background: linear-gradient(135deg, #10b981, #059669); color: #fff !important; }
     .smgp-cl-btn--import:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(16,185,129,0.3); }
+    #smgp-courseloader .smgp-cl-btn--scan i,
+    #smgp-courseloader .smgp-cl-btn--scan i::before,
+    #smgp-courseloader .smgp-cl-btn--import i,
+    #smgp-courseloader .smgp-cl-btn--import i::before { color: #fff !important; }
 
     /* ── Results ── */
     .smgp-cl-results-card {
@@ -183,7 +187,7 @@
 </style>
 
 <div class="px-4 py-3" id="smgp-courseloader">
-    <h2 class="smgp-cl-heading"><i class="icon-cloud-download"></i> {{title}}</h2>
+    <h2 class="smgp-cl-heading">{{title}}</h2>
     <p class="smgp-cl-subtitle">{{subtitle}}</p>
 
     {{^configured}}
@@ -261,13 +265,10 @@
         </div>
     </div>
 
-    {{! ── Actions ── }}
+    {{! ── Scan button ── }}
     <div class="smgp-cl-btn-row">
         <button class="smgp-cl-btn smgp-cl-btn--scan" id="smgp-cl-scan-btn">
             <i class="fa fa-search"></i> {{str.scan}}
-        </button>
-        <button class="smgp-cl-btn smgp-cl-btn--import d-none" id="smgp-cl-import-btn">
-            <i class="fa fa-download"></i> {{str.import}}
         </button>
     </div>
 
@@ -293,6 +294,13 @@
             <h5 class="text-warning" style="font-size:0.9rem;"><i class="fa fa-exclamation-triangle mr-1"></i> {{str.warnings}}</h5>
             <ul id="smgp-cl-warnings-list" style="font-size:0.8rem;"></ul>
         </div>
+    </div>
+
+    {{! ── Import button (below results) ── }}
+    <div class="d-none" id="smgp-cl-import-row" style="margin-bottom:1rem;">
+        <button class="smgp-cl-btn smgp-cl-btn--import" id="smgp-cl-import-btn">
+            <i class="fa fa-download"></i> {{str.import}}
+        </button>
     </div>
 
     {{! ── Import progress ── }}
