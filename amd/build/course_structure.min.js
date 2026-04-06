@@ -10,9 +10,35 @@ define([], function() {
 
     var GREEN = '#10b981';
     var sections = [];
+    var spActivities = []; // SharePoint palette (separate from course structure).
     var hiddenInput = null;
     var mainContainer = null;
     var dragState = {type: null, srcSection: null, srcActivity: null};
+    var selectedActivities = []; // Multi-select with Ctrl+click.
+    var scrollInterval = null;
+
+    // ── Auto-scroll during drag ──
+    // Large scroll zone (150px from edge) with fast speed for long-distance dragging.
+    function startAutoScroll() {
+        if (scrollInterval) return;
+        scrollInterval = setInterval(function() {
+            var y = lastDragY;
+            if (y < 0) return;
+            var zone = 150;
+            var maxSpeed = 25;
+            if (y < zone) {
+                var pct = 1 - (y / zone);
+                window.scrollBy(0, -(maxSpeed * pct * pct + 3));
+            } else if (y > window.innerHeight - zone) {
+                var pct = 1 - ((window.innerHeight - y) / zone);
+                window.scrollBy(0, maxSpeed * pct * pct + 3);
+            }
+        }, 16);
+    }
+    function stopAutoScroll() {
+        if (scrollInterval) { clearInterval(scrollInterval); scrollInterval = null; }
+    }
+    var lastDragY = -1;
 
     // ============================================================
     // Init
@@ -42,10 +68,25 @@ define([], function() {
         }
 
         parseSections();
+        loadSharePointExtras();
         injectStyles();
         hideSelectAllNone();
         renderAll();
         syncToHidden();
+
+        // Global dragover for auto-scroll near edges.
+        document.addEventListener('dragover', function(e) {
+            lastDragY = e.clientY;
+            startAutoScroll();
+        });
+        document.addEventListener('dragend', function() {
+            lastDragY = -1;
+            stopAutoScroll();
+            selectedActivities = [];
+            mainContainer.querySelectorAll('.smgp-act-selected').forEach(function(el) {
+                el.classList.remove('smgp-act-selected');
+            });
+        });
     }
 
     /**
@@ -64,6 +105,18 @@ define([], function() {
                 }
             });
         }
+        // Also hide elements by text content already in the DOM.
+        if (fieldset) {
+            fieldset.querySelectorAll('div, span, p').forEach(function(el) {
+                var t = el.textContent || '';
+                if (((t.indexOf('All') !== -1 && t.indexOf('None') !== -1) ||
+                    (t.indexOf('Todos') !== -1 && t.indexOf('Ninguno') !== -1) ||
+                    (t.indexOf('Show type') !== -1) || (t.indexOf('Mostrar tipo') !== -1)) &&
+                    el.querySelectorAll('a').length >= 2) {
+                    el.style.display = 'none';
+                }
+            });
+        }
         // Also try MutationObserver to catch dynamically injected elements.
         var observer = new MutationObserver(function(mutations) {
             mutations.forEach(function(m) {
@@ -75,10 +128,14 @@ define([], function() {
                         node.classList.contains('bcs-selector'))) {
                         node.style.display = 'none';
                     }
-                    // Also hide any div/span containing "All" + "None" links inside our fieldset.
-                    if (node.textContent && node.textContent.indexOf('All') !== -1 &&
-                        node.textContent.indexOf('None') !== -1 && fieldset && fieldset.contains(node)) {
-                        node.style.display = 'none';
+                    // Also hide any element containing "All/None" or "Todos/Ninguno" links.
+                    if (node.textContent && fieldset && fieldset.contains(node)) {
+                        var t = node.textContent;
+                        if ((t.indexOf('All') !== -1 && t.indexOf('None') !== -1) ||
+                            (t.indexOf('Todos') !== -1 && t.indexOf('Ninguno') !== -1) ||
+                            (t.indexOf('Show type') !== -1) || (t.indexOf('Mostrar tipo') !== -1)) {
+                            node.style.display = 'none';
+                        }
                     }
                 });
             });
@@ -86,6 +143,62 @@ define([], function() {
         if (fieldset) {
             observer.observe(fieldset, {childList: true, subtree: true});
         }
+    }
+
+    /**
+     * Load SharePoint extras (SCORM, PDFs, evaluations) from session manifest
+     * and add them as a new section at the end of the sections list.
+     */
+    function loadSharePointExtras() {
+        var manifestEl = document.getElementById('smgp-sp-manifest-data');
+        if (!manifestEl || !manifestEl.value) {
+            return;
+        }
+        var raw = manifestEl.value;
+        try {
+            // The value may be double-encoded (JSON string of JSON).
+            var manifest = JSON.parse(raw);
+            if (typeof manifest === 'string') {
+                manifest = JSON.parse(manifest);
+            }
+        } catch (e) {
+            return;
+        }
+
+        spActivities = [];
+        var iconMap = {
+            scorm: 'icon-box',
+            pdf: 'icon-file-text',
+            documents: 'icon-file',
+            evaluations_aiken: 'icon-circle-help',
+            evaluations_gift: 'icon-circle-help'
+        };
+        var labelMap = {
+            scorm: 'Paquete SCORM',
+            pdf: 'PDF',
+            documents: 'Documento',
+            evaluations_aiken: 'Evaluación AIKEN',
+            evaluations_gift: 'Evaluación GIFT'
+        };
+
+        ['scorm', 'pdf', 'documents', 'evaluations_aiken', 'evaluations_gift'].forEach(function(type) {
+            var files = manifest[type] || [];
+            files.forEach(function(f, i) {
+                var name = f.name.replace(/\.[^/.]+$/, '');
+                spActivities.push({
+                    name: name,
+                    origName: name,
+                    actKey: 'sp_' + type + '_' + i,
+                    modname: labelMap[type],
+                    modicon: '',
+                    iconClass: iconMap[type], // Lucide icon class for SP activities.
+                    el: null,
+                    checked: true
+                });
+            });
+        });
+
+        // spActivities is now stored at module level, rendered separately.
     }
 
     // ============================================================
@@ -172,8 +285,10 @@ define([], function() {
         style.textContent = ''
             // Hide original Moodle elements.
             + '#id_coursesettingscontainer > .grouped_settings.section_level { display: none !important; }'
-            // Hide "Select All / None (Show type options)".
+            // Hide "Select All / None (Show type options)" — multiple possible containers.
             + '#id_coursesettingscontainer > .grouped_settings:not(.section_level):not(.activity_level) { display: none !important; }'
+            + '.backup-course-selector { display: none !important; }'
+            + '#page-backup-restore .bcs-selector { display: none !important; }'
 
             // === Toggle switch (replaces checkboxes) ===
             + '.smgp-toggle { position: relative; display: inline-block; width: 36px; height: 20px; flex-shrink: 0; }'
@@ -238,6 +353,7 @@ define([], function() {
             + '.smgp-activity-row:nth-child(even) { background: #fafbfc; }'
             + '.smgp-activity-row:hover { background: #f0fdf4; }'
             + '.smgp-activity-row.dragging { opacity: 0.35; }'
+            + '.smgp-activity-row.smgp-act-selected { background: #ecfdf5 !important; box-shadow: inset 3px 0 0 ' + GREEN + '; }'
             + '.smgp-activity-row.drag-over { box-shadow: inset 0 -2px 0 ' + GREEN + '; }'
             + '.smgp-act-handle { cursor: grab; color: #d1d5db; font-size: 0.8rem; flex-shrink: 0; }'
             + '.smgp-act-handle:hover { color: ' + GREEN + '; }'
@@ -246,11 +362,12 @@ define([], function() {
             + '  display: flex; align-items: center; justify-content: center; flex-shrink: 0;'
             + '}'
             + '.smgp-act-icon img { width: 16px; height: 16px; }'
-            + '.smgp-act-info { flex: 1; min-width: 0; }'
+            + '.smgp-act-icon i { background: none !important; width: auto !important; height: auto !important; padding: 0 !important; margin: 0 !important; }'
+            + '.smgp-act-info { flex: 1; min-width: 0; text-align: left; }'
             + '.smgp-act-name {'
             + '  font-weight: 600; font-size: 0.875rem; color: #1e293b;'
             + '  cursor: text; border-radius: 4px; padding: 1px 6px;'
-            + '  display: inline-block; transition: background 0.15s;'
+            + '  display: block; transition: background 0.15s; text-align: left;'
             + '}'
             + '.smgp-act-name:hover { background: #f1f5f9; }'
             + '.smgp-act-name-input {'
@@ -258,7 +375,7 @@ define([], function() {
             + '  border: 1.5px solid ' + GREEN + '; border-radius: 4px; padding: 1px 6px;'
             + '  outline: none; width: 100%; box-shadow: 0 0 0 3px rgba(16,185,129,0.1);'
             + '}'
-            + '.smgp-act-modlabel { font-size: 0.75rem; color: #94a3b8; margin-top: 1px; }'
+            + '.smgp-act-modlabel { font-size: 0.75rem; color: #94a3b8; margin-top: 1px; padding-left: 6px; text-align: left; }'
 
             // === Empty section drop zone ===
             + '.smgp-empty-drop {'
@@ -294,7 +411,7 @@ define([], function() {
     // ============================================================
 
     function renderAll() {
-        mainContainer.querySelectorAll('.smgp-section-card, .smgp-structure-heading, .smgp-add-section-btn').forEach(function(el) {
+        mainContainer.querySelectorAll('.smgp-section-card, .smgp-structure-heading, .smgp-add-section-btn, .smgp-sp-palette').forEach(function(el) {
             el.remove();
         });
 
@@ -341,6 +458,31 @@ define([], function() {
             });
         });
         lastEl.after(addSecBtn);
+
+        // Render SharePoint palette as a separate section (not part of course structure).
+        if (spActivities.length > 0) {
+            var spHeading = document.createElement('h4');
+            spHeading.className = 'smgp-structure-heading';
+            spHeading.innerHTML = '<i class="icon-database" style="color:' + GREEN + ';"></i> Contenido SharePoint'
+                + '<span style="font-size:0.7rem;font-weight:500;color:#64748b;background:#f1f5f9;padding:2px 8px;border-radius:99px;margin-left:auto;">'
+                + spActivities.length + ' archivos</span>';
+
+            var spCard = document.createElement('div');
+            spCard.className = 'smgp-section-card smgp-sp-palette';
+            spCard.style.borderLeftColor = '#94a3b8'; // Grey border to distinguish from course sections.
+
+            var spList = document.createElement('div');
+            spList.className = 'smgp-activities-list';
+
+            spActivities.forEach(function(act, ai) {
+                var row = createActivityRow(act, ai, -1); // sectionIndex = -1 (not a real section).
+                spList.appendChild(row);
+            });
+
+            spCard.appendChild(spList);
+            addSecBtn.after(spHeading);
+            spHeading.after(spCard);
+        }
     }
 
     function createSectionCard(sec, sectionIndex) {
@@ -358,17 +500,18 @@ define([], function() {
         handle.innerHTML = '&#x2630;';
         header.appendChild(handle);
 
-        // Toggle switch.
-        var toggle = createToggle(sec.checked, function(checked) {
-            sec.checked = checked;
-            sec.activities.forEach(function(a) { a.checked = checked; });
-            // Update activity toggles in-place without re-rendering.
-            card.querySelectorAll('.smgp-toggle input').forEach(function(inp) {
-                inp.checked = checked;
+        // Toggle switch (skip for SP palette section).
+        if (!sec.isSPSection) {
+            var toggle = createToggle(sec.checked, function(checked) {
+                sec.checked = checked;
+                sec.activities.forEach(function(a) { a.checked = checked; });
+                card.querySelectorAll('.smgp-toggle input').forEach(function(inp) {
+                    inp.checked = checked;
+                });
+                syncToHidden();
             });
-            syncToHidden();
-        });
-        header.appendChild(toggle);
+            header.appendChild(toggle);
+        }
 
         // Editable name.
         var nameSpan = document.createElement('span');
@@ -439,10 +582,11 @@ define([], function() {
             }
             e.preventDefault();
             e.stopPropagation();
-            var srcSec = dragState.srcSection;
-            var srcAct = dragState.srcActivity;
-            var item = sections[srcSec].activities.splice(srcAct, 1)[0];
-            sections[sectionIndex].activities.push(item);
+            var items = collectDragItems();
+            items.forEach(function(item) {
+                sections[sectionIndex].activities.push(item);
+            });
+            selectedActivities = [];
             renderAll();
             syncToHidden();
         });
@@ -509,6 +653,21 @@ define([], function() {
         row.dataset.actIndex = actIndex;
         row.dataset.sectionIndex = sectionIndex;
 
+        // Ctrl+click to select multiple activities.
+        row.addEventListener('click', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                e.preventDefault();
+                row.classList.toggle('smgp-act-selected');
+                var key = sectionIndex + ':' + actIndex;
+                var idx = selectedActivities.indexOf(key);
+                if (idx === -1) {
+                    selectedActivities.push(key);
+                } else {
+                    selectedActivities.splice(idx, 1);
+                }
+            }
+        });
+
         // Handle.
         var handle = document.createElement('span');
         handle.className = 'smgp-act-handle';
@@ -523,6 +682,11 @@ define([], function() {
             img.src = act.modicon;
             img.alt = act.modname;
             iconDiv.appendChild(img);
+        } else if (act.iconClass) {
+            var iconEl = document.createElement('i');
+            iconEl.className = act.iconClass;
+            iconEl.style.cssText = 'color:#10b981;font-size:0.85rem;';
+            iconDiv.appendChild(iconEl);
         }
         row.appendChild(iconDiv);
 
@@ -547,17 +711,28 @@ define([], function() {
         }
         row.appendChild(infoDiv);
 
-        // Toggle.
-        var toggle = createToggle(act.checked, function(checked) {
-            act.checked = checked;
-            syncToHidden();
-        });
-        row.appendChild(toggle);
+        // Toggle (skip only when activity is in the SP palette, not when dragged into a course section).
+        if (sectionIndex !== -1) {
+            var toggle = createToggle(act.checked, function(checked) {
+                act.checked = checked;
+                syncToHidden();
+            });
+            row.appendChild(toggle);
+        }
 
         // Activity drag handlers.
         row.addEventListener('dragstart', function(e) {
             e.stopPropagation();
-            dragState = {type: 'activity', srcSection: sectionIndex, srcActivity: actIndex};
+            // If this row is part of a multi-selection, drag all selected.
+            var key = sectionIndex + ':' + actIndex;
+            if (selectedActivities.length > 0 && selectedActivities.indexOf(key) === -1) {
+                // Dragging a non-selected row clears selection.
+                selectedActivities = [];
+                mainContainer.querySelectorAll('.smgp-act-selected').forEach(function(el) {
+                    el.classList.remove('smgp-act-selected');
+                });
+            }
+            dragState = {type: 'activity', srcSection: sectionIndex, srcActivity: actIndex, multi: selectedActivities.slice()};
             row.classList.add('dragging');
             e.dataTransfer.effectAllowed = 'move';
             e.dataTransfer.setData('text/plain', 'activity:' + sectionIndex + ':' + actIndex);
@@ -578,10 +753,13 @@ define([], function() {
             e.stopPropagation();
             row.classList.remove('drag-over');
             if (dragState.type === 'activity') {
-                var srcSec = dragState.srcSection;
-                var srcAct = dragState.srcActivity;
-                var item = sections[srcSec].activities.splice(srcAct, 1)[0];
-                sections[sectionIndex].activities.splice(actIndex, 0, item);
+                var items = collectDragItems();
+                if (sectionIndex >= 0) {
+                    items.forEach(function(item, i) {
+                        sections[sectionIndex].activities.splice(actIndex + i, 0, item);
+                    });
+                }
+                selectedActivities = [];
                 renderAll();
                 syncToHidden();
             }
@@ -615,6 +793,50 @@ define([], function() {
         label.appendChild(input);
         label.appendChild(slider);
         return label;
+    }
+
+    /**
+     * Collect items being dragged (single or multi-select).
+     * Removes items from source sections (or copies from SP palette).
+     */
+    function collectDragItems() {
+        var items = [];
+        var multiKeys = dragState.multi || [];
+
+        if (multiKeys.length > 1) {
+            // Multi-select: collect all selected items, sorted by section then index descending
+            // (reverse order so splice indices stay valid).
+            var parsed = multiKeys.map(function(k) {
+                var parts = k.split(':');
+                return {sec: parseInt(parts[0]), act: parseInt(parts[1])};
+            }).sort(function(a, b) {
+                return a.sec !== b.sec ? a.sec - b.sec : b.act - a.act;
+            });
+            // Collect items (remove from source in reverse order).
+            var collected = [];
+            parsed.forEach(function(p) {
+                if (p.sec === -1) {
+                    var copy = JSON.parse(JSON.stringify(spActivities[p.act]));
+                    copy.actKey = copy.actKey + '_' + Date.now() + '_' + p.act;
+                    collected.push(copy);
+                } else if (sections[p.sec]) {
+                    collected.push(sections[p.sec].activities.splice(p.act, 1)[0]);
+                }
+            });
+            items = collected.reverse(); // Restore original order.
+        } else {
+            // Single drag.
+            var srcSec = dragState.srcSection;
+            var srcAct = dragState.srcActivity;
+            if (srcSec === -1) {
+                var copy = JSON.parse(JSON.stringify(spActivities[srcAct]));
+                copy.actKey = copy.actKey + '_' + Date.now();
+                items.push(copy);
+            } else if (sections[srcSec]) {
+                items.push(sections[srcSec].activities.splice(srcAct, 1)[0]);
+            }
+        }
+        return items;
     }
 
     // ============================================================

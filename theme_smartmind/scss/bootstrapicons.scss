@@ -695,8 +695,7 @@ $icon-colors: (
 .fa-trash::before, .fa-trash-can::before { color: #ef4444; }
 .fa-download::before { color: #10b981; }
 .fa-upload::before { color: #3b82f6; }
-.fa-search::before { color: #ffffff; }
-.fa-magnifying-glass::before { color: #6366f1; }
+.fa-search::before, .fa-magnifying-glass::before { color: #6366f1; }
 .fa-star::before { color: #f59e0b; }
 .fa-comment::before, .fa-comments::before, .fa-message::before { color: #06b6d4; }
 .fa-envelope::before, .fa-envelope-open::before { color: #3b82f6; }

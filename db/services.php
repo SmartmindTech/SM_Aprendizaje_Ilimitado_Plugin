@@ -206,4 +206,12 @@ $functions = [
         'ajax'         => true,
         'capabilities' => 'local/sm_graphics_plugin:import_courses',
     ],
+    'local_sm_graphics_plugin_sharepoint_prepare_restore' => [
+        'classname'    => 'local_sm_graphics_plugin\external\sharepoint_prepare_restore',
+        'methodname'   => 'execute',
+        'description'  => 'Download MBZ from SharePoint and prepare for native restore wizard',
+        'type'         => 'write',
+        'ajax'         => true,
+        'capabilities' => 'local/sm_graphics_plugin:import_courses',
+    ],
 ];
