@@ -54,20 +54,37 @@ function local_sm_graphics_plugin_enroll_user(int $userid, int $courseid, int $r
 }
 
 /**
- * Load the plugin's config.php and return it as an array.
+ * Load plugin configuration from the .env file.
  *
- * @return array Key-value pairs from config.php, or empty array if missing.
+ * Keys are lowercased and returned with the same names that config.php
+ * used (e.g. SMTP_HOST → smtp_host, AZURE_TENANT_ID → azure_tenant_id)
+ * so every call-site keeps working without changes.
+ *
+ * @return array Key-value pairs from .env, or empty array if missing.
  */
 function local_sm_graphics_plugin_load_config(): array {
     static $cache = null;
     if ($cache !== null) {
         return $cache;
     }
-    $path = __DIR__ . '/config.php';
-    if (file_exists($path)) {
-        $cache = (array) require($path);
-    } else {
-        $cache = [];
+    $cache = [];
+    $path = __DIR__ . '/.env';
+    if (!file_exists($path)) {
+        return $cache;
+    }
+    $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        $line = trim($line);
+        if ($line === '' || $line[0] === '#') {
+            continue;
+        }
+        $pos = strpos($line, '=');
+        if ($pos === false) {
+            continue;
+        }
+        $key = strtolower(trim(substr($line, 0, $pos)));
+        $value = trim(substr($line, $pos + 1));
+        $cache[$key] = $value;
     }
     return $cache;
 }
