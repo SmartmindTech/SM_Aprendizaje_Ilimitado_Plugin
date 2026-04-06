@@ -198,4 +198,12 @@ $functions = [
         'ajax'        => true,
         'capabilities' => 'moodle/course:update',
     ],
+    'local_sm_graphics_plugin_sharepoint_list_courses' => [
+        'classname'    => 'local_sm_graphics_plugin\external\sharepoint_list_courses',
+        'methodname'   => 'execute',
+        'description'  => 'List available course folders from SharePoint',
+        'type'         => 'read',
+        'ajax'         => true,
+        'capabilities' => 'local/sm_graphics_plugin:import_courses',
+    ],
 ];

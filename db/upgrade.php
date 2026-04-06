@@ -520,5 +520,26 @@ function xmldb_local_sm_graphics_plugin_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026033002, 'local', 'sm_graphics_plugin');
     }
 
+    if ($oldversion < 2026040109) {
+        $dbman = $DB->get_manager();
+        $table = new xmldb_table('local_smgp_sp_courses');
+
+        if (!$dbman->table_exists($table)) {
+            $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE);
+            $table->add_field('name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL);
+            $table->add_field('web_url', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL);
+            $table->add_field('parent_folder', XMLDB_TYPE_CHAR, '255', null, null, null, '');
+            $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+
+            $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+            $table->add_index('ix_name', XMLDB_INDEX_NOTUNIQUE, ['name']);
+
+            $dbman->create_table($table);
+        }
+
+        upgrade_plugin_savepoint(true, 2026040109, 'local', 'sm_graphics_plugin');
+    }
+
     return true;
 }
