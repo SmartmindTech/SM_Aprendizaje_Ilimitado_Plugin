@@ -25,11 +25,22 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_sm_graphics_plugin';
-$plugin->version = 2026040110;  // YYYYMMDDXX format.
+$plugin->version = 2026040601;  // YYYYMMDDXX format.
 $plugin->requires = 2022112800; // Moodle 4.1+
 $plugin->maturity = MATURITY_ALPHA;
-$plugin->release = '1.0.6';  // MATURITY_ALPHA, MATURITY_BETA, MATURITY_RC, MATURITY_STABLE
+$plugin->release = '1.0.7';  // MATURITY_ALPHA, MATURITY_BETA, MATURITY_RC, MATURITY_STABLE
 
 // GitHub update server - allows automatic update notifications.
-// Point to the raw update.xml file in the GitHub repository.
-$plugin->updateserver = 'https://raw.githubusercontent.com/SmartmindTech/SM_Aprendizaje_Ilimitado_Plugin/main/update.xml';
+// Branch is configurable via UPDATE_BRANCH in .env (default: main).
+$smgp_update_branch = 'main';
+$smgp_env_file = __DIR__ . '/.env';
+if (file_exists($smgp_env_file)) {
+    $smgp_env_lines = file($smgp_env_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($smgp_env_lines as $smgp_line) {
+        if (strpos($smgp_line, 'UPDATE_BRANCH=') === 0) {
+            $smgp_update_branch = trim(substr($smgp_line, 14));
+            break;
+        }
+    }
+}
+$plugin->updateserver = 'https://raw.githubusercontent.com/SmartmindTech/SM_Aprendizaje_Ilimitado_Plugin/' . $smgp_update_branch . '/update.xml';
