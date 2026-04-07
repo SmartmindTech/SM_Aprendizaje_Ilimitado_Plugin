@@ -1,25 +1,51 @@
 // ============================================
-// SmartMind — Layout Overrides
-// Ported from theme_smartmind/scss/smartmind/_layout.scss
+// SmartMind — Layout
+// Single source of truth for the SPA's page envelope. Mirrors
+// theme_smartmind/scss/smartmind/_layout.scss (dev branch) but drops
+// !important flags (no Moodle cascade to fight) and Moodle-only
+// selectors (.drawers, .main-inner, etc.).
 // ============================================
 
-// -- Decorative background -- gradient mesh with soft orbs --
-// Applies to the main page body behind all content.
-// Creates a modern, lively feel even when the page has little content.
+// ===== Shell wrapper =====
+.smgp-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
 
-// Note: body background is already set in main.scss base styles.
-// This is kept for reference: background-color: #f5f3ef;
+// ===== Main content envelope =====
+// Same width contract as the dev branch theme so navigating between
+// pages does not shift content laterally. Centred, 85% on desktop.
+#page-content {
+  max-width: 85%;
+  width: 85%;
+  margin-left: auto;
+  margin-right: auto;
+  flex: 1 1 auto;
+  padding: 1.5rem 0;
 
-// Moodle-specific: not applicable in SPA
-// #page.drawers
-// .drawer-toggles
-// #page.drawers.show-drawer-left .drawer-left-toggle
-// #page.drawers.show-drawer-right .drawer-right-toggle
-// #page-content
-// #region-main-box
-// #region-main
-// .main-inner
-// body.pagelayout-frontpage #page.drawers .main-inner
-// body.pagelayout-admin #page.drawers .main-inner
-// body.pagelayout-standard.path-admin #page.drawers .main-inner
-// .header-maxwidth
+  @media (max-width: 991.98px) {
+    max-width: 95%;
+    width: 95%;
+  }
+
+  @media (max-width: 575.98px) {
+    max-width: 100%;
+    width: 100%;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+// ===== NuxtPage fade transition =====
+// Quick opacity fade between routes — mimics the perceived fluidity of
+// SPA navigation in dev's prefetch+swap layer without doing any DOM swap
+// (Nuxt handles the actual route change natively).
+.page-enter-active,
+.page-leave-active {
+  transition: opacity 150ms ease;
+}
+.page-enter-from,
+.page-leave-to {
+  opacity: 0;
+}

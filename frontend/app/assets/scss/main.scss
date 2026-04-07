@@ -10,7 +10,7 @@
 @import 'bootstrap/scss/bootstrap';
 @import 'bootstrap-icons/font/bootstrap-icons.css';
 
-// 3. LUCIDE ICONS (custom font used by sidebar)
+// 3. LUCIDE ICONS (custom font used by navbar + everything else)
 @font-face {
   font-family: 'lucide';
   src: url('~/assets/fonts/lucide.woff2') format('woff2'),
@@ -21,12 +21,32 @@
   font-display: swap;
 }
 
+// Global FA → Lucide override. Mirrors theme_smartmind/scss/bootstrapicons.scss.
+// Any markup that still uses Font Awesome classes (`.fa`, `.fas`, etc.) gets
+// rendered with the Lucide font instead, so we never see two icon styles
+// side by side.
+.fa::before, .fas::before, .far::before, .fab::before,
+.fa-solid::before, .fa-regular::before, .fa-brands::before,
+[class^="icon-"]::before, [class*=" icon-"]::before {
+  font-family: "lucide" !important;
+}
+
 // 4. BASE
+html {
+  // Always reserve the vertical scrollbar gutter so navigation between
+  // short and long pages does not shift content laterally (the lateral
+  // "dance" we saw in the dev branch). overflow-y: scroll is the legacy
+  // fallback; scrollbar-gutter: stable is the modern equivalent.
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+}
+
 body {
   background-color: $body-bg;
   color: $body-color;
   margin: 0;
   padding: 0;
+  min-height: 100vh;
 }
 
 #__nuxt {
@@ -34,16 +54,19 @@ body {
 }
 
 // 5. COMPONENTS (ported from theme_smartmind)
-@import 'components/sidebar';
+@import 'components/layout';            // Shell + #page-content envelope
+@import 'components/navbar';            // Top horizontal navbar (smgp-topnav)
 @import 'components/dashboard';
 @import 'components/mycourses';
 @import 'components/course-landing';
 @import 'components/course-page';
+@import 'components/course-comments';
 @import 'components/grades-certificates';
 @import 'components/catalogue';
+@import 'components/profile';
+@import 'components/calendar';
 @import 'components/comments';
 @import 'components/iomad';
-@import 'components/layout';
 @import 'components/forms';
 @import 'components/navigation';
 @import 'components/utilities';

@@ -67,7 +67,7 @@ const authStore = useAuthStore()
 
   &--active {
     background: #eef2ff;
-    color: #6366f1;
+    color: #10b981;
     font-weight: 500;
   }
 }

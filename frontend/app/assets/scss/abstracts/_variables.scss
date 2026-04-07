@@ -1,10 +1,12 @@
 // ========================================
 // SmartMind Design System — Variables
-// Ported from theme_smartmind/scss/smartmind/_variables.scss
+// Ported from theme_smartmind/scss/smartmind/_variables.scss (dev branch).
+// Source of truth: that file. Keep these in sync when the theme palette
+// evolves.
 // ========================================
 
-// Brand & Theme Colours (Modern palette — Indigo/Slate)
-$primary:              #6366f1;
+// Brand & Theme Colours (Green palette)
+$primary:              #10b981;
 $secondary:            #e2e8f0;
 $success:              #10b981;
 $info:                 #06b6d4;
@@ -12,15 +14,31 @@ $warning:              #f59e0b;
 $danger:               #ef4444;
 
 // Body
-$body-bg:              #f5f3ef;
-$body-color:           #0f172a;
+$body-bg:              #f5f3ef;   // Warm off-white
+$body-color:           #0f172a;  // Slate-900
 
-// SmartMind Graphics Plugin Variables
-$smgp-primary:       #6366f1 !default;
-$smgp-primary-dark:  #4f46e5 !default;
-$smgp-primary-light: #818cf8 !default;
-$smgp-primary-color: #6366f1;
-$smgp-secondary:     #64748b !default;
+// Calendar event colours
+$calendar-event-global-bg:     #e0e7ff;  // Indigo-100
+$calendar-event-course-bg:     #fef3c7;  // Amber-100
+$calendar-event-group-bg:      #d1fae5;  // Emerald-100
+$calendar-event-user-bg:       #e0f2fe;  // Sky-100
+$calendar-event-other-bg:      #f3e8ff;  // Purple-100
+
+// Activity icons — green palette across the board
+$activity-icon-administration-bg:     #10b981;
+$activity-icon-assessment-bg:         #10b981;
+$activity-icon-collaboration-bg:      #10b981;
+$activity-icon-communication-bg:      #10b981;
+$activity-icon-content-bg:            #10b981;
+$activity-icon-interactivecontent-bg: #10b981;
+
+// SmartMind Graphics Plugin (smgp-) Variables
+// Used by the course player, comments, and plugin-specific components.
+$smgp-primary:       #10b981 !default;  // Green-800
+$smgp-primary-dark:  #059669 !default;  // Green-900
+$smgp-primary-light: #34d399 !default;  // Green-500
+$smgp-primary-color: #10b981;
+$smgp-secondary:     #64748b !default;  // Slate-500
 $smgp-success:       #10b981 !default;
 $smgp-danger:        #ef4444 !default;
 $smgp-warning:       #f59e0b !default;
@@ -92,7 +110,11 @@ $smgp-bp-sm:  576px;
 $smgp-bp-lg:  992px;
 $smgp-bp-xl:  1200px;
 
-// Sidebar
-$sidebar-width-collapsed: 56px;
-$sidebar-width-expanded: 240px;
-$sidebar-bg: $smgp-gray-100;
+// Top navbar
+$smgp-navbar-height:        60px;
+$smgp-navbar-height-mobile: 50px;
+
+// Course content max-width — referenced by ported _course-page.scss.
+// Mirrors the Boost variable used by the Moodle theme so the partial
+// compiles unchanged.
+$course-content-maxwidth: 830px;

@@ -1,15 +1,26 @@
-// ============================================
-// SmartMind — IOMAD Admin Page Overrides
-// Ported from theme_smartmind/scss/smartmind/_iomad.scss
-// ============================================
 //
-// Styles for IOMAD company administration pages.
-// Scoped via the .dep_tree and #department_tree selectors.
+// SmartMind — IOMAD Admin Page Overrides
+//
+// Styles for IOMAD company administration pages served from
+// /blocks/iomad_company_admin/*.  Scoped via the .dep_tree and
+// #department_tree selectors unique to the departments page.
+//
 
-// Moodle-specific: not applicable in SPA
-// body[class*="iomad_company_admin"] #page.drawers .main-inner
-// body[class*="iomad_company_admin"] .header-maxwidth
-// body[class*="iomad_company_admin"] #region-main
+// ---------- Company Departments page ----------
+
+// Full-width layout for IOMAD admin pages.
+body[class*="iomad_company_admin"] {
+    #page.drawers .main-inner,
+    .header-maxwidth {
+        max-width: 75% !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+
+    #region-main {
+        padding: $smgp-space-xl $smgp-space-2xl;
+    }
+}
 
 // Department tree container.
 .dep_tree {
@@ -60,14 +71,14 @@
                     font-family: "Font Awesome 6 Free";
                     font-weight: 900;
                     font-size: $smgp-font-sm;
-                    color: $smgp-gray-400;
+                    color: $smgp-success;
                 }
             }
 
             // Selected item gets an open-folder icon.
             &[aria-selected="true"] > .tree_dept_name::before {
                 content: "\f07c"; // fa-folder-open
-                color: $smgp-gray-700;
+                color: darken($smgp-success, 10%);
             }
 
             // Nested children group.
@@ -90,7 +101,7 @@
 
                     &[aria-selected="true"] > .tree_dept_name::before {
                         content: "\f15b";
-                        color: $smgp-gray-700;
+                        color: darken($smgp-success, 10%);
                     }
                 }
             }
@@ -101,7 +112,7 @@
                 font-family: "Font Awesome 6 Free";
                 font-weight: 900;
                 font-size: $smgp-font-xs;
-                color: $smgp-gray-400;
+                color: $smgp-success;
                 margin-left: auto;
             }
 

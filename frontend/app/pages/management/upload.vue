@@ -118,7 +118,7 @@ const handleSubmit = async () => {
 }
 .sm-upload-dropzone:hover,
 .sm-upload-dropzone:focus-within {
-  border-color: var(--bs-primary, #6366f1);
+  border-color: var(--bs-primary, #10b981);
   background: #f0f7ff;
 }
 .sm-upload-label {

@@ -142,8 +142,8 @@ getIomadDashboard().then((result) => {
   user-select: none;
 }
 .sm-category-toggle[aria-expanded="true"] {
-  border-color: var(--bs-primary, #6366f1);
-  box-shadow: 0 0 0 2px var(--bs-primary, #6366f1) !important;
+  border-color: var(--bs-primary, #10b981);
+  box-shadow: 0 0 0 2px var(--bs-primary, #10b981) !important;
 }
 
 .sm-category-panel {

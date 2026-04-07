@@ -1,0 +1,358 @@
+// ============================================
+// SmartMind — Top Horizontal Navbar
+// Ported from theme_smartmind/scss/smartmind/_navbar.scss (dev branch).
+// Moodle-specific selectors (#usernavigation, .companymenu, mform overrides)
+// have been removed since the SPA does not host them.
+// ============================================
+
+// ===== Top navbar container =====
+.smgp-topnav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: $smgp-navbar-height;
+  padding: 0 2rem;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border-bottom: 1px solid #f0f0f0;
+  position: sticky;
+  top: 0;
+  z-index: 1040;
+  flex-shrink: 0;
+
+  // -- Left: Logo --
+  &__left {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  &__logo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+
+    img {
+      height: 32px;
+      width: auto;
+    }
+  }
+
+  // -- Center: Nav items --
+  &__center {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background-color: #ebe9e580;
+    border-radius: 50px;
+  }
+
+  &__item {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 18px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #4b5563;
+    text-decoration: none;
+    border-radius: 24px;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+    gap: 0.5rem;
+
+    &:hover {
+      background: #f3f4f6;
+      color: #1a1a1a;
+      text-decoration: none;
+    }
+
+    &--active {
+      background: $smgp-primary;
+      color: #fff;
+
+      &:hover {
+        background: $smgp-primary-dark;
+        color: #fff;
+        text-decoration: none;
+      }
+
+      .smartmind-nav-icon::before {
+        color: #fff !important;
+      }
+    }
+
+    &--disabled {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+  }
+
+  &__item-text {
+    line-height: 1;
+  }
+
+  // Dropdown inside topnav
+  &__dropdown {
+    position: relative;
+
+    .dropdown-menu {
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      padding: 6px 0;
+      margin-top: 4px;
+    }
+
+    .dropdown-item {
+      padding: 8px 16px;
+      font-size: 0.85rem;
+
+      &:hover {
+        background: #f3f4f6;
+      }
+    }
+  }
+
+  // -- Right: User area --
+  &__right {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  &__user-area {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.5rem;
+  }
+}
+
+// ===== Icon map — nav icons (Lucide) =====
+.smartmind-nav-icon-default { display: none; }
+
+.smgp-topnav .smartmind-nav-icon {
+  display: inline-flex;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  width: auto;
+
+  i.fa-fw {
+    width: auto;
+    text-align: center;
+  }
+}
+
+.smartmind-nav-icon::before {
+  font-family: "lucide";
+  font-weight: normal;
+  font-size: 1rem;
+  width: auto;
+  display: inline-block;
+}
+
+// Map icons by data-key
+[data-key="home"] .smartmind-nav-icon::before          { content: "\e598"; color: $smgp-primary; }
+[data-key="myhome"] .smartmind-nav-icon::before        { content: "\e0f5"; color: $smgp-primary; }
+[data-key="mycourses"] .smartmind-nav-icon::before     { content: "\e234"; color: $smgp-primary; }
+[data-key="siteadminnode"] .smartmind-nav-icon::before { content: "\e154"; color: $smgp-primary; }
+[data-key="calendar"] .smartmind-nav-icon::before      { content: "\e063"; color: $smgp-primary; }
+[data-key="privatefiles"] .smartmind-nav-icon::before  { content: "\e0d7"; color: $smgp-primary; }
+[data-key="contentbank"] .smartmind-nav-icon::before   { content: "\e0ad"; color: $smgp-primary; }
+[data-key="iomaddashboard"] .smartmind-nav-icon::before { content: "\e290"; color: $smgp-primary; }
+
+// SmartMind plugin pages
+[data-key="sm-mycourses"] .smartmind-nav-icon::before  { content: "\e234"; color: $smgp-primary; }
+[data-key="sm-gradescerts"] .smartmind-nav-icon::before { content: "\e04f"; color: $smgp-primary; }
+[data-key="sm-profile"] .smartmind-nav-icon::before    { content: "\e19f"; color: $smgp-primary; }
+
+// Company manager
+[data-key="sm-usermanagement"] .smartmind-nav-icon::before  { content: "\e1a4"; color: $smgp-primary; }
+[data-key="sm-othermanagement"] .smartmind-nav-icon::before { content: "\e154"; color: $smgp-primary; }
+[data-key="sm-statistics"] .smartmind-nav-icon::before      { content: "\e06a"; color: $smgp-primary; }
+[data-key="sm-coursemanagement"] .smartmind-nav-icon::before { content: "\e234"; color: $smgp-primary; }
+[data-key="sm-categories"] .smartmind-nav-icon::before      { content: "\e0ad"; color: $smgp-primary; }
+
+// Active item overrides icon color to white
+.smgp-topnav__item--active .smartmind-nav-icon::before {
+  color: #fff !important;
+}
+
+// ===== Responsive: collapse on mobile =====
+@media (max-width: 768px) {
+  .smgp-topnav {
+    padding: 0 1rem;
+    height: $smgp-navbar-height-mobile;
+
+    &__center {
+      display: none;
+    }
+
+    &__logo img {
+      height: 26px;
+    }
+
+    &__user-area {
+      font-size: 1.25rem;
+    }
+  }
+}
+
+// ===== Dark mode toggle — Lucide icons =====
+.smgp-darkmode-toggle {
+  background: none;
+  border: none;
+  padding: 4px 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+
+.smgp-darkmode-toggle__icon {
+  font-family: "lucide";
+  font-weight: normal;
+  font-size: 1.15rem;
+  color: #6366f1;
+  line-height: 1;
+
+  &::before { content: "\e11e"; }              // moon (light mode)
+  &[data-mode="dark"]::before {
+    content: "\e178";                          // sun (dark mode)
+    color: #f59e0b;
+  }
+}
+
+// ===== Language switcher =====
+.smgp-lang-toggle {
+  background: none;
+  border: none;
+  padding: 4px 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #4b5563;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+
+  &:hover { color: #1a1a1a; }
+
+  .smgp-lang-toggle__icon {
+    font-family: "lucide";
+    font-size: 1.1rem;
+    color: $smgp-primary;
+    line-height: 1;
+    &::before { content: "\e193"; }            // globe
+  }
+}
+
+// ===== User avatar dropdown in navbar right =====
+.smgp-user-dropdown {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+
+  &__toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 4px 8px;
+  }
+
+  &__avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: $smgp-primary;
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.875rem;
+    flex-shrink: 0;
+  }
+
+  &__name {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #1a1a1a;
+
+    @media (max-width: 992px) {
+      display: none;
+    }
+  }
+
+  &__menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    min-width: 200px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    padding: 6px 0;
+    z-index: 1050;
+    display: none;
+
+    &.show { display: block; }
+  }
+
+  &__item {
+    display: block;
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    color: #1A1814;
+    text-decoration: none;
+
+    &:hover {
+      background: #f3f4f6;
+      color: #1a1a1a;
+      text-decoration: none;
+    }
+  }
+}
+
+// ===== Notifications bell placeholder =====
+.smgp-notifications {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+
+  &__icon {
+    font-family: "lucide";
+    font-size: 1.15rem;
+    color: $smgp-primary;
+    line-height: 1;
+    &::before { content: "\e15a"; }            // bell
+  }
+
+  &__badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 8px;
+    background: $smgp-danger;
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
