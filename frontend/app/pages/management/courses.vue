@@ -18,7 +18,7 @@
       <template v-for="option in data.options" :key="option.title">
         <div v-if="option.disabled" class="card shadow-sm sm-admin-card sm-admin-card--disabled">
           <div class="card-body d-flex flex-column align-items-center justify-content-center text-center p-3">
-            <i :class="'fas ' + option.icon + ' fa-2x mb-2 text-muted'" />
+            <i :class="'bi ' + option.icon + ' sm-admin-card__icon text-muted'" />
             <h6 class="card-title mb-1 text-muted">{{ option.title }}</h6>
             <p class="card-text text-muted small mb-0">{{ option.description }}</p>
           </div>
@@ -29,7 +29,7 @@
           class="card text-decoration-none shadow-sm sm-admin-card"
         >
           <div class="card-body d-flex flex-column align-items-center justify-content-center text-center p-3">
-            <i :class="['fas', option.icon, 'fa-2x', 'mb-2', 'sm-admin-card__icon', 'sm-admin-card__icon--' + (option.icon_color || 'blue')]" />
+            <i :class="['bi', option.icon, 'sm-admin-card__icon', 'sm-admin-card__icon--' + (option.icon_color || 'blue')]" />
             <h6 class="card-title mb-1">{{ option.title }}</h6>
             <p class="card-text text-muted small mb-0">{{ option.description }}</p>
           </div>
@@ -40,7 +40,7 @@
           class="card text-decoration-none shadow-sm sm-admin-card"
         >
           <div class="card-body d-flex flex-column align-items-center justify-content-center text-center p-3">
-            <i :class="['fas', option.icon, 'fa-2x', 'mb-2', 'sm-admin-card__icon', 'sm-admin-card__icon--' + (option.icon_color || 'blue')]" />
+            <i :class="['bi', option.icon, 'sm-admin-card__icon', 'sm-admin-card__icon--' + (option.icon_color || 'blue')]" />
             <h6 class="card-title mb-1">{{ option.title }}</h6>
             <p class="card-text text-muted small mb-0">{{ option.description }}</p>
           </div>
@@ -145,6 +145,12 @@ getCourseManagement().then((result) => {
   pointer-events: none;
 }
 
+.sm-admin-card__icon {
+  font-size: 2rem;
+  line-height: 1;
+  display: inline-block;
+  margin-bottom: 0.75rem;
+}
 .sm-admin-card__icon--green  { color: #16a34a; }
 .sm-admin-card__icon--blue   { color: #2563eb; }
 .sm-admin-card__icon--orange { color: #ea580c; }

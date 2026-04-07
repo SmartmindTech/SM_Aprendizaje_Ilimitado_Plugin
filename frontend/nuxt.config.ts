@@ -131,7 +131,10 @@ export default defineNuxtConfig({
 
   devServer: {
     port: SPA_DEV_PORT,
-    host: 'localhost',
+    // Bind to 0.0.0.0 so the dev server is reachable from inside the
+    // Moodle Docker container via its host-gateway IP. The browser still
+    // hits localhost:<port> directly because both run on the same host.
+    host: '0.0.0.0',
   },
 
   app: {

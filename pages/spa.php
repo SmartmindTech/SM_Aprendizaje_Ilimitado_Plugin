@@ -91,7 +91,32 @@ if (file_exists($envfile)) {
 }
 
 if ($devmode) {
-    foreach (['host.docker.internal', 'localhost'] as $host) {
+    // Build the list of host candidates to probe. Order matters: the first
+    // reachable one wins. host.docker.internal works on Docker Desktop and
+    // newer Linux Docker (with extra_hosts: host-gateway). On plain Linux
+    // Docker without that flag, the host is reachable via the container's
+    // default gateway, which we discover dynamically from /proc/net/route.
+    $hosts = ['host.docker.internal', 'localhost'];
+    $route = @file('/proc/net/route');
+    if ($route !== false) {
+        foreach ($route as $line) {
+            $cols = preg_split('/\s+/', trim($line));
+            if (count($cols) >= 3 && $cols[1] === '00000000' && ctype_xdigit($cols[2])) {
+                // Gateway field is little-endian hex.
+                $hex = $cols[2];
+                $gw  = hexdec(substr($hex, 6, 2)) . '.'
+                     . hexdec(substr($hex, 4, 2)) . '.'
+                     . hexdec(substr($hex, 2, 2)) . '.'
+                     . hexdec(substr($hex, 0, 2));
+                if ($gw !== '0.0.0.0') {
+                    $hosts[] = $gw;
+                }
+                break;
+            }
+        }
+    }
+
+    foreach ($hosts as $host) {
         $origin = 'http://' . $host . ':' . $devport;
         $ctx = stream_context_create([
             'http' => [
@@ -110,9 +135,26 @@ if ($devmode) {
 }
 
 if ($devhtml !== null) {
+    // The browser loads this page from the Moodle origin (e.g. localhost:8081)
+    // but the proxied HTML uses relative URLs that need to resolve against the
+    // Nuxt dev server (e.g. localhost:4173). We CANNOT use <base href> for this
+    // because base href would also rewrite NuxtLink navigation URLs and kick
+    // the user out of Moodle's origin on every click. Instead, rewrite all
+    // asset/module URLs in src=, href=, and import statements to absolute
+    // localhost:<devport> URLs server-side. NuxtLinks (which render as
+    // <a href="#/...">) keep working against the Moodle origin.
+    $devorigin = 'http://localhost:' . (int) $devport;
+    $devhtml = preg_replace(
+        '#(\b(?:src|href)=")(/(?:_nuxt/|@id/|@vite/|@fs/|__nuxt_island/|node_modules/))#',
+        '$1' . $devorigin . '$2',
+        $devhtml
+    );
+
     $bootstrapscript = '<script>window.__MOODLE_BOOTSTRAP__ = '
         . json_encode($bootstrapdata, JSON_HEX_TAG | JSON_HEX_AMP) . ';</script>';
-    $devhtml = str_replace('</head>', $bootstrapscript . '</head>', $devhtml);
+    // Inject the bootstrap as the FIRST script in <head> so it runs before
+    // any module imports.
+    $devhtml = preg_replace('/<head([^>]*)>/i', '<head$1>' . $bootstrapscript, $devhtml, 1);
     echo $devhtml;
     exit;
 }
