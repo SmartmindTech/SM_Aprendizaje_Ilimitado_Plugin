@@ -11,7 +11,7 @@
     "preview": "nuxt preview",
     "lint": "eslint .",
     "type-check": "nuxi typecheck",
-    "deploy": "nuxt generate && cp -r .output/public/* ../frontend_dist/"
+    "deploy": "nuxt generate && mkdir -p ../frontend_dist && cp -r .output/public/. ../frontend_dist/"
   },
   "dependencies": {
     "@nuxtjs/i18n": "^10.1.0",
