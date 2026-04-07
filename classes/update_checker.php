@@ -29,11 +29,36 @@ defined('MOODLE_INTERNAL') || die();
  */
 class update_checker {
 
-    /** @var string URL to the update.xml file */
-    const UPDATE_URL = 'https://raw.githubusercontent.com/SmartmindTech/SM_Moodle_Graphic_Layer_Plugin/dev/update.xml';
-
     /** @var string Config key for cached update info */
     const CONFIG_UPDATE_INFO = 'cached_update_info';
+
+    /**
+     * Resolve the update.xml URL based on the UPDATE_BRANCH value in .env.
+     *
+     *   UPDATE_BRANCH=latest (default) → GitHub release asset, ~1 min CDN cache
+     *   UPDATE_BRANCH=<branch>         → raw.githubusercontent.com/<branch>, ~5 min CDN cache
+     *
+     * Mirrors the same logic as version.php so both use the same channel.
+     *
+     * @return string
+     */
+    public static function get_update_url(): string {
+        $branch = 'latest';
+        $envfile = __DIR__ . '/../.env';
+        if (file_exists($envfile)) {
+            foreach (file($envfile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
+                if (strpos($line, 'UPDATE_BRANCH=') === 0) {
+                    $branch = trim(substr($line, 14));
+                    break;
+                }
+            }
+        }
+
+        if ($branch === 'latest') {
+            return 'https://github.com/SmartmindTech/SM_Aprendizaje_Ilimitado_Plugin/releases/latest/download/update.xml';
+        }
+        return 'https://raw.githubusercontent.com/SmartmindTech/SM_Aprendizaje_Ilimitado_Plugin/' . $branch . '/update.xml';
+    }
 
     /** @var string Config key for last check time */
     const CONFIG_LAST_CHECK = 'last_update_check';
@@ -111,7 +136,7 @@ class update_checker {
             ],
         ]);
 
-        $url = self::UPDATE_URL . '?t=' . time();
+        $url = self::get_update_url() . '?t=' . time();
         $content = $curl->get($url);
 
         if ($curl->get_errno() || empty($content)) {

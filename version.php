@@ -25,10 +25,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_sm_graphics_plugin';
-$plugin->version = 2026040723;  // YYYYMMDDXX format — Catalogue: fetch all courses once, filter client-side.
+$plugin->version = 2026040725;  // YYYYMMDDXX format — Fix custom update_checker URL + honor UPDATE_BRANCH.
 $plugin->requires = 2022112800; // Moodle 4.1+
 $plugin->maturity = MATURITY_ALPHA;
-$plugin->release = '1.1.0-nuxt.4';  // Nuxt branch, aligned with dev v1.1.0 backend
+$plugin->release = '1.1.0-nuxt.6';  // Nuxt branch, aligned with dev v1.1.0 backend
 
 // GitHub update server — configurable via UPDATE_BRANCH in .env.
 //
