@@ -101,6 +101,10 @@ function local_sm_graphics_plugin_deploy_certificate_type() {
 
 /**
  * Copy the bundled theme_smartmind/ directory to /theme/smartmind/.
+ *
+ * Only deploys if the bundled theme version is newer than the one already installed,
+ * preventing downgrades when the plugin's theme_smartmind/ subfolder is stale
+ * (e.g. after a partial Moodle UI update that did not replace nested directories).
  */
 function local_sm_graphics_plugin_deploy_theme() {
     global $CFG;
@@ -112,7 +116,47 @@ function local_sm_graphics_plugin_deploy_theme() {
         return;
     }
 
+    // Read source theme version.
+    $sourceversion = local_sm_graphics_plugin_read_theme_version($source . '/version.php');
+
+    // Read destination theme version (if already deployed).
+    $destversion = is_dir($dest)
+        ? local_sm_graphics_plugin_read_theme_version($dest . '/version.php')
+        : 0;
+
+    // If we can read both versions and source is strictly older → skip to prevent downgrade.
+    if ($sourceversion > 0 && $destversion > 0 && $sourceversion < $destversion) {
+        debugging(
+            "[SmartMind] Skipping theme deploy: bundled theme_smartmind version ({$sourceversion}) "
+            . "is older than installed theme/smartmind ({$destversion}). Preventing downgrade.",
+            DEBUG_NORMAL
+        );
+        return;
+    }
+
+    // If versions are equal, still copy (source may have file-level changes without version bump),
+    // but this is safe because the DB version stays the same.
     local_sm_graphics_plugin_copy_directory($source, $dest);
+}
+
+/**
+ * Read $plugin->version from a Moodle version.php file.
+ *
+ * @param string $versionfile Path to version.php.
+ * @return int Version number, or 0 if unreadable.
+ */
+function local_sm_graphics_plugin_read_theme_version(string $versionfile): int {
+    if (!file_exists($versionfile)) {
+        return 0;
+    }
+    $content = file_get_contents($versionfile);
+    if ($content === false) {
+        return 0;
+    }
+    if (preg_match('/\$plugin->version\s*=\s*(\d+)/', $content, $m)) {
+        return (int) $m[1];
+    }
+    return 0;
 }
 
 /**
