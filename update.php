@@ -118,22 +118,28 @@ echo $OUTPUT->confirm(
 echo $OUTPUT->footer();
 
 /**
- * Perform the plugin + theme update.
+ * Perform the plugin update from the CI-built release zip.
  *
- * Downloads both ZIPs from GitHub dev branch, extracts and copies files.
+ * The release zip contains the whole plugin at its root (sm_graphics_plugin/),
+ * including the bundled theme at theme_smartmind/. The theme is deployed to
+ * /theme/smartmind/ by the plugin's upgrade hook (deploy_theme()), so no
+ * separate theme download is needed.
  *
- * @param array $updateinfo Update information from update.xml.
+ * @param array $updateinfo Update information from update.xml. Must contain
+ *                          a 'download' key pointing at the release zip.
  * @return bool True on success.
  */
 function perform_plugin_and_theme_update(array $updateinfo): bool {
     global $CFG;
 
-    $pluginzip = 'https://github.com/SmartmindTech/SM_Moodle_Graphic_Layer_Plugin/archive/refs/heads/dev.zip';
-    $themezip = 'https://github.com/SmartmindTech/SM_Theme_Moodle/archive/refs/heads/dev.zip';
-
+    if (empty($updateinfo['download'])) {
+        echo html_writer::tag('p', 'No download URL in update.xml.', ['class' => 'text-danger']);
+        return false;
+    }
+    $pluginzip = $updateinfo['download'];
     $tempdir = make_temp_directory('local_sm_graphics_plugin_update');
 
-    // --- Step 1: Download and install plugin ---
+    // --- Step 1: Download the release zip ---
     echo html_writer::tag('h4', get_string('update_step_plugin', 'local_sm_graphics_plugin'));
     echo html_writer::tag('p', get_string('update_downloading', 'local_sm_graphics_plugin'));
 
@@ -180,48 +186,20 @@ function perform_plugin_and_theme_update(array $updateinfo): bool {
         }
     }
 
-    // --- Step 2: Download and install theme ---
+    // --- Step 2: Deploy the bundled theme to /theme/smartmind/ ---
+    // The release zip already carries theme_smartmind/ inside the plugin
+    // directory. Call the plugin's own deploy_theme() helper (same one
+    // used by install.php / upgrade.php) to copy it into place.
     echo html_writer::tag('h4', get_string('update_step_theme', 'local_sm_graphics_plugin'));
-    echo html_writer::tag('p', get_string('update_downloading', 'local_sm_graphics_plugin'));
-
-    $themezipfile = $tempdir . '/theme_update.zip';
-    if (!download_zip($themezip, $themezipfile)) {
-        return false;
+    require_once($plugintarget . '/db/install.php');
+    if (function_exists('local_sm_graphics_plugin_deploy_theme')) {
+        local_sm_graphics_plugin_deploy_theme();
+        echo html_writer::tag('p', '&#10003; Theme deployed from bundled release', ['class' => 'text-success']);
     }
-
-    echo html_writer::tag('p', '&#10003; ' . get_string('update_downloaded', 'local_sm_graphics_plugin') .
-        ' (' . round(filesize($themezipfile) / 1024) . ' KB)', ['class' => 'text-success']);
-
-    $themesource = extract_zip_to_temp($themezipfile, $tempdir . '/theme_extracted');
-    if (!$themesource) {
-        return false;
-    }
-
-    $themetarget = $CFG->dirroot . '/theme/smartmind';
-    if (!is_dir($themetarget)) {
-        @mkdir($themetarget, 0755, true);
-    }
-    if (!is_writable($themetarget)) {
-        echo html_writer::tag('p', get_string('update_not_writable', 'local_sm_graphics_plugin') .
-            ': ' . $themetarget, ['class' => 'text-danger']);
-        return false;
-    }
-
-    echo html_writer::tag('p', get_string('update_copying', 'local_sm_graphics_plugin'));
-    $result = recursive_copy_overwrite($themesource, $themetarget);
-    if (!$result['success']) {
-        echo html_writer::tag('p', get_string('update_copy_failed', 'local_sm_graphics_plugin') .
-            ': ' . $result['error'], ['class' => 'text-danger']);
-        return false;
-    }
-    echo html_writer::tag('p', '&#10003; ' . $result['count'] . ' ' .
-        get_string('update_files_copied', 'local_sm_graphics_plugin'), ['class' => 'text-success']);
 
     // --- Step 3: Clean up and purge caches ---
     @unlink($pluginzipfile);
-    @unlink($themezipfile);
     recursive_delete($tempdir . '/plugin_extracted');
-    recursive_delete($tempdir . '/theme_extracted');
 
     purge_all_caches();
 
