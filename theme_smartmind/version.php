@@ -24,6 +24,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2026033102;
+$plugin->version   = 2026040711;
 $plugin->requires  = 2025040800;
 $plugin->component = 'theme_smartmind';

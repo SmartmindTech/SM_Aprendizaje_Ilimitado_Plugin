@@ -26,6 +26,9 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir . '/behat/lib.php');
 require_once($CFG->dirroot . '/course/lib.php');
 
+// SmartMind Prefetch — see drawers.php for details.
+$PAGE->requires->js_call_amd('theme_smartmind/prefetch', 'init');
+
 $addblockbutton = $OUTPUT->addblockbutton();
 
 if (isloggedin()) {

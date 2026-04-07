@@ -29,6 +29,12 @@ global $DB;
 require_once($CFG->libdir . '/behat/lib.php');
 require_once($CFG->dirroot . '/course/lib.php');
 
+// SmartMind Prefetch — instant.page-style hover/mousedown prefetch via
+// <link rel="prefetch">. Makes navigation feel faster without touching
+// Moodle's JS lifecycle. Replaced the more invasive theme_smartmind/turbo
+// module after it hit too many AMD lifecycle edge cases.
+$PAGE->requires->js_call_amd('theme_smartmind/prefetch', 'init');
+
 // Add block button in editing mode.
 $addblockbutton = $OUTPUT->addblockbutton();
 
