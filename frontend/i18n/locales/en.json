@@ -45,5 +45,10 @@
     "completedCourses": "Completed courses",
     "coursesAvailable": "courses available",
     "recommendedForYou": "Recommended for you"
+  },
+  "coursemgmt": {
+    "companies": "Companies",
+    "courses_col": "Assigned courses",
+    "users_col": "Users"
   }
 }

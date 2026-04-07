@@ -18,18 +18,29 @@
       <template v-for="option in data.options" :key="option.title">
         <div v-if="option.disabled" class="card shadow-sm sm-admin-card sm-admin-card--disabled">
           <div class="card-body d-flex flex-column align-items-center justify-content-center text-center p-3">
-            <i :class="'fa ' + option.icon + ' fa-2x mb-2 text-muted'" />
+            <i :class="'fas ' + option.icon + ' fa-2x mb-2 text-muted'" />
             <h6 class="card-title mb-1 text-muted">{{ option.title }}</h6>
             <p class="card-text text-muted small mb-0">{{ option.description }}</p>
           </div>
         </div>
+        <a
+          v-else-if="option.url && (option.url.startsWith('#') || option.url.includes('/spa.php'))"
+          :href="option.url"
+          class="card text-decoration-none shadow-sm sm-admin-card"
+        >
+          <div class="card-body d-flex flex-column align-items-center justify-content-center text-center p-3">
+            <i :class="['fas', option.icon, 'fa-2x', 'mb-2', 'sm-admin-card__icon', 'sm-admin-card__icon--' + (option.icon_color || 'blue')]" />
+            <h6 class="card-title mb-1">{{ option.title }}</h6>
+            <p class="card-text text-muted small mb-0">{{ option.description }}</p>
+          </div>
+        </a>
         <NuxtLink
           v-else
           :to="option.vue_route || option.url"
           class="card text-decoration-none shadow-sm sm-admin-card"
         >
           <div class="card-body d-flex flex-column align-items-center justify-content-center text-center p-3">
-            <i :class="'fa ' + option.icon + ' fa-2x mb-2 text-primary'" />
+            <i :class="['fas', option.icon, 'fa-2x', 'mb-2', 'sm-admin-card__icon', 'sm-admin-card__icon--' + (option.icon_color || 'blue')]" />
             <h6 class="card-title mb-1">{{ option.title }}</h6>
             <p class="card-text text-muted small mb-0">{{ option.description }}</p>
           </div>
@@ -89,36 +100,54 @@ getCourseManagement().then((result) => {
 
 <style scoped>
 .sm-admin-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.25rem;
   width: 100%;
-}
-@media (min-width: 992px) {
-  .sm-admin-cards {
-    grid-template-columns: repeat(5, 1fr);
-  }
 }
 
 .sm-admin-card {
-  border: 1px solid #dee2e6;
+  flex: 0 0 calc(25% - 1.25rem);
+  max-width: calc(25% - 1.25rem);
+  min-width: 220px;
+  border: 1px solid #e9ecef;
+  border-radius: 0.75rem;
+  background: #fff;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
+@media (max-width: 992px) {
+  .sm-admin-card {
+    flex: 0 0 calc(50% - 1.25rem);
+    max-width: calc(50% - 1.25rem);
+  }
+}
+@media (max-width: 576px) {
+  .sm-admin-card {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+}
 .sm-admin-card .card-body {
-  min-height: 140px;
+  min-height: 160px;
 }
 .sm-admin-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10) !important;
 }
 .sm-admin-card .card-title {
   color: #1a1f35;
+  font-weight: 600;
 }
 .sm-admin-card--disabled {
   opacity: 0.5;
   cursor: not-allowed;
   pointer-events: none;
 }
+
+.sm-admin-card__icon--green  { color: #16a34a; }
+.sm-admin-card__icon--blue   { color: #2563eb; }
+.sm-admin-card__icon--orange { color: #ea580c; }
 
 .sm-company-table {
   width: 100%;

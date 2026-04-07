@@ -86,32 +86,44 @@ class get_course_management_data extends external_api {
             [
                 'url'         => local_sm_graphics_plugin_spa_url('courses/create')->out(false),
                 'icon'        => 'fa-plus-circle',
+                'icon_color'  => 'green',
                 'title'       => get_string('coursemgmt_create', $component),
                 'description' => get_string('coursemgmt_create_desc', $component),
             ],
             [
                 'url'         => local_sm_graphics_plugin_spa_url('admin/restore')->out(false),
                 'icon'        => 'fa-upload',
+                'icon_color'  => 'blue',
                 'title'       => get_string('coursemgmt_restore', $component),
                 'description' => get_string('coursemgmt_restore_desc', $component),
             ],
             [
                 'url'         => local_sm_graphics_plugin_spa_url('management/courses')->out(false),
                 'icon'        => 'fa-building',
+                'icon_color'  => 'blue',
                 'title'       => get_string('coursemgmt_assign', $component),
                 'description' => get_string('coursemgmt_assign_desc', $component),
             ],
             [
                 'url'         => local_sm_graphics_plugin_spa_url('management/categories')->out(false),
                 'icon'        => 'fa-folder-plus',
+                'icon_color'  => 'blue',
                 'title'       => get_string('coursemgmt_createcat', $component),
                 'description' => get_string('coursemgmt_createcat_desc', $component),
             ],
             [
                 'url'         => local_sm_graphics_plugin_spa_url('management/categories')->out(false),
                 'icon'        => 'fa-folder-open',
+                'icon_color'  => 'orange',
                 'title'       => get_string('coursemgmt_managecat', $component),
                 'description' => get_string('coursemgmt_managecat_desc', $component),
+            ],
+            [
+                'url'         => local_sm_graphics_plugin_spa_url('admin/courseloader')->out(false),
+                'icon'        => 'fa-cloud-download-alt',
+                'icon_color'  => 'green',
+                'title'       => get_string('coursemgmt_sharepoint', $component),
+                'description' => get_string('coursemgmt_sharepoint_desc', $component),
             ],
         ];
 
@@ -152,6 +164,7 @@ class get_course_management_data extends external_api {
                 new external_single_structure([
                     'url'         => new external_value(PARAM_RAW, 'Action URL'),
                     'icon'        => new external_value(PARAM_TEXT, 'FontAwesome icon class'),
+                    'icon_color'  => new external_value(PARAM_TEXT, 'Icon color tag (green/blue/orange)'),
                     'title'       => new external_value(PARAM_TEXT, 'Card title'),
                     'description' => new external_value(PARAM_TEXT, 'Card description'),
                 ])

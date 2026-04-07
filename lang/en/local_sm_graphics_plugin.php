@@ -358,6 +358,8 @@ $string['managecat_delete_confirm'] = 'Are you sure you want to delete this cate
 $string['managecat_empty']          = 'No categories found.';
 $string['coursemgmt_managecat']      = 'Manage categories';
 $string['coursemgmt_managecat_desc'] = 'View and organise course categories';
+$string['coursemgmt_sharepoint']      = 'Import from SharePoint';
+$string['coursemgmt_sharepoint_desc'] = 'Import a complete course from SharePoint';
 $string['coursemgmt_companies']    = 'Companies';
 $string['coursemgmt_courses_col']  = 'Assigned courses';
 $string['coursemgmt_users_col']    = 'Users';
@@ -393,3 +395,30 @@ $string['catalogue_modules']         = 'modules';
 $string['errornofrontend']           = 'Pre-built frontend missing';
 $string['update_force_reinstall']    = 'Force reinstall latest';
 $string['update_force_reinstall_desc'] = 'Re-downloads and re-applies the latest release even if the installed version already matches. Use this if files look stale after a partial sync or hot-patch.';
+
+// SharePoint integration settings (settings.php).
+$string['sp_heading']                  = 'SharePoint Integration';
+$string['sp_courseloader_button']      = 'Open course loader';
+$string['sp_courseloader_button_desc'] = 'Automatically import courses from a SharePoint folder.';
+$string['sp_tenant_id']                = 'Azure AD Tenant ID';
+$string['sp_tenant_id_desc']           = 'Azure Active Directory tenant ID (GUID format).';
+$string['sp_client_id']                = 'Azure AD Client ID';
+$string['sp_client_id_desc']           = 'Application (client) ID from the Azure AD App Registration.';
+$string['sp_client_secret']            = 'Azure AD Client Secret';
+$string['sp_client_secret_desc']       = 'Client secret from the App Registration.';
+$string['sp_site_url']                 = 'SharePoint Site URL';
+$string['sp_site_url_desc']            = 'Base URL of the SharePoint site (e.g. https://yourorg.sharepoint.com/sites/LMS).';
+
+// Outgoing SMTP settings (settings.php).
+$string['smtp_heading']       = 'Outgoing Email (SMTP)';
+$string['smtp_heading_desc']  = 'Configure the SMTP server for sending emails (user credentials, notifications, etc.).';
+$string['smtp_host']          = 'SMTP Server';
+$string['smtp_host_desc']     = 'SMTP server and port (e.g. smtp.office365.com:587).';
+$string['smtp_security']      = 'SMTP Security';
+$string['smtp_security_desc'] = 'Secure connection type for the SMTP server.';
+$string['smtp_username']      = 'SMTP Username';
+$string['smtp_username_desc'] = 'Email address to authenticate with the SMTP server.';
+$string['smtp_password']      = 'SMTP Password';
+$string['smtp_password_desc'] = 'Password or app password to authenticate with the SMTP server.';
+$string['smtp_noreply']       = 'No-reply address';
+$string['smtp_noreply_desc']  = 'Email address shown as the sender in outgoing emails.';

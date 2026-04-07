@@ -1,3 +1,19 @@
+// Read SPA_DEV_PORT from the plugin root .env so spa.php and Nuxt agree.
+// Falls back to 4173 if unset. Tiny inline parser — no extra deps.
+import { readFileSync, existsSync } from 'fs'
+import { resolve } from 'path'
+let SPA_DEV_PORT = 4173
+const rootEnvPath = resolve(__dirname, '../.env')
+if (existsSync(rootEnvPath)) {
+  for (const line of readFileSync(rootEnvPath, 'utf8').split('\n')) {
+    const m = line.match(/^SPA_DEV_PORT=(\d+)/)
+    if (m) {
+      SPA_DEV_PORT = parseInt(m[1]!, 10)
+      break
+    }
+  }
+}
+
 // @ts-expect-error - Nuxt auto-imports defineNuxtConfig
 export default defineNuxtConfig({
   compatibilityDate: '2025-10-21',
@@ -82,9 +98,14 @@ export default defineNuxtConfig({
       sourcemap: false,
     },
     server: {
+      // Make all dev-mode asset URLs absolute so they can be loaded
+      // from a different origin (e.g. Moodle at http://localhost:8081
+      // embedding the dev server via spa.php).
+      origin: `http://localhost:${SPA_DEV_PORT}`,
+      cors: true,
       allowedHosts: ['winhost', 'localhost'],
       hmr: {
-        clientPort: 3000,
+        clientPort: SPA_DEV_PORT,
         protocol: 'ws',
       },
       watch: {
@@ -109,7 +130,7 @@ export default defineNuxtConfig({
   telemetry: false,
 
   devServer: {
-    port: 3000,
+    port: SPA_DEV_PORT,
     host: 'localhost',
   },
 

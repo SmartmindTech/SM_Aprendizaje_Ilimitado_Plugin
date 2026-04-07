@@ -69,6 +69,54 @@ $bootstrapdata = [
     'pluginbaseurl' => $CFG->wwwroot . '/local/sm_graphics_plugin',
 ];
 
+// Try to fetch HTML from a running Nuxt dev server first (instantaneous HMR).
+// If unreachable, fall back to the pre-built frontend_dist/.
+//
+// Enable by setting SPA_DEV=1 (and optionally SPA_DEV_PORT=<port>) in .env.
+// Default port is 4173. The script tries the host.docker.internal alias first
+// (Docker Desktop / WSL2) then plain localhost. The first one that responds
+// wins. Browser stays at the Moodle URL — only the asset origin changes.
+$devhtml = null;
+$devmode = false;
+$devport = 4173;
+$envfile = __DIR__ . '/../.env';
+if (file_exists($envfile)) {
+    foreach (file($envfile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $envline) {
+        if (strpos($envline, 'SPA_DEV=1') === 0) {
+            $devmode = true;
+        } else if (strpos($envline, 'SPA_DEV_PORT=') === 0) {
+            $devport = (int) trim(substr($envline, 13));
+        }
+    }
+}
+
+if ($devmode) {
+    foreach (['host.docker.internal', 'localhost'] as $host) {
+        $origin = 'http://' . $host . ':' . $devport;
+        $ctx = stream_context_create([
+            'http' => [
+                'method'  => 'GET',
+                'timeout' => 1,
+                'header'  => "Accept: text/html\r\n",
+                'ignore_errors' => true,
+            ],
+        ]);
+        $body = @file_get_contents($origin . '/', false, $ctx);
+        if ($body !== false && stripos($body, '<html') !== false) {
+            $devhtml = $body;
+            break;
+        }
+    }
+}
+
+if ($devhtml !== null) {
+    $bootstrapscript = '<script>window.__MOODLE_BOOTSTRAP__ = '
+        . json_encode($bootstrapdata, JSON_HEX_TAG | JSON_HEX_AMP) . ';</script>';
+    $devhtml = str_replace('</head>', $bootstrapscript . '</head>', $devhtml);
+    echo $devhtml;
+    exit;
+}
+
 // Path to the Nuxt-generated SPA.
 $distpath = __DIR__ . '/../frontend_dist/index.html';
 
