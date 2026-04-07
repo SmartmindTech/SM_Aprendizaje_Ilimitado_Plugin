@@ -2,11 +2,11 @@
 <updates>
     <update>
         <component>local_sm_graphics_plugin</component>
-        <version>2026040721</version>
-        <release>1.1.0-nuxt.2</release>
+        <version>2026040722</version>
+        <release>1.1.0-nuxt.3</release>
         <requires>2022112800</requires>
         <maturity>50</maturity>
-        <download>https://github.com/SmartmindTech/SM_Aprendizaje_Ilimitado_Plugin/releases/download/v1.1.0-nuxt.2/sm_graphics_plugin.zip</download>
-        <url>https://github.com/SmartmindTech/SM_Aprendizaje_Ilimitado_Plugin/releases/tag/v1.1.0-nuxt.2</url>
+        <download>https://github.com/SmartmindTech/SM_Aprendizaje_Ilimitado_Plugin/releases/download/v1.1.0-nuxt.3/sm_graphics_plugin.zip</download>
+        <url>https://github.com/SmartmindTech/SM_Aprendizaje_Ilimitado_Plugin/releases/tag/v1.1.0-nuxt.3</url>
     </update>
 </updates>
