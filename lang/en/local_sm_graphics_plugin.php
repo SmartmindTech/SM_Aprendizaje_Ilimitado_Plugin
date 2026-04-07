@@ -391,3 +391,5 @@ $string['mycourses_empty']           = 'You are not enrolled in any courses yet.
 $string['mycourses_nav']             = 'My courses';
 $string['catalogue_modules']         = 'modules';
 $string['errornofrontend']           = 'Pre-built frontend missing';
+$string['update_force_reinstall']    = 'Force reinstall latest';
+$string['update_force_reinstall_desc'] = 'Re-downloads and re-applies the latest release even if the installed version already matches. Use this if files look stale after a partial sync or hot-patch.';

@@ -38,6 +38,7 @@ if (!is_siteadmin()) {
 require_once(__DIR__ . '/classes/update_checker.php');
 
 $confirm = optional_param('confirm', 0, PARAM_BOOL);
+$force   = optional_param('force',   0, PARAM_BOOL);
 
 $PAGE->set_url(new moodle_url('/local/sm_graphics_plugin/update.php'));
 $PAGE->set_context(context_system::instance());
@@ -61,10 +62,30 @@ if (!$updateinfo) {
     exit;
 }
 
-// Check if update is needed.
-if ($updateinfo['version'] <= $currentversion) {
+// Check if update is needed. Skip this gate when ?force=1 is passed so admins
+// can re-apply the latest release after a partial sync or hot-patch.
+if (!$force && $updateinfo['version'] <= $currentversion) {
     echo $OUTPUT->header();
     echo $OUTPUT->notification(get_string('update_uptodate', 'local_sm_graphics_plugin', $currentrelease), 'info');
+
+    // Offer a "Force reinstall latest" escape hatch.
+    $forceurl = new moodle_url('/local/sm_graphics_plugin/update.php', [
+        'confirm' => 1,
+        'force'   => 1,
+        'sesskey' => sesskey(),
+    ]);
+    echo html_writer::tag('p',
+        html_writer::link($forceurl,
+            get_string('update_force_reinstall', 'local_sm_graphics_plugin'),
+            ['class' => 'btn btn-warning']
+        ),
+        ['class' => 'mt-3']
+    );
+    echo html_writer::tag('p',
+        get_string('update_force_reinstall_desc', 'local_sm_graphics_plugin'),
+        ['class' => 'text-muted small']
+    );
+
     echo $OUTPUT->continue_button(new moodle_url('/admin/settings.php', ['section' => 'local_sm_graphics_plugin']));
     echo $OUTPUT->footer();
     exit;
