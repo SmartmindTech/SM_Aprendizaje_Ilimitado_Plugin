@@ -71,22 +71,7 @@ jobs:
           cd /tmp/build
           zip -r /tmp/sm_graphics_plugin.zip sm_graphics_plugin/
 
-      - name: Delete previous release with same tag
-        run: gh release delete "v${{ steps.meta.outputs.release }}" --yes --cleanup-tag 2>/dev/null || true
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Create GitHub release
-        run: |
-          gh release create "v${{ steps.meta.outputs.release }}" \
-            /tmp/sm_graphics_plugin.zip \
-            --title "v${{ steps.meta.outputs.release }}" \
-            --notes "Plugin version: ${{ steps.meta.outputs.version }}" \
-            --latest
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Update update.xml and push
+      - name: Build update.xml
         run: |
           REPO="${{ github.repository }}"
           VERSION="${{ steps.meta.outputs.version }}"
@@ -111,10 +96,28 @@ jobs:
           </updates>
           EOF
 
+      - name: Delete previous release with same tag
+        run: gh release delete "v${{ steps.meta.outputs.release }}" --yes --cleanup-tag 2>/dev/null || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub release
+        run: |
+          gh release create "v${{ steps.meta.outputs.release }}" \
+            /tmp/sm_graphics_plugin.zip \
+            update.xml \
+            --title "v${{ steps.meta.outputs.release }}" \
+            --notes "Plugin version: ${{ steps.meta.outputs.version }}" \
+            --latest
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit update.xml to branch (backwards-compat)
+        run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add update.xml
           if ! git diff --cached --quiet; then
-            git commit -m "chore: update update.xml for v${RELEASE} [skip ci]"
+            git commit -m "chore: update update.xml for v${{ steps.meta.outputs.release }} [skip ci]"
             git push
           fi

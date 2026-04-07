@@ -25,14 +25,24 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_sm_graphics_plugin';
-$plugin->version = 2026040721;  // YYYYMMDDXX format — Port theme_smartmind dev visual identity to Nuxt SPA.
+$plugin->version = 2026040722;  // YYYYMMDDXX format — Faster update check via releases/latest/download/update.xml.
 $plugin->requires = 2022112800; // Moodle 4.1+
 $plugin->maturity = MATURITY_ALPHA;
-$plugin->release = '1.1.0-nuxt.2';  // Nuxt branch, aligned with dev v1.1.0 backend
+$plugin->release = '1.1.0-nuxt.3';  // Nuxt branch, aligned with dev v1.1.0 backend
 
-// GitHub update server - allows automatic update notifications.
-// Branch is configurable via UPDATE_BRANCH in .env (default: main).
-$smgp_update_branch = 'main';
+// GitHub update server — configurable via UPDATE_BRANCH in .env.
+//
+//   UPDATE_BRANCH=latest  → https://github.com/.../releases/latest/download/update.xml
+//       Uses the GitHub release assets CDN (~1 min cache). Production default:
+//       "Check for updates available" reflects new releases within ~1 minute
+//       of the CI run finishing. Auto-resolves to whichever release is tagged
+//       --latest by the workflow, regardless of source branch.
+//
+//   UPDATE_BRANCH=<any branch name> → raw.githubusercontent.com/<branch>/update.xml
+//       Legacy/dev mode. Cached ~5 minutes by GitHub's raw CDN. Useful for
+//       targeting a specific branch's update.xml during development (e.g.
+//       UPDATE_BRANCH=dev pins the Moodle to the dev branch's update.xml).
+$smgp_update_branch = 'latest';
 $smgp_env_file = __DIR__ . '/.env';
 if (file_exists($smgp_env_file)) {
     $smgp_env_lines = file($smgp_env_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -43,4 +53,8 @@ if (file_exists($smgp_env_file)) {
         }
     }
 }
-$plugin->updateserver = 'https://raw.githubusercontent.com/SmartmindTech/SM_Aprendizaje_Ilimitado_Plugin/' . $smgp_update_branch . '/update.xml';
+if ($smgp_update_branch === 'latest') {
+    $plugin->updateserver = 'https://github.com/SmartmindTech/SM_Aprendizaje_Ilimitado_Plugin/releases/latest/download/update.xml';
+} else {
+    $plugin->updateserver = 'https://raw.githubusercontent.com/SmartmindTech/SM_Aprendizaje_Ilimitado_Plugin/' . $smgp_update_branch . '/update.xml';
+}
