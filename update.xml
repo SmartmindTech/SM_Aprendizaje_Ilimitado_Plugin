@@ -1,55 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-    Moodle plugin update server configuration file.
-
-    This file is checked by Moodle to determine if updates are available.
-    When you release a new version:
-    1. Update the version number in version.php
-    2. Update this file with the new version details
-    3. Create a GitHub release with the ZIP file
-    4. Commit and push both files
-
-    GitHub Repository: https://github.com/SmartmindTech/SM_Moodle_Graphic_Layer_Plugin
--->
 <updates>
     <update>
-        <!-- Plugin identifier (must match $plugin->component in version.php) -->
         <component>local_sm_graphics_plugin</component>
-
-        <!-- Version number (must match $plugin->version in version.php) -->
-        <version>2026032600</version>
-
-        <!-- Human-readable release version -->
-        <release>1.0.0</release>
-
-        <!-- Minimum required Moodle version -->
+        <version>2026040720</version>
+        <release>1.1.0-nuxt.1</release>
         <requires>2022112800</requires>
-
-        <!-- Maturity level: MATURITY_ALPHA=50, MATURITY_BETA=100, MATURITY_RC=150, MATURITY_STABLE=200 -->
         <maturity>50</maturity>
-
-        <!-- URL to download the plugin ZIP file (use GitHub releases) -->
-        <download>https://github.com/SmartmindTech/SM_Moodle_Graphic_Layer_Plugin/releases/download/v1.0.0/sm_graphics_plugin.zip</download>
-
-        <!-- Optional: URL for more information about this update -->
-        <url>https://github.com/SmartmindTech/SM_Moodle_Graphic_Layer_Plugin/releases/tag/v1.0.0</url>
-
-        <!-- Release notes (keep it brief) -->
-        <releasenotes>
-            <![CDATA[
-            <h3>Version 1.0.0 - Initial Release</h3>
-
-            <h4>Changes</h4>
-            <ul>
-                <li>Custom color scheme based on Boost</li>
-                <li>Custom navbar styling</li>
-            </ul>
-
-            <h4>Previous Versions</h4>
-            <ul>
-                <li>NONE</li>
-            </ul>
-            ]]>
-        </releasenotes>
+        <download>https://github.com/SmartmindTech/SM_Aprendizaje_Ilimitado_Plugin/releases/download/v1.1.0-nuxt.1/sm_graphics_plugin.zip</download>
+        <url>https://github.com/SmartmindTech/SM_Aprendizaje_Ilimitado_Plugin/releases/tag/v1.1.0-nuxt.1</url>
     </update>
 </updates>
