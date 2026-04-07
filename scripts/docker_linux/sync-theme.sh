@@ -41,7 +41,9 @@ $DOCKER_CMD cp "$REPO/version.php" "$DOCKER_CONTAINER:$MOODLE_ROOT/local/sm_grap
 $DOCKER_CMD cp "$REPO/lib.php" "$DOCKER_CONTAINER:$MOODLE_ROOT/local/sm_graphics_plugin/"
 $DOCKER_CMD cp "$REPO/settings.php" "$DOCKER_CONTAINER:$MOODLE_ROOT/local/sm_graphics_plugin/"
 $DOCKER_CMD cp "$REPO/update.xml" "$DOCKER_CONTAINER:$MOODLE_ROOT/local/sm_graphics_plugin/"
-for dir in db pages templates lang classes amd certificate_type; do
+# Copy .env so version.php can resolve UPDATE_BRANCH for the update channel.
+[ -f "$REPO/.env" ] && $DOCKER_CMD cp "$REPO/.env" "$DOCKER_CONTAINER:$MOODLE_ROOT/local/sm_graphics_plugin/.env"
+for dir in db pages lang classes amd certificate_type frontend_dist; do
     [ -d "$REPO/$dir" ] && $DOCKER_CMD cp "$REPO/$dir" "$DOCKER_CONTAINER:$MOODLE_ROOT/local/sm_graphics_plugin/"
 done
 # Copy update.php for auto-update feature.
