@@ -108,6 +108,7 @@ jobs:
             update.xml \
             --title "v${{ steps.meta.outputs.release }}" \
             --notes "Plugin version: ${{ steps.meta.outputs.version }}" \
+            --target "${{ github.sha }}" \
             --latest
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
