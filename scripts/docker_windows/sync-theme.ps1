@@ -44,7 +44,10 @@ foreach ($file in @("version.php", "lib.php", "settings.php", "update.xml")) {
     $src = Join-Path $REPO $file
     if (Test-Path $src) { docker cp "$src" "${DOCKER_CONTAINER}:${MR}/local/sm_graphics_plugin/" }
 }
-foreach ($dir in @("db", "pages", "templates", "lang", "classes", "amd", "certificate_type")) {
+# Copy .env so version.php can resolve UPDATE_BRANCH for the update channel.
+$envSrc = Join-Path $REPO ".env"
+if (Test-Path $envSrc) { docker cp "$envSrc" "${DOCKER_CONTAINER}:${MR}/local/sm_graphics_plugin/.env" }
+foreach ($dir in @("db", "pages", "lang", "classes", "amd", "certificate_type", "frontend_dist")) {
     $src = Join-Path $REPO $dir
     if (Test-Path $src) { docker cp "$src" "${DOCKER_CONTAINER}:${MR}/local/sm_graphics_plugin/" }
 }
