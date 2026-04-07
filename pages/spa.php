@@ -134,6 +134,27 @@ if ($devmode) {
     }
 }
 
+if ($devmode && $devhtml === null) {
+    // SPA_DEV=1 was requested but the Nuxt dev server is not reachable.
+    // Don't silently fall back to a possibly stale frontend_dist/ — that
+    // leads to "Failed to load module script" errors when index.html
+    // references hashed files that no longer exist on disk. Instead show
+    // a clear, actionable error.
+    echo $OUTPUT->header();
+    echo '<div style="padding:2rem;font-family:system-ui;max-width:720px;margin:0 auto">';
+    echo '<h2>SmartMind SPA dev mode</h2>';
+    echo '<p><code>SPA_DEV=1</code> is set in <code>.env</code> but the Nuxt dev server is not reachable on port <strong>' . (int) $devport . '</strong>.</p>';
+    echo '<p>Start it in another terminal:</p>';
+    echo '<pre style="background:#f5f5f5;padding:1rem;border-radius:8px">cd frontend
+npm install   # only if you have not yet
+npm run dev</pre>';
+    echo '<p>Then reload this page. The watcher script (<code>watch.sh</code> / <code>watch.ps1</code>) is supposed to start it automatically — check <code>scripts/docker_*/.nuxt-dev.log</code> for errors.</p>';
+    echo '<p>Alternatively, set <code>SPA_DEV=0</code> in <code>.env</code> and run <code>npm run deploy</code> once to use the static build.</p>';
+    echo '</div>';
+    echo $OUTPUT->footer();
+    exit;
+}
+
 if ($devhtml !== null) {
     // The browser loads this page from the Moodle origin (e.g. localhost:8081)
     // but the proxied HTML uses relative URLs that need to resolve against the
