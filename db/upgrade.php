@@ -545,5 +545,45 @@ function xmldb_local_sm_graphics_plugin_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026040109, 'local', 'sm_graphics_plugin');
     }
 
+    if ($oldversion < 2026040726) {
+        // Backfill default SmartMind catalogue categories for instances
+        // that were first installed at a version > 2026032401 and therefore
+        // skipped the original seed block above.
+        if ($DB->get_manager()->table_exists('local_smgp_categories')
+                && $DB->count_records('local_smgp_categories') === 0) {
+            $now = time();
+            $defaults = [
+                ['Atención e intervención social', 'social'],
+                ['Bienestar profesional y empresa saludable', 'bienestar'],
+                ['Calidad y prevención de riesgos laborales', 'calidad'],
+                ['Clientes y ventas', 'ventas'],
+                ['Compliance y otras normativas aplicables a la empresa', 'compliance'],
+                ['Estrategia, proyectos e innovación', 'estrategia'],
+                ['Finanzas y gestión empresarial', 'finanzas'],
+                ['Formación y educación: Life Long Learning', 'educacion'],
+                ['IA y ciencia de datos', 'ia'],
+                ['Igualdad, diversidad e inclusión', 'igualdad'],
+                ['Inglés', 'ingles'],
+                ['Microsoft', 'microsoft'],
+                ['Nutrición y seguridad alimentaria', 'nutricion'],
+                ['Softskills', 'softskills'],
+                ['Sostenibilidad y economía verde', 'sostenibilidad'],
+                ['Tecnología y software', 'tecnologia'],
+                ['Turismo, hostelería y restauración', 'turismo'],
+            ];
+            foreach ($defaults as $i => $c) {
+                $DB->insert_record('local_smgp_categories', (object) [
+                    'name'         => $c[0],
+                    'image_url'    => $c[1],
+                    'sortorder'    => $i + 1,
+                    'timecreated'  => $now,
+                    'timemodified' => $now,
+                ]);
+            }
+        }
+
+        upgrade_plugin_savepoint(true, 2026040726, 'local', 'sm_graphics_plugin');
+    }
+
     return true;
 }
