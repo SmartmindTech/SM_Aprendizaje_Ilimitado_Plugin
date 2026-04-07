@@ -1,193 +1,193 @@
 //
-// SmartMind — Navbar Overrides
+// SmartMind — Horizontal Top Navbar (Stratoos-style)
 //
-// Base files: scss/moodle/_navbar.scss, _primarynavigation.scss
-// Templates: navbar.mustache, navbar_left.mustache,
-//            navbar_right.mustache, core/navbar.mustache
-//
-// ALL sidebar styles live here — do NOT use inline <style> in templates.
+// Replaces the old collapsible sidebar with a centered horizontal nav bar.
 //
 
-// Top Navbar Container
-.navbar.fixed-top {}
+// ===== Top navbar container =====
+.smgp-topnav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    padding: 0 2rem;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border-bottom: 1px solid #f0f0f0;
+    position: sticky;
+    top: 0;
+    z-index: 1040;
+    flex-shrink: 0;
 
-// Logo / Brand
-.navbar-brand {}
+    // ── Left: Logo ──
+    &__left {
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+    }
 
-// Nav Links
-.navbar .nav-link {}
+    &__logo {
+        display: flex;
+        align-items: center;
+        text-decoration: none;
 
-// User Navigation (right side: notifications, messages, user menu)
-#usernavigation {
-    .usermenu .dropdown-toggle {
-        border: none;
-        box-shadow: none;
+        img {
+            height: 32px;
+            width: auto;
+        }
+    }
+
+    // ── Center: Nav items ──
+    &__center {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        background-color: #ebe9e580;
+        border-radius: 50px;
+    }
+
+    &__item {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 18px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: #4b5563;
+        text-decoration: none;
+        border-radius: 24px;
+        transition: all 0.15s ease;
+        white-space: nowrap;
+        gap: 0.3rem;
+
+        &:hover {
+            background: #f3f4f6;
+            color: #1a1a1a;
+            text-decoration: none;
+        }
+
+        &--active {
+            background: #10b981;
+            color: #fff;
+
+            &:hover {
+                background: #059669;
+                color: #fff;
+                text-decoration: none;
+            }
+
+            .smartmind-nav-icon::before {
+                color: #fff !important;
+            }
+        }
+
+        &--disabled {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+    }
+
+    &__item-text {
+        line-height: 1;
+    }
+
+    // Dropdown inside topnav
+    &__dropdown {
+        position: relative;
+
+        .dropdown-menu {
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            padding: 6px 0;
+            margin-top: 4px;
+        }
+
+        .dropdown-item {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+
+            &:hover {
+                background: #f3f4f6;
+            }
+        }
+    }
+
+    // ── Right: User area ──
+    &__right {
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+    &__user-area {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1.5rem !important;
     }
 }
 
-// User menu in sidebar — remove focus border around dropdown toggle
-.usermenu-container {
-    .dropdown-toggle,
-    .dropdown-toggle:focus,
-    .dropdown-toggle:active,
-    .dropdown-toggle:focus-visible {
-        border: none;
-        box-shadow: none;
-        outline: none;
-    }
-}
-
-// Primary Navigation (Home, Dashboard, My Courses tabs)
-.primary-navigation {
-}
-.primary-navigation .navigation {}
-.primary-navigation .nav-link {}
-
-// Primary Drawer (mobile nav)
-.drawer-primary .drawercontent {}
-
-// ========================================
-// ICON MAP — Side menu icons
-// ========================================
+// ===== Icon map — nav icons (Lucide) =====
 
 // Hide the default fallback icon
 .smartmind-nav-icon-default { display: none; }
 
-// Map icons by data-key attribute (Lucide Icons)
-[data-key="home"] .smartmind-nav-icon::before { content: "\e598"; color: #8b5cf6; } // notebook-text (Catalogue)
-[data-key="myhome"] .smartmind-nav-icon::before { content: "\e0f5"; color: #6366f1; } // home
-[data-key="mycourses"] .smartmind-nav-icon::before { content: "\e234"; color: #f59e0b; } // graduation-cap
-[data-key="siteadminnode"] .smartmind-nav-icon::before { content: "\e154"; color: #64748b; } // settings
-[data-key="calendar"] .smartmind-nav-icon::before { content: "\e063"; color: #f59e0b; } // calendar
-[data-key="privatefiles"] .smartmind-nav-icon::before { content: "\e0d7"; color: #f59e0b; } // folder
-[data-key="contentbank"] .smartmind-nav-icon::before { content: "\e0ad"; color: #8b5cf6; } // database
-[data-key="ioaddashboardnode"] .smartmind-nav-icon::before { content: "\e290"; color: #64748b; } // building-2
-
-// SmartMind plugin pages
-[data-key="sm-mycourses"] .smartmind-nav-icon::before { content: "\e234"; color: #f59e0b; } // graduation-cap
-[data-key="sm-gradescerts"] .smartmind-nav-icon::before { content: "\e04f"; color: #f59e0b; } // award
-
-// Company manager sidebar
-[data-key="sm-usermanagement"] .smartmind-nav-icon::before { content: "\e1a4"; color: #8b5cf6; } // users
-[data-key="sm-othermanagement"] .smartmind-nav-icon::before { content: "\e154"; color: #64748b; } // settings
-[data-key="sm-statistics"] .smartmind-nav-icon::before { content: "\e06a"; color: #6366f1; } // bar-chart
-
 // Base style for all nav icons (Lucide Icons)
+.smgp-topnav .smartmind-nav-icon {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    width: auto;
+
+    i.fa-fw {
+        width: auto;
+        text-align: center;
+    }
+}
+
 .smartmind-nav-icon::before {
     font-family: "lucide";
     font-weight: normal;
-    font-size: 1.1rem;
-    width: 1.25em;
-    text-align: center;
+    font-size: 1rem;
+    width: auto;
     display: inline-block;
 }
 
-// ========================================
-// COLLAPSIBLE SIDEBAR — applies to ALL pages
-// ========================================
-// Migrated from inline <style> in navbar_left.mustache and drawers.mustache
-// so it applies globally via compiled SCSS.
+// Map icons by data-key
+[data-key="home"] .smartmind-nav-icon::before { content: "\e598"; color: #10b981; }
+[data-key="myhome"] .smartmind-nav-icon::before { content: "\e0f5"; color: #10b981; }
+[data-key="mycourses"] .smartmind-nav-icon::before { content: "\e234"; color: #10b981; }
+[data-key="siteadminnode"] .smartmind-nav-icon::before { content: "\e154"; color: #10b981; }
+[data-key="calendar"] .smartmind-nav-icon::before { content: "\e063"; color: #10b981; }
+[data-key="privatefiles"] .smartmind-nav-icon::before { content: "\e0d7"; color: #10b981; }
+[data-key="contentbank"] .smartmind-nav-icon::before { content: "\e0ad"; color: #10b981; }
+[data-key="ioaddashboardnode"] .smartmind-nav-icon::before { content: "\e290"; color: #10b981; }
 
-// Sidebar nav container — fixed 56px collapsed width
-$smartmind-sidebar-selector: 'nav.d-flex.flex-column.vh-100.w-25[aria-label]';
+// SmartMind plugin pages
+[data-key="sm-mycourses"] .smartmind-nav-icon::before { content: "\e234"; color: #10b981; }
+[data-key="sm-gradescerts"] .smartmind-nav-icon::before { content: "\e04f"; color: #10b981; }
+[data-key="sm-profile"] .smartmind-nav-icon::before { content: "\e19f"; color: #10b981; }
 
-#{$smartmind-sidebar-selector} {
-    width: 56px !important;
-    min-width: 56px;
-    max-width: 56px;
-    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-                max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    overflow: visible;
-    position: relative;
-    flex-shrink: 0;
+// Company manager sidebar
+[data-key="sm-usermanagement"] .smartmind-nav-icon::before { content: "\e1a4"; color: #10b981; }
+[data-key="sm-othermanagement"] .smartmind-nav-icon::before { content: "\e154"; color: #10b981; }
+[data-key="sm-statistics"] .smartmind-nav-icon::before { content: "\e06a"; color: #10b981; }
+
+// Active item overrides icon color to white
+.smgp-topnav__item--active .smartmind-nav-icon::before {
+    color: #fff !important;
 }
 
-// Card inside sidebar — visually expands on hover
-#{$smartmind-sidebar-selector} .card {
-    width: 56px;
-    min-width: 56px;
-    overflow: hidden;
-    white-space: nowrap;
-    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-                box-shadow 0.3s ease;
-    will-change: width;
-    background-color: #f1f5f9;
-    border-radius: 0 !important;
-    position: fixed;
-    left: 0;
-    top: 0;
-    z-index: 1050;
-}
-
-// Hover: expand to 240px
-#{$smartmind-sidebar-selector}:hover .card {
-    width: 240px;
-    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.10) !important;
-}
-
-// Logo — hide text, show only icon when collapsed
-#{$smartmind-sidebar-selector} .card > a {
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-}
-
-#{$smartmind-sidebar-selector} .card > a img.logo {
-    max-width: 28px;
-    flex-shrink: 0;
-    transition: max-width 0.3s ease;
-}
-
-#{$smartmind-sidebar-selector}:hover .card > a img.logo {
-    max-width: 140px;
-}
-
-// Menu items — flex row layout
-#{$smartmind-sidebar-selector} .primary-navigation ul li a,
-#{$smartmind-sidebar-selector} .primary-navigation ul li {
-    display: flex;
-    align-items: center;
-    overflow: hidden;
-    white-space: nowrap;
-}
-
-// Icons — always visible (collapsed & expanded)
-#{$smartmind-sidebar-selector} .primary-navigation ul li a .icon,
-#{$smartmind-sidebar-selector} .primary-navigation ul li a svg,
-#{$smartmind-sidebar-selector} .primary-navigation ul li a img,
-#{$smartmind-sidebar-selector} .primary-navigation ul li a .smartmind-nav-icon {
-    flex-shrink: 0;
-    width: 20px;
-    height: 20px;
-    opacity: 1 !important;
-    max-width: none !important;
-    overflow: visible !important;
-}
-
-// Text — hidden when collapsed
-#{$smartmind-sidebar-selector} .primary-navigation ul li a .smartmind-nav-text,
-#{$smartmind-sidebar-selector} .primary-navigation ul li a .nav-link-text {
-    opacity: 0;
-    max-width: 0;
-    transition: opacity 0.2s ease 0.05s, max-width 0.3s ease;
-    overflow: hidden;
-}
-
-// Text — visible on hover (expanded)
-#{$smartmind-sidebar-selector}:hover .primary-navigation ul li a .smartmind-nav-text,
-#{$smartmind-sidebar-selector}:hover .primary-navigation ul li a .nav-link-text {
-    opacity: 1;
-    max-width: 180px;
-}
-
-// Hide IOMAD's built-in company menu (replaced by our custom dropdown).
+// ===== Hide IOMAD's built-in company menu =====
 .navbar .companymenu,
 .navbar.fixed-top .companymenu,
 .companymenu {
     display: none !important;
 }
 
-// Vertically align ALL items in the top-right navbar on the same baseline.
+// ===== User navigation alignment =====
 #usernavigation {
     align-items: center !important;
 
@@ -202,6 +202,30 @@ $smartmind-sidebar-selector: 'nav.d-flex.flex-column.vh-100.w-25[aria-label]';
         align-items: center !important;
         align-self: center !important;
         line-height: 1 !important;
+    }
+
+    .usermenu .dropdown-toggle {
+        border: none;
+        box-shadow: none;
+    }
+}
+
+// Hide "Perfil" from user dropdown (it's now in the top navbar)
+.usermenu .dropdown-menu a[href*="/user/profile.php"],
+.usermenu .dropdown-menu a[data-title="profile,moodle"] {
+    display: none !important;
+}
+
+// User menu — remove focus border around dropdown toggle
+.usermenu-container,
+.usermenu {
+    .dropdown-toggle,
+    .dropdown-toggle:focus,
+    .dropdown-toggle:active,
+    .dropdown-toggle:focus-visible {
+        border: none;
+        box-shadow: none;
+        outline: none;
     }
 }
 
@@ -224,9 +248,7 @@ $smartmind-sidebar-selector: 'nav.d-flex.flex-column.vh-100.w-25[aria-label]';
         padding: 4px 0;
         font-family: inherit;
 
-        &:hover {
-            color: #1B4FD8;
-        }
+        &:hover { color: #1B4FD8; }
 
         i {
             font-size: 0.7em;
@@ -244,17 +266,15 @@ $smartmind-sidebar-selector: 'nav.d-flex.flex-column.vh-100.w-25[aria-label]';
         top: 100%;
         right: 0;
         min-width: 200px;
-        background: #FFFFFF;
-        border: 1px solid #E2DDD6;
+        background: #fff;
+        border: 1px solid #e5e7eb;
         border-radius: 10px;
         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
         z-index: 1050;
         padding: 6px 0;
         margin-top: 4px;
 
-        &.show {
-            display: block;
-        }
+        &.show { display: block; }
     }
 
     &__item {
@@ -267,7 +287,7 @@ $smartmind-sidebar-selector: 'nav.d-flex.flex-column.vh-100.w-25[aria-label]';
         transition: background 0.1s;
 
         &:hover {
-            background: #F0EDE8;
+            background: #f3f4f6;
             color: #1A1814;
             text-decoration: none;
         }
@@ -279,3 +299,54 @@ $smartmind-sidebar-selector: 'nav.d-flex.flex-column.vh-100.w-25[aria-label]';
     }
 }
 
+// ===== Responsive: mobile hamburger =====
+@media (max-width: 768px) {
+    .smgp-topnav {
+        padding: 0 1rem;
+        height: 50px;
+
+        &__center {
+            display: none; // Hide nav items on mobile — use drawer instead
+        }
+
+        &__logo img {
+            height: 26px;
+        }
+
+        &__user-area {
+            font-size: 1.25rem !important;
+        }
+    }
+}
+
+// ===== Ensure #page takes full width now (no sidebar) =====
+#page {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+
+// ===== Dark mode toggle — Lucide icons =====
+.smgp-darkmode-toggle__icon {
+    font-family: "lucide";
+    font-weight: normal;
+    font-size: 1.15rem;
+    color: #6366f1;
+    line-height: 1;
+
+    // Moon (light mode → show moon)
+    &::before {
+        content: "\e11e";
+    }
+
+    // Sun (dark mode → show sun)
+    &[data-mode="dark"]::before {
+        content: "\e178";
+        color: #f59e0b;
+    }
+}
+
+// Hide the old navbar_right container if still rendered
+.navbar_right {
+    display: none !important;
+}

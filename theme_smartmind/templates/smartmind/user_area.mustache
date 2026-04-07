@@ -1,25 +1,89 @@
+{{! @source: layout/drawers.php > USER global + primarymenu[user] }}
 {{!
     @template theme_smartmind/smartmind/user_area
 
-    SmartMind — User navigation area (top-right).
+    SmartMind — User navigation area (right side of top navbar).
 
     Contains: search box, language menu, plugin output (notifications, messages),
-    user menu (avatar dropdown), and edit mode switch.
-
-    Edit this file to rearrange, add, or remove items from the user area.
+    company selector, user menu (avatar dropdown), dark mode toggle, language toggle.
 }}
-<div id="usernavigation" class="d-flex align-items-center mt-4 gap-3" style="margin-right: 7rem; font-size: 1.2rem; font-weight: bold;">
+<div id="usernavigation" class="smgp-topnav__user-area">
     {{# output.search_box }}
         {{{ output.search_box }}}
-        <div class="divider border-start h-75 align-self-center mx-1"></div>
     {{/output.search_box}}
     {{#langmenu}}
         {{> theme_smartmind/language_menu }}
-        <div class="divider border-start h-75 align-self-center mx-1"></div>
     {{/langmenu}}
     {{{ output.navbar_plugin_output }}}
     {{#hascompanyselector}}
         {{{ companyselector }}}
     {{/hascompanyselector}}
+    {{#usermenu}}
+        {{> core/user_menu }}
+    {{/usermenu}}
+    <button type="button" class="smgp-topnav__btn smgp-darkmode-toggle" aria-label="Toggle dark mode">
+        <span class="smgp-darkmode-toggle__icon"></span>
+    </button>
+    <button type="button" class="smgp-topnav__btn" id="smgp-lang-toggle" aria-label="Change language">
+        <i class="icon-globe"></i>
+        <span id="smgp-lang-code">ES</span>
+    </button>
 </div>
 
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Guard: only run once even if this template is included multiple times.
+        if (window._smgpUserAreaInit) return;
+        window._smgpUserAreaInit = true;
+
+        // ── Dark mode toggle ──
+        var html = document.documentElement;
+        var buttons = document.querySelectorAll('.smgp-darkmode-toggle');
+        var icons = document.querySelectorAll('.smgp-darkmode-toggle__icon');
+
+        function isDark() {
+            return html.classList.contains('smgp-dark');
+        }
+
+        function updateIcons() {
+            var mode = isDark() ? 'dark' : 'light';
+            icons.forEach(function(icon) {
+                icon.setAttribute('data-mode', mode);
+            });
+        }
+
+        updateIcons();
+
+        buttons.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                html.classList.toggle('smgp-dark');
+                localStorage.setItem('smgp-theme', isDark() ? 'dark' : 'light');
+                updateIcons();
+            });
+        });
+
+        // ── Language toggle ──
+        var langBtn = document.getElementById('smgp-lang-toggle');
+        var langCode = document.getElementById('smgp-lang-code');
+        var langs = ['es', 'en'];
+        var langLabels = {'es': 'ES', 'en': 'EN'};
+
+        if (langBtn) {
+            langBtn.addEventListener('click', function() {
+                var currentLang = html.getAttribute('lang');
+                currentLang = currentLang.replace('-', '_').toLowerCase();
+                var idx = langs.indexOf(currentLang);
+                var nextLang = langs[(idx + 1) % langs.length];
+                var url = new URL(window.location.href);
+                url.searchParams.set('lang', nextLang);
+                window.location.href = url.toString();
+            });
+
+            if (langCode) {
+                var curLang = (html.getAttribute('lang')).replace('-', '_').toLowerCase();
+                langCode.textContent = langLabels[curLang] || curLang.toUpperCase().substring(0, 2);
+            }
+        }
+    });
+</script>

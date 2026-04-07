@@ -13,6 +13,17 @@ body {
     min-height: 100vh;
 }
 
+// ── Anti-lateral-dance ───────────────────────────────────────────
+// Force the vertical scrollbar to be ALWAYS reserved, even on short
+// pages without overflow. Without this, navigating between a short
+// page (no scrollbar) and a long page (scrollbar) shifts the centered
+// content by ~15px (the scrollbar width), making the app "dance"
+// laterally on every Turbo swap.
+html {
+    overflow-y: scroll;            // legacy fallback (always-on scrollbar)
+    scrollbar-gutter: stable;      // modern: reserves gutter without forcing bar
+}
+
 // Fullscreen Layout
 // .layout {}
 
@@ -26,26 +37,56 @@ body {
 #page.drawers.show-drawer-left .drawer-left-toggle {}
 #page.drawers.show-drawer-right .drawer-right-toggle {}
 
-// Main Content Area
-#page-content {}
-#region-main-box {}
-#region-main {}
-.main-inner {}
+// Main Content Area — cap ALL pages at 90% width, centered.
+// ── Single source of truth for page width ────────────────────────
+// All pages constrain to the same horizontal envelope on #page-content
+// (the container Turbo swaps). This prevents the lateral "dance" when
+// navigating between pages with different inner wrappers (catalogue,
+// dashboard, admin forms, etc.). Inner wrappers like .main-inner are
+// reset to 100% below so they don't double-constrain.
+#page-content {
+    max-width: 85% !important;
+    width: 85% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
 
-// Frontpage: full-width page, but catalogue grid stays readable
-body.pagelayout-frontpage #page.drawers .main-inner,
-body.pagelayout-frontpage.limitedwidth #page.drawers .main-inner {
-    max-width: 100% !important;
-}
-
-// Admin / Settings pages: full-width content and header
-body.pagelayout-admin,
-body.pagelayout-standard.path-admin {
-    #page.drawers .main-inner {
-        max-width: 100% !important;
+    @media (max-width: 991.98px) {
+        max-width: 95% !important;
+        width: 95% !important;
     }
 
-    .header-maxwidth {
+    @media (max-width: 575.98px) {
         max-width: 100% !important;
+        width: 100% !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+}
+
+#region-main-box {}
+#region-main {}
+
+// .main-inner used to carry the 85% rule. Now #page-content owns the
+// envelope, so .main-inner fills its parent without re-constraining.
+body #page.drawers .main-inner {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+.header-maxwidth {
+    max-width: 85% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+
+    @media (max-width: 991.98px) {
+        max-width: 95% !important;
+    }
+
+    @media (max-width: 575.98px) {
+        max-width: 100% !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
     }
 }

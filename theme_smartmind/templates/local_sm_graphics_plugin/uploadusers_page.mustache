@@ -1,0 +1,99 @@
+{{!
+    Template: local_sm_graphics_plugin/uploadusers_page
+
+    Minimal CSV upload form for company managers.
+
+    Context variables:
+    - actionurl, sesskey
+    - title, subtitle, file_label, file_help
+    - type_label, submit_label, cancel_label, cancelurl
+    - uutypes: array (value, label, selected)
+}}
+<div class="sm-upload-container">
+    <div class="sm-upload-card">
+        <div class="text-center mb-4">
+            <i class="fa fa-cloud-upload fa-3x text-primary mb-3"></i>
+            <h3 class="mb-1">{{title}}</h3>
+            <p class="text-muted small">{{subtitle}}</p>
+        </div>
+
+        <form method="post" action="{{actionurl}}" enctype="multipart/form-data">
+            <input type="hidden" name="sesskey" value="{{sesskey}}">
+
+            <div class="sm-upload-dropzone mb-4">
+                <label for="userfile" class="sm-upload-label">
+                    <i class="fa fa-file-csv fa-2x text-muted mb-2"></i>
+                    <span class="d-block fw-bold mb-1">{{file_label}}</span>
+                    <span class="text-muted small">{{file_help}}</span>
+                    <input type="file" name="userfile" id="userfile" accept=".csv" required class="sm-upload-input">
+                </label>
+            </div>
+
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <label for="uutype" class="form-label fw-bold mb-0 text-nowrap">{{type_label}}</label>
+                <select name="uutype" id="uutype" class="form-select">
+                    {{#uutypes}}
+                        <option value="{{value}}" {{#selected}}selected{{/selected}}>{{label}}</option>
+                    {{/uutypes}}
+                </select>
+            </div>
+
+            <div class="d-flex gap-2 justify-content-center">
+                <a href="{{cancelurl}}" class="btn btn-outline-secondary">{{cancel_label}}</a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa fa-upload me-1"></i> {{submit_label}}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .sm-upload-container {
+        width: 100%;
+        padding: 2rem 0;
+    }
+    .sm-upload-card {
+        width: 100%;
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 2.5rem 2rem;
+    }
+    .sm-upload-dropzone {
+        border: 2px dashed #ced4da;
+        border-radius: 8px;
+        text-align: center;
+        padding: 3.5rem 1rem;
+        min-height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: border-color 0.2s, background 0.2s;
+        cursor: pointer;
+    }
+    .sm-upload-dropzone:hover,
+    .sm-upload-dropzone:focus-within {
+        border-color: var(--bs-primary, #2e7d32);
+        background: #f0f7ff;
+    }
+    .sm-upload-label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        cursor: pointer;
+        margin: 0;
+    }
+    .sm-upload-input {
+        display: block;
+        margin-top: 0.75rem;
+        font-size: 0.85rem;
+    }
+    .sm-upload-input::file-selector-button {
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        padding: 0.25rem 0.75rem;
+        background: #f8fafc;
+        cursor: pointer;
+    }
+</style>

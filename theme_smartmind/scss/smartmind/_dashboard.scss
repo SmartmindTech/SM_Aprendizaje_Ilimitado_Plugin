@@ -1,12 +1,37 @@
 //
-// SmartMind — Dashboard Catalog Design
+// SmartMind — Dashboard Redesign v2
 //
-// Streaming-service inspired layout (Apple TV / Filmin style).
-// Reusable design system: catalog-dashboard, catalog-stats, catalog-section, course-card.
+// Welcome banner, quick nav, course grids with white diffuse overlay,
+// category sections with smaller cards, recommendations with badges.
 //
-// Layout: layout/mydashboard.php
-// Template: templates/mydashboard.mustache
-//
+
+// ─── FA6 icon fallbacks (not compiled by Moodle core) ────────────
+// Must include font-family explicitly because Moodle may not compile _icons.scss.
+.fa-video::before,
+.fas.fa-video::before {
+    font-family: 'Font Awesome 6 Free' !important;
+    font-weight: 900 !important;
+    content: "\f03d" !important;
+}
+.fa-route::before,
+.fas.fa-route::before {
+    font-family: 'Font Awesome 6 Free' !important;
+    font-weight: 900 !important;
+    content: "\f4d7" !important;
+}
+.fa-chart-line::before,
+.fas.fa-chart-line::before {
+    font-family: 'Font Awesome 6 Free' !important;
+    font-weight: 900 !important;
+    content: "\f201" !important;
+}
+.fa-pen-to-square::before,
+.fas.fa-pen-to-square::before {
+    font-family: 'Font Awesome 6 Free' !important;
+    font-weight: 900 !important;
+    content: "\f14b" !important;
+}
+
 
 // ─── Page-level overrides ────────────────────────────────────────
 body#page-my-index {
@@ -14,11 +39,6 @@ body#page-my-index {
     #page.drawers {
         flex: 1 !important;
         min-width: 0;
-    }
-
-    .main-inner,
-    .header-maxwidth {
-        max-width: 100% !important;
     }
 }
 
@@ -33,37 +53,798 @@ section.block_timeline {
 // CATALOG DASHBOARD — Main wrapper
 // ═══════════════════════════════════════════════════════════════════
 .catalog-dashboard {
-    max-width: 1140px;
+    width: 100%;
     margin: 0 auto;
-    padding: $smgp-space-xl 0;
+    padding: $smgp-space-lg 0;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
 
-    &__header {
-        margin-bottom: $smgp-space-lg;
+
+// ═══════════════════════════════════════════════════════════════════
+// WELCOME BANNER — Gradient card matching mockup
+// ═══════════════════════════════════════════════════════════════════
+.dashboard-banner {
+    position: relative;
+    background: linear-gradient(to left, #059669, transparent 60%);
+    border-radius: 20px;
+    padding: 30px 34px 26px;
+    overflow: hidden;
+    border: 1px solid lightgray;
+
+    // Main blob — soft organic green shape on the right.
+    &__blob {
+        position: absolute;
+        top: -40px;
+        right: -20px;
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(
+            ellipse at 60% 40%,
+            rgba(163, 206, 156, 0.35) 0%,
+            rgba(185, 215, 180, 0.18) 40%,
+            rgba(200, 225, 195, 0.06) 70%,
+            transparent 100%
+        );
+        border-radius: 40% 60% 55% 45% / 55% 45% 60% 40%;
+        pointer-events: none;
+        filter: blur(6px);
     }
 
-    &__title {
-        font-size: $smgp-font-2xl;
+    // Secondary blob — smaller, offset.
+    &__blob--2 {
+        top: 20px;
+        right: 40px;
+        width: 180px;
+        height: 180px;
+        background: radial-gradient(
+            circle,
+            rgba(144, 196, 135, 0.2) 0%,
+            transparent 70%
+        );
+        border-radius: 50%;
+        filter: blur(12px);
+    }
+
+    &__content {
+        position: relative;
+        z-index: 1;
+    }
+
+    &__emoji {
+        margin-right: 4px;
+    }
+
+    &__greeting {
+        font-size: 1.65rem;
         font-weight: 700;
         color: $smgp-gray-900;
-        margin: 0 0 $smgp-space-xs;
+        margin: 0 0 6px;
+        line-height: 1.25;
     }
 
-    &__subtitle {
+    &__streak {
         font-size: $smgp-font-sm;
         color: $smgp-gray-500;
-        margin: 0;
+        margin: 0 0 14px;
+        font-style: italic;
     }
 
-    &__sections {
+    &__suggestion {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(56, 120, 52, 0.07);
+        border: 1px solid rgba(56, 120, 52, 0.12);
+        border-radius: $smgp-radius-full;
+        padding: 5px 14px;
+        font-size: 13px;
+        color: $smgp-gray-600;
+        margin-bottom: 16px;
+
+        &-icon {
+            font-size: 14px;
+            line-height: 1;
+        }
+
+        &-link {
+            color: #10b981;
+            font-weight: 600;
+            text-decoration: underline;
+            text-decoration-color: rgba(16, 185, 129, 0.3);
+            text-underline-offset: 2px;
+
+            &:hover {
+                color: #059669;
+                text-decoration-color: #059669;
+            }
+        }
+    }
+
+    &__badges {
         display: flex;
-        flex-direction: column;
-        gap: $smgp-space-2xl;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    &__badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: #fff;
+        border: 1px solid $smgp-gray-200;
+        border-radius: $smgp-radius-full;
+        padding: 4px 12px;
+        font-size: 12px;
+        font-weight: 500;
+        color: $smgp-gray-600;
+        line-height: 1.3;
     }
 }
 
 
 // ═══════════════════════════════════════════════════════════════════
-// STATS ROW — 4-column metrics grid
+// QUICK NAVIGATION — Large rounded cards matching mockup
+// ═══════════════════════════════════════════════════════════════════
+.dashboard-quicknav {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 14px;
+
+    &__item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        text-decoration: none;
+        background: #fff;
+        border-radius: 18px;
+        padding: 20px 10px 16px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+        &:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.12);
+            text-decoration: none;
+        }
+    }
+
+    &__icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+    }
+
+    &__label {
+        font-size: 12px;
+        font-weight: 600;
+        color: $smgp-gray-600;
+        text-align: center;
+    }
+
+    // Color variants — pastel bg with saturated icon.
+    &__item--blue   .dashboard-quicknav__icon { background: #dcfce7; color: #10b981; }
+    &__item--red    .dashboard-quicknav__icon { background: #dcfce7; color: #10b981; }
+    &__item--purple .dashboard-quicknav__icon { background: #dcfce7; color: #10b981; }
+    &__item--orange .dashboard-quicknav__icon { background: #dcfce7; color: #10b981; }
+    &__item--teal   .dashboard-quicknav__icon { background: #dcfce7; color: #10b981; }
+    &__item--green  .dashboard-quicknav__icon { background: #dcfce7; color: #10b981; }
+
+    // Disabled state — visible but not interactive.
+    &__item--disabled {
+        pointer-events: none;
+        opacity: 0.6;
+
+        .dashboard-quicknav__label {
+            color: $smgp-gray-400;
+        }
+    }
+}
+
+
+// ═══════════════════════════════════════════════════════════════════
+// CATALOG SECTION — Reusable section wrapper (header + content)
+// ═══════════════════════════════════════════════════════════════════
+.catalog-section {
+
+    &__header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 14px;
+        gap: $smgp-space-md;
+    }
+
+    &__title {
+        font-size: $smgp-font-base;
+        font-weight: 700;
+        color: $smgp-gray-900;
+        margin: 0;
+    }
+
+    &__desc {
+        font-size: 13px;
+        color: $smgp-gray-400;
+        margin: 2px 0 0;
+    }
+
+    &__viewall {
+        font-size: 13px;
+        font-weight: 500;
+        color: #10b981;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: color $smgp-transition-fast;
+        margin-top: 2px;
+
+        &:hover {
+            text-decoration: underline;
+            color: #059669;
+        }
+    }
+
+    &__count {
+        font-size: 13px;
+        color: $smgp-gray-400;
+        white-space: nowrap;
+        margin-top: 2px;
+        font-style: italic;
+    }
+
+    &__empty {
+        text-align: center;
+        padding: $smgp-space-xl $smgp-space-md;
+        color: $smgp-gray-400;
+        font-size: $smgp-font-sm;
+        background: #fff;
+        border-radius: $smgp-radius-lg;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+
+        i {
+            font-size: 1.5rem;
+            color: $smgp-gray-300;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        p { margin: 0 0 8px; }
+    }
+
+    &__empty-link {
+        color: #10b981;
+        font-weight: 600;
+        text-decoration: none;
+        font-size: $smgp-font-sm;
+
+        &:hover {
+            color: #059669;
+            text-decoration: underline;
+        }
+    }
+
+    // Section header icon — all green for consistency.
+    &__icon {
+        margin-right: 6px;
+        font-size: 15px;
+        vertical-align: -1px;
+        color: #10b981;
+
+        &--purple,
+        &--amber,
+        &--red,
+        &--green,
+        &--teal,
+        &--blue { color: #10b981; }
+    }
+}
+
+// Generic section grid — reusable for all new lists.
+.dashboard-section-grid {
+    display: grid;
+    gap: 18px;
+
+    &--4 {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    &--3 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+
+// ═══════════════════════════════════════════════════════════════════
+// SHARED: White diffuse gradient overlay + white card base
+// ═══════════════════════════════════════════════════════════════════
+%diffuse-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 45%;
+    background: linear-gradient(to top, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.5) 35%, transparent 100%);
+    z-index: 2;
+    pointer-events: none;
+}
+
+// Shared base for ALL white-bg cards.
+%card-white {
+    background: #fff;
+    border-radius: $smgp-radius-lg;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    cursor: pointer;
+
+    &:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.12);
+    }
+}
+
+%card-thumb {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    background: $smgp-gray-100;
+    text-decoration: none;
+}
+
+%card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: $smgp-gray-800;
+    line-height: 1.35;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+
+    a { color: inherit; text-decoration: none; }
+}
+
+
+// ═══════════════════════════════════════════════════════════════════
+// ENROLLED COURSES — Full-width 3-column grid
+// ═══════════════════════════════════════════════════════════════════
+.dashboard-course-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 18px;
+
+    > * {
+        min-width: 0;
+    }
+}
+
+
+// ═══════════════════════════════════════════════════════════════════
+// COURSE CARD — White card, compact image, body with title + circular progress
+// ═══════════════════════════════════════════════════════════════════
+.course-card {
+    @extend %card-white;
+    display: flex;
+    flex-direction: column;
+
+    &__thumb {
+        @extend %card-thumb;
+        aspect-ratio: 21 / 9;
+    }
+
+    &__thumb-img {
+        width: 100%; height: 100%; object-fit: cover;
+        transition: transform 0.35s ease;
+        .course-card:hover & { transform: scale(1.04); }
+    }
+
+    &__diffuse { @extend %diffuse-overlay; }
+
+    // ── Play button — visible on hover ──
+    &__play {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.85);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: rgba(16, 185, 129, 0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 3;
+        opacity: 0;
+        transition: opacity 0.2s ease, transform 0.2s ease;
+
+        i {
+            color: #fff;
+            font-size: 14px;
+            margin-left: 2px;
+        }
+
+        .course-card:hover & {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+    }
+
+    // ── Body: text left + ring right ──
+    &__body {
+        padding: 10px 12px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    &__text {
+        flex: 1;
+        min-width: 0;
+    }
+
+    &__title {
+        @extend %card-title;
+        font-size: 12px;
+        margin-bottom: 2px;
+        -webkit-line-clamp: 1;
+        line-clamp: 1;
+    }
+
+    &__subtitle {
+        display: block; font-size: 10px;
+        color: $smgp-gray-400; margin: 0;
+    }
+
+    // ── Circular progress ring ──
+    &__ring {
+        position: relative;
+        flex-shrink: 0;
+        width: 36px;
+        height: 36px;
+    }
+
+    &__ring-svg {
+        width: 100%;
+        height: 100%;
+        transform: rotate(-90deg);
+    }
+
+    &__ring-bg {
+        fill: none;
+        stroke: $smgp-gray-200;
+        stroke-width: 3;
+    }
+
+    &__ring-fill {
+        fill: none;
+        stroke: #10b981;
+        stroke-width: 3;
+        stroke-linecap: round;
+        transition: stroke-dasharray 0.4s ease;
+    }
+
+    &__ring-pct {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 9px;
+        font-weight: 700;
+        color: #10b981;
+    }
+}
+
+
+// ═══════════════════════════════════════════════════════════════════
+// PÍLDORAS SECTION — Full visual block with sub-sections
+// ═══════════════════════════════════════════════════════════════════
+.pildora-block {
+    background: #fff;
+    border-radius: $smgp-radius-lg;
+    padding: 20px 24px 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    margin-top: 14px;
+}
+
+.pildora-subsection {
+    margin-top: 20px;
+    padding-left: 20px;
+    border-left: 3px solid rgba(16, 185, 129, 0.15);
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+    }
+
+    &__title {
+        font-size: $smgp-font-sm;
+        font-weight: 600;
+        color: $smgp-gray-700;
+    }
+
+    &__viewall {
+        font-size: 12px;
+        color: $smgp-gray-400;
+        text-decoration: none;
+        &:hover { color: #10b981; text-decoration: underline; }
+    }
+}
+
+.pildora-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+.pildora-card {
+    @extend %card-white;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 0 1px $smgp-gray-200;
+    border-radius: $smgp-radius-md;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1);
+    }
+
+    &__thumb {
+        @extend %card-thumb;
+        aspect-ratio: 3 / 2;
+        border-radius: $smgp-radius-md $smgp-radius-md 0 0;
+    }
+
+    &__img {
+        width: 100%; height: 100%; object-fit: cover;
+    }
+
+    &__diffuse { @extend %diffuse-overlay; height: 30%; }
+
+    &__body {
+        padding: 8px 10px 10px;
+    }
+
+    &__badge {
+        display: inline-block; align-self: flex-start;
+        font-size: 8px; font-weight: 700;
+        color: #10b981; text-transform: uppercase; letter-spacing: 0.03em;
+        background: rgba(16, 185, 129, 0.08);
+        padding: 1px 6px; border-radius: $smgp-radius-full;
+        margin-bottom: 3px;
+    }
+
+    &__title {
+        font-size: 11px; font-weight: 600;
+        color: $smgp-gray-800; line-height: 1.25; margin: 0;
+        display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2;
+        -webkit-box-orient: vertical; overflow: hidden;
+        a { color: inherit; text-decoration: none; }
+    }
+}
+
+
+// ═══════════════════════════════════════════════════════════════════
+// RECOMMENDED CARD — Category badge + metadata
+// ═══════════════════════════════════════════════════════════════════
+.dashboard-recommended-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+}
+
+.recommended-card {
+    @extend %card-white;
+    display: flex;
+    flex-direction: column;
+
+    &__thumb {
+        @extend %card-thumb;
+        aspect-ratio: 16 / 10;
+    }
+
+    &__thumb-img {
+        width: 100%; height: 100%; object-fit: cover;
+        transition: transform 0.35s ease;
+        .recommended-card:hover & { transform: scale(1.04); }
+    }
+
+    &__diffuse { @extend %diffuse-overlay; }
+
+    &__info {
+        padding: 12px 14px 14px;
+        flex: 1; display: flex; flex-direction: column; gap: 5px;
+    }
+
+    &__badge {
+        display: inline-block; align-self: flex-start;
+        font-size: 11px; font-weight: 600;
+        color: #10b981;
+        background: rgba(16, 185, 129, 0.08);
+        padding: 2px 10px; border-radius: $smgp-radius-full;
+    }
+
+    &__title { @extend %card-title; }
+
+    &__meta {
+        display: flex; gap: 12px; font-size: 11px;
+        color: $smgp-gray-400; margin-top: auto;
+        span { display: flex; align-items: center; gap: 4px; }
+        i { font-size: 10px; }
+    }
+}
+
+
+// ═══════════════════════════════════════════════════════════════════
+// VIDEO CARD — Play overlay + duration badge + author
+// ═══════════════════════════════════════════════════════════════════
+.video-card {
+    @extend %card-white;
+    display: flex;
+    flex-direction: column;
+
+    &__thumb {
+        @extend %card-thumb;
+        aspect-ratio: 16 / 9;
+    }
+
+    &__img {
+        width: 100%; height: 100%; object-fit: cover;
+        transition: transform 0.35s ease;
+        .video-card:hover & { transform: scale(1.04); }
+    }
+
+    &__diffuse { @extend %diffuse-overlay; }
+
+    &__duration {
+        position: absolute; top: 8px; right: 8px;
+        background: #10b981; color: #fff;
+        font-size: 10px; font-weight: 600;
+        padding: 2px 8px; border-radius: $smgp-radius-sm;
+        z-index: 3;
+        i { margin-right: 3px; }
+    }
+
+    &__play {
+        position: absolute; top: 50%; left: 50%;
+        transform: translate(-50%, -50%) scale(0.9);
+        width: 38px; height: 38px; border-radius: 50%;
+        background: rgba(16, 185, 129, 0.5); backdrop-filter: blur(6px);
+        display: flex; align-items: center; justify-content: center;
+        z-index: 3; opacity: 0;
+        transition: opacity 0.2s ease, transform 0.2s ease;
+        i { color: #fff; font-size: 14px; margin-left: 2px; }
+        .video-card:hover & { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    }
+
+    &__body {
+        padding: 10px 12px 12px;
+        flex: 1; display: flex; flex-direction: column;
+    }
+
+    &__tag {
+        display: inline-block; align-self: flex-start;
+        font-size: 10px; font-weight: 600;
+        color: #10b981;
+        background: rgba(16, 185, 129, 0.08);
+        padding: 1px 8px; border-radius: $smgp-radius-full;
+        margin-bottom: 4px;
+    }
+
+    &__title { @extend %card-title; margin-bottom: 3px; }
+    &__author { font-size: 11px; color: $smgp-gray-400; margin-top: auto; }
+}
+
+
+// ═══════════════════════════════════════════════════════════════════
+// ACTIVITY CARD — Type badge + duration + category
+// ═══════════════════════════════════════════════════════════════════
+.activity-card {
+    @extend %card-white;
+    display: flex;
+    flex-direction: column;
+
+    &__thumb {
+        @extend %card-thumb;
+        aspect-ratio: 16 / 9;
+    }
+
+    &__img {
+        width: 100%; height: 100%; object-fit: cover;
+        transition: transform 0.35s ease;
+        .activity-card:hover & { transform: scale(1.04); }
+    }
+
+    &__diffuse { @extend %diffuse-overlay; }
+
+    &__duration {
+        position: absolute; top: 8px; right: 8px;
+        background: #10b981; color: #fff;
+        font-size: 10px; font-weight: 600;
+        padding: 2px 8px; border-radius: $smgp-radius-sm;
+        z-index: 3;
+        i { margin-right: 3px; }
+    }
+
+    &__body {
+        padding: 10px 12px 12px;
+        flex: 1; display: flex; flex-direction: column;
+    }
+
+    &__type {
+        display: inline-block; align-self: flex-start;
+        font-size: 10px; font-weight: 600;
+        color: #10b981;
+        background: rgba(16, 185, 129, 0.08);
+        padding: 1px 8px; border-radius: $smgp-radius-full;
+        margin-bottom: 4px;
+    }
+
+    &__title { @extend %card-title; margin-bottom: 3px; }
+    &__category { font-size: 11px; color: $smgp-gray-400; margin-top: auto; }
+}
+
+
+// ═══════════════════════════════════════════════════════════════════
+// ITINERARY CARD — Learning paths with description + meta
+// ═══════════════════════════════════════════════════════════════════
+.itinerary-card {
+    @extend %card-white;
+    display: flex;
+    flex-direction: column;
+
+    &__thumb {
+        @extend %card-thumb;
+        aspect-ratio: 16 / 9;
+    }
+
+    &__img {
+        width: 100%; height: 100%; object-fit: cover;
+        transition: transform 0.35s ease;
+        .itinerary-card:hover & { transform: scale(1.04); }
+    }
+
+    &__diffuse { @extend %diffuse-overlay; }
+
+    &__body {
+        padding: 12px 14px 14px;
+        flex: 1; display: flex; flex-direction: column; gap: 4px;
+    }
+
+    &__title {
+        font-size: 14px; font-weight: 700;
+        color: $smgp-gray-800; line-height: 1.35; margin: 0;
+        a { color: inherit; text-decoration: none; }
+    }
+
+    &__desc {
+        font-size: 12px; color: $smgp-gray-400;
+        line-height: 1.35; margin: 0;
+        display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2;
+        -webkit-box-orient: vertical; overflow: hidden;
+    }
+
+    &__meta {
+        display: flex; gap: 14px; font-size: 11px;
+        color: $smgp-gray-400; margin-top: auto; padding-top: 4px;
+        span { display: flex; align-items: center; gap: 4px; }
+        i { font-size: 10px; }
+    }
+}
+
+
+// ═══════════════════════════════════════════════════════════════════
+// STATS ROW — 4-column metrics grid (kept for backwards compat)
 // ═══════════════════════════════════════════════════════════════════
 .catalog-stats {
     display: grid;
@@ -101,264 +882,8 @@ section.block_timeline {
 
 
 // ═══════════════════════════════════════════════════════════════════
-// CATALOG SECTION — Reusable section wrapper (header + content)
-// ═══════════════════════════════════════════════════════════════════
-.catalog-section {
-
-    &__header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: $smgp-space-md;
-    }
-
-    &__title {
-        font-size: $smgp-font-base;
-        font-weight: 600;
-        color: $smgp-gray-800;
-        margin: 0;
-    }
-
-    &__viewall {
-        font-size: 13px;
-        font-weight: 400;
-        color: $smgp-primary;
-        text-decoration: none;
-        white-space: nowrap;
-        transition: color $smgp-transition-fast;
-
-        &:hover {
-            text-decoration: underline;
-            color: $smgp-primary-dark;
-        }
-    }
-
-    &__empty {
-        text-align: center;
-        padding: $smgp-space-xl $smgp-space-md;
-        color: $smgp-gray-400;
-        font-size: $smgp-font-sm;
-    }
-}
-
-
-// ═══════════════════════════════════════════════════════════════════
-// COURSE CARD — Apple TV style (image-dominant)
-// ═══════════════════════════════════════════════════════════════════
-.course-card {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    cursor: pointer;
-    transition: transform 0.3s ease;
-
-    &:hover {
-        transform: scale(1.04);
-    }
-
-    // ── Thumbnail — the dominant element ──
-    &__thumb {
-        position: relative;
-        display: block;
-        aspect-ratio: 16 / 9;
-        border-radius: 12px;
-        overflow: hidden;
-        background: $smgp-gray-100;
-        box-shadow: $smgp-shadow-sm;
-        transition: box-shadow 0.3s ease;
-        text-decoration: none;
-
-        .course-card:hover & {
-            box-shadow: $smgp-shadow-lg;
-        }
-    }
-
-    &__thumb-img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.5s ease;
-
-        .course-card:hover & {
-            transform: scale(1.05);
-        }
-    }
-
-    // ── Hover overlay (shared base) ──
-    &__overlay {
-        position: absolute;
-        inset: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(0, 0, 0, 0);
-        transition: background 0.25s ease;
-        z-index: 3;
-        opacity: 0;
-        transition: all 0.25s ease;
-
-        .course-card:hover & {
-            opacity: 1;
-            background: rgba(0, 0, 0, 0.3);
-        }
-
-        // ── Enrolled: play button + progress bar ──
-        &--resume {
-            flex-direction: column;
-            gap: 14px;
-        }
-
-        // ── Not enrolled: enrol button — centered, on hover ──
-        &--enrol {
-            // inherits opacity:0 → 1 on hover from base
-        }
-    }
-
-    // Play button inside overlay
-    &__play-btn {
-        width: 48px;
-        height: 48px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(8px);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transform: scale(0.85);
-        transition: transform 0.25s ease;
-
-        i {
-            color: #fff;
-            font-size: 16px;
-            margin-left: 3px;
-        }
-
-        .course-card:hover & {
-            transform: scale(1);
-        }
-    }
-
-    // Progress inside overlay (enrolled hover)
-    &__overlay-progress {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        width: 70%;
-        max-width: 200px;
-    }
-
-    &__overlay-bar {
-        flex: 1;
-        height: 4px;
-        background: rgba(255, 255, 255, 0.25);
-        border-radius: 2px;
-        overflow: hidden;
-    }
-
-    &__overlay-fill {
-        height: 100%;
-        background: #fff;
-        border-radius: 2px;
-    }
-
-    &__overlay-pct {
-        font-size: 12px;
-        font-weight: 600;
-        color: #fff;
-        white-space: nowrap;
-    }
-
-    // Enrol button inside overlay
-    &__enrol-btn {
-        padding: 6px 16px;
-        border-radius: $smgp-radius-full;
-        background: rgba(255, 255, 255, 0.85);
-        backdrop-filter: blur(6px);
-        color: $smgp-gray-800;
-        font-size: 12px;
-        font-weight: 500;
-        transform: translateY(4px);
-        transition: all 0.25s ease;
-
-        .course-card:hover & {
-            transform: translateY(0);
-        }
-    }
-
-    // ── Static progress bar at bottom of thumbnail (always visible) ──
-    &__progress {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: rgba(0, 0, 0, 0.2);
-        z-index: 4;
-    }
-
-    &__progress-fill {
-        height: 100%;
-        background: #fff;
-        border-radius: 0 2px 2px 0;
-        transition: width 0.4s ease;
-    }
-
-    // ── Card info — minimal text below thumbnail ──
-    &__info {
-        padding: 10px 0 0 8px;
-    }
-
-    &__title {
-        font-size: 13px;
-        font-weight: 500;
-        color: $smgp-gray-800;
-        line-height: 1.35;
-        margin: 0 0 6px;
-        display: -webkit-box;
-        -webkit-line-clamp: 1;
-        line-clamp: 1;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-
-        a {
-            color: inherit;
-            text-decoration: none;
-        }
-    }
-
-    &__subtitle {
-        display: block;
-        font-size: 12px;
-        color: $smgp-gray-400;
-        margin-bottom: 4px;
-    }
-}
-
-
-// ═══════════════════════════════════════════════════════════════════
-// CONTINUE LEARNING SECTION — kept for backwards compat (hidden hero)
-// ═══════════════════════════════════════════════════════════════════
-.smartmind-dashboard__section {
-    background: transparent;
-    border: none;
-    border-radius: 0;
-
-    h5 {
-        color: $smgp-gray-800;
-        font-size: $smgp-font-base;
-        font-weight: 600;
-        i { display: none; }
-    }
-
-    &--continue {
-        border: none;
-        display: none; // Hero is now merged into enrolled section.
-    }
-}
-
-
-// ═══════════════════════════════════════════════════════════════════
 // SCROLLABLE CAROUSEL — Horizontal track with nav buttons
+// (Kept for any section that still needs it)
 // ═══════════════════════════════════════════════════════════════════
 .smartmind-scroll {
     position: relative;
@@ -376,7 +901,7 @@ section.block_timeline {
             scroll-snap-type: x mandatory;
             -ms-overflow-style: none;
             scrollbar-width: none;
-            padding: 8px 4px; // Room for card hover scale
+            padding: 8px 4px;
 
             &::-webkit-scrollbar {
                 display: none;
@@ -393,7 +918,6 @@ section.block_timeline {
         }
     }
 
-    // Navigation arrows — visible only on overflow.
     &__btn {
         flex-shrink: 0;
         width: 36px;
@@ -426,19 +950,127 @@ section.block_timeline {
 
 
 // ═══════════════════════════════════════════════════════════════════
+// CONTINUE LEARNING SECTION — kept for backwards compat (hidden)
+// ═══════════════════════════════════════════════════════════════════
+.smartmind-dashboard__section {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+
+    h5 {
+        color: $smgp-gray-800;
+        font-size: $smgp-font-base;
+        font-weight: 600;
+        i { display: none; }
+    }
+
+    &--continue {
+        border: none;
+        display: none;
+    }
+}
+
+
+// ═══════════════════════════════════════════════════════════════════
 // RESPONSIVE
 // ═══════════════════════════════════════════════════════════════════
+@media (max-width: $smgp-bp-lg) {
+    .dashboard-quicknav {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .dashboard-course-grid,
+    .dashboard-recommended-grid,
+    .dashboard-section-grid--4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .pildora-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
 @media (max-width: $smgp-bp-sm) {
     .catalog-dashboard {
         padding: $smgp-space-md 0;
+        gap: $smgp-space-xl;
+    }
 
-        &__title {
-            font-size: $smgp-font-xl;
+    .dashboard-banner {
+        padding: 20px;
+
+        &__greeting {
+            font-size: 1.3rem;
         }
 
-        &__sections {
-            gap: $smgp-space-xl;
+        &__blob {
+            width: 160px;
+            height: 160px;
         }
+
+        &__blob--2 {
+            width: 100px;
+            height: 100px;
+        }
+
+        &__badges {
+            gap: 6px;
+        }
+
+        &__badge {
+            font-size: 11px;
+            padding: 3px 10px;
+        }
+
+        &__suggestion {
+            font-size: 12px;
+            padding: 4px 10px;
+        }
+    }
+
+    .dashboard-quicknav {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+
+        &__item {
+            padding: 14px 8px 12px;
+            border-radius: 14px;
+        }
+
+        &__icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            font-size: 17px;
+        }
+
+        &__label {
+            font-size: 10px;
+        }
+    }
+
+    .dashboard-course-grid,
+    .dashboard-recommended-grid,
+    .dashboard-section-grid--4,
+    .dashboard-section-grid--3 {
+        grid-template-columns: 1fr;
+    }
+
+    .pildora-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .pildora-block {
+        padding: 14px 16px 18px;
+    }
+
+    .pildora-subsection {
+        padding-left: 14px;
+    }
+
+    .catalog-section__header {
+        flex-wrap: wrap;
+        gap: $smgp-space-xs;
     }
 
     .catalog-stats {
@@ -452,14 +1084,5 @@ section.block_timeline {
         &__value {
             font-size: 22px;
         }
-    }
-
-    .smartmind-scroll--horizontal .smartmind-scroll__item {
-        flex: 0 0 240px;
-    }
-
-    .catalog-section__header {
-        flex-wrap: wrap;
-        gap: $smgp-space-xs;
     }
 }

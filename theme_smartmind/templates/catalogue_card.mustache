@@ -1,7 +1,8 @@
+{{! @source: layout/drawers.php > allcourses (frontpage) }}
 {{!
     @template theme_smartmind/catalogue_card
 
-    Course catalogue card for the frontpage.
+    Course catalogue card — Stratoos-style design.
 
     Context variables required for this template:
     * fullname - Course full name
@@ -10,44 +11,64 @@
     * categoryname - Catalogue category name
     * courseimage - URL of the course image (optional)
     * viewurl - URL to view the course
+    * teachername - Name of the main instructor
+    * studentcount - Number of enrolled students
     * activitycount - Number of activities / modules
+    * isnew - Whether the course is new (boolean)
 
     Example context (json):
     {
-        "fullname": "Control de accesos",
-        "shortname": "SEAD0004",
+        "fullname": "Machine Learning con Python: De Cero a Experto",
+        "shortname": "ML001",
         "categoryid": "1",
-        "categoryname": "Seguridad",
+        "categoryname": "Inteligencia Artificial",
         "courseimage": "",
         "viewurl": "/course/view.php?id=2",
-        "activitycount": 8
+        "teachername": "Dr. Maria Garcia",
+        "studentcount": 12450,
+        "activitycount": 8,
+        "isnew": false
     }
 }}
 <div class="col" data-region="catalogue-card" data-fullname="{{fullname}}" data-categoryid="{{categoryid}}">
     <a href="{{viewurl}}" class="catalogue-card" data-category="{{categoryname}}">
-        {{! Colored header area }}
-        <div class="catalogue-card__header">
+        {{! ---- Image area ---- }}
+        <div class="catalogue-card__image-wrap">
             {{#courseimage}}
-            <img src="{{courseimage}}" class="catalogue-card__icon" alt="" loading="lazy">
+            <img src="{{courseimage}}" class="catalogue-card__image" alt="" loading="lazy">
             {{/courseimage}}
             {{^courseimage}}
-            <div class="catalogue-card__icon-placeholder">
+            <div class="catalogue-card__image-placeholder">
                 <i class="fa fa-graduation-cap"></i>
             </div>
             {{/courseimage}}
-            {{#categoryname}}
-            <span class="catalogue-card__category-badge">{{categoryname}}</span>
-            {{/categoryname}}
+
+            {{! "NUEVO" badge top-right }}
+            {{#isnew}}
+            <span class="catalogue-card__new-badge">{{#str}}catalogue_new, theme_smartmind{{/str}}</span>
+            {{/isnew}}
         </div>
 
-        {{! Card body }}
+        {{! ---- Card body ---- }}
         <div class="catalogue-card__body">
-            <span class="catalogue-card__code">{{shortname}}</span>
+            {{#categoryname}}
+            <span class="catalogue-card__category" data-cat="{{categoryname}}">{{categoryname}}</span>
+            {{/categoryname}}
             <h3 class="catalogue-card__title">{{fullname}}</h3>
+            {{#teachername}}
+            <span class="catalogue-card__author">{{teachername}}</span>
+            {{/teachername}}
             <div class="catalogue-card__meta">
                 {{#activitycount}}
-                <span>{{activitycount}} {{#str}}catalogue_modules, theme_smartmind{{/str}}</span>
+                <span class="catalogue-card__meta-item">
+                    <i class="fa fa-clock-o"></i> {{activitycount}} {{#str}}catalogue_modules, theme_smartmind{{/str}}
+                </span>
                 {{/activitycount}}
+                {{#studentcount}}
+                <span class="catalogue-card__meta-item">
+                    <i class="fa fa-users"></i> {{studentcount}}
+                </span>
+                {{/studentcount}}
             </div>
         </div>
     </a>

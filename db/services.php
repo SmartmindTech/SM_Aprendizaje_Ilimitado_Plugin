@@ -335,4 +335,134 @@ $functions = [
         'type'        => 'read',
         'ajax'        => true,
     ],
+
+    // ── Phase 1 additions from dev: objectives, translation, restore-field staging ──
+    'local_sm_graphics_plugin_save_objectives' => [
+        'classname'    => 'local_sm_graphics_plugin\external\save_objectives',
+        'methodname'   => 'execute',
+        'description'  => 'Save learning objectives for a course and optionally translate them',
+        'type'         => 'write',
+        'ajax'         => true,
+        'capabilities' => 'moodle/course:update',
+    ],
+    'local_sm_graphics_plugin_translate_course' => [
+        'classname'    => 'local_sm_graphics_plugin\external\translate_course',
+        'methodname'   => 'execute',
+        'description'  => 'Trigger Gemini translation for a course summary',
+        'type'         => 'write',
+        'ajax'         => true,
+        'capabilities' => 'moodle/course:update',
+    ],
+    'local_sm_graphics_plugin_save_restore_fields' => [
+        'classname'    => 'local_sm_graphics_plugin\external\save_restore_fields',
+        'methodname'   => 'execute',
+        'description'  => 'Stage SmartMind fields in the session during a course restore flow',
+        'type'         => 'write',
+        'ajax'         => true,
+        'capabilities' => 'moodle/course:update',
+    ],
+
+    // ── Phase 1b: SharePoint integration ──
+    'local_sm_graphics_plugin_sharepoint_scan' => [
+        'classname'    => 'local_sm_graphics_plugin\external\sharepoint_scan',
+        'methodname'   => 'execute',
+        'description'  => 'Scan a SharePoint folder and classify files (MBZ / SCORM / PDF / evaluations)',
+        'type'         => 'read',
+        'ajax'         => true,
+        'capabilities' => 'local/sm_graphics_plugin:import_courses',
+    ],
+    'local_sm_graphics_plugin_sharepoint_import' => [
+        'classname'    => 'local_sm_graphics_plugin\external\sharepoint_import',
+        'methodname'   => 'execute',
+        'description'  => 'Import a course from a previously scanned SharePoint folder',
+        'type'         => 'write',
+        'ajax'         => true,
+        'capabilities' => 'local/sm_graphics_plugin:import_courses',
+    ],
+    'local_sm_graphics_plugin_sharepoint_list_courses' => [
+        'classname'    => 'local_sm_graphics_plugin\external\sharepoint_list_courses',
+        'methodname'   => 'execute',
+        'description'  => 'List cached SharePoint course folders (synced daily)',
+        'type'         => 'read',
+        'ajax'         => true,
+        'capabilities' => 'local/sm_graphics_plugin:import_courses',
+    ],
+    'local_sm_graphics_plugin_sharepoint_prepare_restore' => [
+        'classname'    => 'local_sm_graphics_plugin\external\sharepoint_prepare_restore',
+        'methodname'   => 'execute',
+        'description'  => 'Download MBZ from SharePoint and stage it for the Vue restore flow',
+        'type'         => 'write',
+        'ajax'         => true,
+        'capabilities' => 'local/sm_graphics_plugin:import_courses',
+    ],
+    'local_sm_graphics_plugin_assign_course_company' => [
+        'classname'    => 'local_sm_graphics_plugin\external\assign_course_company',
+        'methodname'   => 'execute',
+        'description'  => 'Assign a course to an IOMAD company after import',
+        'type'         => 'write',
+        'ajax'         => true,
+        'capabilities' => 'local/sm_graphics_plugin:import_courses',
+    ],
+
+    // ── Phase 3: Profile page bulk fetcher ──
+    'local_sm_graphics_plugin_get_profile_data' => [
+        'classname'    => 'local_sm_graphics_plugin\external\get_profile_data',
+        'methodname'   => 'execute',
+        'description'  => 'Get profile page data (avatar, stats, 7-day activity, streak)',
+        'type'         => 'read',
+        'ajax'         => true,
+        'capabilities' => 'local/sm_graphics_plugin:view',
+    ],
+
+    // ── Phase 5: Vue course editor ──
+    'local_sm_graphics_plugin_get_course_edit_data' => [
+        'classname'    => 'local_sm_graphics_plugin\external\get_course_edit_data',
+        'methodname'   => 'execute',
+        'description'  => 'Get course edit form data (core fields + SmartMind meta + objectives)',
+        'type'         => 'read',
+        'ajax'         => true,
+        'capabilities' => 'moodle/course:update',
+    ],
+    'local_sm_graphics_plugin_update_course_full' => [
+        'classname'    => 'local_sm_graphics_plugin\external\update_course_full',
+        'methodname'   => 'execute',
+        'description'  => 'Atomically update/create a course with SmartMind metadata and objectives',
+        'type'         => 'write',
+        'ajax'         => true,
+        'capabilities' => 'moodle/course:update',
+    ],
+
+    // ── Phase 6: Vue restore wizard (replaces native backup/restore wizard) ──
+    'local_sm_graphics_plugin_restore_prepare' => [
+        'classname'    => 'local_sm_graphics_plugin\external\restore_prepare',
+        'methodname'   => 'execute',
+        'description'  => 'Prepare a restore: extract MBZ and return backup metadata (step 1-2 data)',
+        'type'         => 'write',
+        'ajax'         => true,
+        'capabilities' => 'moodle/restore:restorecourse',
+    ],
+    'local_sm_graphics_plugin_restore_get_settings' => [
+        'classname'    => 'local_sm_graphics_plugin\external\restore_get_settings',
+        'methodname'   => 'execute',
+        'description'  => 'Return restore root settings for step 3 (Settings)',
+        'type'         => 'read',
+        'ajax'         => true,
+        'capabilities' => 'moodle/restore:restorecourse',
+    ],
+    'local_sm_graphics_plugin_restore_get_schema' => [
+        'classname'    => 'local_sm_graphics_plugin\external\restore_get_schema',
+        'methodname'   => 'execute',
+        'description'  => 'Return sections/activities for step 4 (Schema/structure editor)',
+        'type'         => 'read',
+        'ajax'         => true,
+        'capabilities' => 'moodle/restore:restorecourse',
+    ],
+    'local_sm_graphics_plugin_restore_execute' => [
+        'classname'    => 'local_sm_graphics_plugin\external\restore_execute',
+        'methodname'   => 'execute',
+        'description'  => 'Run the restore controller (step 6 Process) with staged SmartMind fields',
+        'type'         => 'write',
+        'ajax'         => true,
+        'capabilities' => 'moodle/restore:restorecourse',
+    ],
 ];

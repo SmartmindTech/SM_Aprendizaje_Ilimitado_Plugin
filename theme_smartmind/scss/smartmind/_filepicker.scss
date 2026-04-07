@@ -1,0 +1,304 @@
+// ============================================================
+// File Picker Modal — SmartMind Restyle
+// ============================================================
+
+// Modal outer frame.
+.moodle-dialogue-base .moodle-dialogue-wrap {
+    border-radius: $smgp-radius-xl !important;
+    overflow: hidden !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18) !important;
+    border: none !important;
+}
+
+// Header bar.
+.moodle-dialogue-base .moodle-dialogue-hd {
+    background: $smgp-gray-50 !important;
+    border-bottom: 1px solid $smgp-border !important;
+    padding: 1rem 1.25rem !important;
+    color: $smgp-text !important;
+    font-weight: 600 !important;
+    font-size: 1.05rem !important;
+
+    // Replace header icon with graduation cap.
+    .fp-dlg-currbreadcrumb .fp-repo-icon,
+    > .yui3-widget-hd > img {
+        display: none !important;
+    }
+}
+
+.moodle-dialogue-base .moodle-dialogue-hd .yui3-widget-buttons button {
+    color: $smgp-gray-400 !important;
+    background: transparent !important;
+    border: none !important;
+    font-size: 1.3rem !important;
+    opacity: 0.6;
+    transition: opacity 0.15s;
+
+    &:hover {
+        opacity: 1;
+        color: $smgp-text !important;
+    }
+}
+
+// Body.
+.moodle-dialogue-base .moodle-dialogue-bd {
+    background: $smgp-bg !important;
+    padding: 0 !important;
+}
+
+// Left sidebar (repo list).
+.file-picker .fp-repo-area {
+    background: $smgp-gray-50 !important;
+    border-right: 1px solid $smgp-border !important;
+    padding: 0.75rem 0.5rem !important;
+    gap: 0.2rem !important;
+}
+
+.file-picker .fp-repo-area .nav-link {
+    border-radius: $smgp-radius-md !important;
+    padding: 0.55rem 0.85rem !important;
+    font-size: $smgp-font-sm !important;
+    font-weight: 500 !important;
+    color: $smgp-gray-700 !important;
+    transition: background 0.15s, color 0.15s;
+    margin-bottom: 0.15rem;
+
+    // Hide Moodle's default <img> icons.
+    .fp-repo-icon {
+        display: none !important;
+    }
+
+    // Add Lucide icon before the repo name.
+    .fp-repo-name::before {
+        font-family: "lucide" !important;
+        font-style: normal;
+        font-weight: normal;
+        margin-right: 0.5rem;
+        font-size: 1rem;
+        vertical-align: -0.1em;
+    }
+
+    &:hover {
+        background: rgba($smgp-primary-color, 0.06) !important;
+        color: $smgp-primary-dark !important;
+    }
+
+    &.active {
+        background: $smgp-primary !important;
+        color: #fff !important;
+
+        .fp-repo-name {
+            color: #fff !important;
+
+            &::before {
+                color: #fff !important;
+            }
+        }
+    }
+}
+
+// Icon per repo type (using nth-child to match order from Moodle).
+// Order: contentbank(1), local(2), recent(3), upload(4), url(5), user/private(6), wikimedia(7).
+.file-picker .fp-repo-area .fp-repo:nth-child(1) .fp-repo-name::before {
+    content: "\e234"; // graduation-cap
+    color: $smgp-success;
+}
+.file-picker .fp-repo-area .fp-repo:nth-child(2) .fp-repo-name::before {
+    content: "\e0d7"; // folder
+    color: $smgp-success;
+}
+.file-picker .fp-repo-area .fp-repo:nth-child(3) .fp-repo-name::before {
+    content: "\e087"; // clock
+    color: $smgp-success;
+}
+.file-picker .fp-repo-area .fp-repo:nth-child(4) .fp-repo-name::before {
+    content: "\e19e"; // upload
+    color: $smgp-success;
+}
+.file-picker .fp-repo-area .fp-repo:nth-child(5) .fp-repo-name::before {
+    content: "\e102"; // link
+    color: $smgp-success;
+}
+.file-picker .fp-repo-area .fp-repo:nth-child(6) .fp-repo-name::before {
+    content: "\e10b"; // lock (private)
+    color: $smgp-success;
+}
+.file-picker .fp-repo-area .fp-repo:nth-child(7) .fp-repo-name::before {
+    content: "\e0e8"; // globe (wikimedia)
+    color: $smgp-success;
+}
+// Active state — all icons white.
+.file-picker .fp-repo-area .fp-repo .nav-link.active .fp-repo-name::before {
+    color: #fff !important;
+}
+
+// Right content area.
+.file-picker .fp-repo-items {
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.file-picker .fp-navbar {
+    background: $smgp-bg !important;
+    border-bottom: 1px solid $smgp-gray-100 !important;
+    border-radius: 0 !important;
+    padding: 0.4rem 0.5rem !important;
+}
+
+.file-picker .fp-content {
+    padding: 1rem !important;
+}
+
+// Upload form — balanced: readable but fits without scrolling.
+.file-picker .fp-upload-form {
+    padding: 1.25rem !important;
+}
+
+.file-picker .fp-upload-form .fp-formset {
+    .mb-3 {
+        margin-bottom: 0.65rem !important;
+    }
+}
+
+.file-picker .fp-upload-form .fp-formset label {
+    font-weight: 600 !important;
+    color: $smgp-gray-700 !important;
+    font-size: $smgp-font-sm !important;
+    margin-bottom: 0.25rem !important;
+}
+
+// Inputs.
+.file-picker .fp-upload-form .form-control {
+    padding: 0.4rem 0.65rem !important;
+    font-size: $smgp-font-sm !important;
+}
+
+// Upload button area.
+.file-picker .fp-upload-form .mdl-align {
+    margin-top: 0.65rem !important;
+    padding: 0 !important;
+}
+
+// File input styling — modern.
+.file-picker .fp-upload-form input[type="file"] {
+    font-size: $smgp-font-sm;
+    padding: 0;
+    width: 100%;
+    cursor: pointer;
+
+    &::file-selector-button {
+        background: $smgp-primary;
+        color: #fff;
+        border: none;
+        border-radius: $smgp-radius-md;
+        padding: 0.4rem 1.15rem;
+        font-weight: 600;
+        font-size: $smgp-font-sm;
+        cursor: pointer;
+        margin-right: 0.65rem;
+        transition: background 0.15s;
+
+        &:hover {
+            background: $smgp-primary-dark;
+        }
+    }
+}
+
+// License section.
+.file-picker .fp-upload-form .fp-setlicense .col-form-label {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+.file-picker .fp-upload-form .fp-setlicense select {
+    padding: 0.35rem 0.6rem !important;
+    font-size: $smgp-font-sm !important;
+}
+
+.file-picker .fp-upload-form .form-control,
+.file-picker .fp-upload-form select,
+.file-picker .fp-select .form-control,
+.file-picker .fp-select select {
+    border: 1.5px solid $smgp-border !important;
+    border-radius: $smgp-radius-md !important;
+    padding: 0.5rem 0.75rem !important;
+    font-size: $smgp-font-sm !important;
+    transition: border-color 0.15s, box-shadow 0.15s;
+
+    &:focus {
+        border-color: $smgp-primary !important;
+        outline: none !important;
+        box-shadow: 0 0 0 3px rgba($smgp-primary-color, 0.12) !important;
+    }
+}
+
+// Primary buttons (upload, select, login).
+.file-picker .fp-upload-btn,
+.file-picker .fp-select-confirm,
+.file-picker .fp-login-submit,
+.file-picker .fp-login-popup-but,
+.file-picker .fp-msg-butok,
+.file-picker .fp-dlg-butoverwrite,
+.file-picker .fp-dlg-butrename {
+    background: $smgp-primary !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: $smgp-radius-md !important;
+    padding: 0.55rem 1.75rem !important;
+    font-weight: 600 !important;
+    font-size: $smgp-font-sm !important;
+    transition: background 0.15s;
+
+    &:hover {
+        background: $smgp-primary-dark !important;
+    }
+}
+
+// Cancel / secondary buttons.
+.file-picker .fp-select-cancel,
+.file-picker .fp-dlg-butcancel {
+    border-radius: $smgp-radius-md !important;
+    border: 1.5px solid $smgp-border !important;
+    background: transparent !important;
+    color: $smgp-text !important;
+    padding: 0.55rem 1.75rem !important;
+    font-weight: 500 !important;
+
+    &:hover {
+        border-color: $smgp-primary !important;
+        color: $smgp-primary !important;
+    }
+}
+
+// Toolbar & viewbar buttons.
+.file-picker .fp-toolbar .btn,
+.file-picker .fp-viewbar .btn {
+    border-radius: $smgp-radius-sm !important;
+    border-color: $smgp-border !important;
+    font-size: $smgp-font-sm;
+
+    &.active,
+    &:hover {
+        background: rgba($smgp-primary-color, 0.06) !important;
+        border-color: $smgp-primary-light !important;
+    }
+}
+
+// File thumbnails.
+.file-picker .fp-content .fp-file {
+    border-radius: $smgp-radius-md;
+    transition: background 0.15s;
+
+    &:hover {
+        background: $smgp-gray-50;
+    }
+}
+
+// Select form (when choosing a file).
+.file-picker .fp-select .fp-saveas label,
+.file-picker .fp-select .fp-setauthor label,
+.file-picker .fp-select .fp-setlicense label {
+    font-weight: 600 !important;
+    color: $smgp-gray-700 !important;
+    font-size: $smgp-font-sm !important;
+}

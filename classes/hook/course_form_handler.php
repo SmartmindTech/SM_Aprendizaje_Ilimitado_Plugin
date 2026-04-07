@@ -116,6 +116,19 @@ class course_form_handler {
         $mform->setDefault('smgp_completion_percentage', '100');
         $mform->addHelpButton('smgp_completion_percentage', 'completion_percentage', 'local_sm_graphics_plugin');
 
+        // Learning objectives (in the same section as hours, SEPE, level, etc.).
+        $el = $mform->createElement('static', 'smgp_objectives_label',
+            get_string('objectives_header', 'local_sm_graphics_plugin'),
+            '<div id="smgp-objectives-container" class="smgp-objectives-editor"></div>');
+        $insertfn($el);
+
+        $el = $mform->createElement('hidden', 'smgp_objectives_data', '[]');
+        $insertfn($el);
+        $mform->setType('smgp_objectives_data', PARAM_RAW);
+
+        global $PAGE;
+        $PAGE->requires->js_call_amd('local_sm_graphics_plugin/course_objectives', 'init');
+
         // --- Pricing section (separate header, at end of form) ---
         $mform->addElement('header', 'smgp_pricing_header',
             get_string('pricing_header', 'local_sm_graphics_plugin'));
@@ -167,6 +180,41 @@ class course_form_handler {
         $catlink = $DB->get_record('local_smgp_course_category', ['courseid' => $courseid]);
         if ($catlink) {
             $mform->setDefault('smgp_catalogue_cat', $catlink->categoryid);
+        }
+
+        // Load learning objectives (source language only — translations are auto-generated).
+        $dbman = $DB->get_manager();
+        if ($dbman->table_exists('local_smgp_learning_objectives')) {
+            $userlang = current_language();
+            if (!in_array($userlang, ['en', 'es', 'pt_br'])) {
+                if (strpos($userlang, 'es') === 0) {
+                    $userlang = 'es';
+                } else if (strpos($userlang, 'pt') === 0) {
+                    $userlang = 'pt_br';
+                } else {
+                    $userlang = 'en';
+                }
+            }
+            // Try current language, then Spanish, then first available.
+            $objectives = $DB->get_records('local_smgp_learning_objectives',
+                ['courseid' => $courseid, 'lang' => $userlang], 'sortorder ASC', 'objective');
+            if (empty($objectives)) {
+                $objectives = $DB->get_records('local_smgp_learning_objectives',
+                    ['courseid' => $courseid, 'lang' => 'es'], 'sortorder ASC', 'objective');
+            }
+            if (empty($objectives)) {
+                // Get first available language.
+                $firstlang = $DB->get_field('local_smgp_learning_objectives', 'lang',
+                    ['courseid' => $courseid], IGNORE_MULTIPLE);
+                if ($firstlang) {
+                    $objectives = $DB->get_records('local_smgp_learning_objectives',
+                        ['courseid' => $courseid, 'lang' => $firstlang], 'sortorder ASC', 'objective');
+                }
+            }
+            $objarray = array_values(array_map(function($o) { return $o->objective; }, $objectives));
+            if (!empty($objarray)) {
+                $mform->setDefault('smgp_objectives_data', json_encode($objarray));
+            }
         }
     }
 

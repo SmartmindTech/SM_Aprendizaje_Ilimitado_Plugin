@@ -1,0 +1,1 @@
+import{E as i,l as n,G as e}from"./DugxWqvE.js";const r=i(a=>{const t=n();if(t.initialized||t.init(),a.path.startsWith("/admin")&&!t.canAccessAdmin())return e("/");if(a.path.startsWith("/management")&&!t.canAccessManagement())return e("/")});export{r as default};

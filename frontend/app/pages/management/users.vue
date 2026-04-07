@@ -138,7 +138,7 @@ const confirmDelete = async (user: any) => {
   }
 }
 
-onMounted(fetchData)
+fetchData()
 </script>
 
 <style scoped>

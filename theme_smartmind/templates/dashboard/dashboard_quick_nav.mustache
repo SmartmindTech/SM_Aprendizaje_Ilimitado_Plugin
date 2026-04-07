@@ -1,0 +1,17 @@
+{{! @source: layout/mydashboard.php }}
+{{!
+    @template theme_smartmind/dashboard/dashboard_quick_nav
+
+    SmartMind Dashboard — Quick navigation with emojis on colored squares.
+
+    Context variables:
+      * quicknav - Array of {emoji, label, url, color, disabled}
+}}
+<div class="dashboard-quicknav">
+    {{#quicknav}}
+    <a href="{{url}}" class="dashboard-quicknav__item dashboard-quicknav__item--{{color}} {{#disabled}}dashboard-quicknav__item--disabled{{/disabled}}">
+        <span class="dashboard-quicknav__icon">{{{emoji}}}</span>
+        <span class="dashboard-quicknav__label">{{label}}</span>
+    </a>
+    {{/quicknav}}
+</div>

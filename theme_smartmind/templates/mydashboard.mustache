@@ -1,3 +1,4 @@
+{{! @source: layout/mydashboard.php }}
 {{!
     @template theme_smartmind/mydashboard
 
@@ -63,6 +64,7 @@
     {{! SECTION: MAIN PAGE }}
     <div id="page" data-region="mainpage" data-usertour="scroller" class="drawers {{#courseindexopen}}show-drawer-left{{/courseindexopen}} {{#blockdraweropen}}show-drawer-right{{/blockdraweropen}} p-0 m-0">
         <div id="topofscroll" class="main-inner p-4">
+            {{> theme_smartmind/navbar_right }}
             <div class="drawer-toggles d-flex">
                 {{#courseindex}}
                     <div class="drawer-toggler drawer-left-toggle open-nav d-print-none">
@@ -109,9 +111,6 @@
         {{! SECTION: FOOTER }}
         {{> theme_smartmind/footer }}
     </div>
-
-    {{! SECTION: RIGHT SIDEBAR }}
-    {{> theme_smartmind/navbar_right }}
 
     {{{ output.standard_after_main_region_html }}}
 </div>

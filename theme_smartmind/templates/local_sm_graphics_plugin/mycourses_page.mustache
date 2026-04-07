@@ -1,0 +1,107 @@
+{{!
+    @template local_sm_graphics_plugin/mycourses_page
+
+    My Courses page — list of enrolled and completed courses with progress.
+}}
+<div class="smgp-mycourses">
+    {{! ---- HEADER ---- }}
+    <div class="smartmind-catalogue-header mb-3">
+        <h1 class="smartmind-catalogue-header__title">{{#str}}mycourses_title, local_sm_graphics_plugin{{/str}}</h1>
+        <p class="smartmind-catalogue-header__desc">{{#str}}mycourses_desc, local_sm_graphics_plugin{{/str}}</p>
+    </div>
+
+    {{! ---- FILTER BADGES ---- }}
+    <div class="smgp-mycourses__filters mb-4" data-region="mycourses-filters">
+        <button class="smartmind-cat-badge smartmind-cat-badge--active" data-filter="inprogress">{{#str}}mycourses_inprogress, local_sm_graphics_plugin{{/str}}</button>
+        <button class="smartmind-cat-badge" data-filter="completed">{{#str}}mycourses_completed, local_sm_graphics_plugin{{/str}}</button>
+        <button class="smartmind-cat-badge" data-filter="all">{{#str}}mycourses_all, local_sm_graphics_plugin{{/str}}</button>
+    </div>
+
+    {{! ---- COURSE LIST ---- }}
+    <div class="smgp-mycourses__list" data-region="mycourses-list">
+        {{#enrolledcourses}}
+        <div class="smgp-mycourses__row" data-status="inprogress">
+            <div class="smgp-mycourses__image">
+                {{#courseimage}}
+                <img src="{{courseimage}}" alt="" loading="lazy">
+                {{/courseimage}}
+                {{^courseimage}}
+                <div class="smgp-mycourses__image-placeholder"><i class="fa fa-graduation-cap"></i></div>
+                {{/courseimage}}
+            </div>
+            <div class="smgp-mycourses__info">
+                <span class="smgp-mycourses__category">{{#categoryname}}{{categoryname}}{{/categoryname}}</span>
+                <h3 class="smgp-mycourses__course-name">{{fullname}}</h3>
+                <span class="smgp-mycourses__meta">{{shortname}}{{#activitycount}} · {{activitycount}} {{#str}}catalogue_modules, local_sm_graphics_plugin{{/str}}{{/activitycount}}</span>
+                {{#hasprogress}}
+                <div class="smgp-mycourses__progress">
+                    <div class="smgp-mycourses__progress-bar">
+                        <div class="smgp-mycourses__progress-fill" style="width: {{progress}}%"></div>
+                    </div>
+                    <span class="smgp-mycourses__progress-text">{{progress}}%</span>
+                </div>
+                {{/hasprogress}}
+            </div>
+            <div class="smgp-mycourses__action">
+                <a href="{{continueurl}}" class="smgp-mycourses__btn">{{#str}}mycourses_continue, local_sm_graphics_plugin{{/str}}</a>
+            </div>
+        </div>
+        {{/enrolledcourses}}
+
+        {{#completedcourses}}
+        <div class="smgp-mycourses__row smgp-mycourses__row--completed" data-status="completed">
+            <div class="smgp-mycourses__image">
+                {{#courseimage}}
+                <img src="{{courseimage}}" alt="" loading="lazy">
+                {{/courseimage}}
+                {{^courseimage}}
+                <div class="smgp-mycourses__image-placeholder"><i class="fa fa-graduation-cap"></i></div>
+                {{/courseimage}}
+            </div>
+            <div class="smgp-mycourses__info">
+                <span class="smgp-mycourses__category">{{#categoryname}}{{categoryname}}{{/categoryname}}</span>
+                <h3 class="smgp-mycourses__course-name">{{fullname}}</h3>
+                <span class="smgp-mycourses__meta">{{shortname}}{{#activitycount}} · {{activitycount}} {{#str}}catalogue_modules, local_sm_graphics_plugin{{/str}}{{/activitycount}}</span>
+                <div class="smgp-mycourses__progress">
+                    <div class="smgp-mycourses__progress-bar">
+                        <div class="smgp-mycourses__progress-fill smgp-mycourses__progress-fill--completed" style="width: 100%"></div>
+                    </div>
+                    <span class="smgp-mycourses__progress-text smgp-mycourses__progress-text--completed">100%</span>
+                </div>
+            </div>
+            <div class="smgp-mycourses__action">
+                <a href="{{viewurl}}" class="smgp-mycourses__btn smgp-mycourses__btn--secondary">{{#str}}mycourses_review, local_sm_graphics_plugin{{/str}}</a>
+            </div>
+        </div>
+        {{/completedcourses}}
+
+        {{^hasallcourses}}
+        <div class="smgp-mycourses__empty">
+            <i class="fa fa-book"></i>
+            <p>{{#str}}mycourses_empty, local_sm_graphics_plugin{{/str}}</p>
+        </div>
+        {{/hasallcourses}}
+    </div>
+</div>
+
+{{#js}}
+require(['jquery'], function($) {
+    var filters = $('[data-region="mycourses-filters"]');
+    var rows = $('[data-region="mycourses-list"] .smgp-mycourses__row');
+
+    filters.on('click', '.smartmind-cat-badge', function() {
+        filters.find('.smartmind-cat-badge').removeClass('smartmind-cat-badge--active');
+        $(this).addClass('smartmind-cat-badge--active');
+
+        var filter = $(this).data('filter');
+        rows.each(function() {
+            var status = $(this).data('status');
+            if (filter === 'all' || status === filter) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    });
+});
+{{/js}}

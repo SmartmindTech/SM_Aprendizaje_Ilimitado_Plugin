@@ -303,7 +303,7 @@ const confirmDeleteCategory = async (cat: any) => {
   await fetchData()
 }
 
-onMounted(fetchData)
+fetchData()
 </script>
 
 <style scoped>

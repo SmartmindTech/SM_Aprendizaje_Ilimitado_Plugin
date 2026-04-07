@@ -46,6 +46,14 @@
 @import "course_landing";
 @import "grades_certificates";
 @import "mycourses";
+@import "profile";
+
+// Global overrides (modals, dialogs, backup/restore)
+@import "filepicker";
+@import "backup_restore";
+
+// Dark mode
+@import "darkmode";
 
 // Utilities — must come last (contains !important helpers)
 @import "utilities";

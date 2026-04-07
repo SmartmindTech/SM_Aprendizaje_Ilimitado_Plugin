@@ -263,8 +263,7 @@ const navigateActivity = (delta: number) => {
   }
 }
 
-onMounted(async () => {
-  const result = await getCoursePageData(courseid.value)
+getCoursePageData(courseid.value).then((result) => {
   loading.value = false
   if (result.error) {
     error.value = result.error

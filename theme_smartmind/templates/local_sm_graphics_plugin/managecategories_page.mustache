@@ -1,0 +1,268 @@
+{{!
+    Template: local_sm_graphics_plugin/managecategories_page
+
+    Lists all SmartMind catalogue categories with edit (modal) and delete actions.
+
+    Context variables:
+    - heading:       string
+    - categories:    array   (id, name, image_url, image_src, sortorder)
+    - hascategories: bool
+    - sesskey:       string
+    - action_url:    string  Form POST target
+    - back_url:      string
+    - label_name:    string
+    - label_image:   string
+    - label_preview: string
+    - image_help:    string
+    - nocategories:  string
+}}
+<div class="sm-managecategories p-4 w-100">
+    <div class="d-flex align-items-center mb-4">
+        <a href="{{back_url}}" class="btn btn-outline-secondary me-3">
+            <i class="fa fa-arrow-left"></i>
+        </a>
+        <h2 class="mb-0">{{heading}}</h2>
+    </div>
+
+    {{#hascategories}}
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle sm-catmgmt-table">
+            <thead class="table-light">
+                <tr>
+                    <th style="width: 80px;">{{#str}}createcat_preview, local_sm_graphics_plugin{{/str}}</th>
+                    <th>{{#str}}createcat_name, local_sm_graphics_plugin{{/str}}</th>
+                    <th class="text-center" style="width: 140px;">{{#str}}usermgmt_th_actions, local_sm_graphics_plugin{{/str}}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#categories}}
+                <tr>
+                    <td>
+                        {{#image_src}}
+                            <div class="sm-catmgmt-thumb" style="background-image: url('{{image_src}}');"></div>
+                        {{/image_src}}
+                        {{^image_src}}
+                            <div class="sm-catmgmt-thumb sm-catmgmt-thumb--empty">
+                                <i class="fa fa-image text-muted"></i>
+                            </div>
+                        {{/image_src}}
+                    </td>
+                    <td class="fw-semibold">{{name}}</td>
+                    <td class="text-center text-nowrap">
+                        <button type="button" class="btn btn-sm btn-outline-primary me-1 sm-edit-cat-btn"
+                                data-id="{{id}}"
+                                data-name="{{name}}"
+                                data-imagesrc="{{image_src}}">
+                            <i class="fa fa-pen"></i> {{#str}}usermgmt_edit, local_sm_graphics_plugin{{/str}}
+                        </button>
+                        <form method="post" action="{{action_url}}" class="d-inline">
+                            <input type="hidden" name="sesskey" value="{{sesskey}}">
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="categoryid" value="{{id}}">
+                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                    onclick="return confirm('{{#str}}managecat_delete_confirm, local_sm_graphics_plugin{{/str}}');">
+                                <i class="fa fa-trash-can"></i> {{#str}}usermgmt_delete, local_sm_graphics_plugin{{/str}}
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {{/categories}}
+            </tbody>
+        </table>
+    </div>
+    {{/hascategories}}
+
+    {{^hascategories}}
+        <div class="alert alert-info">{{nocategories}}</div>
+    {{/hascategories}}
+</div>
+
+{{! ===== Edit modal ===== }}
+<div class="modal fade" id="sm-edit-cat-modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form method="post" action="{{action_url}}" enctype="multipart/form-data">
+                <input type="hidden" name="sesskey" value="{{sesskey}}">
+                <input type="hidden" name="action" value="update">
+                <input type="hidden" name="categoryid" id="sm-edit-cat-id">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">{{#str}}usermgmt_edit, local_sm_graphics_plugin{{/str}}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row">
+                        {{! Form fields }}
+                        <div class="col-md-7">
+                            <div class="mb-3">
+                                <label for="sm-edit-cat-name" class="form-label fw-bold">{{label_name}} <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="sm-edit-cat-name" name="category_name"
+                                       required maxlength="255">
+                            </div>
+                            <div class="mb-3">
+                                <label for="sm-edit-cat-image" class="form-label fw-bold">{{label_image}}</label>
+                                <input type="file" class="form-control" id="sm-edit-cat-image" name="category_image"
+                                       accept="image/jpeg,image/png,image/webp">
+                                <div class="form-text">{{image_help}}</div>
+                            </div>
+                        </div>
+
+                        {{! Live preview }}
+                        <div class="col-md-5">
+                            <label class="form-label fw-bold d-block mb-2">{{label_preview}}</label>
+                            <div class="sm-createcat-preview-wrapper">
+                                <article class="category-card card">
+                                    <div class="category-card__image" id="sm-edit-preview-image">
+                                        <div class="category-card__overlay">
+                                            <h3 class="category-card__title" id="sm-edit-preview-title"></h3>
+                                        </div>
+                                    </div>
+                                </article>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        {{#str}}createcat_cancel, local_sm_graphics_plugin{{/str}}
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa fa-check me-1"></i> {{#str}}managecat_save, local_sm_graphics_plugin{{/str}}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Table thumbnails */
+    .sm-catmgmt-thumb {
+        width: 64px;
+        height: 40px;
+        border-radius: 4px;
+        background-size: cover;
+        background-position: center;
+    }
+    .sm-catmgmt-thumb--empty {
+        background-color: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .sm-catmgmt-table th {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: #64748b;
+    }
+
+    /* Modal preview — mirrors catalogue card */
+    .sm-createcat-preview-wrapper {
+        max-width: 100%;
+    }
+    .sm-createcat-preview-wrapper .category-card,
+    #sm-edit-cat-modal .category-card {
+        padding: 0;
+        overflow: hidden;
+        border: none;
+    }
+    .sm-createcat-preview-wrapper .category-card__image,
+    #sm-edit-cat-modal .category-card__image {
+        width: 100%;
+        height: 14rem;
+        background-size: cover;
+        background-position: center;
+        background-color: #374151;
+    }
+    .sm-createcat-preview-wrapper .category-card__overlay,
+    #sm-edit-cat-modal .category-card__overlay {
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.4);
+        display: flex;
+        align-items: end;
+        padding: 1rem;
+    }
+    .sm-createcat-preview-wrapper .category-card__title,
+    #sm-edit-cat-modal .category-card__title {
+        font-size: 1rem;
+        color: #fff;
+        margin: 0;
+        text-transform: uppercase;
+        min-height: 1.2em;
+    }
+</style>
+
+<script>
+(function() {
+    var modal        = document.getElementById('sm-edit-cat-modal');
+    var backdrop     = null;
+    var idInput      = document.getElementById('sm-edit-cat-id');
+    var nameInput    = document.getElementById('sm-edit-cat-name');
+    var imageInput   = document.getElementById('sm-edit-cat-image');
+    var previewImg   = document.getElementById('sm-edit-preview-image');
+    var previewTitle = document.getElementById('sm-edit-preview-title');
+
+    function showModal() {
+        backdrop = document.createElement('div');
+        backdrop.className = 'modal-backdrop fade show';
+        document.body.appendChild(backdrop);
+        modal.style.display = 'block';
+        modal.offsetHeight; // reflow
+        modal.classList.add('show');
+        document.body.classList.add('modal-open');
+    }
+
+    function hideModal() {
+        modal.classList.remove('show');
+        modal.style.display = 'none';
+        document.body.classList.remove('modal-open');
+        if (backdrop) {
+            backdrop.remove();
+            backdrop = null;
+        }
+    }
+
+    // Open modal when Edit is clicked.
+    document.querySelectorAll('.sm-edit-cat-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            idInput.value            = btn.getAttribute('data-id');
+            nameInput.value          = btn.getAttribute('data-name');
+            previewTitle.textContent = btn.getAttribute('data-name');
+
+            var imagesrc = btn.getAttribute('data-imagesrc');
+            previewImg.style.backgroundImage = imagesrc ? "url('" + imagesrc + "')" : 'none';
+
+            imageInput.value = '';
+            showModal();
+        });
+    });
+
+    // Close modal — all dismiss triggers.
+    modal.querySelectorAll('[data-bs-dismiss="modal"]').forEach(function(el) {
+        el.addEventListener('click', hideModal);
+    });
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) hideModal();
+    });
+
+    // Live name update in preview.
+    nameInput.addEventListener('input', function() {
+        previewTitle.textContent = this.value || '';
+    });
+
+    // Live image preview on file select.
+    imageInput.addEventListener('change', function() {
+        var file = this.files && this.files[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            previewImg.style.backgroundImage = "url('" + e.target.result + "')";
+        };
+        reader.readAsDataURL(file);
+    });
+})();
+</script>

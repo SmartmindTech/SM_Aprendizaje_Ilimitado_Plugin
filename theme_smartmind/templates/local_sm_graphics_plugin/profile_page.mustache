@@ -1,0 +1,123 @@
+{{!
+    @template local_sm_graphics_plugin/profile_page
+
+    Stratoos-style gamified user profile page.
+}}
+<div class="smgp-profile">
+
+    {{! ---- PROFILE HEADER CARD ---- }}
+    <div class="smgp-profile__header-card">
+        <div class="smgp-profile__avatar-wrap">
+            <img src="{{avatarurl}}" class="smgp-profile__avatar" alt="{{fullname}}">
+            <span class="smgp-profile__level-badge">{{level}}</span>
+        </div>
+        <div class="smgp-profile__header-info">
+            <h1 class="smgp-profile__name">{{fullname}}</h1>
+            <p class="smgp-profile__meta">
+                {{#department}}{{department}} · {{/department}}Desde {{joindate}}
+            </p>
+        </div>
+    </div>
+
+    {{! ---- STATS ROW ---- }}
+    <div class="smgp-profile__stats">
+        <div class="smgp-profile__stat">
+            <i class="fa fa-bolt smgp-profile__stat-icon smgp-profile__stat-icon--xp"></i>
+            <span class="smgp-profile__stat-value">{{xptotal}}</span>
+            <span class="smgp-profile__stat-label">XP Total</span>
+        </div>
+        <div class="smgp-profile__stat">
+            <i class="fa fa-fire smgp-profile__stat-icon smgp-profile__stat-icon--streak"></i>
+            <span class="smgp-profile__stat-value">{{streak}} días</span>
+            <span class="smgp-profile__stat-label">Racha actual</span>
+        </div>
+        <div class="smgp-profile__stat">
+            <i class="fa fa-book smgp-profile__stat-icon smgp-profile__stat-icon--courses"></i>
+            <span class="smgp-profile__stat-value">{{coursecount}}</span>
+            <span class="smgp-profile__stat-label">Contenidos</span>
+        </div>
+        <div class="smgp-profile__stat">
+            <i class="fa fa-clock-o smgp-profile__stat-icon smgp-profile__stat-icon--hours"></i>
+            <span class="smgp-profile__stat-value">{{totalhours}}h</span>
+            <span class="smgp-profile__stat-label">Horas</span>
+        </div>
+    </div>
+
+    {{! ---- STREAK CARD ---- }}
+    <div class="smgp-profile__streak-card">
+        <div class="smgp-profile__streak-header">
+            <div class="smgp-profile__streak-title">
+                <i class="fa fa-fire"></i>
+                <div>
+                    <strong>{{streak}} días</strong>
+                    <span>Racha actual · ¡Sigue así!</span>
+                </div>
+            </div>
+        </div>
+
+        {{! Milestone timeline }}
+        <div class="smgp-profile__milestones">
+            {{#milestones}}
+            <div class="smgp-profile__milestone {{#reached}}smgp-profile__milestone--reached{{/reached}}">
+                <div class="smgp-profile__milestone-dot">
+                    {{#reached}}<i class="fa fa-check"></i>{{/reached}}
+                    {{^reached}}{{days}}{{/reached}}
+                </div>
+                <span class="smgp-profile__milestone-xp">+{{xp}} XP</span>
+                <span class="smgp-profile__milestone-days">{{days}} días</span>
+            </div>
+            {{/milestones}}
+        </div>
+
+        {{! Progress to next milestone }}
+        {{#daystonext}}
+        <div class="smgp-profile__streak-progress">
+            <i class="fa fa-trophy"></i>
+            <span>{{daystonext}} días para +{{nextxp}} XP</span>
+            <div class="smgp-profile__streak-bar">
+                <div class="smgp-profile__streak-fill" style="width: {{streakprogress}}%"></div>
+            </div>
+        </div>
+        {{/daystonext}}
+    </div>
+
+    {{! ---- BOTTOM ROW: WEEKLY ACTIVITY + LEVEL ---- }}
+    <div class="smgp-profile__bottom-row">
+
+        {{! Weekly activity chart }}
+        <div class="smgp-profile__weekly-card">
+            <div class="smgp-profile__weekly-header">
+                <span><i class="fa fa-calendar"></i> ACTIVIDAD SEMANAL</span>
+                <span class="smgp-profile__weekly-xp"><i class="fa fa-bolt"></i> {{totalweekxp}} XP</span>
+            </div>
+            <div class="smgp-profile__chart">
+                {{#weekactivity}}
+                <div class="smgp-profile__chart-col">
+                    {{#count}}
+                    <span class="smgp-profile__chart-value">{{xp}}</span>
+                    {{/count}}
+                    <div class="smgp-profile__chart-bar {{#istoday}}smgp-profile__chart-bar--today{{/istoday}}" style="height: {{height}}%"></div>
+                    <span class="smgp-profile__chart-day {{#istoday}}smgp-profile__chart-day--today{{/istoday}}">{{day}}</span>
+                </div>
+                {{/weekactivity}}
+            </div>
+        </div>
+
+        {{! Level card }}
+        <div class="smgp-profile__level-card">
+            <div class="smgp-profile__level-ring">
+                <svg viewBox="0 0 120 120">
+                    <circle cx="60" cy="60" r="52" fill="none" stroke="#e5e7eb" stroke-width="6"/>
+                    <circle cx="60" cy="60" r="52" fill="none" stroke="#2e7d32" stroke-width="6"
+                            stroke-dasharray="326.73"
+                            stroke-dashoffset="{{leveloffset}}"
+                            transform="rotate(-90 60 60)"
+                            stroke-linecap="round"/>
+                </svg>
+                <span class="smgp-profile__level-number">{{level}}</span>
+            </div>
+            <strong class="smgp-profile__level-label">Nivel {{level}}</strong>
+            <span class="smgp-profile__level-remaining">{{xpremaining}} XP para nivel {{nextlevel}}</span>
+        </div>
+    </div>
+</div>

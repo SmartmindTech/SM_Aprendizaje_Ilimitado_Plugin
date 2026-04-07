@@ -15,6 +15,19 @@
 
     <div v-if="data.hassummary" class="smgp-landing__summary" v-html="data.coursesummary" />
 
+    <div v-if="data.has_objectives" class="smgp-landing__objectives">
+      <h3 class="smgp-landing__objectives-heading">
+        <i class="icon-list-checks" />
+        {{ $t('landing.objectives') || 'Learning objectives' }}
+      </h3>
+      <ul class="smgp-landing__objectives-list">
+        <li v-for="(obj, idx) in data.objectives" :key="idx" class="smgp-landing__objective">
+          <i class="icon-circle-check smgp-landing__objective-icon" />
+          <span>{{ obj.text }}</span>
+        </li>
+      </ul>
+    </div>
+
     <div class="smgp-landing__body">
       <!-- Left column: program content -->
       <div class="smgp-landing__main">
@@ -140,6 +153,29 @@
               <i class="icon-file-code" />
               <span class="smgp-landing__info-label">{{ $t('landing.sepe_code') || 'SEPE code' }}</span>
               <span class="smgp-landing__info-value">{{ data.sepe_code }}</span>
+            </div>
+
+            <div class="smgp-landing__info-row">
+              <i class="icon-badge-check" />
+              <span class="smgp-landing__info-label">{{ $t('landing.completion') || 'Completion' }}</span>
+              <span class="smgp-landing__info-value">{{ data.completion_pct }}%</span>
+            </div>
+          </div>
+        </div>
+
+        <div v-if="data.has_content_types" class="smgp-landing__content-types">
+          <h4 class="smgp-landing__content-types-heading">
+            {{ $t('landing.content_types') || 'Content breakdown' }}
+          </h4>
+          <div class="smgp-landing__content-types-list">
+            <div
+              v-for="ct in data.content_types"
+              :key="ct.type_label"
+              class="smgp-landing__content-type"
+            >
+              <i :class="ct.type_icon" class="smgp-landing__content-type-icon" />
+              <span class="smgp-landing__content-type-label">{{ ct.type_label }}</span>
+              <span class="smgp-landing__content-type-count">{{ ct.type_count }}</span>
             </div>
           </div>
         </div>
@@ -322,5 +358,5 @@ const fetchData = async () => {
   }
 }
 
-onMounted(fetchData)
+fetchData()
 </script>

@@ -56,8 +56,7 @@ const checkUpdate = async () => {
   if (result.error) { error.value = result.error } else { data.value = result.data }
 }
 
-onMounted(async () => {
-  const result = await checkPluginUpdate()
+checkPluginUpdate().then((result) => {
   loading.value = false
   if (result.error) { error.value = result.error } else { data.value = result.data }
 })

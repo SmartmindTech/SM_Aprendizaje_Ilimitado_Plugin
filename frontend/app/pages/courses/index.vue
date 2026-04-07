@@ -102,8 +102,7 @@ const filteredCourses = computed(() => {
   return [...enrolled, ...completed]
 })
 
-onMounted(async () => {
-  const result = await getMyCourses()
+getMyCourses().then((result) => {
   loading.value = false
   if (result.error) { error.value = result.error } else { data.value = result.data }
 })

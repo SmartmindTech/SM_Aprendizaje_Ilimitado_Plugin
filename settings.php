@@ -169,4 +169,116 @@ if ($ADMIN->fulltree) {
         get_string('update_heading', 'local_sm_graphics_plugin'),
         $updatehtml
     ));
+
+    // -----------------------------------------------------------------------
+    // SharePoint integration (Course Loader)
+    // -----------------------------------------------------------------------
+    $settings->add(new admin_setting_heading(
+        'local_sm_graphics_plugin/sharepoint_heading',
+        get_string('sp_heading', 'local_sm_graphics_plugin'),
+        '<a href="' . $CFG->wwwroot . '/local/sm_graphics_plugin/pages/courseloader.php" class="btn btn-primary">'
+        . get_string('sp_courseloader_button', 'local_sm_graphics_plugin') . '</a>'
+        . '<p class="text-muted mt-2">' . get_string('sp_courseloader_button_desc', 'local_sm_graphics_plugin') . '</p>'
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'local_sm_graphics_plugin/sp_tenant_id',
+        get_string('sp_tenant_id', 'local_sm_graphics_plugin'),
+        get_string('sp_tenant_id_desc', 'local_sm_graphics_plugin'),
+        '',
+        PARAM_TEXT
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'local_sm_graphics_plugin/sp_client_id',
+        get_string('sp_client_id', 'local_sm_graphics_plugin'),
+        get_string('sp_client_id_desc', 'local_sm_graphics_plugin'),
+        '',
+        PARAM_TEXT
+    ));
+
+    $settings->add(new admin_setting_configpasswordunmask(
+        'local_sm_graphics_plugin/sp_client_secret',
+        get_string('sp_client_secret', 'local_sm_graphics_plugin'),
+        get_string('sp_client_secret_desc', 'local_sm_graphics_plugin'),
+        ''
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'local_sm_graphics_plugin/sp_site_url',
+        get_string('sp_site_url', 'local_sm_graphics_plugin'),
+        get_string('sp_site_url_desc', 'local_sm_graphics_plugin'),
+        '',
+        PARAM_URL
+    ));
+
+    // -----------------------------------------------------------------------
+    // Email / SMTP configuration
+    // -----------------------------------------------------------------------
+    $settings->add(new admin_setting_heading(
+        'local_sm_graphics_plugin/smtp_heading',
+        get_string('smtp_heading', 'local_sm_graphics_plugin'),
+        get_string('smtp_heading_desc', 'local_sm_graphics_plugin')
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'local_sm_graphics_plugin/smtp_host',
+        get_string('smtp_host', 'local_sm_graphics_plugin'),
+        get_string('smtp_host_desc', 'local_sm_graphics_plugin'),
+        'smtp.office365.com:587',
+        PARAM_TEXT
+    ));
+
+    $settings->add(new admin_setting_configselect(
+        'local_sm_graphics_plugin/smtp_security',
+        get_string('smtp_security', 'local_sm_graphics_plugin'),
+        get_string('smtp_security_desc', 'local_sm_graphics_plugin'),
+        'tls',
+        ['none' => 'Ninguno', 'ssl' => 'SSL', 'tls' => 'TLS']
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'local_sm_graphics_plugin/smtp_username',
+        get_string('smtp_username', 'local_sm_graphics_plugin'),
+        get_string('smtp_username_desc', 'local_sm_graphics_plugin'),
+        '',
+        PARAM_TEXT
+    ));
+
+    $settings->add(new admin_setting_configpasswordunmask(
+        'local_sm_graphics_plugin/smtp_password',
+        get_string('smtp_password', 'local_sm_graphics_plugin'),
+        get_string('smtp_password_desc', 'local_sm_graphics_plugin'),
+        ''
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'local_sm_graphics_plugin/smtp_noreply',
+        get_string('smtp_noreply', 'local_sm_graphics_plugin'),
+        get_string('smtp_noreply_desc', 'local_sm_graphics_plugin'),
+        'noreply-smartlearning@smartmind.net',
+        PARAM_EMAIL
+    ));
+}
+
+// -----------------------------------------------------------------------
+// Add shortcut links directly under the "users" admin category
+// so the "Usuarios" row is not empty on the admin settings page.
+// -----------------------------------------------------------------------
+if ($hassiteconfig) {
+    $ADMIN->add('users', new admin_externalpage(
+        'smgp_userlist',
+        get_string('usermgmt_userlist', 'local_sm_graphics_plugin'),
+        new moodle_url('/admin/user.php')
+    ));
+    $ADMIN->add('users', new admin_externalpage(
+        'smgp_adduser',
+        get_string('usermgmt_createuser', 'local_sm_graphics_plugin'),
+        new moodle_url('/user/editadvanced.php', ['id' => -1])
+    ));
+    $ADMIN->add('users', new admin_externalpage(
+        'smgp_uploadusers',
+        get_string('usermgmt_uploadusers', 'local_sm_graphics_plugin'),
+        new moodle_url('/admin/tool/uploaduser/index.php')
+    ));
 }

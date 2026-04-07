@@ -1,3 +1,4 @@
+{{! @source: layout/drawers.php }}
 {{!
     This file is part of Moodle - http://moodle.org/
 
@@ -53,7 +54,7 @@
 
 <body {{{ bodyattributes }}}>
 {{> core/local/toast/wrapper}}
-<div id="page-wrapper" class="d-flex flex-row justify-content-between">
+<div id="page-wrapper" class="d-flex flex-column">
 
     {{{ output.standard_top_of_body_html }}}
 
@@ -92,9 +93,8 @@
             {{$closebuttontext}}{{#str}}closeblockdrawer, core{{/str}}{{/closebuttontext}}
         {{/ theme_smartmind/drawer}}
     {{/hasblocks}}
-    <div id="page" data-region="mainpage" data-usertour="scroller" class="drawers {{#courseindexopen}}show-drawer-right{{/courseindexopen}} {{#blockdraweropen}}show-drawer-right{{/blockdraweropen}} p-0 m-0">
+    <div id="page" data-region="mainpage" data-usertour="scroller" class="drawers {{#courseindexopen}}show-drawer-right{{/courseindexopen}} {{#blockdraweropen}}show-drawer-right{{/blockdraweropen}}">
         <div id="topofscroll" class="main-inner">
-            {{> theme_smartmind/navbar_right }}
             <div class="drawer-toggles d-flex">
                 {{#courseindex}}
                     <div class="drawer-toggler drawer-right-toggle ms-auto open-nav d-print-none">
@@ -131,6 +131,11 @@
                 {{/hasblocks}}
             </div>
             {{> theme_smartmind/smartmind/page_header }}
+            {{#secondarymoremenu}}
+                <div class="secondary-navigation">
+                    {{> core/moremenu}}
+                </div>
+            {{/secondarymoremenu}}
             {{> theme_smartmind/smartmind/main_content }}
         </div>
         {{> theme_smartmind/footer }}
@@ -155,22 +160,3 @@ require(['theme_smartmind/catalogue_search'], function(CatalogueSearch) {
 {{/js}}
 {{/isfrontpage}}
 
-<style>
-    /* El nav ocupa espacio fijo mínimo en el layout,
-       la card se superpone visualmente al expandir */
-    nav.d-flex.flex-column.vh-100.w-25[aria-label] .card {
-        position: fixed;
-        left: 0;
-        top: 0;
-        z-index: 1050;
-    }
-
-    #page {
-        flex: 1 1 0;
-        min-width: 0;
-    }
-
-    .main-inner {
-        width: 100% !important;
-    }
-</style>

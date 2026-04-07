@@ -73,8 +73,7 @@ const loading = ref(true)
 const error = ref<string | null>(null)
 const data = ref<any>(null)
 
-onMounted(async () => {
-  const result = await getGradesCertificates()
+getGradesCertificates().then((result) => {
   loading.value = false
   if (result.error) { error.value = result.error } else { data.value = result.data }
 })

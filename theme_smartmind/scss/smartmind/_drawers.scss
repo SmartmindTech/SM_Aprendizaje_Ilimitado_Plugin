@@ -35,5 +35,17 @@ body.drawer-open-right {}
 }
 
 .pagelayout-standard #page.drawers .main-inner, body.limitedwidth #page.drawers .main-inner {
-  max-width: 100% !important;
+  max-width: 85% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+
+  @media (max-width: 991.98px) {
+    max-width: 95% !important;
+  }
+
+  @media (max-width: 575.98px) {
+    max-width: 100% !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
 }

@@ -1,0 +1,851 @@
+// ============================================================
+// Backup & Restore Pages — SmartMind Restyle
+// ============================================================
+
+// ---- Step progress bar ----
+.backup_progress {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: $smgp-bg;
+    border: 1px solid $smgp-border;
+    border-radius: $smgp-radius-lg;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.backup_stage {
+    padding: 0.35rem 0.75rem;
+    border-radius: $smgp-radius-sm;
+    font-size: $smgp-font-sm;
+    font-weight: 500;
+    color: $smgp-gray-400;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.backup_stage_complete {
+    color: $smgp-success;
+}
+
+a.backup_stage_complete {
+    color: $smgp-success;
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.backup_stage_current {
+    background: $smgp-success;
+    color: #fff !important;
+    font-weight: 600;
+}
+
+.backup_stage_next {
+    color: $smgp-gray-500;
+}
+
+.arrow.sep {
+    color: $smgp-gray-300;
+    font-size: 0.7rem;
+}
+
+// ---- Backup sections (cards) ----
+.path-backup .backup-section {
+    background: $smgp-bg !important;
+    border: 1px solid $smgp-border !important;
+    border-radius: $smgp-radius-lg !important;
+    padding: 1.5rem !important;
+    margin-bottom: 1rem !important;
+    box-shadow: none !important;
+}
+
+// Section headings.
+.path-backup .backup-section > .header,
+.path-backup .backup-section > h2 {
+    font-size: 1.15rem !important;
+    font-weight: 700 !important;
+    color: $smgp-text !important;
+    border-bottom: 1px solid $smgp-gray-100;
+    padding-bottom: 0.75rem !important;
+    margin-bottom: 1rem !important;
+    width: auto !important;
+    float: none !important;
+}
+
+// Sub-section headings.
+.path-backup .backup-section .subheader,
+.path-backup .backup-section h3 {
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    color: $smgp-gray-700 !important;
+    margin-top: 1rem !important;
+    margin-bottom: 0.75rem !important;
+}
+
+// ---- Detail pairs (key-value rows) ----
+.path-backup .detail-pair {
+    display: flex !important;
+    align-items: baseline;
+    padding: 0.35rem 0;
+    border-bottom: 1px solid $smgp-gray-50;
+    float: none !important;
+    width: 100% !important;
+    clear: both !important;
+
+    &:last-child {
+        border-bottom: none;
+    }
+}
+
+.path-backup .detail-pair-label {
+    font-size: $smgp-font-sm !important;
+    font-weight: 500 !important;
+    color: $smgp-gray-600 !important;
+    width: 35% !important;
+    float: none !important;
+    flex-shrink: 0;
+    margin-bottom: 0 !important;
+}
+
+.path-backup .detail-pair-value {
+    font-size: $smgp-font-sm !important;
+    color: $smgp-text !important;
+    font-weight: 400;
+    width: auto !important;
+    float: none !important;
+    flex: 1;
+}
+
+// Sub-detail text (version numbers, hashes).
+.path-backup .sub-detail {
+    color: $smgp-gray-400;
+    font-size: $smgp-font-xs;
+    display: block;
+}
+
+// ---- Tables inside backup sections ----
+.path-backup .backup-section .generaltable {
+    border: 1px solid $smgp-border;
+    border-radius: $smgp-radius-md;
+    overflow: hidden;
+    font-size: $smgp-font-sm;
+
+    thead th {
+        background: $smgp-gray-50 !important;
+        color: $smgp-gray-600;
+        font-weight: 600;
+        font-size: $smgp-font-xs;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        border-bottom: 2px solid $smgp-border;
+    }
+
+    td {
+        color: $smgp-text;
+        vertical-align: middle;
+    }
+}
+
+// ---- Buttons ----
+.path-backup .backup-restore .singlebutton input[type="submit"],
+.path-backup .backup-restore .singlebutton button,
+.path-backup form input[type="submit"].btn-primary,
+.path-backup form button.btn-primary {
+    background: $smgp-primary !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: $smgp-radius-md !important;
+    padding: 0.5rem 1.5rem !important;
+    font-weight: 600 !important;
+    font-size: $smgp-font-sm !important;
+    transition: background 0.15s;
+
+    &:hover {
+        background: darken($smgp-success, 8%) !important;
+    }
+}
+
+.path-backup form input[type="submit"].btn-secondary,
+.path-backup form button.btn-secondary {
+    border-radius: $smgp-radius-md !important;
+    border: 1.5px solid $smgp-border !important;
+    background: transparent !important;
+    color: $smgp-text !important;
+    padding: 0.5rem 1.5rem !important;
+    font-weight: 500 !important;
+    font-size: $smgp-font-sm !important;
+
+    &:hover {
+        border-color: $smgp-primary !important;
+        color: $smgp-primary !important;
+    }
+}
+
+// ---- All restore pages — green ring+dot radio style ----
+.path-backup input[type="radio"] {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    width: 20px !important;
+    height: 20px !important;
+    border: 2px solid $smgp-gray-300 !important;
+    border-radius: 50% !important;
+    cursor: pointer;
+    position: relative;
+    transition: border-color 0.15s;
+    background: transparent !important;
+    margin: 0;
+    flex-shrink: 0;
+
+    &:checked {
+        border-color: $smgp-success !important;
+
+        &::after {
+            content: "";
+            display: block;
+            width: 10px;
+            height: 10px;
+            background: $smgp-success;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    }
+
+    &:hover {
+        border-color: $smgp-success !important;
+    }
+}
+
+.path-backup input[type="checkbox"] {
+    accent-color: $smgp-success !important;
+}
+
+// ---- Schema page — section/activity cards internal padding ----
+.path-backup .mform .grouped_settings.section_level,
+.path-backup .mform .grouped_settings.subsection_level {
+    padding: 1.25rem 1.5rem !important;
+}
+
+.path-backup .mform .grouped_settings.activity_level {
+    padding: 0.75rem 1.5rem !important;
+}
+
+// Also ensure the include/normal settings inside have padding.
+.path-backup .mform .grouped_settings .include_setting .fitem,
+.path-backup .mform .grouped_settings .normal_setting .fitem {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+}
+
+// ---- Checkboxes and settings forms (minimal — no global overrides) ----
+
+// Disabled/locked settings (× icon).
+.path-backup .mform .text-danger {
+    font-size: 0.8rem;
+}
+
+// Bottom buttons row — centered.
+.path-backup .mform #id_submitbuttons,
+.path-backup .mform > .row:last-child,
+.path-backup .mform > div:last-child:has(.btn) {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center;
+    gap: 0.75rem;
+    padding-top: 1rem !important;
+    border-top: 1px solid $smgp-gray-100;
+    margin-top: 0.5rem;
+    width: 100% !important;
+    float: none !important;
+    clear: both !important;
+    grid-column: 1 / -1;
+
+    .col-md-9, .col-md-3 {
+        width: auto !important;
+        max-width: none !important;
+        flex: none !important;
+        padding: 0 !important;
+    }
+}
+
+// ---- Sub-sections (course sections, activities) ----
+.path-backup .backup-sub-section {
+    margin-top: 1rem;
+    clear: both;
+    width: 100% !important;
+    float: none !important;
+}
+
+.path-backup .backup-sub-section .subheader,
+.path-backup .backup-sub-section h3 {
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+    color: $smgp-text !important;
+    margin-bottom: 1rem !important;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid $smgp-gray-100;
+}
+
+// Section rows — card style with left accent border.
+.path-backup .backup-section .backup-sub-section > .detail-pair {
+    display: flex !important;
+    align-items: stretch;
+    padding: 0 !important;
+    margin-bottom: 0.75rem;
+    border: 1px solid $smgp-border;
+    border-left: 3px solid $smgp-success;
+    border-radius: $smgp-radius-md;
+    overflow: hidden;
+    background: $smgp-bg;
+    border-bottom: 1px solid $smgp-border !important;
+}
+
+.path-backup .backup-section .backup-sub-section > .detail-pair > .detail-pair-label {
+    font-weight: 700 !important;
+    color: $smgp-text !important;
+    font-size: $smgp-font-sm !important;
+    background: $smgp-gray-50;
+    padding: 0.75rem 1rem !important;
+    width: 30% !important;
+    display: flex;
+    align-items: center;
+    border-right: 1px solid $smgp-gray-100;
+    margin: 0 !important;
+}
+
+.path-backup .backup-section .backup-sub-section > .detail-pair > .detail-pair-value {
+    color: $smgp-gray-500 !important;
+    font-size: $smgp-font-sm !important;
+    font-style: italic;
+    padding: 0.75rem 1rem !important;
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+// "Actividades" label row.
+.path-backup .backup-section .backup-sub-section > .detail-pair:has(.activitytable) {
+    display: block !important;
+    padding: 0 !important;
+    border: none;
+    border-left: none;
+    background: transparent;
+
+    > .detail-pair-label {
+        background: transparent !important;
+        border: none !important;
+        width: auto !important;
+        padding: 0.25rem 0 !important;
+        font-size: $smgp-font-xs !important;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: $smgp-gray-400 !important;
+    }
+
+    > .detail-pair-value {
+        padding: 0 !important;
+        font-style: normal !important;
+    }
+}
+
+// ---- Activities wrapper — full width, indented as sub-element ----
+// The "Actividades" label row.
+.path-backup .backup-sub-section > .detail-pair:has(.activitytable),
+.path-backup .backup-sub-section > .detail-pair:has(.table-responsive) {
+    display: block !important;
+    width: 100% !important;
+    float: none !important;
+    clear: both !important;
+    padding: 0 1.5rem 0.5rem !important;
+    border: none !important;
+    border-left: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+
+    > .detail-pair-label {
+        background: transparent !important;
+        border: none !important;
+        width: auto !important;
+        padding: 0 0 0.25rem 0 !important;
+        font-size: $smgp-font-xs !important;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: $smgp-gray-400 !important;
+        font-weight: 600 !important;
+        float: none !important;
+    }
+
+    > .detail-pair-value {
+        width: 100% !important;
+        float: none !important;
+        padding: 0 !important;
+        font-style: normal !important;
+    }
+
+    .table-responsive {
+        width: 100% !important;
+    }
+}
+
+// ---- Activity tables — modern full-width ----
+// Structure: 3 columns — .modulename (icon+type), .moduletitle, .userinfoincluded
+.path-backup .activitytable {
+    border: 1px solid $smgp-border !important;
+    border-radius: $smgp-radius-lg !important;
+    overflow: hidden !important;
+    margin: 0.25rem 0 0.75rem;
+    font-size: $smgp-font-sm;
+    width: 100% !important;
+    border-collapse: collapse !important;
+
+    // Header row.
+    thead th {
+        background: $smgp-gray-50 !important;
+        color: $smgp-gray-400 !important;
+        font-weight: 600;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        border: none !important;
+        border-bottom: 1px solid $smgp-border !important;
+        padding: 0.6rem 1rem !important;
+    }
+
+    // Module column header (icon + type).
+    thead th.modulename {
+        width: 30%;
+    }
+
+    // Title column — takes most space.
+    thead th.moduletitle {
+        width: auto;
+    }
+
+    // User info column.
+    thead th.userinfoincluded {
+        width: 15%;
+        text-align: center !important;
+    }
+
+    // Body rows.
+    tbody tr {
+        transition: background 0.12s;
+
+        &:hover {
+            background: $smgp-gray-50;
+        }
+
+        &:last-child td {
+            border-bottom: none !important;
+        }
+    }
+
+    tbody td {
+        padding: 0.65rem 1rem !important;
+        vertical-align: middle !important;
+        color: $smgp-text;
+        border: none !important;
+        border-bottom: 1px solid $smgp-gray-50 !important;
+    }
+
+    // Module name cell — icon + type text. Already has d-flex align-items-center.
+    tbody td.modulename {
+        font-weight: 600;
+        color: $smgp-gray-600;
+        font-size: $smgp-font-sm;
+
+        .d-flex {
+            gap: 0.5rem;
+        }
+
+        .activity-icon,
+        .activityiconcontainer {
+            width: 24px !important;
+            height: 24px !important;
+            min-width: 24px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 !important;
+        }
+
+        img.activityicon {
+            width: 20px !important;
+            height: 20px !important;
+            opacity: 0.6;
+        }
+    }
+
+    // Activity title.
+    tbody td.moduletitle {
+        font-weight: 600;
+        color: $smgp-text;
+    }
+
+    // User info column — centered status icon.
+    tbody td.userinfoincluded {
+        text-align: center !important;
+        color: $smgp-gray-400;
+
+        .fa-xmark {
+            color: $smgp-danger;
+        }
+        .fa-check {
+            color: $smgp-success;
+        }
+    }
+}
+
+// ---- Selection tables (categories, courses) ----
+.path-backup .generaltable:not(.activitytable) {
+    border: 1px solid $smgp-border !important;
+    border-radius: $smgp-radius-lg !important;
+    overflow: hidden !important;
+    width: 100% !important;
+    border-collapse: collapse !important;
+    font-size: $smgp-font-sm;
+
+    // Remove all internal borders.
+    td {
+        border: none !important;
+    }
+
+    // Header row — uniform background and bottom border on ALL columns.
+    thead th {
+        background: $smgp-gray-50 !important;
+        color: $smgp-gray-400 !important;
+        font-weight: 600;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        border-top: none !important;
+        border-left: none !important;
+        border-right: none !important;
+        border-bottom: 1px solid $smgp-border !important;
+        padding: 0.6rem 1rem !important;
+    }
+
+    // Radio/checkbox column header.
+    thead th:first-child {
+        width: 44px;
+    }
+
+    tbody tr {
+        transition: background 0.12s;
+
+        &:hover {
+            background: $smgp-gray-50;
+        }
+
+        &:last-child td {
+            border-bottom: none !important;
+        }
+    }
+
+    tbody td {
+        padding: 0.6rem 1rem !important;
+        vertical-align: middle !important;
+        border-bottom: 1px solid $smgp-gray-50 !important;
+        color: $smgp-text;
+    }
+
+    // Radio button column.
+    tbody td:first-child {
+        width: 44px;
+        text-align: center;
+
+        input[type="radio"] {
+            accent-color: $smgp-success;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+    }
+}
+
+// ---- Radio buttons in backup forms ----
+.path-backup .backup-section input[type="radio"] {
+    accent-color: $smgp-success;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    margin-right: 0.25rem;
+}
+
+// ---- Search boxes ----
+.path-backup .backup-section input[type="text"],
+.path-backup .backup-section .form-control {
+    border: 1.5px solid $smgp-border !important;
+    border-radius: $smgp-radius-md !important;
+    padding: 0.4rem 0.75rem !important;
+    font-size: $smgp-font-sm !important;
+    transition: border-color 0.15s;
+
+    &:focus {
+        border-color: $smgp-primary !important;
+        outline: none !important;
+        box-shadow: 0 0 0 3px rgba($smgp-success, 0.12) !important;
+    }
+}
+
+// Search button (magnifier icon).
+.path-backup .backup-section input[type="submit"].btn-secondary {
+    border-radius: $smgp-radius-md !important;
+    border: 1.5px solid $smgp-border !important;
+    padding: 0.4rem 0.75rem !important;
+}
+
+// ---- "Continuar" / action buttons — centered ----
+.path-backup .backup-section .singlebutton,
+.path-backup .backup-section > form > div:last-child {
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid $smgp-gray-100;
+    text-align: center;
+}
+
+// Continuar button detail-pair rows — full width, centered.
+.path-backup .backup-course-selector .detail-pair:last-child {
+    display: block !important;
+    width: 100% !important;
+    float: none !important;
+    clear: both !important;
+    text-align: center;
+    padding-top: 0.75rem !important;
+    border-top: 1px solid $smgp-gray-100;
+
+    .detail-pair-label {
+        display: none !important;
+    }
+    .detail-pair-value {
+        width: 100% !important;
+        float: none !important;
+        text-align: center;
+        padding: 0 !important;
+    }
+}
+
+// ---- Detail pair labels as links ----
+.path-backup .detail-pair-label a {
+    color: $smgp-success;
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+// ---- Destination page (step 2) — course selector ----
+.path-backup .backup-course-selector {
+
+    // Override Moodle float layout — make everything stack properly.
+    .backup-section {
+        overflow: hidden;
+    }
+
+    .detail-pair {
+        display: flex !important;
+        align-items: center;
+        width: 100% !important;
+        float: none !important;
+        clear: both !important;
+        padding: 0.4rem 0;
+    }
+
+    .detail-pair-label {
+        width: 35% !important;
+        float: none !important;
+        font-weight: 500 !important;
+        color: $smgp-gray-600 !important;
+        font-size: $smgp-font-sm !important;
+        flex-shrink: 0;
+
+        label {
+            cursor: pointer;
+            font-weight: 500;
+        }
+    }
+
+    .detail-pair-value {
+        width: 65% !important;
+        float: none !important;
+        flex: 1;
+    }
+
+    // Remove w-75 constraint on tables.
+    .rcs-results {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .restore-course-search {
+        width: 100%;
+    }
+
+    // Radio buttons.
+    input[type="radio"] {
+        accent-color: $smgp-success;
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+    }
+
+    // Search bar (inline in label row) — Moodle native style.
+    .smgp-search-relocated {
+        display: flex !important;
+        align-items: stretch;
+        margin-left: auto;
+        height: 34px;
+
+        input[type="text"] {
+            width: 200px !important;
+            border: 1px solid $smgp-border !important;
+            border-right: none !important;
+            border-radius: $smgp-radius-md 0 0 $smgp-radius-md !important;
+            padding: 0 0.75rem !important;
+            font-size: $smgp-font-sm !important;
+            font-weight: 400 !important;
+            height: 100%;
+
+            &:focus {
+                border-color: $smgp-primary !important;
+                outline: none !important;
+                box-shadow: none !important;
+            }
+        }
+
+        .smgp-search-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 0.65rem;
+            border: 1px solid $smgp-border;
+            border-left: none;
+            border-radius: 0 $smgp-radius-md $smgp-radius-md 0;
+            background: $smgp-gray-50;
+            cursor: pointer;
+            color: $smgp-gray-500;
+            font-size: 0.85rem;
+            height: 100%;
+            transition: background 0.15s;
+
+            &:hover {
+                background: $smgp-gray-100;
+                color: $smgp-success;
+            }
+        }
+    }
+
+    // All checkboxes and radios in tables — vertically centered.
+    .generaltable tbody td:first-child {
+        vertical-align: middle !important;
+        text-align: center !important;
+    }
+
+    .generaltable tbody td:first-child input[type="radio"] {
+        vertical-align: middle;
+    }
+
+    // Company table radios — match Moodle native radio style exactly.
+    #smgp-company-table input[type="radio"] {
+        accent-color: $smgp-success;
+        cursor: pointer;
+        margin: 0;
+    }
+
+    // Fake radio button (for select-all toggle).
+    .smgp-fake-radio {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 2px solid $smgp-gray-300;
+        border-radius: 50%;
+        cursor: pointer;
+        position: relative;
+        vertical-align: middle;
+        transition: border-color 0.15s;
+        background: transparent;
+
+        &:hover {
+            border-color: $smgp-success;
+        }
+
+        &--checked {
+            border-color: $smgp-success;
+            background: transparent;
+
+            &::after {
+                content: "";
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 10px;
+                height: 10px;
+                background: $smgp-success;
+                border-radius: 50%;
+            }
+        }
+    }
+
+    // Course table — style radio column header.
+    #smgp-course-table thead {
+        td.header,
+        td:first-child {
+            background: $smgp-gray-50 !important;
+            border-bottom: 1px solid $smgp-border !important;
+            border-top: none !important;
+            border-left: none !important;
+            border-right: none !important;
+            padding: 0.6rem 1rem !important;
+        }
+    }
+
+    // Hide original Moodle search form below tables.
+    .restore-course-search > form {
+        display: none !important;
+    }
+    // Also hide any "too many results" message standalone divs.
+    .restore-course-search > div:not(.rcs-results) {
+        text-align: center;
+        font-size: $smgp-font-sm;
+        color: $smgp-gray-500;
+    }
+
+    // "Seleccione" label made full-width (via JS — class added dynamically).
+    .smgp-select-fullwidth {
+        display: block !important;
+        width: 100% !important;
+        float: none !important;
+        clear: both !important;
+        padding: 0.75rem 0 0 !important;
+
+        > .detail-pair-label {
+            width: 100% !important;
+            float: none !important;
+            font-weight: 700 !important;
+            color: $smgp-text !important;
+            font-size: $smgp-font-sm !important;
+            margin-bottom: 0.5rem !important;
+        }
+
+        > .detail-pair-value {
+            width: 100% !important;
+            float: none !important;
+            padding: 0 !important;
+        }
+    }
+}
+
+// ---- Notification/info boxes ----
+.path-backup .backup-restore .alert {
+    border-radius: $smgp-radius-md !important;
+    font-size: $smgp-font-sm;
+}

@@ -1,3 +1,4 @@
+{{! @source: layout/drawers.php > primarymenu[lang] }}
 {{!
     This file is part of Moodle - http://moodle.org/
 
@@ -53,7 +54,8 @@
         <div role="menu" aria-labelledby="lang-menu-toggle" id="lang-action-menu" class="dropdown-menu dropdown-menu-end">
             {{#items}}
                 {{#link}}
-                    <a href="{{{url}}}" class="dropdown-item ps-5" role="menuitem" {{#isactive}}aria-current="true"{{/isactive}}
+                    <a href="#" class="dropdown-item ps-5" role="menuitem" {{#isactive}}aria-current="true"{{/isactive}}
+                            onclick="event.preventDefault();var l=this.getAttribute('lang');if(l){var u=new URL(window.location.href);u.searchParams.set('lang',l);window.location.href=u.toString();}"
                             {{#attributes}}{{key}}="{{value}}" {{/attributes}}>
                         {{text}}
                     </a>

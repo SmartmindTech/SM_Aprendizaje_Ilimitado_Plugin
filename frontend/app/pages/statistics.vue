@@ -87,8 +87,7 @@ const getBarWidth = (value: number, items: Array<{ value: number }>) => {
   return Math.round((value / max) * 100)
 }
 
-onMounted(async () => {
-  const result = await getStatistics()
+getStatistics().then((result) => {
   loading.value = false
   if (result.error) {
     error.value = result.error

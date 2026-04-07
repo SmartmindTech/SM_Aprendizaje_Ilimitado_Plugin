@@ -26,8 +26,7 @@ const loading = ref(true)
 const error = ref<string | null>(null)
 const data = ref<any>(null)
 
-onMounted(async () => {
-  const result = await call('local_sm_graphics_plugin_get_welcome_data')
+call('local_sm_graphics_plugin_get_welcome_data').then((result) => {
   loading.value = false
   if (result.error) {
     error.value = result.error

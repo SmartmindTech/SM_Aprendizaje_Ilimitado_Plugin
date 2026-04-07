@@ -82,5 +82,5 @@ const filterByCategory = (categoryid: number) => {
   fetchData(categoryid)
 }
 
-onMounted(() => fetchData())
+fetchData()
 </script>

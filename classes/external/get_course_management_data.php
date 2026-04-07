@@ -81,36 +81,34 @@ class get_course_management_data extends external_api {
         $component = 'local_sm_graphics_plugin';
         $base      = '/blocks/iomad_company_admin';
 
-        // Action cards.
+        // Action cards — all point at SPA routes.
         $options = [
             [
-                'url'         => (new \moodle_url($base . '/company_courses_form.php'))->out(),
+                'url'         => local_sm_graphics_plugin_spa_url('courses/create')->out(false),
                 'icon'        => 'fa-plus-circle',
                 'title'       => get_string('coursemgmt_create', $component),
                 'description' => get_string('coursemgmt_create_desc', $component),
             ],
             [
-                'url'         => (new \moodle_url('/backup/restorefile.php', [
-                    'contextid' => \context_system::instance()->id,
-                ]))->out(),
+                'url'         => local_sm_graphics_plugin_spa_url('admin/restore')->out(false),
                 'icon'        => 'fa-upload',
                 'title'       => get_string('coursemgmt_restore', $component),
                 'description' => get_string('coursemgmt_restore_desc', $component),
             ],
             [
-                'url'         => (new \moodle_url($base . '/company_courses.php'))->out(),
+                'url'         => local_sm_graphics_plugin_spa_url('management/courses')->out(false),
                 'icon'        => 'fa-building',
                 'title'       => get_string('coursemgmt_assign', $component),
                 'description' => get_string('coursemgmt_assign_desc', $component),
             ],
             [
-                'url'         => (new \moodle_url('/local/sm_graphics_plugin/pages/createcategory.php'))->out(),
+                'url'         => local_sm_graphics_plugin_spa_url('management/categories')->out(false),
                 'icon'        => 'fa-folder-plus',
                 'title'       => get_string('coursemgmt_createcat', $component),
                 'description' => get_string('coursemgmt_createcat_desc', $component),
             ],
             [
-                'url'         => (new \moodle_url('/local/sm_graphics_plugin/pages/managecategories.php'))->out(),
+                'url'         => local_sm_graphics_plugin_spa_url('management/categories')->out(false),
                 'icon'        => 'fa-folder-open',
                 'title'       => get_string('coursemgmt_managecat', $component),
                 'description' => get_string('coursemgmt_managecat_desc', $component),

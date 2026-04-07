@@ -1,50 +1,404 @@
 //
-// SmartMind — Activity Module Overrides
-//
-// Base files: _modules.scss (1694 lines), _question.scss (698 lines)
+// SmartMind — Activity Module Overrides (Minimal Green Design)
 //
 
-// General Module Styles
-.path-mod {}
+// General module pages — clean background.
+.path-mod {
+    background-color: #f5f3ef !important;
 
-// Activity Header
-.activity-header {}
-.activity-information {}
-.activity-dates {}
-.completion-info {}
-.activity-description {}
-.automatic-completion-conditions {}
+    #region-main {
+        background: transparent !important;
+    }
+}
 
-// Target Specific Modules
-body.path-mod-quiz {}
-body.path-mod-assign {}
-body.path-mod-forum {}
-body.path-mod-resource {}
-body.path-mod-page {}
-body.path-mod-url {}
-body.path-mod-book {}
-body.path-mod-workshop {}
-body.path-mod-feedback {}
-body.path-mod-glossary {}
-body.path-mod-wiki {}
-body.path-mod-data {}
-body.path-mod-lesson {}
-body.path-mod-scorm {}
-body.path-mod-h5pactivity {}
-body.path-mod-lti {}
-body.path-mod-bigbluebuttonbn {}
+// Activity header — hidden.
+.activity-header {
+    display: none !important;
+}
 
-// Choice Module
-.path-mod-choice .horizontal .choices .option {}
+.activity-description {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    color: $smgp-gray-600;
+    line-height: 1.6;
+}
 
-// Forum Module
-.path-mod-forum .forumsearch {}
-.path-mod-forum .forumheaderlist {}
+// Quiz — clean card for attempt.
+body.path-mod-quiz {
+    .quizattempt,
+    #responseform {
+        background: #fff;
+        border-radius: 14px;
+        padding: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
 
-// Question Bank & Types
-.questionbank {}
-.questioncategories {}
-#chooseqtype {}
-.que {}
-.que .info {}
-.que .content {}
+    // Default Moodle question layout (when custom renderer is NOT active).
+    .que:not(.smgp-que) {
+        border: 1px solid $smgp-gray-100;
+        border-radius: 12px;
+        margin-bottom: 1rem;
+        overflow: hidden;
+
+        .info {
+            background: $smgp-gray-50;
+            border-right: 1px solid $smgp-gray-100;
+        }
+
+        .formulation {
+            padding: 1rem;
+        }
+    }
+
+    // Submit buttons.
+    .mod_quiz-next-nav,
+    #id_submitbutton,
+    .btn-primary {
+        background: #10b981 !important;
+        border-color: #10b981 !important;
+        border-radius: 10px;
+
+        &:hover {
+            background: #059669 !important;
+            border-color: #059669 !important;
+        }
+    }
+}
+
+// Assignment — clean card, compact table, action button below.
+body.path-mod-assign {
+
+    // Action bar — once moved below the table by JS, clean up spacing.
+    .submissionstatustable + .container-fluid {
+        padding: 0;
+    }
+
+    // Submission heading — compact, brand color.
+    .submissionstatustable h3 {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #10b981;
+        margin-bottom: 0.5rem;
+    }
+
+    // Submission status card.
+    .submissionstatustable,
+    .gradingsummary,
+    .submissionstatussubmitted,
+    .submissiongrading {
+        background: #fff;
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        margin-bottom: 0.75rem;
+        border: none;
+    }
+
+    // Submission summary table — compact.
+    .submissionsummarytable {
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        background: transparent !important;
+
+        .generaltable {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid $smgp-gray-200;
+            margin-bottom: 0;
+
+            th {
+                font-weight: 500;
+                color: #6B6660;
+                font-size: 0.8rem;
+                padding: 0.4rem 1rem;
+                background: #F9F7F4;
+                border-bottom: 1px solid $smgp-gray-200;
+                white-space: nowrap;
+                width: 1%;
+            }
+
+            td {
+                font-size: 0.8rem;
+                color: #1A1814;
+                padding: 0.4rem 1rem;
+                border-bottom: 1px solid $smgp-gray-100;
+            }
+        }
+    }
+
+    // Action buttons (Add submission, Start test) — below the table, right-aligned.
+    .submissionaction,
+    .submission-buttons,
+    [data-region="submission-actions"],
+    .singlebutton,
+    form[action*="submission"],
+    .box.generalbox:has(.btn-primary) {
+        order: 10;
+        margin-top: 0.5rem;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    #id_submitbutton,
+    .btn-primary {
+        background: #10b981 !important;
+        border-color: #10b981 !important;
+        border-radius: 10px;
+        width: auto;
+        padding: 0.5rem 1.25rem;
+        font-weight: 600;
+        font-size: 0.85rem;
+
+        &:hover {
+            background: #059669 !important;
+            border-color: #059669 !important;
+        }
+    }
+
+    .btn-secondary {
+        border-radius: 8px;
+        width: 100%;
+        padding: 0.5rem 1.25rem;
+        font-weight: 500;
+        font-size: 0.85rem;
+    }
+}
+
+// Quiz view — redesigned layout via renderer + template overrides.
+body.path-mod-quiz {
+
+    // Quiz info messages box.
+    .quizinfo {
+        background: #EEF7F1;
+        border: 1px solid #10b981;
+        border-left: 3px solid #10b981;
+        border-radius: 12px;
+        padding: 0.75rem 1.25rem;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        color: #1A1814;
+
+        p {
+            margin: 0.25rem 0;
+        }
+    }
+
+    // Heading with attempts badge.
+    .smgp-quiz-heading {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #10b981;
+        margin: 0.75rem 0 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    // Grade result headings.
+    .smgp-quiz-grade-heading {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #10b981;
+        margin: 0.5rem 0 0.15rem;
+    }
+
+    .smgp-quiz-attempts-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.2rem 0.7rem;
+        background: $smgp-gray-100;
+        color: $smgp-gray-600;
+        font-size: 0.8rem;
+        font-weight: 500;
+        border-radius: 9999px;
+        white-space: nowrap;
+    }
+
+    // Attempt cards container.
+    .smgp-quiz-attempts {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .smgp-quiz-attempt-card {
+        background: #fff;
+        border: 1px solid $smgp-gray-200;
+        border-radius: 8px;
+        overflow: hidden;
+
+        &__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem 1rem;
+            background: #F9F7F4;
+            border-bottom: 1px solid $smgp-gray-100;
+        }
+
+        &__title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #1A1814;
+            margin: 0;
+        }
+
+        &__review a {
+            font-size: 0.8rem;
+            color: #10b981;
+            font-weight: 500;
+            text-decoration: none;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+
+        &__table {
+            width: 100%;
+            border-collapse: collapse;
+
+            th {
+                font-size: 0.8rem;
+                font-weight: 500;
+                color: #6B6660;
+                padding: 0.35rem 1rem;
+                text-align: left;
+                white-space: nowrap;
+                width: 1%;
+            }
+
+            td {
+                font-size: 0.8rem;
+                color: #1A1814;
+                padding: 0.35rem 1rem;
+                white-space: nowrap;
+            }
+
+            tr:not(:last-child) {
+                th, td {
+                    border-bottom: 1px solid $smgp-gray-100;
+                }
+            }
+        }
+    }
+
+    // Grade result info (rendered below attempts by renderer override).
+    #feedback {
+        background: #F9F7F4;
+        border: 1px solid $smgp-gray-200;
+        border-radius: 8px;
+        padding: 0.6rem 1rem;
+        margin: 0.5rem 0 0.75rem;
+
+        h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #1A1814;
+            margin: 0 0 0.15rem;
+        }
+    }
+
+    // Start attempt button — right-aligned, compact.
+    .quizstartbuttondiv,
+    .singlebutton {
+        margin-top: 0.5rem;
+        display: flex;
+        justify-content: flex-end;
+
+        .btn-primary,
+        .btn-secondary {
+            background: #10b981 !important;
+            border-color: #10b981 !important;
+            color: #fff !important;
+            border-radius: 8px;
+            width: auto;
+            padding: 0.5rem 1.25rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+
+            &:hover {
+                background: #059669 !important;
+                border-color: #059669 !important;
+            }
+        }
+    }
+
+    // General tables in quiz context (grade tables, etc.).
+    .generaltable {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        border-radius: 12px;
+        overflow: hidden;
+
+        thead th {
+            background: #F9F7F4;
+            font-weight: 600;
+            color: #1A1814;
+            font-size: 0.85rem;
+            padding: 0.75rem 1.25rem;
+            border-bottom: 1px solid $smgp-gray-200;
+            white-space: nowrap;
+        }
+
+        tbody td {
+            padding: 0.75rem 1.25rem;
+            font-size: 0.9rem;
+            color: #1A1814;
+            border-bottom: 1px solid $smgp-gray-100;
+            white-space: nowrap;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+    }
+}
+
+// Forum — clean post cards.
+body.path-mod-forum {
+    .forumpost {
+        background: #fff;
+        border: 1px solid $smgp-gray-100;
+        border-radius: 12px;
+        margin-bottom: 0.75rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+
+        .header {
+            border-bottom: 1px solid $smgp-gray-100;
+        }
+    }
+}
+
+// Page/Book — clean content card.
+body.path-mod-page,
+body.path-mod-book {
+    .book_content,
+    [role="main"] .generalbox {
+        background: #fff;
+        border-radius: 14px;
+        padding: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+}
+
+// Feedback/Choice — clean.
+body.path-mod-feedback,
+body.path-mod-choice {
+    .mform {
+        background: #fff;
+        border-radius: 14px;
+        padding: 1.25rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+}

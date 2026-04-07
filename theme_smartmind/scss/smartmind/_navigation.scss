@@ -5,10 +5,126 @@
 //             _moremenu.scss, _core.scss (breadcrumbs)
 //
 
-// Secondary Navigation (in-course tabs) — centered, full width
-.secondary-navigation .navigation .nav-tabs {
-    max-width: 100%;
-    justify-content: center;
+// Secondary Navigation — SmartMind pill style (matches catalogue badges)
+.secondary-navigation {
+    padding-bottom: 0;
+    margin-bottom: 1rem;
+
+    .navigation {
+        background: transparent !important;
+        border-bottom: none !important;
+        margin: 0;
+        padding: 0.75rem 0;
+
+        .nav-tabs {
+            max-width: 100%;
+            border: none;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            background: transparent !important;
+
+            .nav-item {
+                margin: 0;
+            }
+
+            .nav-link {
+                display: inline-flex;
+                align-items: center;
+                padding: 0.4rem 1rem !important;
+                height: auto !important;
+                font-size: 0.875rem;
+                font-weight: 500;
+                border-radius: 20px !important;
+                border: 1px solid #e5e7eb !important;
+                background: #fff;
+                color: #374151;
+                transition: all 0.15s ease;
+                white-space: nowrap;
+                margin: 0;
+
+                &:hover,
+                &:focus {
+                    background: #f3f4f6;
+                    border-color: #d1d5db !important;
+                }
+
+                &.active {
+                    background: #10b981 !important;
+                    color: #fff !important;
+                    border-color: #10b981 !important;
+                    box-shadow: none;
+
+                    &:hover,
+                    &:focus {
+                        background: #059669 !important;
+                        border-color: #059669 !important;
+                    }
+                }
+            }
+
+            // "More" dropdown button — same pill style
+            .dropdownmoremenu {
+                .dropdown-toggle {
+                    padding: 0.4rem 1rem !important;
+                    height: auto !important;
+                    border-radius: 20px !important;
+                    border: 1px solid #e2e8f0 !important;
+                    background: #fff;
+                    color: #0f172a;
+                    font-size: 0.875rem;
+                    font-weight: 500;
+
+                    &:hover {
+                        background: #f8fafc;
+                        border-color: #cbd5e1 !important;
+                    }
+                }
+
+                .dropdown-menu {
+                    border-radius: 12px;
+                    border: 1px solid #e2e8f0;
+                    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+                    padding: 0.5rem;
+                    margin-top: 0.25rem;
+
+                    .dropdown-item {
+                        border-radius: 8px;
+                        padding: 0.4rem 0.75rem;
+                        font-size: 0.875rem;
+                        color: #0f172a;
+
+                        &:hover,
+                        &:focus {
+                            background: #f1f5f9;
+                        }
+
+                        &.active,
+                        &[aria-current="true"] {
+                            background: #10b981;
+                            color: #fff;
+
+                            &::before { color: #fff; }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Admin page header — Stratoos-style heading
+.path-admin #page-header,
+.pagelayout-admin #page-header {
+    margin-bottom: 0.5rem;
+
+    .page-context-header {
+        .page-header-headings h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin: 0;
+        }
+    }
 }
 
 // Tertiary Navigation — grade user report: report selector next to username

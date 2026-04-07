@@ -1,50 +1,317 @@
 // ============================================================
-// Course Landing Page
+// Course Landing Page — Redesigned with Hero Banner
 // ============================================================
+
+// ---- Container ----
 
 .smgp-landing {
     max-width: 100%;
     margin: 0 auto;
-    padding: 2rem 3rem;
+}
+
+// ---- Remove wrapper spacing so hero banner sits flush under navbar ----
+#page.drawers:has(.smgp-landing) {
+    .main-inner {
+        padding-top: 0;
+        margin-top: 0;
+    }
+    #region-main {
+        padding-top: 0;
+        margin-top: 0;
+    }
+    #page-header {
+        display: none;
+    }
+    .drawer-toggles {
+        display: none;
+    }
+}
+
+// ============================================================
+// Hero Banner
+// ============================================================
+
+.smgp-landing-hero {
+    position: relative;
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    min-height: 320px;
+    background-size: cover;
+    background-position: center;
+    background-color: $smgp-gray-900;
+
+    &__overlay {
+        background: rgba(0, 0, 0, 0.6);
+        width: 100%;
+        min-height: 320px;
+        display: flex;
+        align-items: center;
+    }
+
+    &__content {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 3rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: $smgp-space-2xl;
+        width: 100%;
+    }
+
+    &__left {
+        flex: 1;
+        min-width: 0;
+    }
+
+    // Back link (must be block so badge goes below)
+    &__back {
+        display: flex;
+        width: fit-content;
+        align-items: center;
+        gap: 0.35rem;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: $smgp-font-xs;
+        text-decoration: none;
+        transition: color 0.15s;
+        margin-bottom: $smgp-space-sm;
+
+        [class^="icon-"] {
+            font-size: 0.85rem;
+
+            &::before {
+                color: inherit !important;
+            }
+        }
+
+        &:hover {
+            color: #fff;
+            text-decoration: none;
+        }
+    }
+
+    // Category badge (below back link)
+    &__badge {
+        display: inline-block;
+        background: $smgp-success;
+        color: #fff;
+        padding: 0.2rem 0.65rem;
+        border-radius: $smgp-radius-full;
+        font-size: $smgp-font-xs;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+    }
+
+    // Title
+    &__title {
+        font-size: $smgp-font-3xl;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 0.75rem;
+        line-height: 1.3;
+    }
+
+    // Summary
+    &__summary {
+        color: rgba(255, 255, 255, 0.65);
+        font-size: $smgp-font-sm;
+        line-height: 1.6;
+        max-width: 600px;
+        margin-bottom: $smgp-space-md;
+
+        p { margin-bottom: 0.25rem; }
+        ul, ol { padding-left: 1.25rem; }
+    }
+
+    // Course metadata row (duration, level, modules)
+    &__meta {
+        display: flex;
+        align-items: center;
+        gap: $smgp-space-lg;
+        flex-wrap: wrap;
+    }
+
+    &__meta-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        color: rgba(255, 255, 255, 0.6) !important;
+        font-size: $smgp-font-sm;
+
+        [class^="icon-"] {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.6) !important;
+
+            &::before {
+                color: rgba(255, 255, 255, 0.6) !important;
+            }
+        }
+    }
+
+    // Right side card container
+    &__right {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+    &__card {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: $smgp-space-md;
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: $smgp-radius-xl;
+        padding: $smgp-space-xl;
+        min-width: 260px;
+        max-width: 300px;
+    }
+
+    // Ring row: ring on left, text on right
+    &__ring-row {
+        display: flex;
+        align-items: center;
+        gap: $smgp-space-md;
+    }
+
+    &__ring-container {
+        position: relative;
+        width: 64px;
+        height: 64px;
+        flex-shrink: 0;
+    }
+
+    &__ring {
+        width: 64px;
+        height: 64px;
+        transform: rotate(-90deg);
+    }
+
+    &__ring-text {
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__ring-pct {
+        color: #fff;
+        font-size: $smgp-font-xl;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+
+    &__ring-label {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: $smgp-font-xs;
+    }
+
+    // Stats line
+    &__stats {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: $smgp-font-xs;
+        text-align: left;
+    }
+
+    // Card footer info
+    &__card-footer {
+        display: flex;
+        justify-content: center;
+        gap: $smgp-space-lg;
+        padding-top: $smgp-space-sm;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    &__card-info {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.2rem;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: $smgp-font-xs;
+
+        [class^="icon-"] {
+            color: $smgp-warning;
+            font-size: 1.1rem;
+        }
+    }
+
+    // CTA button (full width inside card)
+    &__cta {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: $smgp-space-sm;
+        background: $smgp-success;
+        color: #fff;
+        padding: 0.75rem 1.5rem;
+        border-radius: $smgp-radius-md;
+        font-weight: 600;
+        font-size: $smgp-font-sm;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: background 0.15s;
+        width: 100%;
+
+        [class^="icon-"] {
+            color: #fff !important;
+
+            &::before {
+                color: #fff !important;
+            }
+        }
+
+        &:hover {
+            background: darken($smgp-success, 8%);
+            color: #fff;
+            text-decoration: none;
+        }
+
+        &:active {
+            transform: scale(0.98);
+        }
+    }
+}
+
+// ============================================================
+// Content Area (two columns)
+// ============================================================
+
+.smgp-landing__body-wrapper {
+    padding: $smgp-space-xl $smgp-space-2xl;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .smgp-landing__body {
     display: flex;
-    gap: 2rem;
+    gap: $smgp-space-xl;
     align-items: flex-start;
 }
 
-// ---- Main column (left ~60%) ----
-
 .smgp-landing__main {
-    flex: 1 1 55%;
+    flex: 1 1 60%;
     min-width: 0;
 }
 
-.smgp-landing__heading {
-    font-size: 1.5rem;
+.smgp-landing__content-heading {
+    font-size: $smgp-font-xl;
     font-weight: 700;
-    margin-bottom: 1.5rem;
+    margin-bottom: $smgp-space-lg;
     color: $smgp-text;
-
-    [class^="icon-"] {
-        margin-right: 0.5rem;
-        color: $smgp-text;
-    }
 }
 
-.smgp-landing__summary {
-    margin-bottom: 1.5rem;
-    color: $smgp-text-secondary;
-    line-height: 1.6;
-}
-
-// ---- Sections accordion ----
+// ============================================================
+// Section Accordion
+// ============================================================
 
 .smgp-landing__section {
     border: 1px solid $smgp-border;
-    border-radius: $smgp-radius-md;
-    margin-bottom: 0.5rem;
+    border-radius: $smgp-radius-lg;
+    margin-bottom: 0.75rem;
     overflow: hidden;
     background: $smgp-bg;
 }
@@ -59,25 +326,77 @@
     transition: background-color 0.15s;
 
     &:hover {
-        background-color: rgba($smgp-primary-color, 0.04);
+        background-color: $smgp-gray-50;
     }
+}
+
+.smgp-landing__section-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+    flex: 1;
+}
+
+.smgp-landing__section-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: $smgp-radius-full;
+    background: $smgp-gray-100;
+    color: $smgp-text;
+    font-size: $smgp-font-sm;
+    font-weight: 700;
+    flex-shrink: 0;
 }
 
 .smgp-landing__section-title {
     display: flex;
     flex-direction: column;
     gap: 0.125rem;
+    min-width: 0;
 }
 
 .smgp-landing__section-name {
     font-weight: 600;
-    font-size: 0.95rem;
+    font-size: $smgp-font-sm;
     color: $smgp-text;
 }
 
-.smgp-landing__section-count {
-    font-size: 0.8rem;
+.smgp-landing__section-subtitle {
+    font-size: $smgp-font-xs;
     color: $smgp-text-secondary;
+}
+
+.smgp-landing__section-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.smgp-landing__section-progress {
+    width: 80px;
+    height: 6px;
+    background: $smgp-gray-200;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.smgp-landing__section-progress-bar {
+    height: 100%;
+    background: $smgp-success;
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+.smgp-landing__section-pct {
+    font-size: $smgp-font-xs;
+    color: $smgp-text-secondary;
+    min-width: 28px;
+    text-align: right;
 }
 
 .smgp-landing__chevron {
@@ -101,7 +420,9 @@
     border-top: 1px solid $smgp-border;
 }
 
-// ---- Activity list ----
+// ============================================================
+// Activity List
+// ============================================================
 
 .smgp-landing__activities {
     list-style: none;
@@ -111,104 +432,331 @@
 
 .smgp-landing__activity {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 0.75rem;
-    padding: 0.625rem 1.25rem;
+    padding: 0.875rem 1.25rem;
     border-bottom: 1px solid rgba($smgp-border, 0.5);
+    transition: background-color 0.15s;
 
     &:last-child {
         border-bottom: none;
     }
+
+    &--current {
+        background: rgba($smgp-primary-color, 0.04);
+        border-left: 3px solid $smgp-primary;
+    }
 }
 
-.smgp-landing__activity-icon {
-    color: $smgp-primary;
-    font-size: 1rem;
+.smgp-landing__activity-status {
     flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1px;
+}
+
+.smgp-landing__activity-check {
+    color: $smgp-success;
+    font-size: 20px;
+}
+
+.smgp-landing__activity-play {
+    color: $smgp-primary;
+    font-size: 20px;
+}
+
+.smgp-landing__activity-circle {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid $smgp-gray-300;
+}
+
+.smgp-landing__activity-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
 }
 
 .smgp-landing__activity-name {
-    flex: 1;
-    font-size: 0.875rem;
-    color: $smgp-text;
-}
-
-.smgp-landing__activity-type {
-    font-size: 0.75rem;
-    color: $smgp-text-secondary;
-    white-space: nowrap;
-}
-
-// ---- Sidebar (right ~40%) ----
-
-.smgp-landing__sidebar {
-    flex: 0 0 450px;
-    position: sticky;
-    top: 5rem;
-}
-
-.smgp-landing__image {
-    border-radius: $smgp-radius-md;
-    overflow: hidden;
-    margin-bottom: 1rem;
-
-    img {
-        width: 100%;
-        height: auto;
-        display: block;
-    }
-}
-
-.smgp-landing__info-card {
-    background: $smgp-bg;
-    border: 1px solid $smgp-border;
-    border-radius: $smgp-radius-md;
-    padding: 1.25rem;
-    margin-bottom: 1rem;
-}
-
-.smgp-landing__info-title {
-    font-size: 1rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    color: $smgp-text;
-}
-
-.smgp-landing__info-row {
-    display: flex;
-    align-items: center;
-    gap: 0.625rem;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid rgba($smgp-border, 0.5);
-
-    &:last-child {
-        border-bottom: none;
-    }
-
-    [class^="icon-"] {
-        color: $smgp-text;
-        font-size: 1rem;
-        flex-shrink: 0;
-        width: 1.25rem;
-        text-align: center;
-    }
-}
-
-.smgp-landing__info-label {
-    flex: 1;
-    font-size: 0.875rem;
-    color: $smgp-text-secondary;
-}
-
-.smgp-landing__info-value {
-    font-size: 0.875rem;
+    font-size: $smgp-font-sm;
     font-weight: 600;
     color: $smgp-text;
 }
 
-// ---- Action button ----
+.smgp-landing__activity-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
 
-.smgp-landing__action {
+// ---- Activity type badge pills ----
+
+.smgp-landing__activity-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: $smgp-radius-full;
+    font-size: $smgp-font-xs;
+    font-weight: 500;
+    white-space: nowrap;
+
+    // Force icon to inherit badge text color (override bootstrapicons.scss ::before)
+    [class^="icon-"] {
+        font-size: 0.7rem;
+        color: inherit !important;
+
+        &::before {
+            color: inherit !important;
+        }
+    }
+
+    &--green {
+        background: rgba($smgp-success, 0.12);
+        color: darken($smgp-success, 10%);
+    }
+    &--blue {
+        background: rgba(#3b82f6, 0.12);
+        color: #2563eb;
+    }
+    &--yellow {
+        background: rgba($smgp-warning, 0.12);
+        color: darken($smgp-warning, 15%);
+    }
+    &--orange {
+        background: rgba(#f97316, 0.12);
+        color: #ea580c;
+    }
+    &--red {
+        background: rgba($smgp-danger, 0.12);
+        color: darken($smgp-danger, 10%);
+    }
+    &--purple {
+        background: rgba($smgp-accent-violet, 0.12);
+        color: darken($smgp-accent-violet, 10%);
+    }
+    &--pink {
+        background: rgba($smgp-accent-pink, 0.12);
+        color: darken($smgp-accent-pink, 10%);
+    }
+    &--brown {
+        background: rgba(#92400e, 0.12);
+        color: #92400e;
+    }
+}
+
+.smgp-landing__activity-duration {
+    font-size: $smgp-font-xs;
+    color: $smgp-text-secondary;
+}
+
+// ============================================================
+// Sidebar
+// ============================================================
+
+.smgp-landing__sidebar {
+    flex: 0 0 340px;
+    position: sticky;
+    top: 1rem;
+}
+
+.smgp-landing__sidebar-card {
+    background: $smgp-bg;
+    border: 1px solid $smgp-border;
+    border-radius: $smgp-radius-lg;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.smgp-landing__sidebar-title {
+    font-size: $smgp-font-base;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: $smgp-text;
+}
+
+// ---- Learning objectives bullet list ----
+
+.smgp-landing__objectives-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.smgp-landing__objective-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: $smgp-font-sm;
+    color: $smgp-text-secondary;
+    line-height: 1.5;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.smgp-landing__objective-check {
+    flex-shrink: 0;
+    margin-top: 0.15rem;
+    font-size: 0.9rem;
+
+    &, &::before {
+        color: $smgp-success !important;
+    }
+}
+
+// ---- Objectives editor (course edit form) ----
+
+.smgp-objectives-editor {
+    margin-top: 0.5rem;
+}
+
+.smgp-objectives-editor__row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    background: #fff;
+    transition: border-color 0.15s, opacity 0.15s;
+
+    &.dragging {
+        opacity: 0.4;
+    }
+
+    &.drag-over {
+        border-color: $smgp-success;
+        border-style: dashed;
+    }
+}
+
+.smgp-objectives-editor__handle {
+    cursor: grab;
+    color: #adb5bd;
+    flex-shrink: 0;
+    font-size: 1rem;
+    user-select: none;
+}
+
+.smgp-objectives-editor__input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: $smgp-font-sm;
+    padding: 0.25rem 0;
+    background: transparent;
+}
+
+.smgp-objectives-editor__remove {
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    flex-shrink: 0;
+    font-size: 1.25rem;
+    line-height: 1;
+    padding: 0 0.25rem;
+    opacity: 0.5;
+    transition: opacity 0.15s;
+
+    &:hover {
+        opacity: 1;
+    }
+}
+
+.smgp-objectives-editor__add {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: $smgp-success;
+    background: none;
+    border: 1px dashed $smgp-success;
+    border-radius: 0.375rem;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-size: $smgp-font-sm;
+    font-weight: 500;
+    margin-top: 0.25rem;
+    transition: background 0.15s;
+
+    &:hover {
+        background: rgba($smgp-success, 0.06);
+    }
+}
+
+// ---- Sidebar objectives fallback (course summary) ----
+
+.smgp-landing__sidebar-objectives {
+    font-size: $smgp-font-sm;
+    color: $smgp-text-secondary;
+    line-height: 1.6;
+
+    p { margin-bottom: 0.5rem; }
+    ul, ol {
+        padding-left: 1.25rem;
+        margin-bottom: 0.5rem;
+    }
+    li { margin-bottom: 0.25rem; }
+}
+
+// ---- Content types list ----
+
+.smgp-landing__content-types {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    li {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.4rem 0;
+        border-bottom: 1px solid rgba($smgp-border, 0.5);
+        font-size: $smgp-font-sm;
+
+        &:last-child { border-bottom: none; }
+    }
+}
+
+.smgp-landing__content-type-icon {
+    font-size: 1rem;
+    flex-shrink: 0;
+    width: 1.25rem;
+    text-align: center;
+
+    &--green, &--green::before { color: $smgp-success !important; }
+    &--blue, &--blue::before { color: #3b82f6 !important; }
+    &--yellow, &--yellow::before { color: $smgp-warning !important; }
+    &--orange, &--orange::before { color: #f97316 !important; }
+    &--red, &--red::before { color: $smgp-danger !important; }
+    &--purple, &--purple::before { color: $smgp-accent-violet !important; }
+    &--pink, &--pink::before { color: $smgp-accent-pink !important; }
+    &--brown, &--brown::before { color: #92400e !important; }
+}
+
+.smgp-landing__content-type-label {
+    flex: 1;
+    color: $smgp-text;
+}
+
+.smgp-landing__content-type-count {
+    font-weight: 600;
+    color: $smgp-text-secondary;
+}
+
+// ---- Sidebar action buttons ----
+
+.smgp-landing__sidebar-actions {
     margin-top: 0.5rem;
 }
 
@@ -216,16 +764,16 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
+    gap: $smgp-space-sm;
     width: 100%;
-    padding: 0.75rem 1.5rem;
+    padding: 0.625rem 1.25rem;
     border-radius: $smgp-radius-md;
-    font-size: 1rem;
+    font-size: $smgp-font-sm;
     font-weight: 600;
     text-decoration: none;
     border: none;
     cursor: pointer;
-    transition: background-color 0.15s, transform 0.1s;
+    transition: background-color 0.15s;
 
     &--primary {
         background-color: $smgp-primary;
@@ -236,33 +784,107 @@
             color: #fff;
             text-decoration: none;
         }
+    }
 
-        &:active {
-            transform: scale(0.98);
+    &--danger {
+        background: transparent;
+        border: 1.5px solid $smgp-danger;
+        color: $smgp-danger;
+
+        &:hover {
+            background: $smgp-danger;
+            color: #fff;
         }
+    }
 
-        &:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
+    &--secondary {
+        background: transparent;
+        border: 1.5px solid $smgp-border;
+        color: $smgp-text;
+
+        &:hover {
+            border-color: $smgp-primary;
+            color: $smgp-primary;
+            text-decoration: none;
         }
     }
 }
 
-// ---- Responsive ----
+// ============================================================
+// Admin: Add/Delete activity buttons
+// ============================================================
 
-@media (max-width: $smgp-bp-lg) {
-    .smgp-landing__body {
-        flex-direction: column;
+.smgp-landing__edit-btn {
+    background: none;
+    border: none;
+    color: $smgp-primary;
+    cursor: pointer;
+    padding: 2px 6px;
+    margin-left: auto;
+    opacity: 0;
+    transition: opacity 0.2s;
+    font-size: 0.9rem;
+    text-decoration: none;
+
+    .smgp-landing__activity:hover & {
+        opacity: 0.5;
     }
 
-    .smgp-landing__sidebar {
-        flex: 1 1 auto;
-        max-width: 100%;
-        position: static;
+    &:hover {
+        opacity: 1 !important;
+        color: $smgp-primary-dark;
+        text-decoration: none;
+    }
+
+    [class^="icon-"]::before {
+        color: inherit !important;
     }
 }
 
-// ---- Admin: Add activity picker grid ----
+.smgp-landing__delete-btn {
+    background: none;
+    border: none;
+    color: $smgp-danger;
+    cursor: pointer;
+    padding: 2px 6px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    font-size: 0.9rem;
+
+    .smgp-landing__activity:hover & {
+        opacity: 0.5;
+    }
+
+    &:hover {
+        opacity: 1 !important;
+    }
+}
+
+.smgp-landing__add-btn {
+    background: none;
+    border: 1px dashed $smgp-gray-300;
+    border-radius: $smgp-radius-md;
+    color: $smgp-text-secondary;
+    cursor: pointer;
+    padding: $smgp-space-sm $smgp-space-md;
+    margin-top: $smgp-space-sm;
+    font-size: $smgp-font-sm;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    width: 100%;
+    justify-content: center;
+    transition: border-color 0.2s, color 0.2s;
+
+    &:hover {
+        border-color: $smgp-primary;
+        color: $smgp-primary;
+    }
+}
+
+// ============================================================
+// Admin: Add Activity picker grid
+// ============================================================
 
 .smgp-add-picker {
     margin: 0.75rem 0;
@@ -285,23 +907,23 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 0.5rem;
+        gap: $smgp-space-sm;
         padding: 1rem 0.75rem;
-        border: 1px solid #e2e8f0;
-        border-radius: 12px;
+        border: 1px solid $smgp-border;
+        border-radius: $smgp-radius-lg;
         background: #fff;
         cursor: pointer;
         transition: border-color 0.2s, box-shadow 0.2s, transform 0.1s;
 
         &:hover {
             border-color: $smgp-primary;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            box-shadow: $smgp-shadow-md;
             transform: translateY(-1px);
         }
     }
 
     &__icon {
-        font-size: 1.5rem;
+        font-size: $smgp-font-2xl;
     }
 
     &__name {
@@ -312,259 +934,9 @@
     }
 }
 
-// ---- Info card header with enrolled badge ----
-
-.smgp-landing__info-header {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    margin-bottom: 1rem;
-
-    .smgp-landing__info-title {
-        margin-bottom: 0;
-    }
-}
-
-.smgp-landing__enrolled-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3rem;
-    color: #10b981;
-    font-size: 0.8rem;
-    font-weight: 600;
-    white-space: nowrap;
-
-    [class^="icon-"] {
-        font-size: 1rem;
-    }
-}
-
-// ---- Enrolled user progress + actions ----
-
-.smgp-landing__enrolled-info {
-    margin-bottom: 1rem;
-    padding-top: 0.5rem;
-    border-top: 1px solid $smgp-border;
-}
-
-.smgp-landing__progress-section {
-    margin-top: 0.75rem;
-}
-
-.smgp-landing__progress-section {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-top: 0.75rem;
-}
-
-.smgp-landing__progress-label {
-    font-size: 0.8rem;
-    color: $smgp-text-secondary;
-    white-space: nowrap;
-}
-
-.smgp-landing__progress-bar {
-    flex: 1;
-    height: 8px;
-    border-radius: 4px;
-    background: rgba(0, 0, 0, 0.06);
-
-    .progress-bar {
-        background-color: $smgp-primary;
-        border-radius: 4px;
-        transition: width 0.4s ease;
-    }
-}
-
-.smgp-landing__progress-pct {
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: $smgp-primary;
-    white-space: nowrap;
-    min-width: 32px;
-    text-align: right;
-}
-
-.smgp-landing__btn--danger {
-    background: transparent;
-    border: 1.5px solid #ef4444;
-    color: #ef4444;
-    border-radius: 8px;
-    padding: 0.5rem 1.25rem;
-    font-size: 0.85rem;
-    font-weight: 500;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    cursor: pointer;
-    transition: background 0.2s, color 0.2s;
-
-    &:hover {
-        background: #ef4444;
-        color: #fff;
-    }
-}
-
-.smgp-landing__action {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    align-items: center;
-}
-
-// ---- Video tabs (URL vs Upload) in modal ----
-
-.smgp-video-tabs {
-    display: flex;
-    gap: 0;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    overflow: hidden;
-
-    &__tab {
-        flex: 1;
-        padding: 0.5rem 1rem;
-        border: none;
-        background: #f8fafc;
-        cursor: pointer;
-        font-size: 0.85rem;
-        font-weight: 500;
-        color: #666;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.4rem;
-        transition: background 0.2s, color 0.2s;
-
-        &:not(:last-child) {
-            border-right: 1px solid #e2e8f0;
-        }
-
-        &.active {
-            background: #fff;
-            color: $smgp-primary;
-            font-weight: 600;
-        }
-
-        &:hover:not(.active) {
-            background: #eee;
-        }
-    }
-}
-
-.smgp-upload-zone {
-    text-align: center;
-    padding: 2rem 1.5rem;
-    border: 2px dashed #cbd5e1;
-    border-radius: 12px;
-    color: #666;
-    cursor: pointer;
-    transition: border-color 0.2s, background 0.2s;
-
-    &:hover, &--dragover {
-        border-color: $smgp-primary;
-        background: rgba(99, 102, 241, 0.03);
-    }
-
-    &--dragover {
-        border-style: solid;
-        background: rgba(99, 102, 241, 0.06);
-    }
-
-    &--has-file {
-        border-color: #10b981;
-        background: rgba(16, 185, 129, 0.03);
-    }
-
-    &__icon {
-        font-size: 2.5rem;
-        color: #6366f1;
-        display: block;
-        margin-bottom: 0.5rem;
-    }
-
-    &__text {
-        margin: 0;
-        font-size: 0.85rem;
-        color: #666;
-    }
-
-    &__file {
-        margin: 0.75rem 0 0;
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: #10b981;
-    }
-}
-
-// ---- Admin: Add/Delete activity buttons ----
-
-.smgp-landing__delete-btn {
-    background: none;
-    border: none;
-    color: #ef4444;
-    cursor: pointer;
-    padding: 2px 6px;
-    margin-left: auto;
-    opacity: 0.5;
-    transition: opacity 0.2s;
-    font-size: 0.9rem;
-
-    &:hover {
-        opacity: 1;
-    }
-}
-
-.smgp-landing__add-btn {
-    background: none;
-    border: 1px dashed #ccc;
-    border-radius: 8px;
-    color: #666;
-    cursor: pointer;
-    padding: 0.5rem 1rem;
-    margin-top: 0.5rem;
-    font-size: 0.85rem;
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    transition: border-color 0.2s, color 0.2s;
-    width: 100%;
-    justify-content: center;
-
-    &:hover {
-        border-color: $smgp-primary;
-        color: $smgp-primary;
-    }
-}
-
-.smgp-landing__activity {
-    display: flex;
-    align-items: center;
-}
-
-.smgp-landing__btn--secondary {
-    background: transparent;
-    border: 1.5px solid #e2e8f0;
-    color: $smgp-text;
-    border-radius: 8px;
-    padding: 0.5rem 1.25rem;
-    font-size: 0.85rem;
-    font-weight: 500;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    text-decoration: none;
-    transition: border-color 0.2s;
-
-    &:hover {
-        border-color: $smgp-primary;
-        color: $smgp-primary;
-        text-decoration: none;
-    }
-}
-
-// ---- Add Activity Modal ----
+// ============================================================
+// Modals (shared)
+// ============================================================
 
 .smgp-modal {
     position: fixed;
@@ -589,7 +961,7 @@
     &__card {
         position: relative;
         background: #fff;
-        border-radius: 16px;
+        border-radius: $smgp-radius-xl;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
         width: 90%;
         max-width: 480px;
@@ -602,11 +974,11 @@
         align-items: center;
         justify-content: space-between;
         padding: 1.25rem 1.5rem;
-        border-bottom: 1px solid #eee;
+        border-bottom: 1px solid $smgp-gray-100;
 
         h3 {
             margin: 0;
-            font-size: 1.1rem;
+            font-size: $smgp-font-lg;
             font-weight: 600;
         }
     }
@@ -615,10 +987,10 @@
         background: none;
         border: none;
         cursor: pointer;
-        font-size: 1.1rem;
-        color: #999;
+        font-size: $smgp-font-lg;
+        color: $smgp-gray-400;
 
-        &:hover { color: #333; }
+        &:hover { color: $smgp-text; }
     }
 
     &__body {
@@ -630,6 +1002,150 @@
         justify-content: flex-end;
         gap: 0.75rem;
         padding: 1rem 1.5rem;
-        border-top: 1px solid #eee;
+        border-top: 1px solid $smgp-gray-100;
+    }
+}
+
+// ============================================================
+// Video tabs + upload zone (in modal)
+// ============================================================
+
+.smgp-video-tabs {
+    display: flex;
+    gap: 0;
+    border: 1px solid $smgp-border;
+    border-radius: $smgp-radius-md;
+    overflow: hidden;
+
+    &__tab {
+        flex: 1;
+        padding: $smgp-space-sm $smgp-space-md;
+        border: none;
+        background: $smgp-gray-50;
+        cursor: pointer;
+        font-size: $smgp-font-sm;
+        font-weight: 500;
+        color: $smgp-text-secondary;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+        transition: background 0.2s, color 0.2s;
+
+        &:not(:last-child) {
+            border-right: 1px solid $smgp-border;
+        }
+
+        &.active {
+            background: #fff;
+            color: $smgp-primary;
+            font-weight: 600;
+        }
+
+        &:hover:not(.active) {
+            background: $smgp-gray-100;
+        }
+    }
+}
+
+.smgp-upload-zone {
+    text-align: center;
+    padding: $smgp-space-xl $smgp-space-lg;
+    border: 2px dashed $smgp-gray-300;
+    border-radius: $smgp-radius-lg;
+    color: $smgp-text-secondary;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+
+    &:hover, &--dragover {
+        border-color: $smgp-primary;
+        background: rgba($smgp-primary-color, 0.03);
+    }
+
+    &--dragover {
+        border-style: solid;
+        background: rgba($smgp-primary-color, 0.06);
+    }
+
+    &--has-file {
+        border-color: $smgp-success;
+        background: rgba($smgp-success, 0.03);
+    }
+
+    &__icon {
+        font-size: 2.5rem;
+        color: $smgp-primary;
+        display: block;
+        margin-bottom: $smgp-space-sm;
+    }
+
+    &__text {
+        margin: 0;
+        font-size: $smgp-font-sm;
+    }
+
+    &__file {
+        margin: 0.75rem 0 0;
+        font-size: $smgp-font-sm;
+        font-weight: 600;
+        color: $smgp-success;
+    }
+}
+
+// ============================================================
+// Responsive
+// ============================================================
+
+@media (max-width: 992px) {
+    .smgp-landing-hero {
+        &__content {
+            flex-direction: column;
+            text-align: center;
+            padding: $smgp-space-xl $smgp-space-lg;
+        }
+
+        &__left {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        &__back {
+            justify-content: center;
+        }
+
+        &__summary {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        &__meta {
+            justify-content: center;
+        }
+
+        &__right {
+            margin-top: $smgp-space-md;
+        }
+
+        &__card {
+            padding: $smgp-space-lg;
+            min-width: auto;
+            max-width: 100%;
+            width: 280px;
+        }
+    }
+
+    .smgp-landing__body-wrapper {
+        padding: $smgp-space-lg;
+    }
+
+    .smgp-landing__body {
+        flex-direction: column;
+    }
+
+    .smgp-landing__sidebar {
+        flex: 1 1 auto;
+        max-width: 100%;
+        position: static;
     }
 }

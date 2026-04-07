@@ -107,6 +107,10 @@ class get_catalogue_data extends external_api {
                 }
             }
 
+            $modinfo = get_fast_modinfo($course);
+            $studentcount = count_enrolled_users($coursecontext);
+            $activitycount = count($modinfo->get_cms());
+
             $courses[] = [
                 'id'             => (int) $course->id,
                 'fullname'       => format_string($course->fullname),
@@ -118,6 +122,15 @@ class get_catalogue_data extends external_api {
                 'categoryname'   => $catname,
                 'level'          => $meta->level ?? 'beginner',
                 'duration_hours' => (float) ($meta->duration_hours ?? 0),
+                'smartmind_code' => (string) ($meta->smartmind_code ?? ''),
+                'sepe_code'      => (string) ($meta->sepe_code ?? ''),
+                'description'    => (string) ($meta->description ?? ''),
+                'studentcount'   => $studentcount,
+                'activitycount'  => $activitycount,
+                'startdate'      => $course->startdate ? userdate($course->startdate, '%d %b %Y') : '',
+                'enddate'        => $course->enddate ? userdate($course->enddate, '%d %b %Y') : '',
+                'viewurl'        => (new \moodle_url('/local/sm_graphics_plugin/pages/spa.php'))->out(false)
+                                    . '#/courses/' . $course->id . '/landing',
             ];
         }
 
@@ -143,6 +156,14 @@ class get_catalogue_data extends external_api {
                     'categoryname'   => new external_value(PARAM_TEXT, 'SmartMind category'),
                     'level'          => new external_value(PARAM_TEXT, 'Difficulty level'),
                     'duration_hours' => new external_value(PARAM_FLOAT, 'Duration hours'),
+                    'smartmind_code' => new external_value(PARAM_TEXT, 'SmartMind code'),
+                    'sepe_code'      => new external_value(PARAM_TEXT, 'SEPE code'),
+                    'description'    => new external_value(PARAM_RAW, 'Long description'),
+                    'studentcount'   => new external_value(PARAM_INT, 'Student count'),
+                    'activitycount'  => new external_value(PARAM_INT, 'Activity count'),
+                    'startdate'      => new external_value(PARAM_TEXT, 'Formatted start date'),
+                    'enddate'        => new external_value(PARAM_TEXT, 'Formatted end date'),
+                    'viewurl'        => new external_value(PARAM_RAW, 'SPA landing URL'),
                 ])
             ),
             'hascourses'    => new external_value(PARAM_BOOL, 'Has courses'),

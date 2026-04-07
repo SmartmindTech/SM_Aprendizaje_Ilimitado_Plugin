@@ -28,6 +28,7 @@ namespace local_sm_graphics_plugin\external;
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/externallib.php');
+require_once($CFG->dirroot . '/local/sm_graphics_plugin/lib.php');
 
 use external_api;
 use external_function_parameters;
@@ -101,10 +102,7 @@ class get_mycourses_data extends external_api {
             }
             $cc['completed_activities'] = $totalactivities;
             $cc['total_activities'] = $totalactivities;
-            $cc['continueurl'] = (new \moodle_url('/course/view.php', [
-                'id' => $courseid,
-                'smgp_enter' => 1,
-            ]))->out(false);
+            $cc['continueurl'] = local_sm_graphics_plugin_spa_url('courses/' . $courseid . '/player')->out(false);
             $cc['status'] = 'completed';
             $cc['image'] = $cc['courseimage'] ?? '';
 
@@ -152,11 +150,8 @@ class get_mycourses_data extends external_api {
             $ec['completed_activities'] = $completedactivities;
             $ec['total_activities'] = $totalactivities;
 
-            // Continue URL — default to course view.
-            $ec['continueurl'] = (new \moodle_url('/course/view.php', [
-                'id' => $courseid,
-                'smgp_enter' => 1,
-            ]))->out(false);
+            // Continue URL — default to SPA player.
+            $ec['continueurl'] = local_sm_graphics_plugin_spa_url('courses/' . $courseid . '/player')->out(false);
 
             // Find last viewed activity to build smgp_cmid param.
             $lastcmid = $DB->get_field_sql(
@@ -169,11 +164,7 @@ class get_mycourses_data extends external_api {
                 ['cid' => $courseid, 'uid' => $USER->id]
             );
             if ($lastcmid) {
-                $ec['continueurl'] = (new \moodle_url('/course/view.php', [
-                    'id' => $courseid,
-                    'smgp_enter' => 1,
-                    'smgp_cmid' => (int) $lastcmid,
-                ]))->out(false);
+                $ec['continueurl'] = local_sm_graphics_plugin_spa_url('courses/' . $courseid . '/player?cmid=' . (int) $lastcmid)->out(false);
             }
 
             $ec['status'] = 'inprogress';

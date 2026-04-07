@@ -1,0 +1,42 @@
+{{! @source: layout/mydashboard.php > classes/dashboard_helper.php::get_fake_itineraries() }}
+{{!
+    @template theme_smartmind/dashboard/dashboard_itineraries
+
+    SmartMind Dashboard — Learning itineraries/paths section.
+    White bg cards showing course count, total duration, and description.
+}}
+{{#hasfakeitineraries}}
+<div class="catalog-section catalog-section--itineraries">
+    <div class="catalog-section__header">
+        <div>
+            <h5 class="catalog-section__title">
+                <i class="fas fa-route catalog-section__icon catalog-section__icon--green"></i>
+                {{#str}}dashboard_itineraries, theme_smartmind{{/str}}
+                <span class="badge badge-secondary ml-2">{{#str}}dashboard_coming_soon, theme_smartmind{{/str}}</span>
+            </h5>
+            <p class="catalog-section__desc">{{#str}}dashboard_itineraries_desc, theme_smartmind{{/str}}</p>
+        </div>
+        <a href="#" class="catalog-section__viewall">{{#str}}dashboard_viewall, theme_smartmind{{/str}}</a>
+    </div>
+    <div class="catalog-section__content">
+        <div class="dashboard-section-grid dashboard-section-grid--4">
+            {{#fakeitineraries}}
+            <article class="itinerary-card">
+                <a href="{{url}}" class="itinerary-card__thumb">
+                    <img src="{{image}}" class="itinerary-card__img" alt="{{title}}" loading="lazy">
+                    <div class="itinerary-card__diffuse"></div>
+                </a>
+                <div class="itinerary-card__body">
+                    <h3 class="itinerary-card__title"><a href="{{url}}">{{title}}</a></h3>
+                    <p class="itinerary-card__desc">{{description}}</p>
+                    <div class="itinerary-card__meta">
+                        <span><i class="fa fa-book"></i> {{#str}}dashboard_itinerary_courses, theme_smartmind, {{coursecount}}{{/str}}</span>
+                        <span><i class="fa fa-clock-o"></i> {{#str}}dashboard_duration, theme_smartmind, {{duration}}{{/str}}</span>
+                    </div>
+                </div>
+            </article>
+            {{/fakeitineraries}}
+        </div>
+    </div>
+</div>
+{{/hasfakeitineraries}}

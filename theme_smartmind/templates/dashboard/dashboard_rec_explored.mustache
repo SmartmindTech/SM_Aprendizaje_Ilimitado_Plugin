@@ -1,0 +1,56 @@
+{{! @source: layout/mydashboard.php > classes/dashboard_helper.php::format_browsed_courses() }}
+{{!
+    @template theme_smartmind/dashboard/dashboard_rec_explored
+
+    SmartMind Dashboard — Courses the user browsed but is not enrolled in.
+    Uses real data from get_browsed_courses. Uses recommended-card style.
+}}
+<div class="catalog-section catalog-section--rec-explored">
+    <div class="catalog-section__header">
+        <div>
+            <h5 class="catalog-section__title"><i class="fa fa-search catalog-section__icon catalog-section__icon--green"></i> {{#str}}dashboard_rec_explored, theme_smartmind{{/str}}</h5>
+            <p class="catalog-section__desc">{{#str}}dashboard_rec_explored_desc, theme_smartmind{{/str}}</p>
+        </div>
+        {{#hasrecexplored}}
+        <a href="#" class="catalog-section__viewall">{{#str}}dashboard_viewall, theme_smartmind{{/str}}</a>
+        {{/hasrecexplored}}
+    </div>
+    <div class="catalog-section__content">
+        {{#hasrecexplored}}
+        <div class="dashboard-recommended-grid">
+            {{#recexplored}}
+            <article class="recommended-card" data-course-id="{{{id}}}">
+                <a href="{{viewurl}}" class="recommended-card__thumb">
+                    {{#courseimage}}
+                    <img src="{{courseimage}}" class="recommended-card__thumb-img" alt="{{fullname}}" loading="lazy">
+                    {{/courseimage}}
+                    {{^courseimage}}
+                    <img src="https://picsum.photos/seed/rec{{{id}}}/600/400" class="recommended-card__thumb-img" alt="{{fullname}}" loading="lazy">
+                    {{/courseimage}}
+                    <div class="recommended-card__diffuse"></div>
+                </a>
+                <div class="recommended-card__info">
+                    {{#hascategory}}
+                    <span class="recommended-card__badge">{{categoryname}}</span>
+                    {{/hascategory}}
+                    <h3 class="recommended-card__title">
+                        <a href="{{viewurl}}">{{fullname}}</a>
+                    </h3>
+                    <div class="recommended-card__meta">
+                        <span><i class="fa fa-users"></i> {{studentcount}}</span>
+                        <span><i class="fa fa-book"></i> {{activitycount}}</span>
+                    </div>
+                </div>
+            </article>
+            {{/recexplored}}
+        </div>
+        {{/hasrecexplored}}
+        {{^hasrecexplored}}
+        <div class="catalog-section__empty">
+            <i class="fa fa-compass"></i>
+            <p>{{#str}}dashboard_rec_explored_empty, theme_smartmind{{/str}}</p>
+            <a href="{{catalogurl}}" class="catalog-section__empty-link">{{#str}}dashboard_rec_explored_cta, theme_smartmind{{/str}}</a>
+        </div>
+        {{/hasrecexplored}}
+    </div>
+</div>

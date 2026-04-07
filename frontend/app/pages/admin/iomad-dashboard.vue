@@ -85,8 +85,7 @@ const toggleCategory = (key: string) => {
   expandedKey.value = expandedKey.value === key ? null : key
 }
 
-onMounted(async () => {
-  const result = await getIomadDashboard()
+getIomadDashboard().then((result) => {
   loading.value = false
   if (result.error) {
     error.value = result.error

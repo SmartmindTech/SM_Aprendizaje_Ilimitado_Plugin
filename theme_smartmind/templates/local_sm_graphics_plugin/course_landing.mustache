@@ -1,0 +1,345 @@
+{{!
+    Course landing page template.
+
+    @package    local_sm_graphics_plugin
+    @copyright  2026 SmartMind Technologies
+    @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+}}
+
+<div class="smgp-landing" data-courseid="{{courseid}}">
+
+    {{! ===== Hero Banner ===== }}
+    <div class="smgp-landing-hero" {{#hasimage}}style="background-image: url('{{{courseimageurl}}}')"{{/hasimage}}>
+        <div class="smgp-landing-hero__overlay">
+            <div class="smgp-landing-hero__content">
+                <div class="smgp-landing-hero__left">
+                    {{! Back link }}
+                    <a href="{{dashboard_url}}" class="smgp-landing-hero__back">
+                        <i class="icon-arrow-left"></i>
+                        {{#str}}landing_back, local_sm_graphics_plugin{{/str}}
+                    </a>
+
+                    {{! Category badge }}
+                    {{#has_course_category}}
+                    <span class="smgp-landing-hero__badge">{{course_category}}</span>
+                    {{/has_course_category}}
+
+                    <h1 class="smgp-landing-hero__title">{{coursename}}</h1>
+
+                    {{#hassummary}}
+                    <div class="smgp-landing-hero__summary">{{{coursesummary}}}</div>
+                    {{/hassummary}}
+
+                    {{! Course metadata row }}
+                    <div class="smgp-landing-hero__meta">
+                        {{#has_duration}}
+                        <span class="smgp-landing-hero__meta-item">
+                            <i class="icon-clock"></i> {{duration_hours}}h
+                        </span>
+                        {{/has_duration}}
+                        <span class="smgp-landing-hero__meta-item">
+                            <i class="icon-gauge"></i> {{level_label}}
+                        </span>
+                        <span class="smgp-landing-hero__meta-item">
+                            <i class="icon-list-checks"></i> {{section_count}} {{#str}}landing_sections, local_sm_graphics_plugin{{/str}}
+                        </span>
+                        <span class="smgp-landing-hero__meta-item">
+                            <i class="icon-layout-grid"></i> {{total_activities}} {{#str}}landing_modules, local_sm_graphics_plugin{{/str}}
+                        </span>
+                    </div>
+                </div>
+
+                {{! Right side: progress card (image6 layout) }}
+                <div class="smgp-landing-hero__right">
+                    <div class="smgp-landing-hero__card">
+                        {{! Row 1: ring + percentage text }}
+                        <div class="smgp-landing-hero__ring-row">
+                            <div class="smgp-landing-hero__ring-container">
+                                <svg class="smgp-landing-hero__ring" viewBox="0 0 120 120">
+                                    <circle cx="60" cy="60" r="54" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="8"/>
+                                    <circle cx="60" cy="60" r="54" fill="none" stroke="#10b981" stroke-width="8"
+                                            stroke-dasharray="{{ring_circumference}}" stroke-dashoffset="{{ring_offset}}"
+                                            stroke-linecap="round"/>
+                                </svg>
+                            </div>
+                            <div class="smgp-landing-hero__ring-text">
+                                <span class="smgp-landing-hero__ring-pct">{{progress}}%</span>
+                                <span class="smgp-landing-hero__ring-label">{{#str}}landing_completed_label, local_sm_graphics_plugin{{/str}}</span>
+                            </div>
+                        </div>
+
+                        {{! Row 2: stats line (left-aligned) }}
+                        <div class="smgp-landing-hero__stats">
+                            <span>{{total_completed}} {{#str}}landing_of, local_sm_graphics_plugin{{/str}} {{total_activities}} {{#str}}landing_lessons, local_sm_graphics_plugin{{/str}}</span>
+                            {{#has_remaining_duration}}
+                            <span> · ~{{remaining_duration_min}} {{#str}}landing_min_remaining, local_sm_graphics_plugin{{/str}}</span>
+                            {{/has_remaining_duration}}
+                        </div>
+
+                        {{! Row 3: CTA button }}
+                        {{#is_enrolled_real}}
+                            {{#has_started}}
+                            <a href="{{course_view_url}}" class="smgp-landing-hero__cta">
+                                <i class="icon-play"></i>
+                                {{#str}}landing_continue_learning, local_sm_graphics_plugin{{/str}}
+                            </a>
+                            {{/has_started}}
+                            {{^has_started}}
+                            <a href="{{course_view_url}}" class="smgp-landing-hero__cta">
+                                <i class="icon-play"></i>
+                                {{#str}}landing_start, local_sm_graphics_plugin{{/str}}
+                            </a>
+                            {{/has_started}}
+                        {{/is_enrolled_real}}
+                        {{^is_enrolled_real}}
+                            {{#is_enrolled}}
+                            <a href="{{course_view_url}}" class="smgp-landing-hero__cta">
+                                <i class="icon-play"></i>
+                                {{#str}}landing_view_course, local_sm_graphics_plugin{{/str}}
+                            </a>
+                            {{/is_enrolled}}
+                            {{^is_enrolled}}
+                            <button type="button" class="smgp-landing-hero__cta" id="smgp-landing-enrol" data-courseid="{{courseid}}">
+                                <i class="icon-user-plus"></i>
+                                {{#str}}landing_enrol, local_sm_graphics_plugin{{/str}}
+                            </button>
+                            {{/is_enrolled}}
+                        {{/is_enrolled_real}}
+
+                        {{! Row 4: bottom info (icon above text) }}
+                        <div class="smgp-landing-hero__card-footer">
+                            <div class="smgp-landing-hero__card-info">
+                                <i class="icon-award"></i>
+                                <span>{{#str}}landing_cert_included, local_sm_graphics_plugin{{/str}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{! ===== Content Area ===== }}
+    <div class="smgp-landing__body-wrapper">
+        <h2 class="smgp-landing__content-heading">
+            {{#str}}landing_course_content, local_sm_graphics_plugin{{/str}}
+        </h2>
+        <div class="smgp-landing__body">
+
+        {{! Left column: course content }}
+        <div class="smgp-landing__main">
+
+            <div class="smgp-landing__sections">
+                {{#sections}}
+                <div class="smgp-landing__section smgp-landing__section--expanded">
+                    <div class="smgp-landing__section-header" role="button" tabindex="0" aria-expanded="true">
+                        <div class="smgp-landing__section-left">
+                            <span class="smgp-landing__section-number">{{section_number}}</span>
+                            <div class="smgp-landing__section-title">
+                                <span class="smgp-landing__section-name">{{name}}</span>
+                                <span class="smgp-landing__section-subtitle">
+                                    {{activity_count}} {{#str}}landing_elements, local_sm_graphics_plugin{{/str}}
+                                    · {{completed_count}} {{#str}}landing_completed_count, local_sm_graphics_plugin{{/str}}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="smgp-landing__section-right">
+                            <div class="smgp-landing__section-progress">
+                                <div class="smgp-landing__section-progress-bar" style="width: {{section_progress}}%"></div>
+                            </div>
+                            <span class="smgp-landing__section-pct">{{section_progress}}%</span>
+                            <i class="icon-chevron-down smgp-landing__chevron"></i>
+                        </div>
+                    </div>
+                    {{#hasactivities}}
+                    <div class="smgp-landing__section-body">
+                        <ul class="smgp-landing__activities">
+                            {{#activities}}
+                            <li class="smgp-landing__activity{{#iscurrent}} smgp-landing__activity--current{{/iscurrent}}" data-cmid="{{cmid}}">
+                                <span class="smgp-landing__activity-status">
+                                    {{#iscomplete}}
+                                    <i class="icon-check-circle smgp-landing__activity-check"></i>
+                                    {{/iscomplete}}
+                                    {{^iscomplete}}
+                                        {{#iscurrent}}
+                                        <i class="icon-play-circle smgp-landing__activity-play"></i>
+                                        {{/iscurrent}}
+                                        {{^iscurrent}}
+                                        <span class="smgp-landing__activity-circle"></span>
+                                        {{/iscurrent}}
+                                    {{/iscomplete}}
+                                </span>
+                                <div class="smgp-landing__activity-info">
+                                    <span class="smgp-landing__activity-name">{{name}}</span>
+                                    <div class="smgp-landing__activity-meta">
+                                        <span class="smgp-landing__activity-badge smgp-landing__activity-badge--{{type_color}}">
+                                            <i class="{{iconclass}}"></i> {{modtypelabel}}
+                                        </span>
+                                        {{#has_duration}}
+                                        <span class="smgp-landing__activity-duration">{{duration_minutes}} {{#str}}landing_min, local_sm_graphics_plugin{{/str}}</span>
+                                        {{/has_duration}}
+                                    </div>
+                                </div>
+                                {{#canedit}}
+                                <a href="{{edit_url}}" class="smgp-landing__edit-btn" title="{{#str}}landing_edit_activity, local_sm_graphics_plugin{{/str}}">
+                                    <i class="icon-square-pen"></i>
+                                </a>
+                                <button class="smgp-landing__delete-btn" data-cmid="{{cmid}}" title="{{#str}}landing_delete_activity, local_sm_graphics_plugin{{/str}}">
+                                    <i class="icon-circle-x"></i>
+                                </button>
+                                {{/canedit}}
+                            </li>
+                            {{/activities}}
+                        </ul>
+                    </div>
+                    {{/hasactivities}}
+                    {{#canedit}}
+                    <button class="smgp-landing__add-btn" data-sectionnum="{{number}}" data-courseid="{{courseid}}">
+                        <i class="icon-circle-plus"></i> {{#str}}landing_add_activity, local_sm_graphics_plugin{{/str}}
+                    </button>
+                    {{/canedit}}
+                </div>
+                {{/sections}}
+            </div>
+        </div>
+
+        {{! Right column: sidebar }}
+        <div class="smgp-landing__sidebar">
+            {{! What you'll learn — structured objectives or fallback to summary }}
+            {{#has_objectives}}
+            <div class="smgp-landing__sidebar-card">
+                <h3 class="smgp-landing__sidebar-title">
+                    {{#str}}landing_what_youll_learn, local_sm_graphics_plugin{{/str}}
+                </h3>
+                <ul class="smgp-landing__objectives-list">
+                    {{#objectives}}
+                    <li class="smgp-landing__objective-item">
+                        <i class="icon-check smgp-landing__objective-check"></i>
+                        <span>{{text}}</span>
+                    </li>
+                    {{/objectives}}
+                </ul>
+            </div>
+            {{/has_objectives}}
+            {{^has_objectives}}
+            {{#hassummary}}
+            <div class="smgp-landing__sidebar-card">
+                <h3 class="smgp-landing__sidebar-title">
+                    {{#str}}landing_what_youll_learn, local_sm_graphics_plugin{{/str}}
+                </h3>
+                <div class="smgp-landing__sidebar-objectives">{{{coursesummary}}}</div>
+            </div>
+            {{/hassummary}}
+            {{/has_objectives}}
+
+            {{! Content types }}
+            {{#has_content_types}}
+            <div class="smgp-landing__sidebar-card">
+                <h3 class="smgp-landing__sidebar-title">
+                    {{#str}}landing_content_types, local_sm_graphics_plugin{{/str}}
+                </h3>
+                <ul class="smgp-landing__content-types">
+                    {{#content_types}}
+                    <li>
+                        <i class="{{type_icon}} smgp-landing__content-type-icon smgp-landing__content-type-icon--{{type_color}}"></i>
+                        <span class="smgp-landing__content-type-label">{{type_label}}</span>
+                        <span class="smgp-landing__content-type-count">{{type_count}}</span>
+                    </li>
+                    {{/content_types}}
+                </ul>
+            </div>
+            {{/has_content_types}}
+
+            {{! Unenrol + Edit buttons }}
+            {{#is_enrolled_real}}
+            <div class="smgp-landing__sidebar-actions">
+                <button type="button" class="smgp-landing__btn smgp-landing__btn--danger" id="smgp-unenrol-btn">
+                    <i class="icon-log-out"></i>
+                    {{#str}}landing_unenrol, local_sm_graphics_plugin{{/str}}
+                </button>
+            </div>
+            {{/is_enrolled_real}}
+            {{#canedit}}
+            <div class="smgp-landing__sidebar-actions">
+                <a href="{{edit_course_url}}" class="smgp-landing__btn smgp-landing__btn--secondary">
+                    <i class="icon-square-pen"></i>
+                    {{#str}}landing_edit, local_sm_graphics_plugin{{/str}}
+                </a>
+            </div>
+            {{/canedit}}
+        </div>
+    </div>
+    </div>
+
+    {{! Unenrol confirmation modal }}
+    {{#is_enrolled_real}}
+    <div id="smgp-unenrol-modal" class="smgp-modal" style="display:none;">
+        <div class="smgp-modal__backdrop"></div>
+        <div class="smgp-modal__card">
+            <div class="smgp-modal__header">
+                <h3>{{#str}}landing_unenrol_confirm_title, local_sm_graphics_plugin{{/str}}</h3>
+                <button class="smgp-modal__close" id="smgp-unenrol-close"><i class="icon-x"></i></button>
+            </div>
+            <div class="smgp-modal__body">
+                <p>{{#str}}landing_unenrol_confirm, local_sm_graphics_plugin{{/str}}</p>
+            </div>
+            <div class="smgp-modal__footer">
+                <button class="btn btn-secondary" id="smgp-unenrol-cancel">{{#str}}landing_cancel, local_sm_graphics_plugin{{/str}}</button>
+                <button class="btn btn-danger" id="smgp-unenrol-confirm" data-courseid="{{courseid}}">
+                    <i class="icon-log-out"></i>
+                    {{#str}}landing_unenrol, local_sm_graphics_plugin{{/str}}
+                </button>
+            </div>
+        </div>
+    </div>
+    {{/is_enrolled_real}}
+</div>
+
+{{! Quick-add modal for Genially and Video activities }}
+{{#canedit}}
+<div id="smgp-genially-modal" class="smgp-modal" style="display:none;">
+    <div class="smgp-modal__backdrop"></div>
+    <div class="smgp-modal__card">
+        <div class="smgp-modal__header">
+            <h3><i class="icon-presentation" style="color:#f97316;margin-right:0.5rem;"></i> Genially</h3>
+            <button class="smgp-modal__close" id="smgp-genially-close"><i class="icon-x"></i></button>
+        </div>
+        <div class="smgp-modal__body">
+            <div class="mb-3">
+                <label for="smgp-genially-name">{{#str}}landing_activity_name, local_sm_graphics_plugin{{/str}}</label>
+                <input type="text" id="smgp-genially-name" class="form-control" placeholder="My activity">
+            </div>
+
+            {{! Video tabs: URL vs Upload — hidden for Genially }}
+            <div id="smgp-video-tabs" class="smgp-video-tabs mb-3" style="display:none;">
+                <button type="button" class="smgp-video-tabs__tab active" id="smgp-video-tab-url">
+                    <i class="icon-link"></i> URL
+                </button>
+                <button type="button" class="smgp-video-tabs__tab" id="smgp-video-tab-upload">
+                    <i class="icon-upload"></i> {{#str}}landing_video_upload, local_sm_graphics_plugin{{/str}}
+                </button>
+            </div>
+
+            <div class="mb-3" id="smgp-genially-url-group">
+                <label for="smgp-genially-url">{{#str}}landing_activity_url, local_sm_graphics_plugin{{/str}}</label>
+                <input type="url" id="smgp-genially-url" class="form-control" placeholder="https://view.genial.ly/...">
+                <small class="text-muted smgp-genially-url-hint">{{#str}}landing_genially_url_hint, local_sm_graphics_plugin{{/str}}</small>
+            </div>
+
+            <div class="mb-3" id="smgp-genially-upload-group" style="display:none;">
+                <div class="smgp-upload-zone" id="smgp-upload-zone">
+                    <input type="file" id="smgp-upload-input" accept="video/*,.mp4,.webm,.ogg,.mov,.avi,.mkv" style="display:none;">
+                    <i class="icon-cloud-upload smgp-upload-zone__icon"></i>
+                    <p class="smgp-upload-zone__text">{{#str}}landing_video_upload_hint, local_sm_graphics_plugin{{/str}}</p>
+                    <p class="smgp-upload-zone__file" id="smgp-upload-filename" style="display:none;"></p>
+                </div>
+            </div>
+        </div>
+        <div class="smgp-modal__footer">
+            <button class="btn btn-secondary" id="smgp-genially-cancel">{{#str}}landing_cancel, local_sm_graphics_plugin{{/str}}</button>
+            <button class="btn btn-primary" id="smgp-genially-save">{{#str}}landing_save, local_sm_graphics_plugin{{/str}}</button>
+        </div>
+        <input type="hidden" id="smgp-genially-sectionnum" value="0">
+    </div>
+</div>
+{{/canedit}}

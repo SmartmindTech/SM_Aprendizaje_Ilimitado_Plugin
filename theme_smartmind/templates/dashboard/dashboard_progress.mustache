@@ -1,0 +1,29 @@
+{{! @source: layout/mydashboard.php }}
+{{!
+    @template theme_smartmind/dashboard/dashboard_progress
+
+    SmartMind Dashboard — Enrolled courses progress overview.
+    Horizontal bar showing progress for each enrolled course.
+
+    Context variables:
+      * enrolledcourses - Array with {fullname, progress, viewurl}
+      * hasenrolledcourses - boolean
+}}
+{{#hasenrolledcourses}}
+<div class="catalog-section catalog-section--progress">
+    <div class="catalog-section__header">
+        <h5 class="catalog-section__title"><i class="fa fa-bar-chart catalog-section__icon catalog-section__icon--green"></i> {{#str}}dashboard_progress_title, theme_smartmind{{/str}}</h5>
+    </div>
+    <div class="progress-list">
+        {{#enrolledcourses}}
+        <a href="{{resumeurl}}" class="progress-row">
+            <span class="progress-row__name">{{fullname}}</span>
+            <div class="progress-row__bar">
+                <div class="progress-row__fill" style="width: {{progress}}%"></div>
+            </div>
+            <span class="progress-row__pct">{{progress}}%</span>
+        </a>
+        {{/enrolledcourses}}
+    </div>
+</div>
+{{/hasenrolledcourses}}

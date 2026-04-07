@@ -33,6 +33,26 @@ export const useCourseApi = () => {
   const unenrolUser = (courseid: number) =>
     call('local_sm_graphics_plugin_unenrol_user', { courseid })
 
+  // Phase 2 additions: objectives, translation, comments mentions ──────────
+  const saveObjectives = (courseid: number, objectivesJson: string, translate: boolean = true) =>
+    call('local_sm_graphics_plugin_save_objectives', {
+      courseid,
+      objectives_json: objectivesJson,
+      translate,
+    })
+
+  const translateCourse = (courseid: number) =>
+    call('local_sm_graphics_plugin_translate_course', { courseid })
+
+  const searchCourseUsers = (courseid: number, query: string) =>
+    call('local_sm_graphics_plugin_search_course_users', { courseid, query }, { deduplicate: true })
+
+  const updateComment = (commentid: number, content: string) =>
+    call('local_sm_graphics_plugin_update_comment', { commentid, content })
+
+  const deleteComment = (commentid: number) =>
+    call('local_sm_graphics_plugin_delete_comment', { commentid })
+
   return {
     getCourseLandingData,
     getCoursePageData,
@@ -43,5 +63,10 @@ export const useCourseApi = () => {
     getCourseProgress,
     enrolUser,
     unenrolUser,
+    saveObjectives,
+    translateCourse,
+    searchCourseUsers,
+    updateComment,
+    deleteComment,
   }
 }

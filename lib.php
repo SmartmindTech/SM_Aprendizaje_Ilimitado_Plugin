@@ -25,6 +25,23 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
+ * Build a URL pointing at a Vue SPA hash route.
+ *
+ * All user-facing navigation in testnuxt lives inside the SPA shell at
+ * `pages/spa.php`; the concrete page is chosen by the hash fragment.
+ *
+ * @param string $hashroute  Route without leading slash, e.g. "courses/42/landing".
+ * @return moodle_url
+ */
+function local_sm_graphics_plugin_spa_url(string $hashroute = ''): moodle_url {
+    $url = new moodle_url('/local/sm_graphics_plugin/pages/spa.php');
+    if ($hashroute !== '') {
+        $url->set_anchor('/' . ltrim($hashroute, '/'));
+    }
+    return $url;
+}
+
+/**
  * Enrol a user into a course using the manual enrolment plugin.
  *
  * @param int $userid  The ID of the user to enrol.
@@ -83,37 +100,6 @@ function local_sm_graphics_plugin_extend_navigation(global_navigation $navigatio
     $scriptpath = isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : '';
 
     // ── SPA redirects ─────────────────────────────────────────────────────
-    // Set to false to temporarily disable SPA and use old Mustache pages.
-    $spa_enabled = (bool) get_config('local_sm_graphics_plugin', 'spa_enabled');
-    if (!$spa_enabled) {
-        // SPA disabled — fall through to old Mustache pages.
-        // Re-enable: Site admin > Plugins > Local > SM Graphics > set spa_enabled = 1
-        // Or run: php -r "require('config.php'); set_config('spa_enabled', '1', 'local_sm_graphics_plugin');"
-
-        // Restore old redirects for manager dashboard.
-        if (substr($scriptpath, -13) === '/my/index.php' || $scriptpath === '/my/') {
-            $managerrec = local_sm_graphics_plugin_get_manager_record($USER->id);
-            if ($managerrec) {
-                redirect(new moodle_url('/local/sm_graphics_plugin/pages/usermanagement.php'));
-            }
-        }
-        if (strpos($scriptpath, '/enrol/index.php') !== false) {
-            $courseid = optional_param('id', 0, PARAM_INT);
-            if ($courseid && isloggedin() && !isguestuser()) {
-                redirect(new moodle_url('/local/sm_graphics_plugin/pages/course_landing.php', ['id' => $courseid]));
-            }
-        }
-        if (strpos($scriptpath, 'iomad_company_admin/index.php') !== false) {
-            $managerrec = local_sm_graphics_plugin_get_manager_record($USER->id);
-            if ($managerrec) {
-                redirect(new moodle_url('/local/sm_graphics_plugin/pages/othermanagement.php'));
-            } else if (is_siteadmin()) {
-                redirect(new moodle_url('/local/sm_graphics_plugin/pages/iomaddashboard.php'));
-            }
-        }
-        return; // Skip all SPA redirects below.
-    }
-
     // Redirect Moodle core pages and plugin pages to the Vue SPA.
     $spapage = '/local/sm_graphics_plugin/pages/spa.php';
 
@@ -202,7 +188,7 @@ function local_sm_graphics_plugin_extend_navigation(global_navigation $navigatio
         $managerrec = local_sm_graphics_plugin_get_manager_record($USER->id);
         if ($managerrec && local_sm_graphics_plugin_is_company_limit_reached($managerrec->companyid)) {
             redirect(
-                new moodle_url('/local/sm_graphics_plugin/pages/usermanagement.php'),
+                local_sm_graphics_plugin_spa_url('management/users'),
                 get_string('usermgmt_limit_reached', 'local_sm_graphics_plugin'),
                 null,
                 \core\output\notification::NOTIFY_WARNING
@@ -224,7 +210,7 @@ function local_sm_graphics_plugin_extend_navigation(global_navigation $navigatio
                 // Already at limit — block access entirely.
                 if ($currentcount >= $limit) {
                     redirect(
-                        new moodle_url('/local/sm_graphics_plugin/pages/usermanagement.php'),
+                        local_sm_graphics_plugin_spa_url('management/users'),
                         get_string('usermgmt_limit_reached', 'local_sm_graphics_plugin'),
                         null,
                         \core\output\notification::NOTIFY_WARNING
@@ -240,7 +226,7 @@ function local_sm_graphics_plugin_extend_navigation(global_navigation $navigatio
                     $remaining = $limit - $currentcount;
                     if ($usercount > $remaining) {
                         redirect(
-                            new moodle_url('/local/sm_graphics_plugin/pages/usermanagement.php'),
+                            local_sm_graphics_plugin_spa_url('management/users'),
                             get_string('usermgmt_upload_exceeds', 'local_sm_graphics_plugin', (object) [
                                 'csvcount'  => $usercount,
                                 'remaining' => $remaining,
@@ -278,7 +264,7 @@ function local_sm_graphics_plugin_before_standard_top_of_body_html(): string {
         if ($course->id != SITEID && isloggedin() && !isguestuser()) {
             // ALL users see the landing page first (course hub/dashboard).
             // The landing page has Start/Continue button that links to the player with smgp_enter=1.
-            redirect(new moodle_url('/local/sm_graphics_plugin/pages/course_landing.php', ['id' => $course->id]));
+            redirect(new moodle_url('/local/sm_graphics_plugin/pages/spa.php', [], 'courses/' . $course->id . '/landing'));
         }
     }
 
@@ -373,8 +359,9 @@ function local_sm_graphics_plugin_before_standard_top_of_body_html(): string {
         return $css;
     }
 
-    // Inject SmartMind fields into the restore schema page (step 4).
-    // TODO: implement restore_schema_fields when needed.
+    // Backup/restore wizard pages: intentionally no body injection.
+    // Phase 6 of the Vue migration replaces the native wizard with a Vue SPA
+    // restore flow, so SmartMind fields are no longer injected into native pages.
     if (strpos($pagetype, 'backup-restore') !== false) {
         return '';
     }
@@ -729,7 +716,7 @@ function local_sm_graphics_plugin_get_company_users(int $companyid, int $page = 
     $editbaseurl = new moodle_url('/blocks/iomad_company_admin/editadvanced.php');
     $neverstr = get_string('usermgmt_never', 'local_sm_graphics_plugin');
 
-    $pageurl = new moodle_url('/local/sm_graphics_plugin/pages/usermanagement.php');
+    $pageurl = local_sm_graphics_plugin_spa_url('management/users');
 
     $users = [];
     foreach ($records as $r) {
@@ -1046,108 +1033,3 @@ function local_sm_graphics_plugin_inject_embed_tracking(): string {
     return $output;
 }
 
-/**
- * Generate inline JS/HTML to inject SmartMind fields into the restore schema page.
- *
- * @return string
- */
-function local_sm_graphics_plugin_restore_schema_fields(): string {
-    global $DB;
-
-    $durationLabel = addslashes(get_string('course_hours', 'local_sm_graphics_plugin'));
-    $categoryLabel = addslashes(get_string('course_category_field', 'local_sm_graphics_plugin'));
-    $categoryNone  = addslashes(get_string('course_category_none', 'local_sm_graphics_plugin'));
-    $smcodeLabel   = addslashes(get_string('smartmind_code', 'local_sm_graphics_plugin'));
-    $sepeLabel     = addslashes(get_string('sepe_code', 'local_sm_graphics_plugin'));
-    $descLabel     = addslashes(get_string('course_description', 'local_sm_graphics_plugin'));
-    $levelLabel    = addslashes(get_string('course_level', 'local_sm_graphics_plugin'));
-    $levelBeginner = addslashes(get_string('level_beginner', 'local_sm_graphics_plugin'));
-    $levelMedium   = addslashes(get_string('level_medium', 'local_sm_graphics_plugin'));
-    $levelAdvanced = addslashes(get_string('level_advanced', 'local_sm_graphics_plugin'));
-    $completionLabel = addslashes(get_string('completion_percentage', 'local_sm_graphics_plugin'));
-
-    // Build category dropdown from DB.
-    $catOptions = '<option value="0">' . htmlspecialchars($categoryNone) . '</option>';
-    $dbman = $DB->get_manager();
-    if ($dbman->table_exists('local_smgp_categories')) {
-        $cats = $DB->get_records('local_smgp_categories', null, 'sortorder ASC', 'id, name');
-        foreach ($cats as $cat) {
-            $catOptions .= '<option value="' . $cat->id . '">' . htmlspecialchars($cat->name) . '</option>';
-        }
-    }
-
-    $html = '<div class="smgp-restore-fields" style="display:none"><div class="normal_setting">'
-        . '<div class="fitem row form-group mb-3"><div class="col-md-3 col-form-label d-flex pb-0 pe-md-0"><label>' . $descLabel . '</label></div><div class="col-md-9 form-inline felement"><textarea name="smgp_description" class="form-control" rows="2" style="max-width:400px"></textarea></div></div>'
-        . '<div class="fitem row form-group mb-3"><div class="col-md-3 col-form-label d-flex pb-0 pe-md-0"><label>' . $durationLabel . '</label></div><div class="col-md-9 form-inline felement"><input type="number" name="smgp_duration_hours" class="form-control" step="0.1" min="0" value="0" style="max-width:200px"></div></div>'
-        . '<div class="fitem row form-group mb-3"><div class="col-md-3 col-form-label d-flex pb-0 pe-md-0"><label>' . $categoryLabel . '</label></div><div class="col-md-9 form-inline felement"><select name="smgp_catalogue_cat" class="form-select" style="max-width:400px">' . $catOptions . '</select></div></div>'
-        . '<div class="fitem row form-group mb-3"><div class="col-md-3 col-form-label d-flex pb-0 pe-md-0"><label>' . $smcodeLabel . '</label></div><div class="col-md-9 form-inline felement"><input type="text" name="smgp_smartmind_code" class="form-control" style="max-width:200px"></div></div>'
-        . '<div class="fitem row form-group mb-3"><div class="col-md-3 col-form-label d-flex pb-0 pe-md-0"><label>' . $sepeLabel . '</label></div><div class="col-md-9 form-inline felement"><input type="text" name="smgp_sepe_code" class="form-control" style="max-width:200px"></div></div>'
-        . '<div class="fitem row form-group mb-3"><div class="col-md-3 col-form-label d-flex pb-0 pe-md-0"><label>' . $levelLabel . '</label></div><div class="col-md-9 form-inline felement"><select name="smgp_level" class="form-select" style="max-width:200px"><option value="beginner" selected>' . $levelBeginner . '</option><option value="medium">' . $levelMedium . '</option><option value="advanced">' . $levelAdvanced . '</option></select></div></div>'
-        . '<div class="fitem row form-group mb-3"><div class="col-md-3 col-form-label d-flex pb-0 pe-md-0"><label>' . $completionLabel . '</label></div><div class="col-md-9 form-inline felement"><input type="number" name="smgp_completion_percentage" class="form-control" min="0" max="100" value="100" style="max-width:120px"> %</div></div>'
-        . '</div></div>';
-
-    $html .= '<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        var fields = document.querySelector(".smgp-restore-fields");
-        if (!fields) return;
-
-        var container = document.getElementById("id_coursesettingscontainer");
-        if (!container) return;
-
-        var normalSettings = container.querySelectorAll(":scope > .normal_setting");
-        if (!normalSettings.length) {
-            fields.style.display = "";
-            container.appendChild(fields);
-            return;
-        }
-
-        var lastSetting = normalSettings[normalSettings.length - 1];
-        fields.style.display = "";
-        lastSetting.parentNode.insertBefore(fields, lastSetting.nextSibling);
-
-        // --- Preserve values across restore steps via sessionStorage ---
-        var storageKey = "smgp_restore_fields";
-        var fieldNames = ["smgp_description", "smgp_duration_hours", "smgp_catalogue_cat",
-                          "smgp_smartmind_code", "smgp_sepe_code", "smgp_level", "smgp_completion_percentage"];
-
-        // Restore saved values from previous step.
-        try {
-            var saved = JSON.parse(sessionStorage.getItem(storageKey) || "{}");
-            fieldNames.forEach(function(name) {
-                if (saved[name] !== undefined && saved[name] !== "") {
-                    var el = fields.querySelector("[name=\'" + name + "\']");
-                    if (el) el.value = saved[name];
-                }
-            });
-        } catch(e) {}
-
-        // Save values to sessionStorage when any form on the page submits.
-        document.addEventListener("submit", function() {
-            try {
-                var data = {};
-                fieldNames.forEach(function(name) {
-                    var el = fields.querySelector("[name=\'" + name + "\']");
-                    if (el) data[name] = el.value;
-                });
-                sessionStorage.setItem(storageKey, JSON.stringify(data));
-            } catch(e) {}
-        }, true);
-
-        // Also save on any button click (restore steps use button clicks, not form submit).
-        document.addEventListener("click", function(e) {
-            var btn = e.target.closest("input[type=\'submit\'], button[type=\'submit\'], .btn-primary");
-            if (!btn) return;
-            try {
-                var data = {};
-                fieldNames.forEach(function(name) {
-                    var el = fields.querySelector("[name=\'" + name + "\']");
-                    if (el) data[name] = el.value;
-                });
-                sessionStorage.setItem(storageKey, JSON.stringify(data));
-            } catch(e) {}
-        }, true);
-    });
-    </script>';
-
-    return $html;
-}

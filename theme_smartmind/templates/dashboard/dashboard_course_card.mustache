@@ -1,68 +1,40 @@
+{{! @source: layout/mydashboard.php > classes/dashboard_helper.php::build_course_base() }}
 {{!
     @template theme_smartmind/dashboard/dashboard_course_card
 
-    SmartMind Dashboard — Apple TV style course card.
-
-    Image-dominant card. Hover overlays differ by state:
-    - Enrolled: play button + progress bar with percentage
-    - Not enrolled: "Apúntate" enrol button
-
-    Context variables (passed per-item from PHP):
-      * id, fullname, categoryname, hascategory
-      * courseimage, viewurl, enrollurl, resumeurl
-      * isenrolled, showbadge, hasprogress, progress
+    SmartMind Dashboard — Course card.
+    White bg, image with diffuse, play button on hover, progress ring, title + subtitle.
 }}
-<div class="smartmind-scroll__item">
-    <article class="course-card {{#hasprogress}}course-card--enrolled{{/hasprogress}} {{#showbadge}}{{^isenrolled}}course-card--unenrolled{{/isenrolled}}{{/showbadge}}" data-course-id="{{{id}}}">
-        {{! ── Thumbnail ── }}
-        <a href="{{#hasprogress}}{{resumeurl}}{{/hasprogress}}{{^hasprogress}}{{#showbadge}}{{^isenrolled}}{{enrollurl}}{{/isenrolled}}{{/showbadge}}{{^showbadge}}{{viewurl}}{{/showbadge}}{{/hasprogress}}" class="course-card__thumb">
-            {{#courseimage}}
-            <img src="{{courseimage}}" class="course-card__thumb-img" alt="{{fullname}}" loading="lazy">
-            {{/courseimage}}
-            {{^courseimage}}
-            <img src="https://picsum.photos/seed/course{{{id}}}/600/340" class="course-card__thumb-img" alt="{{fullname}}" loading="lazy">
-            {{/courseimage}}
+<article class="course-card {{#hasprogress}}course-card--enrolled{{/hasprogress}}" data-course-id="{{{id}}}">
+    <a href="{{#hasprogress}}{{resumeurl}}{{/hasprogress}}{{^hasprogress}}{{viewurl}}{{/hasprogress}}" class="course-card__thumb">
+        {{#courseimage}}
+        <img src="{{courseimage}}" class="course-card__thumb-img" alt="{{fullname}}" loading="lazy">
+        {{/courseimage}}
+        {{^courseimage}}
+        <img src="https://picsum.photos/seed/course{{{id}}}/600/340" class="course-card__thumb-img" alt="{{fullname}}" loading="lazy">
+        {{/courseimage}}
+        <div class="course-card__diffuse"></div>
 
-            {{! ── Hover overlay: enrolled → play + progress ── }}
-            {{#hasprogress}}
-            <div class="course-card__overlay course-card__overlay--resume">
-                <span class="course-card__play-btn">
-                    <i class="fa fa-play"></i>
-                </span>
-                <div class="course-card__overlay-progress">
-                    <div class="course-card__overlay-bar">
-                        <div class="course-card__overlay-fill" style="width: {{progress}}%"></div>
-                    </div>
-                    <span class="course-card__overlay-pct">{{progress}}%</span>
-                </div>
-            </div>
-            {{/hasprogress}}
-
-            {{! ── Hover overlay: not enrolled → enrol button ── }}
-            {{#showbadge}}
-            {{^isenrolled}}
-            <div class="course-card__overlay course-card__overlay--enrol">
-                <span class="course-card__enrol-btn">{{#str}}course_enrol, theme_smartmind{{/str}}</span>
-            </div>
-            {{/isenrolled}}
-            {{/showbadge}}
-
-            {{! ── Static progress bar at bottom (always visible for enrolled) ── }}
-            {{#hasprogress}}
-            <div class="course-card__progress">
-                <div class="course-card__progress-fill" style="width: {{progress}}%"></div>
-            </div>
-            {{/hasprogress}}
-        </a>
-
-        {{! ── Card info (minimal) ── }}
-        <div class="course-card__info">
-            <h3 class="course-card__title">
-                <a href="{{viewurl}}">{{fullname}}</a>
-            </h3>
-            {{#hascategory}}
-            <span class="course-card__subtitle">{{categoryname}}</span>
-            {{/hascategory}}
+        {{#hasprogress}}
+        <div class="course-card__play">
+            <i class="fa fa-play"></i>
         </div>
-    </article>
-</div>
+        {{/hasprogress}}
+    </a>
+    <div class="course-card__body">
+        <div class="course-card__text">
+            <h3 class="course-card__title"><a href="{{viewurl}}">{{fullname}}</a></h3>
+            {{#hascategory}}<span class="course-card__subtitle">{{categoryname}}</span>{{/hascategory}}
+        </div>
+        {{#hasprogress}}
+        <div class="course-card__ring" data-progress="{{progress}}">
+            <svg viewBox="0 0 36 36" class="course-card__ring-svg">
+                <circle class="course-card__ring-bg" cx="18" cy="18" r="15.9"></circle>
+                <circle class="course-card__ring-fill" cx="18" cy="18" r="15.9"
+                        stroke-dasharray="{{progress}}, 100"></circle>
+            </svg>
+            <span class="course-card__ring-pct">{{progress}}%</span>
+        </div>
+        {{/hasprogress}}
+    </div>
+</article>

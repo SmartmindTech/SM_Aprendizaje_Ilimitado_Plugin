@@ -34,11 +34,19 @@ $observers = [
         'callback'  => 'local_sm_graphics_plugin\observer::course_saved',
     ],
     [
+        'eventname' => '\core\event\course_restored',
+        'callback'  => 'local_sm_graphics_plugin\observer::course_restored',
+    ],
+    [
         'eventname' => '\block_iomad_company_admin\event\company_created',
         'callback'  => 'local_sm_graphics_plugin\observer::company_saved',
     ],
     [
         'eventname' => '\block_iomad_company_admin\event\company_updated',
         'callback'  => 'local_sm_graphics_plugin\observer::company_saved',
+    ],
+    [
+        'eventname' => '\core\event\user_created',
+        'callback'  => 'local_sm_graphics_plugin\observer::user_created',
     ],
 ];

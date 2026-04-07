@@ -110,7 +110,7 @@ class get_company_users extends external_api {
                 'description' => get_string('usermgmt_deptusers_desc', $component),
             ],
             [
-                'url'         => (new \moodle_url('/local/sm_graphics_plugin/pages/uploadusers.php'))->out(),
+                'url'         => local_sm_graphics_plugin_spa_url('management/upload')->out(false),
                 'icon'        => 'fa-upload',
                 'title'       => get_string('usermgmt_uploadusers', $component),
                 'description' => get_string('usermgmt_uploadusers_desc', $component),
@@ -137,7 +137,7 @@ class get_company_users extends external_api {
         $records   = $DB->get_records_sql($sql, ['companyid' => $companyid], $limitfrom, $limitnum);
 
         $editbaseurl = new \moodle_url('/blocks/iomad_company_admin/editadvanced.php');
-        $pageurl     = new \moodle_url('/local/sm_graphics_plugin/pages/usermanagement.php');
+        $pageurl     = local_sm_graphics_plugin_spa_url('management/users');
         $neverstr    = get_string('usermgmt_never', $component);
 
         $usersout = [];

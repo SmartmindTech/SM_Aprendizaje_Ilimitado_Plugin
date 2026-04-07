@@ -20,19 +20,19 @@
     <div class="catalog-stats">
       <div class="catalog-stats__card">
         <div class="catalog-stats__label">Enrolled courses</div>
-        <div class="catalog-stats__value">{{ data?.courses?.length || 0 }}</div>
+        <div class="catalog-stats__value">{{ data?.enrolled_count ?? 0 }}</div>
       </div>
       <div class="catalog-stats__card">
         <div class="catalog-stats__label">Completed</div>
-        <div class="catalog-stats__value">{{ completedCount }}</div>
+        <div class="catalog-stats__value">{{ data?.completed_count ?? 0 }}</div>
       </div>
       <div class="catalog-stats__card">
         <div class="catalog-stats__label">Training hours</div>
-        <div class="catalog-stats__value">—</div>
+        <div class="catalog-stats__value">{{ data?.training_hours ?? 0 }}</div>
       </div>
       <div class="catalog-stats__card">
         <div class="catalog-stats__label">Certificates</div>
-        <div class="catalog-stats__value">0</div>
+        <div class="catalog-stats__value">{{ data?.certificates ?? 0 }}</div>
       </div>
     </div>
 
@@ -97,6 +97,82 @@
         No enrolled courses yet. Browse the <NuxtLink to="/catalogue">catalogue</NuxtLink> to get started.
       </div>
 
+      <!-- Finished courses -->
+      <div v-if="data?.hasfinished" class="catalog-section catalog-section--finished">
+        <div class="catalog-section__header">
+          <h5 class="catalog-section__title">Completed courses</h5>
+        </div>
+        <div class="catalog-section__content row g-3">
+          <div v-for="course in data.finished" :key="course.id" class="col-12 col-sm-6 col-lg-3">
+            <article class="course-card course-card--finished">
+              <NuxtLink :to="`/courses/${course.id}/landing`" class="course-card__thumb">
+                <img v-if="course.image" :src="course.image" class="course-card__thumb-img" :alt="course.fullname" loading="lazy">
+                <div v-else class="course-card__image-placeholder"><i class="fa fa-trophy" /></div>
+              </NuxtLink>
+              <div class="course-card__info">
+                <h3 class="course-card__title">
+                  <NuxtLink :to="`/courses/${course.id}/landing`">{{ course.fullname }}</NuxtLink>
+                </h3>
+                <span class="course-card__subtitle">{{ course.shortname }}</span>
+                <div v-if="course.hasgrade" class="course-card__meta">
+                  <i class="fa fa-star text-warning" /> {{ course.grade }} / {{ course.grademax }}
+                </div>
+                <div v-if="course.timecompleted_text" class="course-card__meta text-muted small">
+                  <i class="fa fa-check" /> {{ course.timecompleted_text }}
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category sections -->
+      <div v-for="cat in data?.categories || []" :key="cat.categoryid" class="catalog-section catalog-section--category">
+        <div class="catalog-section__header">
+          <h5 class="catalog-section__title">{{ cat.categoryname }} <small class="text-muted">({{ cat.count }})</small></h5>
+          <NuxtLink :to="`/catalogue?category=${cat.categoryid}`" class="catalog-section__viewall">See all →</NuxtLink>
+        </div>
+        <div class="catalog-section__content row g-3">
+          <div v-for="course in cat.courses" :key="course.id" class="col-12 col-sm-6 col-lg-3">
+            <article class="course-card">
+              <NuxtLink :to="`/courses/${course.id}/landing`" class="course-card__thumb">
+                <img v-if="course.image" :src="course.image" class="course-card__thumb-img" :alt="course.fullname" loading="lazy">
+                <div v-else class="course-card__image-placeholder"><i class="fa fa-book" /></div>
+              </NuxtLink>
+              <div class="course-card__info">
+                <h3 class="course-card__title">
+                  <NuxtLink :to="`/courses/${course.id}/landing`">{{ course.fullname }}</NuxtLink>
+                </h3>
+                <span class="course-card__subtitle">{{ course.shortname }}</span>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recommended -->
+      <div v-if="data?.hasrecommended" class="catalog-section catalog-section--recommended">
+        <div class="catalog-section__header">
+          <h5 class="catalog-section__title">Recommended for you</h5>
+        </div>
+        <div class="catalog-section__content row g-3">
+          <div v-for="course in data.recommended" :key="course.id" class="col-12 col-sm-6 col-lg-3">
+            <article class="course-card">
+              <NuxtLink :to="`/courses/${course.id}/landing`" class="course-card__thumb">
+                <img v-if="course.image" :src="course.image" class="course-card__thumb-img" :alt="course.fullname" loading="lazy">
+                <div v-else class="course-card__image-placeholder"><i class="fa fa-lightbulb" /></div>
+              </NuxtLink>
+              <div class="course-card__info">
+                <h3 class="course-card__title">
+                  <NuxtLink :to="`/courses/${course.id}/landing`">{{ course.fullname }}</NuxtLink>
+                </h3>
+                <span class="course-card__subtitle">{{ course.shortname }}</span>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </template>
@@ -114,8 +190,7 @@ const completedCount = computed(() => {
   return data.value.courses.filter((c: any) => c.progress >= 100).length
 })
 
-onMounted(async () => {
-  const result = await getDashboard()
+getDashboard().then((result) => {
   loading.value = false
   if (result.error) { error.value = result.error } else { data.value = result.data }
 })

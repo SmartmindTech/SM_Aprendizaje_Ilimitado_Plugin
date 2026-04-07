@@ -106,5 +106,5 @@ const saveAll = async () => {
   await fetchData()
 }
 
-onMounted(fetchData)
+fetchData()
 </script>

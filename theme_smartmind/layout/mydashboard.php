@@ -26,6 +26,9 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir . '/behat/lib.php');
 require_once($CFG->dirroot . '/course/lib.php');
 
+// SmartMind Prefetch — see drawers.php for details.
+$PAGE->requires->js_call_amd('theme_smartmind/prefetch', 'init');
+
 $addblockbutton = $OUTPUT->addblockbutton();
 
 if (isloggedin()) {
@@ -79,6 +82,8 @@ theme_smartmind_rename_primary_nav($primarymenu);
 $companymanagernav = theme_smartmind_get_companymanager_nav();
 theme_smartmind_inject_student_nav($primarymenu, $companymanagernav, $PAGE);
 
+// theme_smartmind_filter_usermenu($primarymenu);
+
 $buildregionmainsettings = !$PAGE->include_region_main_settings_in_header_actions()
     && !$PAGE->has_secondary_navigation();
 $regionmainsettingsmenu = $buildregionmainsettings ? $OUTPUT->region_main_settings_menu() : false;
@@ -109,11 +114,19 @@ if (isloggedin() && !isguestuser()) {
     $enrolledcourses = dashboard_helper::format_active_courses($rawcourses, $completedids);
 
     // Browsed courses — visited landing page but not enrolled.
-    $rawbrowsed = \local_sm_graphics_plugin\external\get_browsed_courses::execute(6);
+    $rawbrowsed = \local_sm_graphics_plugin\external\get_browsed_courses::execute(4);
     $viewedcourses = dashboard_helper::format_browsed_courses($rawbrowsed);
 
-    // TODO: Replace with real API call for recommended courses.
+    // TODO: Replace all fake lists with real API calls when available.
     $recommendedcourses = dashboard_helper::get_fake_recommended_courses();
+    // "Because you explored" uses real browsed-but-not-enrolled data.
+    $recexplored        = $viewedcourses;
+    // "Keep advancing" — real recommendations based on completed course categories.
+    $enrolledids  = array_column($rawcourses, 'id');
+    $reccompleted = dashboard_helper::get_courses_based_on_finished($completedids, $enrolledids, 4);
+    $fakevideos         = dashboard_helper::get_fake_videos();
+    $fakeactivities     = dashboard_helper::get_fake_activities();
+    $fakeitineraries    = dashboard_helper::get_fake_itineraries();
 
     // Continue Learning — last accessed course + last viewed activity.
     $lastaccessed = \local_sm_graphics_plugin\external\get_last_accessed::execute();
@@ -122,13 +135,45 @@ if (isloggedin() && !isguestuser()) {
     }
 }
 
+// Company logo — now uses static SVG in theme pix/smartmind-banner-logo.svg.
+
 // User full name for the welcome message.
 global $USER;
 $userfullname = fullname($USER);
+$userfirstname = $USER->firstname;
+
+// Time-aware greeting.
+$hour = (int) userdate(time(), '%H');
+if ($hour < 12) {
+    $greetingkey = 'dashboard_greeting_morning';
+} else if ($hour < 20) {
+    $greetingkey = 'dashboard_greeting_afternoon';
+} else {
+    $greetingkey = 'dashboard_greeting_evening';
+}
+$greeting = get_string($greetingkey, 'theme_smartmind', $userfirstname);
 
 // Enrolled count for dashboard subtitle.
 $enrolledcount = count($enrolledcourses);
 $completedcount = count($completedcourses);
+
+// [FAKE] Gamification placeholders — replace with real API when available.
+$streakdays = 12;
+$xppoints = '[FAKE] ' . number_format(2403, 0, ',', '.');
+$userlevel = 5;
+
+// Quick navigation items — emojis on colored backgrounds.
+$quicknav = [
+    ['emoji' => '&#x1F4DA;', 'label' => get_string('dashboard_nav_cursos', 'theme_smartmind'), 'url' => (new moodle_url('/'))->out(false), 'color' => 'blue',   'disabled' => false],
+    ['emoji' => '&#x26A1;',  'label' => get_string('dashboard_nav_pildoras', 'theme_smartmind'), 'url' => '#', 'color' => 'red',    'disabled' => true],
+    ['emoji' => '&#x1F3AC;', 'label' => get_string('dashboard_nav_videos', 'theme_smartmind'),   'url' => '#', 'color' => 'purple', 'disabled' => true],
+    ['emoji' => '&#x2B50;',  'label' => get_string('dashboard_nav_recomendaciones', 'theme_smartmind'), 'url' => '#', 'color' => 'orange', 'disabled' => true],
+    ['emoji' => '&#x1F5FA;', 'label' => get_string('dashboard_nav_rutas', 'theme_smartmind'),    'url' => '#', 'color' => 'teal',   'disabled' => true],
+    ['emoji' => '&#x1F4CA;', 'label' => get_string('dashboard_nav_actividad', 'theme_smartmind'), 'url' => '#', 'color' => 'green',  'disabled' => true],
+];
+
+// Category sections — 3 random categories with content, refreshed each page load.
+$categorysections = dashboard_helper::get_category_sections(3, 4);
 
 // Stats: training hours placeholder (Moodle doesn't track this natively).
 $stathours = '—';
@@ -165,6 +210,14 @@ $templatecontext = [
     'isdashboard' => true,
     'enrolledcount' => $enrolledcount,
     'catalogurl' => $catalogurl,
+    // Welcome banner.
+    'wwwroot' => $CFG->wwwroot,
+    'greeting' => $greeting,
+    'streakdays' => $streakdays,
+    'xppoints' => $xppoints,
+    'userlevel' => $userlevel,
+    // Quick navigation.
+    'quicknav' => $quicknav,
     // Stats row.
     'stat_enrolled' => $enrolledcount,
     'stat_completed' => $completedcount,
@@ -173,21 +226,29 @@ $templatecontext = [
     // Continue learning card (kept for backwards compat, no longer rendered as hero).
     'continuelearning_data' => $continuelearning,
     'hascontinuelearning' => !empty($continuelearning),
-    // Dashboard course lists — each section gets its own array.
-    // enrolled: real data from enrol_get_my_courses.
-    // completed, viewed, recommended: populated later via their own data sources.
+    // Dashboard course lists.
     'enrolledcourses' => $enrolledcourses,
     'hasenrolledcourses' => !empty($enrolledcourses),
-    'enrolledcoursesscrollable' => count($enrolledcourses) > 3,
     'completedcourses' => $completedcourses,
     'hascompletedcourses' => !empty($completedcourses),
-    'completedcoursesscrollable' => count($completedcourses) > 3,
     'viewedcourses' => $viewedcourses,
     'hasviewedcourses' => !empty($viewedcourses),
-    'viewedcoursesscrollable' => count($viewedcourses) > 3,
     'recommendedcourses' => $recommendedcourses,
     'hasrecommendedcourses' => !empty($recommendedcourses),
-    'recommendedcoursesscrollable' => count($recommendedcourses) > 3,
+    // Category sections (courses grouped by category).
+    'categorysections' => $categorysections,
+    'hascategorysections' => !empty($categorysections),
+    // New dashboard lists (fake data for now).
+    'recexplored' => $recexplored ?? [],
+    'hasrecexplored' => !empty($recexplored),
+    'reccompleted' => $reccompleted ?? [],
+    'hasreccompleted' => !empty($reccompleted),
+    'fakevideos' => $fakevideos ?? [],
+    'hasfakevideos' => !empty($fakevideos),
+    'fakeactivities' => $fakeactivities ?? [],
+    'hasfakeactivities' => !empty($fakeactivities),
+    'fakeitineraries' => $fakeitineraries ?? [],
+    'hasfakeitineraries' => !empty($fakeitineraries),
     'companyselector' => theme_smartmind_get_company_selector(),
     'hascompanyselector' => !empty(theme_smartmind_get_company_selector()),
 ];

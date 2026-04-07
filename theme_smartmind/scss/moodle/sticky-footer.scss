@@ -71,6 +71,7 @@ body {
         display: flex;
         flex-direction: column;
         #page {
+            background-color: #f5f3ee;
             &:not(.drawers) {
                 flex: 1 0 auto;
             }

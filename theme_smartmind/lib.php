@@ -251,8 +251,14 @@ function theme_smartmind_get_companymanager_nav(): array {
 
     $nav = [];
 
-    // 1. User management — links to the custom options page.
-    $usersurl = new moodle_url('/local/sm_graphics_plugin/pages/usermanagement.php');
+    $spa = fn(string $route) => (function() use ($route) {
+        $u = new moodle_url('/local/sm_graphics_plugin/pages/spa.php');
+        $u->set_anchor('/' . ltrim($route, '/'));
+        return $u;
+    })();
+
+    // 1. User management — Vue SPA.
+    $usersurl = $spa('management/users');
     $nav[] = [
         'url'      => $usersurl->out(),
         'text'     => get_string('nav_usermanagement', 'theme_smartmind'),
@@ -270,7 +276,7 @@ function theme_smartmind_get_companymanager_nav(): array {
     ];
 
     // 2. Other management — links to the custom options page.
-    $otherurl = new moodle_url('/local/sm_graphics_plugin/pages/othermanagement.php');
+    $otherurl = $spa('management');
     $nav[] = [
         'url'      => $otherurl->out(),
         'text'     => get_string('nav_othermanagement', 'theme_smartmind'),
@@ -295,7 +301,7 @@ function theme_smartmind_get_companymanager_nav(): array {
 
     // 3. Grades & Certificates.
     $nav[] = [
-        'url'      => (new moodle_url('/local/sm_graphics_plugin/pages/grades_certificates.php'))->out(),
+        'url'      => $spa('grades-certificates')->out(),
         'text'     => get_string('nav_gradescerts', 'theme_smartmind'),
         'key'      => 'sm-gradescerts',
         'isactive' => strpos($currenturl, 'grades_certificates') !== false,
@@ -304,7 +310,7 @@ function theme_smartmind_get_companymanager_nav(): array {
     ];
 
     // 4. Statistics.
-    $statsurl = new moodle_url('/local/sm_graphics_plugin/pages/statistics.php');
+    $statsurl = $spa('statistics');
     $nav[] = [
         'url'      => $statsurl->out(),
         'text'     => get_string('nav_statistics', 'theme_smartmind'),
@@ -335,7 +341,7 @@ function theme_smartmind_inject_student_nav(array &$primarymenu, ?array $company
     $mycoursesnode = [
         'key' => 'sm-mycourses',
         'text' => get_string('mycourses_nav', 'local_sm_graphics_plugin'),
-        'url' => (new moodle_url('/local/sm_graphics_plugin/pages/mycourses.php'))->out(false),
+        'url' => (function() { $u = new moodle_url('/local/sm_graphics_plugin/pages/spa.php'); $u->set_anchor('/courses'); return $u->out(false); })(),
         'action' => '',
         'isactive' => strpos($PAGE->url->out(false), 'mycourses') !== false,
         'haschildren' => false,
@@ -347,9 +353,21 @@ function theme_smartmind_inject_student_nav(array &$primarymenu, ?array $company
     $gradescertsnode = [
         'key' => 'sm-gradescerts',
         'text' => get_string('gradescerts_nav', 'local_sm_graphics_plugin'),
-        'url' => (new moodle_url('/local/sm_graphics_plugin/pages/grades_certificates.php'))->out(false),
+        'url' => (function() { $u = new moodle_url('/local/sm_graphics_plugin/pages/spa.php'); $u->set_anchor('/grades-certificates'); return $u->out(false); })(),
         'action' => '',
         'isactive' => strpos($PAGE->url->out(false), 'grades_certificates') !== false,
+        'haschildren' => false,
+        'disabled' => false,
+        'title' => '',
+        'classes' => [],
+    ];
+
+    $profilenode = [
+        'key' => 'sm-profile',
+        'text' => get_string('myprofile', 'moodle'),
+        'url' => (function() { $u = new moodle_url('/local/sm_graphics_plugin/pages/spa.php'); $u->set_anchor('/profile'); return $u->out(false); })(),
+        'action' => '',
+        'isactive' => strpos($PAGE->url->out(false), 'profile') !== false,
         'haschildren' => false,
         'disabled' => false,
         'title' => '',
@@ -365,11 +383,12 @@ function theme_smartmind_inject_student_nav(array &$primarymenu, ?array $company
                 break;
             }
         }
-        array_splice($nodes, $insertpos, 0, [$mycoursesnode, $gradescertsnode]);
+        array_splice($nodes, $insertpos, 0, [$mycoursesnode, $gradescertsnode, $profilenode]);
         unset($nodes);
     } else if (!empty($primarymenu['moremenu']['nodearray'])) {
         $primarymenu['moremenu']['nodearray'][] = $mycoursesnode;
         $primarymenu['moremenu']['nodearray'][] = $gradescertsnode;
+        $primarymenu['moremenu']['nodearray'][] = $profilenode;
     }
 }
 
@@ -395,8 +414,9 @@ function theme_smartmind_rename_primary_nav(array &$primarymenu) {
     if (is_siteadmin()) {
         $adminoverrides['mycourses'] = [
             'text' => get_string('nav_coursemanagement', 'local_sm_graphics_plugin'),
-            'url'  => (new \moodle_url('/local/sm_graphics_plugin/pages/coursemanagement.php'))->out(false),
+            'url'  => (function() { $u = new \moodle_url('/local/sm_graphics_plugin/pages/spa.php'); $u->set_anchor('/management/courses'); return $u->out(false); })(),
         ];
+        $removenodes[] = 'myhome';
     } else {
         $removenodes[] = 'mycourses';
     }
@@ -472,6 +492,182 @@ function theme_smartmind_reorder_nodes(array $nodes, array $order): array {
         }
     }
     return array_merge($sorted, $rest);
+}
+
+/**
+ * Ensure only one navigation item is marked active.
+ *
+ * Moodle can mark multiple nodes as active (e.g. "home" on every page).
+ * This function keeps only the most specific active item:
+ * custom sm-* items take priority over Moodle's built-in ones.
+ *
+ * @param array &$primarymenu The primary menu array.
+ */
+function theme_smartmind_fix_active_nav(array &$primarymenu) {
+    global $PAGE;
+
+    $currenturl = $PAGE->url->out(false);
+    $currentpath = parse_url($currenturl, PHP_URL_PATH);
+
+    // Map current page paths to the nav node key that should be active.
+    // This handles pages whose URL doesn't match the node's URL directly.
+    $pathtokeymap = [
+        '/local/sm_graphics_plugin/pages/iomaddashboard.php' => 'ioaddashboardnode',
+        '/local/sm_estratoos_plugin/index.php'               => 'ioaddashboardnode',
+        '/blocks/iomad_company_admin/index.php'              => 'ioaddashboardnode',
+        '/local/sm_graphics_plugin/pages/coursemanagement.php' => 'mycourses',
+    ];
+
+    $forcedkey = $pathtokeymap[$currentpath] ?? null;
+
+    $paths = [
+        ['moremenu', 'nodecollection', 'nodes'],
+        ['moremenu', 'nodearray'],
+    ];
+
+    foreach ($paths as $path) {
+        $ref = &$primarymenu;
+        $valid = true;
+        foreach ($path as $key) {
+            if (!isset($ref[$key]) || !is_array($ref[$key])) {
+                $valid = false;
+                break;
+            }
+            $ref = &$ref[$key];
+        }
+        if (!$valid || empty($ref)) {
+            continue;
+        }
+
+        // First pass: find match by forced key map or by URL.
+        $match = null;
+        foreach ($ref as $i => &$node) {
+            $nodekey = $node['key'] ?? '';
+
+            // Match by key map.
+            if ($forcedkey !== null && $nodekey === $forcedkey) {
+                $match = $i;
+                break;
+            }
+
+            // Match by URL path.
+            $nodeurl = $node['url'] ?? '';
+            if (is_object($nodeurl) && method_exists($nodeurl, 'out')) {
+                $nodeurl = $nodeurl->out(false);
+            }
+            if (!empty($nodeurl) && is_string($nodeurl)) {
+                $nodepath = parse_url($nodeurl, PHP_URL_PATH);
+                if ($nodepath && $currentpath === $nodepath) {
+                    $match = $i;
+                    break;
+                }
+            }
+        }
+        unset($node);
+
+        // If we found a match, mark only that node as active.
+        if ($match !== null) {
+            foreach ($ref as $i => &$node) {
+                $ref[$i]['isactive'] = ($i === $match);
+            }
+            unset($node);
+            continue;
+        }
+
+        // No match — fall back to keeping only one active node.
+        $activeindexes = [];
+        $customactive = null;
+        foreach ($ref as $i => &$node) {
+            if (!empty($node['isactive'])) {
+                $activeindexes[] = $i;
+                if (strpos($node['key'] ?? '', 'sm-') === 0) {
+                    $customactive = $i;
+                }
+            }
+        }
+        unset($node);
+
+        if (count($activeindexes) > 1) {
+            $keep = $customactive !== null ? $customactive : end($activeindexes);
+            foreach ($activeindexes as $idx) {
+                if ($idx !== $keep) {
+                    $ref[$idx]['isactive'] = false;
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Strip user-menu items, keeping only Preferences and Log out.
+ *
+ * @param array &$primarymenu The primary menu array from export_for_template().
+ */
+function theme_smartmind_filter_usermenu(array &$primarymenu) {
+    if (empty($primarymenu['user']['items'])) {
+        return;
+    }
+
+    $keepurls = [
+        '/user/preferences.php',
+        '/login/logout.php',
+    ];
+
+    $filtered = [];
+    foreach ($primarymenu['user']['items'] as $item) {
+        // Items may be arrays or stdClass objects.
+        $arr = is_object($item) ? (array) $item : $item;
+
+        // Keep dividers that sit right before a kept item (we'll clean up later).
+        if (!empty($arr['divider'])) {
+            $filtered[] = $item;
+            continue;
+        }
+
+        $url = '';
+        if (!empty($arr['link'])) {
+            $link = is_object($arr['link']) ? (array) $arr['link'] : $arr['link'];
+            $url = $link['url'] ?? '';
+        } else if (!empty($arr['submenulink'])) {
+            // Submenu links (e.g. Language) — drop them.
+            continue;
+        }
+
+        $keep = false;
+        foreach ($keepurls as $pattern) {
+            if (strpos($url, $pattern) !== false) {
+                $keep = true;
+                break;
+            }
+        }
+
+        if (!$keep) {
+            // Remove the divider that preceded this dropped item.
+            if (!empty($filtered)) {
+                $last = is_object(end($filtered)) ? (array) end($filtered) : end($filtered);
+                if (!empty($last['divider'])) {
+                    array_pop($filtered);
+                }
+            }
+            continue;
+        }
+
+        $filtered[] = $item;
+    }
+
+    // Remove leading/trailing dividers.
+    $isDivider = function ($el) {
+        $a = is_object($el) ? (array) $el : $el;
+        return !empty($a['divider']);
+    };
+    while (!empty($filtered) && $isDivider(reset($filtered))) {
+        array_shift($filtered);
+    }
+    while (!empty($filtered) && $isDivider(end($filtered))) {
+        array_pop($filtered);
+    }
+
+    $primarymenu['user']['items'] = array_values($filtered);
 }
 
 /**

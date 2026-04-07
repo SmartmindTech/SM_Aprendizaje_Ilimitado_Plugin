@@ -5,7 +5,7 @@
 
 // Hide Moodle chrome and make login page full-bleed.
 .pagelayout-login {
-    background: linear-gradient(180deg, #fbfbfd 0%, #f5f5f7 100%) !important;
+    background: #f5f3ef !important;
 
     .navbar,
     #page-header,
@@ -48,18 +48,12 @@ html.smgp-dark {
 
 .smgp-topnav {
     position: fixed;
-    top: 1.25rem;
-    right: 1.25rem;
+    width: 100%;
     z-index: 100;
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
     border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 9999px;
-    padding: 0.25rem 0.5rem;
 
     &__btn {
         background: transparent;
@@ -107,6 +101,7 @@ html.smgp-dark {
     width: 100%;
     text-align: center;
     padding: 4rem 2rem 2rem;
+    margin-top: 2rem;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -220,14 +215,14 @@ html.smgp-dark {
         width: 36px;
         height: 36px;
         border-radius: 10px;
-        background: #f1f5f9;
+        background: rgba(16, 185, 129, 0.08);
         display: flex;
         align-items: center;
         justify-content: center;
 
         [class^="icon-"] {
             font-size: 1.1rem;
-            color: #1a1a1a;
+            color: #10b981;
         }
     }
 
@@ -255,13 +250,13 @@ html.smgp-dark {
         transition: background-color 200ms ease, box-shadow 200ms ease, transform 100ms ease;
 
         &--signin {
-            background-color: #1a1a1a;
-            border-color: #1a1a1a;
+            background-color: #10b981;
+            border-color: #10b981;
             color: #ffffff;
 
             &:hover {
-                background-color: #000;
-                box-shadow: 0 4px 14px rgba(26, 26, 26, 0.4);
+                background-color: #059669;
+                box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
                 color: #ffffff;
             }
 
@@ -273,12 +268,12 @@ html.smgp-dark {
         &--verify {
             background-color: transparent;
             border: 1.5px solid #e2e8f0;
-            color: #1a1a1a;
+            color: #10b981;
 
             &:hover {
-                border-color: #1a1a1a;
-                background-color: #f8fafc;
-                color: #1a1a1a;
+                border-color: #10b981;
+                background-color: rgba(16, 185, 129, 0.04);
+                color: #10b981;
             }
         }
     }
@@ -306,7 +301,7 @@ html.smgp-dark {
     transition: color 200ms ease;
 
     &:hover {
-        color: #1a1a1a;
+        color: #10b981;
     }
 }
 
@@ -397,8 +392,8 @@ html.smgp-dark {
         }
 
         &:focus {
-            border-color: #1a1a1a;
-            box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.08);
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12);
             outline: none;
         }
     }
@@ -430,17 +425,18 @@ html.smgp-dark {
         width: 100%;
         height: 48px;
         border-radius: 12px;
-        background-color: #1a1a1a;
-        border-color: #1a1a1a;
+        background-color: #10b981 !important;
+        border-color: #10b981 !important;
+        color: #fff !important;
         font-family: 'Inter', sans-serif;
         font-weight: 600;
         font-size: 1rem;
         transition: background-color 200ms ease, box-shadow 200ms ease;
 
         &:hover {
-            background-color: #333333;
-            border-color: #333333;
-            box-shadow: 0 4px 14px rgba(26, 26, 26, 0.3);
+            background-color: #059669 !important;
+            border-color: #059669 !important;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
         }
 
         &:active {
@@ -455,10 +451,11 @@ html.smgp-dark {
 
     a {
         font-size: 0.8rem;
-        color: #1a1a1a;
+        color: #10b981;
         text-decoration: none;
 
         &:hover {
+            color: #059669;
             text-decoration: underline;
         }
     }
@@ -488,7 +485,7 @@ html.smgp-dark {
         transition: border-color 200ms ease;
 
         &:hover {
-            border-color: #1a1a1a;
+            border-color: #10b981;
         }
     }
 }
@@ -500,12 +497,12 @@ html.smgp-dark {
     .btn {
         border-radius: 12px;
         border: 1.5px solid #e2e8f0;
-        color: #1a1a1a;
+        color: #10b981;
         font-weight: 500;
 
         &:hover {
-            border-color: #1a1a1a;
-            background-color: #f8fafc;
+            border-color: #10b981;
+            background-color: rgba(16, 185, 129, 0.04);
         }
     }
 }
@@ -531,12 +528,11 @@ html.smgp-dark {
 
 .smgp-verify-link,
 .smgp-switch-panel {
-    // Reset button appearance when used on <button> elements.
     background: none;
     border: none;
     padding: 0;
     cursor: pointer;
-    color: #1a1a1a;
+    color: #10b981;
     font-size: 0.9rem;
     font-weight: 500;
     font-family: 'Inter', sans-serif;
@@ -551,7 +547,7 @@ html.smgp-dark {
     }
 
     &:hover {
-        color: #555;
+        color: #059669;
         text-decoration: underline;
     }
 }
@@ -564,8 +560,9 @@ html.smgp-dark {
     .smgp-verify-submit .btn {
         border-radius: 12px;
         height: 48px;
-        background-color: #1a1a1a;
-        border-color: #1a1a1a;
+        background-color: #10b981;
+        border-color: #10b981;
+        color: #fff;
         font-weight: 600;
         display: flex;
         align-items: center;
@@ -573,8 +570,8 @@ html.smgp-dark {
         gap: 0.5rem;
 
         &:hover {
-            background-color: #333;
-            border-color: #333;
+            background-color: #059669;
+            border-color: #059669;
         }
     }
 }

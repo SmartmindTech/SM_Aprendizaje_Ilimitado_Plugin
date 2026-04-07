@@ -71,15 +71,16 @@ class enrol_user extends external_api {
 
         $context = \context_course::instance($courseid);
 
+        require_once(__DIR__ . '/../../lib.php');
+
         // Check if already enrolled.
         if (is_enrolled($context, $USER->id, '', true)) {
             return [
                 'success' => true,
-                'courseviewurl' => (new \moodle_url('/course/view.php', ['id' => $courseid, 'smgp_enter' => 1]))->out(false),
+                'courseviewurl' => local_sm_graphics_plugin_spa_url('courses/' . $courseid . '/player')->out(false),
             ];
         }
 
-        require_once(__DIR__ . '/../../lib.php');
         $result = local_sm_graphics_plugin_enroll_user($USER->id, $courseid);
 
         if (!$result) {
@@ -88,7 +89,7 @@ class enrol_user extends external_api {
 
         return [
             'success' => true,
-            'courseviewurl' => (new \moodle_url('/course/view.php', ['id' => $courseid, 'smgp_enter' => 1]))->out(false),
+            'courseviewurl' => local_sm_graphics_plugin_spa_url('courses/' . $courseid . '/player')->out(false),
         ];
     }
 

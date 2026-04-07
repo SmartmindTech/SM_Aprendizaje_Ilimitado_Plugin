@@ -29,6 +29,12 @@ global $DB;
 require_once($CFG->libdir . '/behat/lib.php');
 require_once($CFG->dirroot . '/course/lib.php');
 
+// SmartMind Prefetch — instant.page-style hover/mousedown prefetch via
+// <link rel="prefetch">. Makes navigation feel faster without touching
+// Moodle's JS lifecycle. Replaced the more invasive theme_smartmind/turbo
+// module after it hit too many AMD lifecycle edge cases.
+$PAGE->requires->js_call_amd('theme_smartmind/prefetch', 'init');
+
 // Add block button in editing mode.
 $addblockbutton = $OUTPUT->addblockbutton();
 
@@ -84,6 +90,13 @@ $companymanagernav = theme_smartmind_get_companymanager_nav();
 
 // Inject "Grades & Certificates" nav for students only.
 theme_smartmind_inject_student_nav($primarymenu, $companymanagernav, $PAGE);
+
+// Ensure only one nav item is active — custom items (sm-*) take priority.
+theme_smartmind_fix_active_nav($primarymenu);
+
+// DEBUG: dump user menu structure to a temp file.
+file_put_contents(__DIR__ . '/usermenu_debug.json', json_encode($primarymenu['user'], JSON_PRETTY_PRINT));
+// theme_smartmind_filter_usermenu($primarymenu);
 
 $buildregionmainsettings = !$PAGE->include_region_main_settings_in_header_actions() && !$PAGE->has_secondary_navigation();
 // If the settings menu will be included in the header then don't add it here.
@@ -202,9 +215,14 @@ if ($isfrontpage) {
         $context = context_course::instance($course->id);
         $enrolledcount = count_enrolled_users($context);
 
-        // Get teacher count
+        // Get teachers (name + count)
         $teachers = get_enrolled_users($context, 'mod/assigment:grade');
         $teachercount = count($teachers);
+        $teachername = '';
+        if (!empty($teachers)) {
+            $firstteacher = reset($teachers);
+            $teachername = fullname($firstteacher);
+        }
 
         // Get activity count
         $modinfo = get_fast_modinfo($course);
@@ -227,6 +245,9 @@ if ($isfrontpage) {
             }
         }
 
+        // Consider a course "new" if created within the last 30 days.
+        $isnew = ($course->timecreated > (time() - 30 * DAYSECS));
+
         $allcourses[] = [
             'id' => $course->id,
             'categoryid' => $coursecatid,
@@ -235,15 +256,17 @@ if ($isfrontpage) {
             'fullname' => format_string($course->fullname),
             'summary' => format_text($course->summary, $course->summaryformat, ['noclean' => true, 'para' => false]),
             'courseimage' => $courseimage,
-            'viewurl' => (new moodle_url('/local/sm_graphics_plugin/pages/course_landing.php', ['id' => $course->id]))->out(),
+            'viewurl' => (function() use ($course) { $u = new moodle_url('/local/sm_graphics_plugin/pages/spa.php'); $u->set_anchor('/courses/' . $course->id . '/landing'); return $u->out(false); })(),
             'isenrolled' => $isenrolled,
             'isloggedin' => $isloggedin,
             'enrollurl' => (new moodle_url('/enrol/index.php', ['id' => $course->id]))->out(),
             'teachercount' => $teachercount,
+            'teachername' => $teachername,
             'studentcount' => $enrolledcount,
             'activitycount' => $activitycount,
             'startdate' => $startdate,
             'enddate' => $enddate,
+            'isnew' => $isnew,
         ];
     }
 }
@@ -277,7 +300,7 @@ if ($isdashboard && isloggedin() && !isguestuser()) {
             'fullname' => format_string($course->fullname),
             'summary' => format_text($course->summary, $course->summaryformat, ['noclean' => true, 'para' => false]),
             'courseimage' => $courseimage,
-            'viewurl' => (new moodle_url('/local/sm_graphics_plugin/pages/course_landing.php', ['id' => $course->id]))->out(),
+            'viewurl' => (function() use ($course) { $u = new moodle_url('/local/sm_graphics_plugin/pages/spa.php'); $u->set_anchor('/courses/' . $course->id . '/landing'); return $u->out(false); })(),
             'isenrolled' => true,
             'isloggedin' => true,
             'enrollurl' => '',
@@ -319,6 +342,7 @@ $templatecontext = [
     'isfrontpage' => $isfrontpage,
     'allcourses' => $allcourses,
     'hasallcourses' => !empty($allcourses),
+    'coursecount' => count($allcourses),
     'coursecategories' => $coursecategories,
     'hascoursecategories' => !empty($coursecategories),
     'mycourses' => $mycourses,

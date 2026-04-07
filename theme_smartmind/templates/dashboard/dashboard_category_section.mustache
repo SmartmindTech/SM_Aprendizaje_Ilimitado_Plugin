@@ -1,0 +1,47 @@
+{{! @source: layout/mydashboard.php > classes/dashboard_helper.php::get_category_sections() }}
+{{!
+    @template theme_smartmind/dashboard/dashboard_category_section
+
+    SmartMind Dashboard — Píldoras rápidas section.
+    Header outside the white block, sub-sections inside with left border.
+}}
+{{#hascategorysections}}
+<div class="catalog-section catalog-section--pildoras-wrap">
+    <div class="catalog-section__header">
+        <div>
+            <h5 class="catalog-section__title"><i class="fas fa-bolt catalog-section__icon catalog-section__icon--green"></i> {{#str}}dashboard_nav_pildoras, theme_smartmind{{/str}}</h5>
+            <p class="catalog-section__desc">{{#str}}dashboard_pildoras_desc, theme_smartmind{{/str}}</p>
+        </div>
+    </div>
+
+    <div class="pildora-block">
+        {{#categorysections}}
+        <div class="pildora-subsection">
+            <div class="pildora-subsection__header">
+                <span class="pildora-subsection__title">{{categoryname}}</span>
+                <a href="#" class="pildora-subsection__viewall">{{#str}}dashboard_viewall, theme_smartmind{{/str}}</a>
+            </div>
+            <div class="pildora-grid">
+                {{#courses}}
+                <article class="pildora-card" data-course-id="{{{id}}}">
+                    <a href="{{viewurl}}" class="pildora-card__thumb">
+                        {{#courseimage}}
+                        <img src="{{courseimage}}" class="pildora-card__img" alt="{{fullname}}" loading="lazy">
+                        {{/courseimage}}
+                        {{^courseimage}}
+                        <img src="https://picsum.photos/seed/pil{{{id}}}/400/240" class="pildora-card__img" alt="{{fullname}}" loading="lazy">
+                        {{/courseimage}}
+                        <div class="pildora-card__diffuse"></div>
+                    </a>
+                    <div class="pildora-card__body">
+                        <span class="pildora-card__badge">{{#str}}dashboard_pildora, theme_smartmind{{/str}}</span>
+                        <h3 class="pildora-card__title"><a href="{{viewurl}}">{{fullname}}</a></h3>
+                    </div>
+                </article>
+                {{/courses}}
+            </div>
+        </div>
+        {{/categorysections}}
+    </div>
+</div>
+{{/hascategorysections}}
