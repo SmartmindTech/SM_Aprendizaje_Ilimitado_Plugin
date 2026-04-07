@@ -1,1 +1,0 @@
-import{E as i,k as n,G as e}from"./By8A-NZJ.js";const r=i(a=>{const t=n();if(t.initialized||t.init(),a.path.startsWith("/admin")&&!t.canAccessAdmin())return e("/");if(a.path.startsWith("/management")&&!t.canAccessManagement())return e("/")});export{r as default};

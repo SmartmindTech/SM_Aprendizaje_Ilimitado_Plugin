@@ -35,6 +35,10 @@ function xmldb_local_sm_graphics_plugin_upgrade($oldversion) {
 
     require_once(__DIR__ . '/install.php');
 
+    // Fail fast if the pre-built SPA is missing (e.g. someone cloned the repo
+    // instead of installing from the release zip).
+    local_sm_graphics_plugin_verify_frontend();
+
     // Theme redeploy runs on every version bump.
     local_sm_graphics_plugin_deploy_theme();
     local_sm_graphics_plugin_activate_theme();

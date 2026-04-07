@@ -1,1 +1,0 @@
-import{_ as t}from"./DlAUqK2U.js";import{o as n,c as o,I as s}from"./PmrP2mCX.js";const c={},r={class:"min-vh-100 d-flex align-items-center justify-content-center bg-light"};function a(e,i){return n(),o("div",r,[s(e.$slots,"default")])}const m=t(c,[["render",a]]);export{m as default};

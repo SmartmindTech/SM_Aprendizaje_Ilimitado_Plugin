@@ -33,12 +33,45 @@ defined('MOODLE_INTERNAL') || die();
  * @return bool
  */
 function xmldb_local_sm_graphics_plugin_install() {
+    local_sm_graphics_plugin_verify_frontend();
     local_sm_graphics_plugin_deploy_theme();
     local_sm_graphics_plugin_activate_theme();
     local_sm_graphics_plugin_deploy_lang_overrides();
     local_sm_graphics_plugin_deploy_certificate_type();
     local_sm_graphics_plugin_enable_activity_modules();
     return true;
+}
+
+/**
+ * Verify that the pre-built Vue SPA is present.
+ *
+ * The Nuxt SPA is built in CI at release time and shipped inside the plugin
+ * zip at frontend_dist/. It is NOT committed to git — customers must install
+ * from the release zip, not by cloning the repo. This check turns a silent
+ * white-page failure into an actionable upgrade error.
+ *
+ * @throws moodle_exception when frontend_dist/index.html is missing
+ */
+function local_sm_graphics_plugin_verify_frontend() {
+    global $CFG;
+
+    $indexpath = $CFG->dirroot . '/local/sm_graphics_plugin/frontend_dist/index.html';
+    if (file_exists($indexpath)) {
+        return;
+    }
+
+    throw new \moodle_exception(
+        'errornofrontend',
+        'local_sm_graphics_plugin',
+        '',
+        null,
+        'The SmartMind plugin is missing its pre-built frontend (frontend_dist/). '
+        . 'Install from the release zip at '
+        . 'https://github.com/SmartmindTech/SM_Aprendizaje_Ilimitado_Plugin/releases, '
+        . 'not by cloning the repository directly. '
+        . 'If you are a developer, run `cd frontend && npm ci && npm run deploy` '
+        . 'before visiting the upgrade page.'
+    );
 }
 
 /**

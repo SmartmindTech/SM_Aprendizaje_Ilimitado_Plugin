@@ -390,3 +390,4 @@ $string['mycourses_of']              = 'of';
 $string['mycourses_empty']           = 'You are not enrolled in any courses yet.';
 $string['mycourses_nav']             = 'My courses';
 $string['catalogue_modules']         = 'modules';
+$string['errornofrontend']           = 'Pre-built frontend missing';
