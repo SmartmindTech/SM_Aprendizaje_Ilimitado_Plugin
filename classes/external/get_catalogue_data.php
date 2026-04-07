@@ -99,8 +99,10 @@ class get_catalogue_data extends external_api {
 
             // Category name.
             $catname = '';
+            $catid = 0;
             $catlink = $DB->get_record('local_smgp_course_category', ['courseid' => $course->id]);
             if ($catlink) {
+                $catid = (int) $catlink->categoryid;
                 $cat = $DB->get_record('local_smgp_categories', ['id' => $catlink->categoryid]);
                 if ($cat) {
                     $catname = format_string($cat->name);
@@ -119,6 +121,7 @@ class get_catalogue_data extends external_api {
                     ['context' => $coursecontext]),
                 'image'          => $imageurl,
                 'isenrolled'     => $isenrolled,
+                'categoryid'     => $catid,
                 'categoryname'   => $catname,
                 'level'          => $meta->level ?? 'beginner',
                 'duration_hours' => (float) ($meta->duration_hours ?? 0),
@@ -153,6 +156,7 @@ class get_catalogue_data extends external_api {
                     'summary'        => new external_value(PARAM_RAW, 'Summary HTML'),
                     'image'          => new external_value(PARAM_RAW, 'Image URL'),
                     'isenrolled'     => new external_value(PARAM_BOOL, 'User enrolled'),
+                    'categoryid'     => new external_value(PARAM_INT, 'SmartMind category ID'),
                     'categoryname'   => new external_value(PARAM_TEXT, 'SmartMind category'),
                     'level'          => new external_value(PARAM_TEXT, 'Difficulty level'),
                     'duration_hours' => new external_value(PARAM_FLOAT, 'Duration hours'),
