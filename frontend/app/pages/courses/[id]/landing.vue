@@ -215,10 +215,13 @@
           </div>
 
           <div v-if="data.canedit" class="smgp-landing__sidebar-actions" style="margin-top: 0.75rem;">
-            <a :href="data.edit_course_url" class="smgp-landing__btn smgp-landing__btn--secondary">
+            <NuxtLink
+              :to="`/courses/${courseid}/edit`"
+              class="smgp-landing__btn smgp-landing__btn--secondary"
+            >
               <i class="icon-square-pen" />
               {{ $t('landing.edit') }}
-            </a>
+            </NuxtLink>
           </div>
         </aside>
       </div>

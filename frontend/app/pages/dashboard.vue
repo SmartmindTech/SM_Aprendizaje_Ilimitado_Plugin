@@ -91,7 +91,7 @@
       <div class="catalog-section__header">
         <div>
           <h5 class="catalog-section__title">
-            <i class="fas fa-book catalog-section__icon catalog-section__icon--green" />
+            <i class="icon-book-open catalog-section__icon catalog-section__icon--green" aria-hidden="true" />
             {{ $t('dashboard.continueLearning') }}
           </h5>
           <p class="catalog-section__desc">{{ $t('dashboard.continueLearningDesc') }}</p>
@@ -109,7 +109,7 @@
           />
         </div>
         <div v-else class="catalog-section__empty">
-          <i class="fa fa-book" />
+          <i class="icon-book-open" aria-hidden="true" />
           <p>{{ $t('dashboard.enrolledEmpty') }}</p>
           <NuxtLink to="/catalogue" class="catalog-section__empty-link">
             {{ $t('nav.catalogue') }}
@@ -126,7 +126,7 @@
       <div class="catalog-section__header">
         <div>
           <h5 class="catalog-section__title">
-            <i class="fa fa-eye catalog-section__icon catalog-section__icon--green" />
+            <i class="icon-eye catalog-section__icon catalog-section__icon--green" aria-hidden="true" />
             {{ $t('dashboard.recentlyViewed') }}
           </h5>
           <p class="catalog-section__desc">{{ $t('dashboard.recentlyViewedDesc') }}</p>
@@ -148,7 +148,7 @@
           />
         </div>
         <div v-else class="catalog-section__empty">
-          <i class="fa fa-eye" />
+          <i class="icon-eye" aria-hidden="true" />
           <p>{{ $t('dashboard.recentlyViewedEmpty') }}</p>
         </div>
       </div>
@@ -161,7 +161,7 @@
       <div class="catalog-section__header">
         <div>
           <h5 class="catalog-section__title">
-            <i class="fa fa-trophy catalog-section__icon catalog-section__icon--green" />
+            <i class="icon-trophy catalog-section__icon catalog-section__icon--green" aria-hidden="true" />
             {{ $t('dashboard.recCompleted') }}
           </h5>
           <p class="catalog-section__desc">{{ $t('dashboard.recCompletedDesc') }}</p>
@@ -183,7 +183,7 @@
           />
         </div>
         <div v-else class="catalog-section__empty">
-          <i class="fa fa-trophy" />
+          <i class="icon-trophy" aria-hidden="true" />
           <p>{{ $t('dashboard.recCompletedEmpty') }}</p>
         </div>
       </div>
@@ -196,7 +196,7 @@
       <div class="catalog-section__header">
         <div>
           <h5 class="catalog-section__title">
-            <i class="fas fa-bolt catalog-section__icon catalog-section__icon--green" />
+            <i class="icon-zap catalog-section__icon catalog-section__icon--green" aria-hidden="true" />
             {{ $t('dashboard.pildoras') }}
           </h5>
           <p class="catalog-section__desc">{{ $t('dashboard.pildorasDesc') }}</p>
@@ -228,7 +228,7 @@
         </div>
       </div>
       <div v-else class="catalog-section__empty">
-        <i class="fas fa-bolt" />
+        <i class="icon-zap" aria-hidden="true" />
         <p>{{ $t('dashboard.pildorasEmpty') }}</p>
       </div>
     </div>
@@ -241,7 +241,7 @@
       <div class="catalog-section__header">
         <div>
           <h5 class="catalog-section__title">
-            <i class="fa fa-star catalog-section__icon catalog-section__icon--green" />
+            <i class="icon-star catalog-section__icon catalog-section__icon--green" aria-hidden="true" />
             {{ $t('dashboard.recommendedForYou') }}
           </h5>
           <p class="catalog-section__desc">{{ $t('dashboard.recommendedForYouDesc') }}</p>
@@ -263,7 +263,7 @@
           />
         </div>
         <div v-else class="catalog-section__empty">
-          <i class="fa fa-star" />
+          <i class="icon-star" aria-hidden="true" />
           <p>{{ $t('dashboard.recommendedForYouEmpty') }}</p>
         </div>
       </div>
@@ -277,7 +277,7 @@
       <div class="catalog-section__header">
         <div>
           <h5 class="catalog-section__title">
-            <i class="fa fa-bell catalog-section__icon catalog-section__icon--green" />
+            <i class="icon-bell catalog-section__icon catalog-section__icon--green" aria-hidden="true" />
             {{ $t('dashboard.news') }}
           </h5>
           <p class="catalog-section__desc">{{ $t('dashboard.newsDesc') }}</p>
@@ -299,7 +299,7 @@
           />
         </div>
         <div v-else class="catalog-section__empty">
-          <i class="fa fa-bell" />
+          <i class="icon-bell" aria-hidden="true" />
           <p>{{ $t('dashboard.newsEmpty') }}</p>
         </div>
       </div>

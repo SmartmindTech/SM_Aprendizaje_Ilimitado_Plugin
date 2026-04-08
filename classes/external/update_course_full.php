@@ -50,11 +50,23 @@ class update_course_full extends external_api {
             'summary'   => new external_value(PARAM_RAW, 'Course summary HTML'),
             'categoryid' => new external_value(PARAM_INT, 'Moodle category ID'),
             'startdate' => new external_value(PARAM_INT, 'Start date timestamp', VALUE_DEFAULT, 0),
+            'enddate'   => new external_value(PARAM_INT, 'End date timestamp (0 = no end date)', VALUE_DEFAULT, 0),
             'visible'   => new external_value(PARAM_INT, 'Visible flag', VALUE_DEFAULT, 1),
+            'idnumber'         => new external_value(PARAM_TEXT, 'Course ID number (external code)', VALUE_DEFAULT, ''),
+            'enablecompletion' => new external_value(PARAM_INT, 'Course completion tracking enabled (0/1)', VALUE_DEFAULT, 1),
+            'format'           => new external_value(PARAM_ALPHANUMEXT, 'Course format: topics/weekly/social/singleactivity', VALUE_DEFAULT, 'topics'),
+            'numsections'      => new external_value(PARAM_INT, 'Number of sections (only used by topics/weekly)', VALUE_DEFAULT, 1),
+            'lang'             => new external_value(PARAM_TEXT, 'Forced course language (empty = site default)', VALUE_DEFAULT, ''),
+            // Course image upload — optional. Both fields must be set
+            // together to trigger an upload; otherwise the existing
+            // overviewfile is left untouched.
+            'image_filename'   => new external_value(PARAM_TEXT, 'Filename of the new course image (e.g. cover.jpg)', VALUE_DEFAULT, ''),
+            'image_base64'     => new external_value(PARAM_RAW, 'Base64-encoded contents of the new course image', VALUE_DEFAULT, ''),
             // SmartMind meta.
             'duration_hours'        => new external_value(PARAM_FLOAT, 'Duration in hours', VALUE_DEFAULT, 0),
             'level'                 => new external_value(PARAM_ALPHA, 'beginner/medium/advanced', VALUE_DEFAULT, 'beginner'),
             'completion_percentage' => new external_value(PARAM_INT, 'Completion %', VALUE_DEFAULT, 100),
+            'is_pill'               => new external_value(PARAM_INT, '1 if this course is a SmartMind pill', VALUE_DEFAULT, 0),
             'smartmind_code'        => new external_value(PARAM_TEXT, 'SmartMind code', VALUE_DEFAULT, ''),
             'sepe_code'             => new external_value(PARAM_TEXT, 'SEPE code', VALUE_DEFAULT, ''),
             'description'           => new external_value(PARAM_RAW, 'Description', VALUE_DEFAULT, ''),
@@ -72,10 +84,19 @@ class update_course_full extends external_api {
         string $summary,
         int $categoryid,
         int $startdate = 0,
+        int $enddate = 0,
         int $visible = 1,
+        string $idnumber = '',
+        int $enablecompletion = 1,
+        string $format = 'topics',
+        int $numsections = 1,
+        string $lang = '',
+        string $image_filename = '',
+        string $image_base64 = '',
         float $duration_hours = 0,
         string $level = 'beginner',
         int $completion_percentage = 100,
+        int $is_pill = 0,
         string $smartmind_code = '',
         string $sepe_code = '',
         string $description = '',
@@ -92,10 +113,19 @@ class update_course_full extends external_api {
             'summary'               => $summary,
             'categoryid'            => $categoryid,
             'startdate'             => $startdate,
+            'enddate'               => $enddate,
             'visible'               => $visible,
+            'idnumber'              => $idnumber,
+            'enablecompletion'      => $enablecompletion,
+            'format'                => $format,
+            'numsections'           => $numsections,
+            'lang'                  => $lang,
+            'image_filename'        => $image_filename,
+            'image_base64'          => $image_base64,
             'duration_hours'        => $duration_hours,
             'level'                 => $level,
             'completion_percentage' => $completion_percentage,
+            'is_pill'               => $is_pill,
             'smartmind_code'        => $smartmind_code,
             'sepe_code'             => $sepe_code,
             'description'           => $description,
@@ -113,6 +143,14 @@ class update_course_full extends external_api {
             require_capability('moodle/course:create', $catctx);
         }
 
+        // Whitelist allowed course formats — anything else falls back
+        // to the safe default 'topics' to avoid storing garbage that
+        // would break course rendering.
+        $allowedformats = ['topics', 'weekly', 'social', 'singleactivity'];
+        $coursefmt = in_array($params['format'], $allowedformats, true)
+            ? $params['format']
+            : 'topics';
+
         $transaction = $DB->start_delegated_transaction();
 
         // 1) Create or update the Moodle course.
@@ -124,26 +162,75 @@ class update_course_full extends external_api {
             $course->summaryformat = FORMAT_HTML;
             $course->category  = $params['categoryid'];
             $course->startdate = $params['startdate'] > 0 ? $params['startdate'] : $course->startdate;
+            $course->enddate   = $params['enddate'];
             $course->visible   = $params['visible'];
+            $course->idnumber  = $params['idnumber'];
+            $course->enablecompletion = !empty($params['enablecompletion']) ? 1 : 0;
+            $course->format    = $coursefmt;
+            $course->lang      = $params['lang'];
             update_course($course);
             $newcourseid = (int) $course->id;
         } else {
             $newcourse = (object) [
-                'fullname'      => $params['fullname'],
-                'shortname'     => $params['shortname'],
-                'summary'       => $params['summary'],
-                'summaryformat' => FORMAT_HTML,
-                'category'      => $params['categoryid'],
-                'startdate'     => $params['startdate'] > 0 ? $params['startdate'] : time(),
-                'visible'       => $params['visible'],
+                'fullname'         => $params['fullname'],
+                'shortname'        => $params['shortname'],
+                'summary'          => $params['summary'],
+                'summaryformat'    => FORMAT_HTML,
+                'category'         => $params['categoryid'],
+                'startdate'        => $params['startdate'] > 0 ? $params['startdate'] : time(),
+                'enddate'          => $params['enddate'],
+                'visible'          => $params['visible'],
+                'idnumber'         => $params['idnumber'],
+                'enablecompletion' => !empty($params['enablecompletion']) ? 1 : 0,
+                'format'           => $coursefmt,
+                'lang'             => $params['lang'],
             ];
             $created = create_course($newcourse);
             $newcourseid = (int) $created->id;
         }
 
+        // 1b) Persist numsections via the course format options API.
+        // Only topics/weekly use this option; for the other formats the
+        // call is harmless because update_course_format_options
+        // ignores unknown keys for that format.
+        if (in_array($coursefmt, ['topics', 'weekly'], true) && $params['numsections'] > 0) {
+            require_once($CFG->dirroot . '/course/lib.php');
+            $coursefornumsections = get_course($newcourseid);
+            course_get_format($coursefornumsections)->update_course_format_options(
+                (object) ['numsections' => max(1, (int) $params['numsections'])]
+            );
+        }
+
+        // 1c) If a new course image was uploaded, replace whatever was
+        // in the course's overviewfiles area with it. We rebuild the
+        // file area from scratch (delete + create) so the user can
+        // also use this flow to "remove" the image by uploading a
+        // different one. Bypassed entirely when image_base64 is empty.
+        if (!empty($params['image_base64']) && !empty($params['image_filename'])) {
+            $coursecontext = \context_course::instance($newcourseid);
+            $fs = get_file_storage();
+            $fs->delete_area_files($coursecontext->id, 'course', 'overviewfiles');
+            $fileinfo = [
+                'contextid' => $coursecontext->id,
+                'component' => 'course',
+                'filearea'  => 'overviewfiles',
+                'itemid'    => 0,
+                'filepath'  => '/',
+                'filename'  => clean_param($params['image_filename'], PARAM_FILE),
+            ];
+            $binary = base64_decode($params['image_base64'], true);
+            if ($binary !== false && strlen($binary) > 0) {
+                $fs->create_file_from_string($fileinfo, $binary);
+            }
+        }
+
         // 2) Upsert SmartMind meta.
         $now = time();
         $existing = $DB->get_record('local_smgp_course_meta', ['courseid' => $newcourseid]);
+        // Defensive: coerce is_pill to a strict 0/1 even if the client
+        // sent true/'1'/'yes' — the column is NOT NULL so we can't accept
+        // anything else.
+        $ispill = !empty($params['is_pill']) ? 1 : 0;
         $metarec = (object) [
             'courseid'              => $newcourseid,
             'amount'                => $existing->amount ?? 0,
@@ -155,6 +242,7 @@ class update_course_full extends external_api {
             'level'                 => in_array($params['level'], ['beginner', 'medium', 'advanced'])
                                            ? $params['level'] : 'beginner',
             'completion_percentage' => max(0, min(100, $params['completion_percentage'])),
+            'is_pill'               => $ispill,
             'timemodified'          => $now,
         ];
         if ($existing) {

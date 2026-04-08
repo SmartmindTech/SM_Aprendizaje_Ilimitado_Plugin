@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_sm_graphics_plugin';
-$plugin->version = 2026040802;  // YYYYMMDDXX format — Courseloader UI overhaul + restore handoff + sharepoint_prepare_restore fast path.
+$plugin->version = 2026040803;  // YYYYMMDDXX format — Add is_pill flag to local_smgp_course_meta for SmartMind pills.
 $plugin->requires = 2022112800; // Moodle 4.1+
 $plugin->maturity = MATURITY_ALPHA;
 $plugin->release = '1.1.0-nuxt.16';  // Nuxt branch, aligned with dev v1.1.0 backend

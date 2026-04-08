@@ -585,5 +585,31 @@ function xmldb_local_sm_graphics_plugin_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026040726, 'local', 'sm_graphics_plugin');
     }
 
+    if ($oldversion < 2026040803) {
+        // Add the is_pill flag to local_smgp_course_meta. Tags a course as a
+        // SmartMind "pill" (microlearning short course). Default 0 means
+        // every existing course remains a regular course; admins opt-in
+        // per course via the new checkbox in the edit form.
+        $dbman = $DB->get_manager();
+        $metatable = new xmldb_table('local_smgp_course_meta');
+        if ($dbman->table_exists($metatable)) {
+            $field = new xmldb_field(
+                'is_pill',
+                XMLDB_TYPE_INTEGER,
+                '1',
+                null,
+                XMLDB_NOTNULL,
+                null,
+                '0',
+                'completion_percentage'
+            );
+            if (!$dbman->field_exists($metatable, $field)) {
+                $dbman->add_field($metatable, $field);
+            }
+        }
+
+        upgrade_plugin_savepoint(true, 2026040803, 'local', 'sm_graphics_plugin');
+    }
+
     return true;
 }

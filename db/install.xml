@@ -14,6 +14,7 @@
         <FIELD NAME="sepe_code" TYPE="char" LENGTH="255" NOTNULL="false" COMMENT="SEPE code (Servicio Público de Empleo Estatal)"/>
         <FIELD NAME="level" TYPE="char" LENGTH="20" NOTNULL="false" DEFAULT="beginner" COMMENT="Course level: beginner, medium, advanced"/>
         <FIELD NAME="completion_percentage" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="100" COMMENT="Percentage of course to be considered completed"/>
+        <FIELD NAME="is_pill" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="1 = the course is a SmartMind pill (microlearning), 0 = regular course"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
       </FIELDS>

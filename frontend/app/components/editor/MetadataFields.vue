@@ -4,6 +4,28 @@
       <i class="icon-settings" />
       {{ $t('editor.metadata') || 'SmartMind metadata' }}
     </h3>
+    <!-- Content type toggle: regular course vs SmartMind pill. Sits at
+         the top of the meta block because it changes how the rest of
+         the form should be interpreted (a píldora is just a course
+         with shorter duration, but the explicit flag drives badges and
+         filtering elsewhere in the SPA). -->
+    <div class="smgp-meta__field smgp-meta__field--toggle">
+      <div class="form-check form-switch">
+        <input
+          id="meta-is-pill"
+          type="checkbox"
+          class="form-check-input"
+          :checked="modelValue.is_pill === 1"
+          @change="update('is_pill', ($event.target as HTMLInputElement).checked ? 1 : 0)"
+        >
+        <label class="form-check-label fw-bold" for="meta-is-pill">
+          {{ $t('editor.is_pill_label') || 'This is a pill' }}
+        </label>
+      </div>
+      <p class="smgp-meta__help">
+        {{ $t('editor.is_pill_help') || 'Tick this box if the content is a SmartMind pill (microlearning short course). Off by default — every new course starts as a regular course.' }}
+      </p>
+    </div>
     <div class="smgp-meta__grid">
       <div class="smgp-meta__field">
         <label>{{ $t('editor.duration_hours') || 'Duration (hours)' }}</label>
@@ -86,6 +108,7 @@ interface MetaFields {
   duration_hours: number
   level: string
   completion_percentage: number
+  is_pill: number
   smartmind_code: string
   sepe_code: string
   description: string
@@ -119,6 +142,24 @@ function update<K extends keyof MetaFields>(key: K, value: MetaFields[K]) {
   &__field {
     margin-bottom: 0.75rem;
     label { display: block; font-weight: 600; margin-bottom: 0.25rem; font-size: 0.9rem; }
+
+    &--toggle {
+      padding: 0.75rem 1rem;
+      background: rgba(16, 185, 129, 0.04);
+      border: 1px solid rgba(16, 185, 129, 0.18);
+      border-radius: 8px;
+      margin-bottom: 1rem;
+
+      .form-check-label {
+        margin-bottom: 0;
+      }
+    }
+  }
+  &__help {
+    margin: 0.4rem 0 0;
+    font-size: 0.8rem;
+    color: #64748b;
+    line-height: 1.4;
   }
 }
 </style>
