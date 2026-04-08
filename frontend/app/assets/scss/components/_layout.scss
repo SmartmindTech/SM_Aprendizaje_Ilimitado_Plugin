@@ -35,6 +35,14 @@
     padding-left: 1rem;
     padding-right: 1rem;
   }
+
+  // Course landing exception: the hero banner is meant to sit flush
+  // against the navbar, so drop the top padding only when the landing
+  // page is mounted. `:has()` keeps this scoped without needing a body
+  // class or a custom layout file.
+  &:has(.smgp-landing) {
+    padding-top: 0;
+  }
 }
 
 // ===== NuxtPage fade transition =====

@@ -21,6 +21,9 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot . '/course/modlib.php');
 require_once($CFG->dirroot . '/course/lib.php');
+// Defines RESOURCELIB_DISPLAY_EMBED used below; not loaded transitively
+// by externallib/modlib/lib so we have to pull it in explicitly.
+require_once($CFG->libdir . '/resourcelib.php');
 
 use external_api;
 use external_function_parameters;
@@ -83,7 +86,10 @@ class add_activity extends external_api {
             $moduleinfo->section = $sectionnum;
             $moduleinfo->visible = 1;
             $moduleinfo->externalurl = $url;
-            $moduleinfo->display = RESOURCELIB_DISPLAY_EMBED;
+            // Leading backslash forces the global namespace lookup so PHP
+            // doesn't try to resolve the constant inside this class's
+            // namespace (`local_sm_graphics_plugin\external`).
+            $moduleinfo->display = \RESOURCELIB_DISPLAY_EMBED;
             $moduleinfo->introeditor = ['text' => '', 'format' => FORMAT_HTML, 'itemid' => 0];
             $moduleinfo->cmidnumber = '';
             $moduleinfo->groupmode = 0;

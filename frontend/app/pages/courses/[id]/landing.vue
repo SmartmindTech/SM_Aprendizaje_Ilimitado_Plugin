@@ -357,15 +357,33 @@ const togglePicker = (num: number) => {
   openPickerSection.value = openPickerSection.value === num ? null : num
 }
 
+// Build the URL to Moodle's standard /course/modedit.php form for a
+// given modname + section. Mirrors the legacy behaviour
+// (`amd/src/course_landing.js:218-222`): all non-inline activity types
+// are handled by Moodle's own UI rather than going through our backend,
+// because the backend would short-circuit `type='url'` with empty url
+// and return an empty redirect, leaving the user stuck.
+const redirectToModedit = (modname: string, sectionnum: number) => {
+  const wwwroot = (authStore as { wwwroot?: string }).wwwroot ?? ''
+  const params = new URLSearchParams({
+    add: modname,
+    type: '',
+    course: String(courseid.value),
+    section: String(sectionnum),
+    return: '0',
+  })
+  window.location.href = `${wwwroot}/course/modedit.php?${params.toString()}`
+}
+
 // User picked one of the 25 activity types from the picker grid.
 //   - Genially  → open the URL modal in genially mode (creates a mod_url
 //                 with display=embed via add_activity)
 //   - Video     → open the URL modal in video mode (also a mod_url, but
 //                 the modal exposes a URL/upload tab toggle)
-//   - Anything  → call add_activity directly; the backend returns a
-//     else        redirect_url to /course/modedit.php for that modname
-//                 and we navigate the browser there.
-const onActivitySelect = async (type: ActivityType, sectionnum: number) => {
+//   - Anything  → redirect straight to Moodle's standard add form for
+//     else        that modname. We construct the URL client-side instead
+//                 of calling add_activity, exactly like the legacy did.
+const onActivitySelect = (type: ActivityType, sectionnum: number) => {
   openPickerSection.value = null
 
   if (type.isGenially) {
@@ -377,16 +395,7 @@ const onActivitySelect = async (type: ActivityType, sectionnum: number) => {
     return
   }
 
-  // Standard Moodle module type — ask the backend for the redirect URL.
-  const result = await addActivity(courseid.value, sectionnum, type.mod, '', '')
-  if (result.error) {
-    error.value = result.error
-    return
-  }
-  const data = result.data as { success: boolean; cmid: number; redirect_url: string }
-  if (data?.redirect_url) {
-    window.location.href = data.redirect_url
-  }
+  redirectToModedit(type.mod, sectionnum)
 }
 
 // Save handler for the URL modal — sends the activity to the backend
@@ -409,17 +418,10 @@ const onAddSave = async ({ name, url }: { name: string; url: string }) => {
   await fetchData()
 }
 
-// User chose "Subir archivo" → drop them on Moodle's standard form.
+// User chose "Subir archivo" → drop them on Moodle's standard resource
+// form so they can use the regular file picker.
 const onUploadFallback = ({ sectionnum }: { sectionnum: number }) => {
-  const wwwroot = (authStore as { wwwroot?: string }).wwwroot ?? ''
-  const params = new URLSearchParams({
-    add: 'resource',
-    type: '',
-    course: String(courseid.value),
-    section: String(sectionnum),
-    return: '0',
-  })
-  window.location.href = `${wwwroot}/course/modedit.php?${params.toString()}`
+  redirectToModedit('resource', sectionnum)
 }
 
 const onDeleteConfirm = async () => {
