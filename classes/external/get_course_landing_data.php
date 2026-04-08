@@ -44,8 +44,64 @@ class get_course_landing_data extends external_api {
         $context = \context_system::instance();
         self::validate_context($context);
 
+        // Record this visit for non-enrolled users so the dashboard's
+        // "Vistos recientemente" section can surface it. The legacy hook
+        // in lib.php only fires on /enrol/index.php (pagetype enrol-index),
+        // which the SPA bypasses entirely — so we hook here instead.
+        self::track_browsing($courseid);
+
         $renderer = new \local_sm_graphics_plugin\output\course_landing_renderer();
         return $renderer->get_context($courseid);
+    }
+
+    /**
+     * Upsert a row into {local_smgp_course_browsing} when a non-enrolled
+     * user opens the SPA course landing. Mirrors the lib.php enrol-index
+     * hook one-to-one so the dashboard's recently-viewed list works
+     * regardless of whether the visit came through the legacy enrolment
+     * page or the new SPA landing.
+     *
+     * Silently no-ops for guests, the site course, invalid courses, or
+     * users who are already enrolled (those already appear under "Seguir
+     * aprendiendo" so we don't want to duplicate them in the recently
+     * viewed list).
+     *
+     * @param int $courseid Course the user just opened in the SPA.
+     */
+    private static function track_browsing(int $courseid): void {
+        global $DB, $USER;
+
+        if (!isloggedin() || isguestuser()) {
+            return;
+        }
+        if ($courseid <= 0 || $courseid == SITEID) {
+            return;
+        }
+
+        try {
+            $coursecontext = \context_course::instance($courseid);
+        } catch (\dml_exception $e) {
+            return;
+        }
+
+        if (is_enrolled($coursecontext, $USER->id, '', true)) {
+            return;
+        }
+
+        $existing = $DB->get_record('local_smgp_course_browsing', [
+            'userid'   => $USER->id,
+            'courseid' => $courseid,
+        ]);
+        if ($existing) {
+            $existing->timeaccess = time();
+            $DB->update_record('local_smgp_course_browsing', $existing);
+        } else {
+            $DB->insert_record('local_smgp_course_browsing', (object) [
+                'userid'     => $USER->id,
+                'courseid'   => $courseid,
+                'timeaccess' => time(),
+            ]);
+        }
     }
 
     public static function execute_returns(): external_single_structure {

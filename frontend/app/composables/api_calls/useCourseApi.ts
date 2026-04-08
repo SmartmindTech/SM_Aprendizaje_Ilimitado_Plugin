@@ -15,9 +15,6 @@ export const useCourseApi = () => {
   const getMyCourses = () =>
     call('local_sm_graphics_plugin_get_mycourses_data', {}, { deduplicate: true })
 
-  const getDashboard = () =>
-    call('local_sm_graphics_plugin_get_dashboard_data', {}, { deduplicate: true })
-
   const getCatalogue = (categoryid: number = 0) =>
     call('local_sm_graphics_plugin_get_catalogue_data', { categoryid }, { deduplicate: true })
 
@@ -57,7 +54,6 @@ export const useCourseApi = () => {
     getCourseLandingData,
     getCoursePageData,
     getMyCourses,
-    getDashboard,
     getCatalogue,
     getGradesCertificates,
     getCourseProgress,

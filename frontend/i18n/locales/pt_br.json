@@ -44,7 +44,22 @@
     "noEnrolledCourses": "Ainda não tem cursos. Explore o",
     "completedCourses": "Cursos concluídos",
     "coursesAvailable": "cursos disponíveis",
-    "recommendedForYou": "Recomendado para você"
+    "recommendedForYou": "Recomendado para você",
+    "continueLearningCta": "Ver todos os meus cursos →",
+    "pildoras": "Pílulas",
+    "pildorasDesc": "Microlearning de 5 a 10 min, ideal para momentos livres",
+    "pildoraBadge": "Pílula",
+    "pildorasEmpty": "Ainda não há pílulas disponíveis. Volte mais tarde.",
+    "enrolledEmpty": "Você ainda não está matriculado em nenhum curso.",
+    "recentlyViewed": "Vistos recentemente",
+    "recentlyViewedDesc": "Cursos que você visitou mas ainda não se matriculou",
+    "recentlyViewedEmpty": "Você ainda não visitou nenhum curso. Explore o catálogo para descobrir conteúdo.",
+    "recCompleted": "Continue avançando",
+    "recCompletedDesc": "Recomendações com base nos cursos que você já concluiu",
+    "recCompletedEmpty": "Conclua seus cursos para começar a receber recomendações",
+    "recommendedDesc": "Personalizado de acordo com seu perfil, interesses e atividade",
+    "recommendedEmpty": "O conteúdo aparecerá aqui.",
+    "completedEmpty": "Você ainda não concluiu nenhum curso."
   },
   "coursemgmt": {
     "companies": "Empresas",

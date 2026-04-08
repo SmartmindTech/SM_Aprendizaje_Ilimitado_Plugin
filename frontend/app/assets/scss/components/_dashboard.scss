@@ -601,7 +601,7 @@ section.block_timeline {
 
     &__thumb {
         @extend %card-thumb;
-        aspect-ratio: 3 / 2;
+        aspect-ratio: 16 / 9;
         border-radius: $smgp-radius-md $smgp-radius-md 0 0;
     }
 
@@ -612,7 +612,7 @@ section.block_timeline {
     &__diffuse { @extend %diffuse-overlay; height: 30%; }
 
     &__body {
-        padding: 8px 10px 10px;
+        padding: 6px 10px 8px;
     }
 
     &__badge {
