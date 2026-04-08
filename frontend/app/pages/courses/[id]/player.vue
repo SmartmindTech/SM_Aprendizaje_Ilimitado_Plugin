@@ -35,9 +35,121 @@
           <div v-if="activityLoading" class="text-center py-5">
             <div class="spinner-border text-primary" role="status" />
           </div>
-          <template v-else-if="activityRender === 'inline' && activityHtml">
-            <div v-html="activityHtml" />
+
+          <!-- Inline render: chrome composed client-side from structured `inline` payload. -->
+          <template v-else-if="activityRender === 'inline' && activityInline">
+            <!-- mod_page: full body (Moodle-formatted user content) -->
+            <div
+              v-if="activityInline.kind === 'page'"
+              class="smgp-activity-content smgp-activity-content--page"
+              v-html="activityInline.content"
+            />
+
+            <!-- mod_book: chapter title + counter + body -->
+            <div
+              v-else-if="activityInline.kind === 'book'"
+              class="smgp-activity-content smgp-activity-content--book"
+            >
+              <template v-if="activityInline.empty">
+                <p>{{ $t('course_page.no_chapters') }}</p>
+              </template>
+              <template v-else>
+                <div class="smgp-activity-content__chapter-info">
+                  <strong>{{ activityInline.chapter?.title }}</strong>
+                  <span class="text-muted">
+                    ({{ activityInline.chapter?.current }}/{{ activityInline.chapter?.total }})
+                  </span>
+                </div>
+                <div v-html="activityInline.content" />
+              </template>
+            </div>
+
+            <!-- mod_resource: intro + file preview (image/pdf/video/audio) + download -->
+            <div
+              v-else-if="activityInline.kind === 'resource'"
+              class="smgp-activity-content smgp-activity-content--resource"
+            >
+              <div
+                v-if="activityInline.intro"
+                class="smgp-activity-content__intro"
+                v-html="activityInline.intro"
+              />
+
+              <template v-if="activityInline.file">
+                <div
+                  v-if="activityInline.file.kind === 'image'"
+                  class="smgp-activity-content__preview"
+                >
+                  <img
+                    :src="activityInline.file.url"
+                    :alt="activityInline.file.name"
+                    class="smgp-activity-content__image"
+                  >
+                </div>
+
+                <div
+                  v-else-if="activityInline.file.kind === 'pdf'"
+                  class="smgp-activity-content__preview"
+                >
+                  <object
+                    :data="activityInline.file.url"
+                    type="application/pdf"
+                    class="smgp-activity-content__pdf"
+                  >
+                    <p>
+                      {{ $t('course_page.pdf_unsupported') }}
+                      <a :href="activityInline.file.url">{{ $t('course_page.download') }}</a>
+                    </p>
+                  </object>
+                </div>
+
+                <div
+                  v-else-if="activityInline.file.kind === 'video'"
+                  class="smgp-activity-content__video-player"
+                >
+                  <video controls preload="metadata" class="smgp-video-player">
+                    <source :src="activityInline.file.url" :type="activityInline.file.mimetype">
+                    {{ $t('course_page.video_unsupported') }}
+                  </video>
+                </div>
+
+                <div
+                  v-else-if="activityInline.file.kind === 'audio'"
+                  class="smgp-activity-content__audio-player"
+                >
+                  <audio controls preload="metadata" class="smgp-audio-player">
+                    <source :src="activityInline.file.url" :type="activityInline.file.mimetype">
+                  </audio>
+                </div>
+
+                <!-- Download button shown for everything except inline media. -->
+                <div
+                  v-if="activityInline.file.kind !== 'video' && activityInline.file.kind !== 'audio'"
+                  class="smgp-activity-content__file mt-2"
+                >
+                  <a :href="activityInline.file.url" class="btn btn-primary btn-sm">
+                    <i class="icon-download" />
+                    {{ $t('course_page.download') }}
+                    {{ activityInline.file.name }}
+                    ({{ activityInline.file.size }})
+                  </a>
+                </div>
+              </template>
+            </div>
+
+            <!-- mod_label: just the formatted intro -->
+            <div
+              v-else-if="activityInline.kind === 'label'"
+              class="smgp-activity-content smgp-activity-content--label"
+              v-html="activityInline.content"
+            />
+
+            <!-- Fallback: activity type the backend can't render inline -->
+            <div v-else class="smgp-activity-content">
+              <p>{{ $t('course_page.content_not_available') }}</p>
+            </div>
           </template>
+
           <template v-else-if="activityRender === 'iframe' && activityIframeUrl">
             <div class="smgp-course-content__iframe-wrap">
               <iframe
@@ -225,6 +337,31 @@
 </template>
 
 <script setup lang="ts">
+// Structured payload returned by local_sm_graphics_plugin_get_activity_content
+// for inline render mode. The Vue template renders all chrome from this data;
+// the legacy `html` field on the response is ignored (kept on the backend
+// only for the AMD frontend until that goes away).
+interface InlineFile {
+  url: string
+  name: string
+  size: string
+  mimetype: string
+  kind: 'image' | 'pdf' | 'video' | 'audio' | 'other'
+}
+interface InlineChapter {
+  title: string
+  current: number
+  total: number
+}
+interface InlineData {
+  kind: 'page' | 'book' | 'resource' | 'label' | 'unsupported'
+  content?: string
+  intro?: string
+  empty?: boolean
+  chapter?: InlineChapter
+  file?: InlineFile
+}
+
 const route = useRoute()
 const { getCoursePageData } = useCourseApi()
 const { call } = useMoodleAjax()
@@ -233,7 +370,7 @@ const loading = ref(true)
 const error = ref<string | null>(null)
 const data = ref<any>(null)
 const selectedCmid = ref(0)
-const activityHtml = ref<string | null>(null)
+const activityInline = ref<InlineData | null>(null)
 const activityIframeUrl = ref<string | null>(null)
 const activityRender = ref<'inline' | 'iframe' | 'redirect' | null>(null)
 const activityLoading = ref(false)
@@ -272,7 +409,7 @@ const selectActivity = async (activity: any) => {
   if (activity.islabel) return
   selectedCmid.value = activity.cmid
   activityLoading.value = true
-  activityHtml.value = null
+  activityInline.value = null
   activityIframeUrl.value = null
   activityRender.value = null
   const result = await call('local_sm_graphics_plugin_get_activity_content', { cmid: activity.cmid })
@@ -283,7 +420,7 @@ const selectActivity = async (activity: any) => {
   }
   const payload = result.data as any
   activityRender.value = payload?.rendermode ?? null
-  activityHtml.value = payload?.html ?? null
+  activityInline.value = (payload?.inline as InlineData | undefined) ?? null
   activityIframeUrl.value = payload?.iframeurl ?? null
 }
 
@@ -311,6 +448,19 @@ getCoursePageData(courseid.value).then((result) => {
 <style scoped>
 .smgp-course-activity--active {
   background: var(--bs-primary-bg-subtle, #e8f0fe);
+}
+
+/* Resource preview chrome (was inline styles in PHP). */
+.smgp-activity-content__image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+.smgp-activity-content__pdf {
+  width: 100%;
+  height: 500px;
+  border-radius: 8px;
+  border: 1px solid var(--sl-border, #e5e7eb);
 }
 
 .smgp-course-content__redirect {

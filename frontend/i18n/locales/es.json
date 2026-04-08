@@ -102,7 +102,12 @@
     "prev": "Anterior",
     "next": "Siguiente",
     "collapse_sidebar": "Mostrar/ocultar menú",
-    "focus_mode": "Modo enfoque"
+    "focus_mode": "Modo enfoque",
+    "download": "Descargar",
+    "content_not_available": "Contenido no disponible en línea.",
+    "video_unsupported": "Tu navegador no admite la etiqueta de vídeo.",
+    "pdf_unsupported": "No se puede previsualizar el PDF.",
+    "no_chapters": "No hay capítulos disponibles."
   },
   "landing": {
     "back": "Volver al inicio",

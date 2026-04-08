@@ -125,9 +125,18 @@ class get_activity_content extends external_api {
         $html = '';
         $iframeurl = '';
 
+        $inline = null;
+
         switch ($rendermode) {
             case 'inline':
-                $html = self::render_activity_content($cm, $course, $context, $modname, $itemnum);
+                // Build the structured inline payload once. The Vue frontend
+                // consumes this directly via the `inline` field. The legacy
+                // AMD frontend (`amd/src/course_page.js`) still reads `html`,
+                // which is mechanically composed from the same structured data
+                // by `compose_legacy_html()` — a thin wrapper that exists only
+                // until AMD goes away.
+                $inline = self::build_inline_data($cm, $course, $context, $modname, $itemnum);
+                $html = self::compose_legacy_html($inline);
                 // Trigger viewed event for inline activities.
                 self::trigger_viewed_event($cm, $course, $context, $modname);
                 break;
@@ -144,7 +153,7 @@ class get_activity_content extends external_api {
         // Get item counts for counter display.
         $itemdata = self::get_item_count($cm, $course, $context, $modname, $itemnum);
 
-        return [
+        $result = [
             'html'         => $html,
             'name'         => $name,
             'modname'      => $modname,
@@ -157,6 +166,10 @@ class get_activity_content extends external_api {
             'completeditems' => $itemdata['completeditems'],
             'totalpages'   => $itemdata['totalpages'],
         ];
+        if ($inline !== null) {
+            $result['inline'] = $inline;
+        }
+        return $result;
     }
 
     /**
@@ -919,66 +932,78 @@ class get_activity_content extends external_api {
         }
     }
 
+    // ─────────────────────────────────────────────────────────────────────
+    // Inline content data builders.
+    //
+    // These return STRUCTURED DATA (kind + content fields) — never composed
+    // HTML chrome. The Vue frontend (player.vue) renders all wrapper markup,
+    // file previews, navigation chrome and download buttons from this data.
+    //
+    // The only HTML strings here are the per-activity Moodle-formatted user
+    // content (page body, book chapter body, resource intro, label content),
+    // which are produced by Moodle's `format_text()` and are irreducible:
+    // they include pluginfile URL rewrites, filter pipelines and embedded
+    // attachments. Vue consumes them via `v-html`.
+    //
+    // For backwards compatibility with the legacy AMD module
+    // (`amd/src/course_page.js`), `compose_legacy_html()` derives the old
+    // `html` field from the same structured data. When the AMD frontend
+    // is removed, that wrapper can also go away.
+    // ─────────────────────────────────────────────────────────────────────
+
     /**
-     * Render the content for a specific activity module (inline types only).
+     * Build the structured inline payload for a single activity.
      *
-     * @param object $cm Course module record.
-     * @param object $course Course record.
-     * @param \context_module $context Module context.
-     * @param string $modname Module type name.
-     * @return string Rendered HTML.
+     * @return array {kind: string, content?: string, intro?: string,
+     *                chapter?: array, file?: array}
      */
-    private static function render_activity_content($cm, $course, $context, string $modname, int $itemnum = 0): string {
-        global $DB, $CFG, $OUTPUT;
-
-        $modulecontext = $context;
-
+    private static function build_inline_data($cm, $course, $context, string $modname, int $itemnum = 0): array {
         switch ($modname) {
             case 'page':
-                return self::render_page($cm, $modulecontext);
+                return self::build_page_data($cm, $context);
 
             case 'book':
-                return self::render_book($cm, $modulecontext, $itemnum);
+                return self::build_book_data($cm, $context, $itemnum);
 
             case 'resource':
-                return self::render_resource($cm, $modulecontext);
+                return self::build_resource_data($cm, $context);
 
             case 'label':
-                return self::render_label($cm, $modulecontext);
+                return self::build_label_data($cm, $context);
 
             default:
-                return '<div class="smgp-activity-content"><p>Content not available inline.</p></div>';
+                return ['kind' => 'unsupported'];
         }
     }
 
     /**
-     * Render mod_page content (full page body).
+     * Build mod_page payload: full page body as Moodle-formatted HTML.
      */
-    private static function render_page($cm, $context): string {
+    private static function build_page_data($cm, $context): array {
         global $DB;
         $page = $DB->get_record('page', ['id' => $cm->instance], '*', MUST_EXIST);
         $content = file_rewrite_pluginfile_urls(
             $page->content, 'pluginfile.php', $context->id, 'mod_page', 'content', $page->revision
         );
-        $content = format_text($content, $page->contentformat, ['context' => $context]);
-        return '<div class="smgp-activity-content smgp-activity-content--page">' . $content . '</div>';
+        return [
+            'kind'    => 'page',
+            'content' => format_text($content, $page->contentformat, ['context' => $context]),
+        ];
     }
 
     /**
-     * Render mod_book — specific chapter (1-based) or first chapter.
+     * Build mod_book payload: chapter body + chapter metadata.
      *
-     * @param object $cm Course module record.
-     * @param \context_module $context Module context.
-     * @param int $chapternum Chapter number (1-based, 0 = first chapter).
-     * @return string Rendered HTML.
+     * Triggers the chapter_viewed event as a side effect (books rely on
+     * it for completion tracking instead of course_module_viewed).
      */
-    private static function render_book($cm, $context, int $chapternum = 0): string {
+    private static function build_book_data($cm, $context, int $chapternum = 0): array {
         global $DB;
         $book = $DB->get_record('book', ['id' => $cm->instance], '*', MUST_EXIST);
         $chapters = array_values($DB->get_records('book_chapters', ['bookid' => $book->id, 'hidden' => 0], 'pagenum ASC'));
 
         if (empty($chapters)) {
-            return '<div class="smgp-activity-content"><p>No chapters available.</p></div>';
+            return ['kind' => 'book', 'empty' => true];
         }
 
         // Select requested chapter (1-based) or default to first.
@@ -989,12 +1014,6 @@ class get_activity_content extends external_api {
             $chapter->content, 'pluginfile.php', $context->id, 'mod_book', 'chapter', $chapter->id
         );
         $content = format_text($content, $chapter->contentformat, ['context' => $context]);
-
-        $currentNum = $idx + 1;
-        $chapterNav = '<div class="smgp-activity-content__chapter-info">'
-            . '<strong>' . format_string($chapter->title) . '</strong>'
-            . ' <span class="text-muted">(' . $currentNum . '/' . count($chapters) . ')</span>'
-            . '</div>';
 
         // Trigger chapter_viewed event (books use this instead of course_module_viewed).
         try {
@@ -1009,98 +1028,170 @@ class get_activity_content extends external_api {
             debugging('Could not trigger chapter_viewed: ' . $e->getMessage(), DEBUG_DEVELOPER);
         }
 
-        return '<div class="smgp-activity-content smgp-activity-content--book">'
-            . $chapterNav . $content . '</div>';
+        return [
+            'kind'    => 'book',
+            'content' => $content,
+            'chapter' => [
+                'title'   => format_string($chapter->title),
+                'current' => $idx + 1,
+                'total'   => count($chapters),
+            ],
+        ];
     }
 
     /**
-     * Render mod_resource — file preview (images, PDFs, video, audio) + download link.
+     * Build mod_resource payload: intro text + file metadata
+     * (no preview/download HTML — that's the frontend's job).
      */
-    private static function render_resource($cm, $context): string {
+    private static function build_resource_data($cm, $context): array {
         global $DB;
         $resource = $DB->get_record('resource', ['id' => $cm->instance], '*', MUST_EXIST);
 
-        $intro = self::get_formatted_intro($resource, $context, 'resource');
+        $intro = self::format_intro_text($resource, $context, 'resource');
 
-        // Get the file.
         $fs = get_file_storage();
         $files = $fs->get_area_files($context->id, 'mod_resource', 'content', 0, 'sortorder DESC, id ASC', false);
         $file = reset($files);
 
-        $filehtml = '';
+        $filedata = null;
         if ($file) {
-            $fileurl = \moodle_url::make_pluginfile_url(
-                $file->get_contextid(), $file->get_component(), $file->get_filearea(),
-                $file->get_itemid(), $file->get_filepath(), $file->get_filename()
-            )->out(false);
-
-            $filesize = display_size($file->get_filesize());
             $mimetype = $file->get_mimetype();
-            $isimage = strpos($mimetype, 'image/') === 0;
-            $ispdf = ($mimetype === 'application/pdf');
-            $isvideo = (strpos($mimetype, 'video/') === 0);
-            $isaudio = (strpos($mimetype, 'audio/') === 0);
-
-            if ($isimage) {
-                $filehtml = '<div class="smgp-activity-content__preview">'
-                    . '<img src="' . $fileurl . '" alt="' . s($file->get_filename())
-                    . '" style="max-width:100%;height:auto;border-radius:8px;">'
-                    . '</div>';
-            } else if ($ispdf) {
-                $filehtml = '<div class="smgp-activity-content__preview">'
-                    . '<object data="' . $fileurl . '" type="application/pdf" '
-                    . 'width="100%" height="500px" style="border-radius:8px;border:1px solid var(--sl-border,#e5e7eb);">'
-                    . '<p>Cannot preview PDF. <a href="' . $fileurl . '">Download</a></p>'
-                    . '</object></div>';
-            } else if ($isvideo) {
-                $filehtml = '<div class="smgp-activity-content__video-player">'
-                    . '<video controls preload="metadata" class="smgp-video-player">'
-                    . '<source src="' . $fileurl . '" type="' . s($mimetype) . '">'
-                    . get_string('course_page_video_unsupported', 'local_sm_graphics_plugin')
-                    . '</video></div>';
-            } else if ($isaudio) {
-                $filehtml = '<div class="smgp-activity-content__audio-player">'
-                    . '<audio controls preload="metadata" class="smgp-audio-player">'
-                    . '<source src="' . $fileurl . '" type="' . s($mimetype) . '">'
-                    . '</audio></div>';
+            $kind = 'other';
+            if (strpos($mimetype, 'image/') === 0) {
+                $kind = 'image';
+            } else if ($mimetype === 'application/pdf') {
+                $kind = 'pdf';
+            } else if (strpos($mimetype, 'video/') === 0) {
+                $kind = 'video';
+            } else if (strpos($mimetype, 'audio/') === 0) {
+                $kind = 'audio';
             }
 
-            // Show download button only for non-media files (skip for video/audio).
-            if (!$isvideo && !$isaudio) {
-                $filehtml .= '<div class="smgp-activity-content__file mt-2">'
-                    . '<a href="' . $fileurl . '" class="btn btn-primary btn-sm">'
-                    . '<i class="icon-download"></i> Download '
-                    . s($file->get_filename()) . ' (' . $filesize . ')</a></div>';
-            }
+            $filedata = [
+                'url'      => \moodle_url::make_pluginfile_url(
+                    $file->get_contextid(), $file->get_component(), $file->get_filearea(),
+                    $file->get_itemid(), $file->get_filepath(), $file->get_filename()
+                )->out(false),
+                'name'     => $file->get_filename(),
+                'size'     => display_size($file->get_filesize()),
+                'mimetype' => $mimetype,
+                'kind'     => $kind,
+            ];
         }
 
-        return '<div class="smgp-activity-content smgp-activity-content--resource">'
-            . $intro . $filehtml . '</div>';
+        $data = ['kind' => 'resource'];
+        if ($intro !== '') {
+            $data['intro'] = $intro;
+        }
+        if ($filedata !== null) {
+            $data['file'] = $filedata;
+        }
+        return $data;
     }
 
     /**
-     * Render mod_label — inline content.
+     * Build mod_label payload: just the formatted intro text.
      */
-    private static function render_label($cm, $context): string {
+    private static function build_label_data($cm, $context): array {
         global $DB;
         $label = $DB->get_record('label', ['id' => $cm->instance], '*', MUST_EXIST);
-        $content = format_text($label->intro, $label->introformat, ['context' => $context]);
-        return '<div class="smgp-activity-content smgp-activity-content--label">' . $content . '</div>';
+        return [
+            'kind'    => 'label',
+            'content' => format_text($label->intro, $label->introformat, ['context' => $context]),
+        ];
     }
 
     /**
-     * Get formatted intro text for a module.
+     * Format an activity's intro text (returns RAW formatted HTML, no wrapper).
      */
-    private static function get_formatted_intro($record, $context, string $component): string {
+    private static function format_intro_text($record, $context, string $component): string {
         if (empty($record->intro)) {
             return '';
         }
         $intro = file_rewrite_pluginfile_urls(
             $record->intro, 'pluginfile.php', $context->id, 'mod_' . $component, 'intro', null
         );
-        return '<div class="smgp-activity-content__intro">'
-            . format_text($intro, $record->introformat ?? FORMAT_HTML, ['context' => $context])
-            . '</div>';
+        return format_text($intro, $record->introformat ?? FORMAT_HTML, ['context' => $context]);
+    }
+
+    /**
+     * Compose the legacy `html` string from a structured inline payload.
+     *
+     * Exists ONLY to keep `amd/src/course_page.js` working until the AMD
+     * frontend is removed. The Vue frontend ignores `html` entirely and
+     * renders chrome from the structured `inline` field instead.
+     */
+    private static function compose_legacy_html(array $data): string {
+        switch ($data['kind']) {
+            case 'page':
+                return '<div class="smgp-activity-content smgp-activity-content--page">'
+                    . ($data['content'] ?? '') . '</div>';
+
+            case 'book':
+                if (!empty($data['empty'])) {
+                    return '<div class="smgp-activity-content"><p>No chapters available.</p></div>';
+                }
+                $info = $data['chapter'];
+                $nav = '<div class="smgp-activity-content__chapter-info">'
+                    . '<strong>' . s($info['title']) . '</strong>'
+                    . ' <span class="text-muted">(' . $info['current'] . '/' . $info['total'] . ')</span>'
+                    . '</div>';
+                return '<div class="smgp-activity-content smgp-activity-content--book">'
+                    . $nav . ($data['content'] ?? '') . '</div>';
+
+            case 'resource':
+                $intro = '<div class="smgp-activity-content__intro">' . ($data['intro'] ?? '') . '</div>';
+                $filehtml = '';
+                if (!empty($data['file'])) {
+                    $f = $data['file'];
+                    $url = $f['url'];
+                    $name = s($f['name']);
+                    $mt = s($f['mimetype']);
+                    switch ($f['kind']) {
+                        case 'image':
+                            $filehtml = '<div class="smgp-activity-content__preview">'
+                                . '<img src="' . $url . '" alt="' . $name
+                                . '" style="max-width:100%;height:auto;border-radius:8px;"></div>';
+                            break;
+                        case 'pdf':
+                            $filehtml = '<div class="smgp-activity-content__preview">'
+                                . '<object data="' . $url . '" type="application/pdf" '
+                                . 'width="100%" height="500px" style="border-radius:8px;border:1px solid var(--sl-border,#e5e7eb);">'
+                                . '<p>Cannot preview PDF. <a href="' . $url . '">Download</a></p>'
+                                . '</object></div>';
+                            break;
+                        case 'video':
+                            $filehtml = '<div class="smgp-activity-content__video-player">'
+                                . '<video controls preload="metadata" class="smgp-video-player">'
+                                . '<source src="' . $url . '" type="' . $mt . '">'
+                                . get_string('course_page_video_unsupported', 'local_sm_graphics_plugin')
+                                . '</video></div>';
+                            break;
+                        case 'audio':
+                            $filehtml = '<div class="smgp-activity-content__audio-player">'
+                                . '<audio controls preload="metadata" class="smgp-audio-player">'
+                                . '<source src="' . $url . '" type="' . $mt . '">'
+                                . '</audio></div>';
+                            break;
+                    }
+                    if ($f['kind'] !== 'video' && $f['kind'] !== 'audio') {
+                        $filehtml .= '<div class="smgp-activity-content__file mt-2">'
+                            . '<a href="' . $url . '" class="btn btn-primary btn-sm">'
+                            . '<i class="icon-download"></i> Download '
+                            . $name . ' (' . s($f['size']) . ')</a></div>';
+                    }
+                }
+                return '<div class="smgp-activity-content smgp-activity-content--resource">'
+                    . $intro . $filehtml . '</div>';
+
+            case 'label':
+                return '<div class="smgp-activity-content smgp-activity-content--label">'
+                    . ($data['content'] ?? '') . '</div>';
+
+            case 'unsupported':
+            default:
+                return '<div class="smgp-activity-content"><p>Content not available inline.</p></div>';
+        }
     }
 
     /**
@@ -1109,7 +1200,7 @@ class get_activity_content extends external_api {
      */
     public static function execute_returns(): external_single_structure {
         return new external_single_structure([
-            'html'         => new external_value(PARAM_RAW, 'Rendered activity HTML'),
+            'html'         => new external_value(PARAM_RAW, 'Legacy: pre-composed inline HTML for AMD frontend (deprecated)'),
             'name'         => new external_value(PARAM_TEXT, 'Activity name'),
             'modname'      => new external_value(PARAM_TEXT, 'Module type'),
             'url'          => new external_value(PARAM_URL, 'Activity URL'),
@@ -1120,6 +1211,26 @@ class get_activity_content extends external_api {
             'counterlabel' => new external_value(PARAM_TEXT, 'Counter label (Slide, Page, Question)'),
             'completeditems' => new external_value(PARAM_INT, 'Items completed/viewed by user (for furthest-reached)'),
             'totalpages'   => new external_value(PARAM_INT, 'Total pages in activity (for quiz page navigation)'),
+            // Structured inline payload for the Vue frontend. Only present when
+            // rendermode === 'inline'. Vue renders all chrome from this data.
+            'inline'       => new external_single_structure([
+                'kind'    => new external_value(PARAM_ALPHA, 'page | book | resource | label | unsupported'),
+                'content' => new external_value(PARAM_RAW, 'Moodle-formatted user content (page/book/label only)', VALUE_OPTIONAL),
+                'intro'   => new external_value(PARAM_RAW, 'Resource intro text (resource only)', VALUE_OPTIONAL),
+                'empty'   => new external_value(PARAM_BOOL, 'True if the activity has no content (book with no chapters)', VALUE_OPTIONAL),
+                'chapter' => new external_single_structure([
+                    'title'   => new external_value(PARAM_TEXT, 'Chapter title'),
+                    'current' => new external_value(PARAM_INT, '1-based chapter index'),
+                    'total'   => new external_value(PARAM_INT, 'Total chapters'),
+                ], 'Book chapter info', VALUE_OPTIONAL),
+                'file'    => new external_single_structure([
+                    'url'      => new external_value(PARAM_URL, 'Pluginfile URL'),
+                    'name'     => new external_value(PARAM_TEXT, 'File name'),
+                    'size'     => new external_value(PARAM_TEXT, 'Human-readable file size'),
+                    'mimetype' => new external_value(PARAM_RAW, 'MIME type'),
+                    'kind'     => new external_value(PARAM_ALPHA, 'image | pdf | video | audio | other'),
+                ], 'Resource file metadata', VALUE_OPTIONAL),
+            ], 'Structured inline content for Vue frontend', VALUE_OPTIONAL),
         ]);
     }
 }
