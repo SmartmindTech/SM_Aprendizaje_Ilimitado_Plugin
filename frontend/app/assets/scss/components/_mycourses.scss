@@ -27,10 +27,14 @@
         border-radius: 16px;
         overflow: hidden;
         transition: all 0.2s ease;
+        text-decoration: none;
+        color: inherit;
 
         &:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            text-decoration: none;
+            color: inherit;
         }
     }
 

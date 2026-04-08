@@ -71,9 +71,8 @@ const navItems = computed<NavItem[]>(() => {
     ]
   }
 
-  // Admin items
+  // Admin items (no "My space" — admins don't have a personal dashboard)
   return [
-    { key: 'myhome',              to: '/dashboard',             label: t('nav.dashboard'),   matches: ['/dashboard'] },
     { key: 'home',                to: '/catalogue',             label: t('nav.catalogue'),   matches: ['/catalogue'] },
     { key: 'sm-coursemanagement', to: '/management/courses',    label: t('nav.coursemgmt'),  matches: ['/management/courses'] },
     { key: 'siteadminnode',       to: '/admin/settings',        label: t('nav.siteadmin'),   matches: ['/admin/settings'] },

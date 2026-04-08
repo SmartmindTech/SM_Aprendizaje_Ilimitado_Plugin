@@ -10,9 +10,8 @@
   <div v-else class="smgp-mycourses">
 
     <div class="smartmind-catalogue-header mb-4">
-      <span class="smartmind-catalogue-header__eyebrow">UNLIMITED LEARNING</span>
-      <h1 class="smartmind-catalogue-header__title">{{ $t('nav.courses') }}</h1>
-      <p class="smartmind-catalogue-header__desc">Manage your training and continue where you left off.</p>
+      <h1 class="smartmind-catalogue-header__title">{{ $t('mycourses.title') }}</h1>
+      <p class="smartmind-catalogue-header__desc">{{ $t('mycourses.desc') }}</p>
     </div>
 
     <!-- Filter tabs -->
@@ -21,66 +20,62 @@
         class="smartmind-badge" :class="{ 'smartmind-badge--active': filter === 'inprogress' }"
         @click="filter = 'inprogress'"
       >
-        In progress
+        {{ $t('mycourses.inprogress') }}
       </button>
       <button
         class="smartmind-badge" :class="{ 'smartmind-badge--active': filter === 'completed' }"
         @click="filter = 'completed'"
       >
-        Completed
+        {{ $t('mycourses.completed') }}
       </button>
       <button
         class="smartmind-badge" :class="{ 'smartmind-badge--active': filter === 'all' }"
         @click="filter = 'all'"
       >
-        All
+        {{ $t('mycourses.all') }}
       </button>
     </div>
 
     <!-- Course list -->
     <div class="smgp-mycourses__list" data-region="mycourses-list">
-      <div
+      <NuxtLink
         v-for="course in filteredCourses" :key="course.id"
+        :to="`/courses/${course.id}/landing`"
         class="smgp-mycourses__row" :data-status="course.status"
       >
-        <div class="smgp-mycourses__icon-area" :class="{ 'smgp-mycourses__icon-area--completed': course.status === 'completed' }">
-          <img v-if="course.image" :src="course.image" :alt="course.fullname">
-          <i v-else class="fa fa-graduation-cap" />
+        <div class="smgp-mycourses__image">
+          <img v-if="course.image" :src="course.image" :alt="course.fullname" loading="lazy">
+          <div v-else class="smgp-mycourses__image-placeholder"><i class="fa fa-graduation-cap" /></div>
         </div>
         <div class="smgp-mycourses__info">
           <h3 class="smgp-mycourses__course-name">{{ course.fullname }}</h3>
           <span class="smgp-mycourses__meta">
-            {{ course.shortname }} · {{ course.total_activities }} modules
-            <template v-if="course.categoryname"> · {{ course.categoryname }}</template>
+            {{ course.shortname }} · {{ course.total_activities }} {{ $t('mycourses.modules') }}
           </span>
-          <div class="smgp-mycourses__progress-bar">
-            <div
-              class="smgp-mycourses__progress-fill"
-              :class="{ 'smgp-mycourses__progress-fill--completed': course.status === 'completed' }"
-              :style="{ width: course.progress + '%' }"
-            />
+          <div class="smgp-mycourses__progress">
+            <div class="smgp-mycourses__progress-bar">
+              <div
+                class="smgp-mycourses__progress-fill"
+                :class="{ 'smgp-mycourses__progress-fill--completed': course.status === 'completed' }"
+                :style="{ width: course.progress + '%' }"
+              />
+            </div>
+            <span class="smgp-mycourses__progress-text">{{ course.progress }}%</span>
           </div>
-          <span class="smgp-mycourses__progress-text">
-            {{ course.progress }}% completed · Resource {{ course.completed_activities }} of {{ course.total_activities }}
-          </span>
         </div>
         <div class="smgp-mycourses__action">
-          <NuxtLink
-            :to="`/courses/${course.id}/landing`"
+          <span
             class="smgp-mycourses__btn"
             :class="{ 'smgp-mycourses__btn--completed': course.status === 'completed' }"
           >
-            {{ course.status === 'completed' ? 'Review' : 'Continue' }}
-          </NuxtLink>
-          <span class="smgp-mycourses__status" :class="`smgp-mycourses__status--${course.status}`">
-            {{ course.status === 'completed' ? 'COMPLETED' : 'IN PROGRESS' }}
+            {{ course.status === 'completed' ? $t('mycourses.review') : $t('mycourses.continue') }}
           </span>
         </div>
-      </div>
+      </NuxtLink>
     </div>
 
     <div v-if="filteredCourses.length === 0" class="catalog-section__empty">
-      No courses in this category.
+      {{ $t('mycourses.empty') }}
     </div>
   </div>
 </template>

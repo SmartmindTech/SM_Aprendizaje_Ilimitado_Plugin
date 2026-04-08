@@ -54,6 +54,7 @@ body {
 }
 
 // 5. COMPONENTS (ported from theme_smartmind)
+@import 'components/lucide-icons';      // Lucide font glyph mappings for .icon-* classes
 @import 'components/layout';            // Shell + #page-content envelope
 @import 'components/navbar';            // Top horizontal navbar (smgp-topnav)
 @import 'components/dashboard';

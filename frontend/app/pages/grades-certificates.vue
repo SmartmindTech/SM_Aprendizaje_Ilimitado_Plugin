@@ -10,22 +10,27 @@
   <div v-else id="smgp-grades-certificates" class="smgp-gradescerts">
 
     <div class="smartmind-catalogue-header mb-4">
-      <span class="smartmind-catalogue-header__eyebrow">UNLIMITED LEARNING</span>
-      <h1 class="smartmind-catalogue-header__title">{{ $t('nav.grades') }}</h1>
-      <p class="smartmind-catalogue-header__desc">Your grades and certificates</p>
+      <h1 class="smartmind-catalogue-header__title">{{ $t('certificates.title') }}</h1>
+      <p class="smartmind-catalogue-header__desc">{{ $t('certificates.desc') }}</p>
     </div>
 
     <div v-if="data?.hascourses" class="smgp-gradescerts__grid">
-      <div v-for="course in data.courses" :key="course.courseid" class="smgp-gradescerts__card">
-        <div
-          class="smgp-gradescerts__card-top"
-          :class="{ 'smgp-gradescerts__card-top--pending': !course.hascertificate }"
-        >
+      <div
+        v-for="course in data.courses" :key="course.courseid"
+        class="smgp-gradescerts__card"
+        :class="{ 'smgp-gradescerts__card--pending': !course.hascertificate }"
+      >
+        <div class="smgp-gradescerts__card-top">
+          <img v-if="course.hascourseimage" :src="course.courseimage" :alt="course.coursename" class="smgp-gradescerts__card-img">
+          <div v-else class="smgp-gradescerts__card-placeholder"><i class="fa fa-graduation-cap" /></div>
           <div class="smgp-gradescerts__star">
-            <i class="fa fa-star" />
+            <i class="icon-star" />
           </div>
-          <span class="smgp-gradescerts__badge">
-            {{ course.hascertificate ? 'Official certificate' : 'In progress' }}
+          <span
+            class="smgp-gradescerts__badge"
+            :class="course.hascertificate ? 'smgp-gradescerts__badge--complete' : 'smgp-gradescerts__badge--pending'"
+          >
+            {{ course.hascertificate ? $t('certificates.official') : $t('certificates.inprogress') }}
           </span>
         </div>
 
@@ -34,26 +39,31 @@
 
           <!-- Completed: show date + code + download -->
           <template v-if="course.hascertificate">
-            <p class="smgp-gradescerts__date">Issued {{ course.certdate }}</p>
+            <p class="smgp-gradescerts__date">{{ $t('certificates.issued', { date: course.certdate }) }}</p>
             <p v-if="course.certcode" class="smgp-gradescerts__code">ID: {{ course.certcode }}</p>
             <a
               :href="course.downloadurl"
-              class="smgp-gradescerts__download-btn"
+              class="smgp-gradescerts__btn"
               data-download-cert="1"
               target="_blank"
             >
-              Download PDF
+              {{ $t('certificates.download') }}
             </a>
           </template>
 
           <!-- In progress: show progress + not available -->
           <template v-else>
-            <p class="smgp-gradescerts__date">{{ course.progress }}% completed</p>
-            <div class="smgp-gradescerts__progress-bar">
-              <div class="smgp-gradescerts__progress-fill" :style="{ width: course.progress + '%' }" />
+            <p class="smgp-gradescerts__date smgp-gradescerts__date--pending">
+              {{ $t('certificates.completed', { progress: course.progress }) }}
+            </p>
+            <div class="smgp-gradescerts__progress">
+              <div class="smgp-gradescerts__progress-bar">
+                <div class="smgp-gradescerts__progress-fill" :style="{ width: course.progress + '%' }" />
+              </div>
+              <span class="smgp-gradescerts__progress-text">{{ course.progress }}%</span>
             </div>
-            <span class="smgp-gradescerts__download-btn smgp-gradescerts__download-btn--disabled">
-              Not yet available
+            <span class="smgp-gradescerts__btn smgp-gradescerts__btn--disabled">
+              {{ $t('certificates.unavailable') }}
             </span>
           </template>
         </div>
@@ -61,7 +71,7 @@
     </div>
 
     <div v-else class="smgp-gradescerts__empty">
-      <p>No courses with grades yet.</p>
+      <p>{{ $t('certificates.empty') }}</p>
     </div>
   </div>
 </template>
