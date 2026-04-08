@@ -103,7 +103,10 @@ export default defineNuxtConfig({
       // embedding the dev server via spa.php).
       origin: `http://localhost:${SPA_DEV_PORT}`,
       cors: true,
-      allowedHosts: ['winhost', 'localhost'],
+      // host.docker.internal is how spa.php (running inside the iomad_app
+      // container) reaches the Nuxt dev server on the Windows host. Vite
+      // checks the Host header against this list and 403s anything else.
+      allowedHosts: ['winhost', 'localhost', 'host.docker.internal'],
       hmr: {
         clientPort: SPA_DEV_PORT,
         protocol: 'ws',
