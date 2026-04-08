@@ -65,7 +65,7 @@
 </template>
 
 <script setup lang="ts">
-definePageMeta({ layout: 'admin', middleware: 'auth' })
+definePageMeta({ middleware: 'auth' })
 
 const { getCompanyLimits, updateCompanyLimit } = useAdminApi()
 

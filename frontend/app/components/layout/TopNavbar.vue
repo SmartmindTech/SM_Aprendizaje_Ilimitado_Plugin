@@ -3,7 +3,7 @@
     <!-- Left: logo -->
     <div class="smgp-topnav__left">
       <NuxtLink to="/dashboard" class="smgp-topnav__logo">
-        <img src="/img/smartmind_logo.png" :alt="$t('app.name')">
+        <img :src="logoUrl" :alt="$t('app.name')">
       </NuxtLink>
     </div>
 
@@ -35,6 +35,7 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import logoUrl from '~/assets/img/smartmind_logo.png'
 
 interface NavItem {
   key: string
@@ -73,10 +74,10 @@ const navItems = computed<NavItem[]>(() => {
 
   // Admin items (no "My space" — admins don't have a personal dashboard)
   return [
-    { key: 'home',                to: '/catalogue',             label: t('nav.catalogue'),   matches: ['/catalogue'] },
-    { key: 'sm-coursemanagement', to: '/management/courses',    label: t('nav.coursemgmt'),  matches: ['/management/courses'] },
-    { key: 'siteadminnode',       to: '/admin/settings',        label: t('nav.siteadmin'),   matches: ['/admin/settings'] },
-    { key: 'iomaddashboard',      to: '/admin/iomad-dashboard', label: t('nav.iomad'),       matches: ['/admin/iomad-dashboard'] },
+    { key: 'home',                to: '/catalogue',             label: t('nav.catalogue'),       matches: ['/catalogue'] },
+    { key: 'sm-coursemanagement', to: '/management/courses',    label: t('nav.coursemgmt'),      matches: ['/management/courses', '/admin/courseloader', '/admin/restore', '/courses/create'] },
+    { key: 'siteadminnode',       to: '/admin/settings',        label: t('nav.siteadmin'),       matches: ['/admin/settings', '/admin/company-limits', '/admin/updates'] },
+    { key: 'iomaddashboard',      to: '/admin/iomad-dashboard', label: t('nav.iomaddashboard'),  matches: ['/admin/iomad-dashboard'] },
   ]
 })
 

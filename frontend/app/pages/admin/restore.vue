@@ -70,6 +70,63 @@
         </select>
       </div>
 
+      <!-- Target companies (mirrors the courseloader picker; selection
+           is persisted in sessionStorage so courseloader → restore round
+           trips don't lose it). -->
+      <div class="smgp-restore__field">
+        <label>{{ $t('courseloader.companies_card') || 'Target companies' }}</label>
+        <div class="smgp-restore__company-search">
+          <input
+            v-model="companyFilter"
+            type="text"
+            class="form-control"
+            :placeholder="$t('courseloader.company_search_placeholder') || 'Search company...'"
+          >
+        </div>
+        <div class="smgp-restore__company-table">
+          <table class="table">
+            <thead>
+              <tr>
+                <th class="smgp-restore__toggle-cell" style="width:60px">
+                  <span class="smgp-restore__toggle-wrap form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      :checked="allFilteredSelected"
+                      :indeterminate.prop="someFilteredSelected && !allFilteredSelected"
+                      @change="toggleAllCompanies(($event.target as HTMLInputElement).checked)"
+                    >
+                  </span>
+                </th>
+                <th>{{ $t('courseloader.company_col') || 'Company' }}</th>
+                <th>{{ $t('courseloader.shortname_col') || 'Short name' }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="c in filteredCompanies" :key="c.id">
+                <td class="smgp-restore__toggle-cell">
+                  <span class="smgp-restore__toggle-wrap form-switch">
+                    <input
+                      v-model="selectedCompanyIds"
+                      class="form-check-input"
+                      type="checkbox"
+                      :value="c.id"
+                    >
+                  </span>
+                </td>
+                <td><strong>{{ c.name }}</strong></td>
+                <td class="text-muted">{{ c.shortname }}</td>
+              </tr>
+              <tr v-if="!filteredCompanies.length">
+                <td colspan="3" class="text-center text-muted small">
+                  {{ $t('courseloader.companies_empty') || 'No companies found.' }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="smgp-restore__actions">
         <button class="btn btn-outline-secondary" @click="step = 1">← {{ $t('restore.back') || 'Back' }}</button>
         <button class="btn btn-primary" :disabled="!destination.fullname || !destination.shortname" @click="loadSettings">
@@ -239,12 +296,119 @@ const selectedFile = ref<File | null>(null)
 const uploading = ref(false)
 const prepareResult = ref<any>(null)
 
-// Step 2
+// Step 2 — destination + target companies.
 const destination = reactive({
   fullname: '',
   shortname: '',
   categoryid: 1,
 })
+
+// Companies picker mirrors the courseloader page. The selection is
+// persisted in sessionStorage under SMGP_RESTORE_COMPANIES so that
+// navigating courseloader → restore (or back-and-forth between restore
+// steps) doesn't lose what the admin already selected.
+const SMGP_RESTORE_COMPANIES = 'smgp_restore_company_ids'
+interface CompanyRow { id: number; name: string; shortname: string }
+const companies = ref<CompanyRow[]>([])
+const companyFilter = ref('')
+const selectedCompanyIds = ref<number[]>(loadInitialCompanies())
+
+function loadInitialCompanies(): number[] {
+  if (typeof window === 'undefined') return []
+  try {
+    const raw = window.sessionStorage.getItem(SMGP_RESTORE_COMPANIES)
+    if (!raw) return []
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed.map((n: unknown) => Number(n)).filter(Boolean) : []
+  } catch {
+    return []
+  }
+}
+
+watch(selectedCompanyIds, (ids) => {
+  if (typeof window === 'undefined') return
+  window.sessionStorage.setItem(SMGP_RESTORE_COMPANIES, JSON.stringify(ids))
+}, { deep: true })
+
+function normalize(s: string): string {
+  return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+}
+const filteredCompanies = computed(() => {
+  const term = normalize(companyFilter.value.trim())
+  if (!term) return companies.value
+  return companies.value.filter(c =>
+    normalize(c.name).includes(term) || normalize(c.shortname).includes(term),
+  )
+})
+const allFilteredSelected = computed(() =>
+  filteredCompanies.value.length > 0 &&
+  filteredCompanies.value.every(c => selectedCompanyIds.value.includes(c.id)),
+)
+const someFilteredSelected = computed(() =>
+  filteredCompanies.value.some(c => selectedCompanyIds.value.includes(c.id)),
+)
+function toggleAllCompanies(checked: boolean) {
+  const ids = filteredCompanies.value.map(c => c.id)
+  if (checked) {
+    selectedCompanyIds.value = Array.from(new Set([...selectedCompanyIds.value, ...ids]))
+  } else {
+    selectedCompanyIds.value = selectedCompanyIds.value.filter(id => !ids.includes(id))
+  }
+}
+
+interface CompanyStatsResponse extends Array<{ id: number | string; name: string; shortname: string }> {}
+async function loadCompanies() {
+  const result = await call<CompanyStatsResponse>('local_sm_graphics_plugin_get_company_stats', {})
+  if (!result.error && Array.isArray(result.data)) {
+    companies.value = result.data.map((c) => ({
+      id: Number(c.id),
+      name: String(c.name),
+      shortname: String(c.shortname),
+    }))
+  }
+}
+loadCompanies()
+
+// SharePoint courseloader → restore wizard handoff. The courseloader
+// page calls sharepoint_prepare_restore to download the MBZ from
+// SharePoint and stash its filename in sessionStorage, then navigates
+// here. We pick that filename up on mount, run restore_prepare with it,
+// and skip step 1 entirely so the user lands on step 2 (Destination)
+// with the SharePoint course already loaded.
+function consumeSharepointHandoff() {
+  if (typeof window === 'undefined') return
+  const filename = window.sessionStorage.getItem('smgp_restore_sp_filename')
+  if (!filename) return
+  // Clear immediately so a back-button bounce doesn't re-trigger prepare.
+  window.sessionStorage.removeItem('smgp_restore_sp_filename')
+
+  uploading.value = true
+  call<{
+    success: boolean
+    backupid?: string
+    original_fullname?: string
+    original_shortname?: string
+    error?: string
+  }>('local_sm_graphics_plugin_restore_prepare', {
+    filename,
+    draftitemid: 0,
+  }).then((result) => {
+    uploading.value = false
+    if (result.error || !result.data?.success) {
+      executeError.value = result.error || result.data?.error || 'Failed to load SharePoint backup.'
+      return
+    }
+    prepareResult.value = result.data
+    destination.fullname = result.data.original_fullname || ''
+    destination.shortname = (result.data.original_shortname || '') + '_' + Date.now()
+    // Stay on step 1 — it already renders the prepared backup details
+    // and a Next button when prepareResult.success is true. The user
+    // can review the original-name/date/release info, then click
+    // through 1 → 2 → ... → 7 like a normal restore.
+    step.value = 1
+  })
+}
+consumeSharepointHandoff()
 
 // Step 3
 const loadingSettings = ref(false)
@@ -338,6 +502,7 @@ async function executeRestore() {
     categoryid: destination.categoryid,
     fullname: destination.fullname,
     shortname: destination.shortname,
+    companyids: selectedCompanyIds.value.join(','),
     smgp_fields_json: JSON.stringify({
       smgp_duration_hours: smgpMeta.duration_hours,
       smgp_level: smgpMeta.level,
@@ -393,6 +558,102 @@ async function executeRestore() {
     margin-bottom: 1rem;
     label { display: block; font-weight: 600; margin-bottom: 0.25rem; }
   }
+
+  &__company-search {
+    margin-bottom: 0.85rem;
+    max-width: 320px;
+
+    .form-control {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 0.55rem 0.85rem;
+      font-size: 0.9rem;
+      &:focus { background: #fff; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.15); border-color: #10b981; }
+    }
+  }
+  &__company-table {
+    max-height: 360px;
+    overflow-y: auto;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+
+    table {
+      margin-bottom: 0;
+      border-collapse: separate;
+      border-spacing: 0;
+      width: 100%;
+    }
+    thead th {
+      position: sticky;
+      top: 0;
+      background: #f8fafc;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #94a3b8;
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid #e2e8f0;
+      border-right: 1px solid #eef2f7;
+      vertical-align: middle;
+      text-align: left;
+      &:last-child { border-right: none; }
+    }
+    tbody td {
+      padding: 0.85rem 1rem;
+      border-top: 1px solid #eef2f7;
+      border-right: 1px solid #eef2f7;
+      vertical-align: middle;
+      background: #fff;
+      &:last-child { border-right: none; }
+    }
+    tbody tr:first-child td { border-top: none; }
+    tbody tr:hover td { background: #f0fdf4; }
+    tbody td strong { color: #1e293b; font-weight: 600; }
+    tbody td.text-muted { color: #94a3b8 !important; font-size: 0.9rem; }
+
+    th.smgp-restore__toggle-cell,
+    td.smgp-restore__toggle-cell {
+      position: relative;
+      width: 60px;
+      min-width: 60px;
+      height: 48px;
+      padding: 0 !important;
+      vertical-align: middle;
+    }
+  }
+
+  &__toggle-wrap {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: block;
+    padding: 0 !important;
+    margin: 0 !important;
+    min-height: 0;
+    line-height: 0;
+    &.form-switch { padding-left: 0 !important; }
+
+    .form-check-input {
+      display: block;
+      float: none !important;
+      margin: 0 !important;
+      width: 2.4rem;
+      height: 1.3rem;
+      cursor: pointer;
+      border-color: #cbd5e1;
+      background-color: #e2e8f0;
+      &:checked {
+        background-color: #10b981;
+        border-color: #10b981;
+      }
+    }
+  }
+
   &__actions {
     display: flex;
     gap: 0.5rem;

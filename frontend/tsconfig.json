@@ -1,32 +1,15 @@
 {
-  "extends": "./.nuxt/tsconfig.json",
-  "compilerOptions": {
-    "strict": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "lib": ["es2020", "dom", "dom.iterable"],
-    "target": "ES2020",
-    "module": "ESNext",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "jsx": "preserve",
-    "baseUrl": ".",
-    "paths": {
-      "~": ["."],
-      "~/*": ["./*"]
-    },
-    "types": ["vite/client", "node", "@types/node", "@nuxt/schema", "@nuxtjs/i18n", "pinia"]
-  },
-  "include": [
-    ".nuxt/nuxt.d.ts",
-    "./**/*.ts",
-    "./**/*.tsx",
-    "./**/*.vue",
-    "env.d.ts"
-  ],
-  "exclude": ["node_modules", "dist", ".nuxt"]
+  // Nuxt 4 generates separate project tsconfigs for app, server, shared
+  // and node contexts under .nuxt/. The supported root tsconfig is a
+  // solution-style file that just references them — type-checking and
+  // path resolution are delegated to those generated projects (which
+  // already know about the app/ source layout, auto-imports, and the
+  // i18n + Pinia plugins). Don't add compilerOptions or include here.
+  "files": [],
+  "references": [
+    { "path": "./.nuxt/tsconfig.app.json" },
+    { "path": "./.nuxt/tsconfig.server.json" },
+    { "path": "./.nuxt/tsconfig.shared.json" },
+    { "path": "./.nuxt/tsconfig.node.json" }
+  ]
 }

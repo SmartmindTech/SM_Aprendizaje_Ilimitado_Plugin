@@ -44,12 +44,22 @@ class course_analyzer {
         return self::$last_error;
     }
 
-    /** @var array Subfolder classification rules: pattern => type. */
+    /**
+     * Subfolder classification rules: needle => type.
+     *
+     * Matched with stripos() so any subfolder whose name CONTAINS the
+     * needle (case-insensitive) is classified — that catches real-world
+     * variants like "MBZ anterior a v4.0", "SCORM (en castellano)",
+     * "CONECTORES", "CONECTOR Articulate", "Documentos PDF", etc.
+     * Order matters: first match wins, so put more specific keys before
+     * generic ones.
+     */
     private const FOLDER_RULES = [
-        '/^mbz$/i'                         => 'mbz',
-        '/^scorm$/i'                       => 'scorm',
-        '/^pdf$/i'                         => 'pdf',
-        '/^documentos/i'                   => 'documents',
+        'mbz'         => 'mbz',
+        'scorm'       => 'scorm',
+        'conector'    => 'scorm',  // CONECTOR / CONECTORES → SCORM packages.
+        'pdf'         => 'pdf',
+        'documentos'  => 'documents',
     ];
 
     /**
@@ -101,6 +111,10 @@ class course_analyzer {
         foreach ($items as $item) {
             if ($item['is_folder']) {
                 self::classify_subfolder($item, $location, $manifest);
+            } else {
+                // Real-world course folders sometimes drop the .mbz / .pdf
+                // straight at the root with no MBZ/ wrapper. Catch those.
+                self::classify_root_file($item, $manifest);
             }
         }
 
@@ -129,16 +143,16 @@ class course_analyzer {
         $name = $folder['name'];
         $type = null;
 
-        // Match against known folder patterns.
-        foreach (self::FOLDER_RULES as $pattern => $t) {
-            if (preg_match($pattern, $name)) {
+        // Match against known folder needles (substring, case-insensitive).
+        foreach (self::FOLDER_RULES as $needle => $t) {
+            if (stripos($name, $needle) !== false) {
                 $type = $t;
                 break;
             }
         }
 
         // Handle evaluation folders (may be combined AIKEN-GIFT).
-        if ($type === null && preg_match('/^evaluaciones/i', $name)) {
+        if ($type === null && stripos($name, 'evaluaciones') !== false) {
             $type = 'evaluations_mixed';
         }
 
@@ -200,6 +214,44 @@ class course_analyzer {
                     }
                     break;
             }
+        }
+    }
+
+    /**
+     * Classify a file that lives at the ROOT of the course folder (no
+     * MBZ/SCORM/PDF wrapper subfolder). Useful when a course author dumps
+     * the .mbz straight at the root.
+     *
+     * @param array $file File item from list_folder.
+     * @param array &$manifest Manifest to populate.
+     */
+    private static function classify_root_file(array $file, array &$manifest): void {
+        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        $filedata = [
+            'name'    => $file['name'],
+            'item_id' => $file['id'],
+            'size'    => $file['size'],
+        ];
+        switch ($ext) {
+            case 'mbz':
+                $manifest['mbz'][] = $filedata;
+                break;
+            case 'pdf':
+                $manifest['pdf'][] = $filedata;
+                $manifest['documents'][] = $filedata;
+                break;
+            case 'pptx':
+            case 'docx':
+                $manifest['documents'][] = $filedata;
+                break;
+            case 'zip':
+                // SCORM packages at root are uncommon but accept them.
+                $manifest['scorm'][] = $filedata;
+                break;
+            case 'txt':
+                $evaltype = self::classify_evaluation_file($file['name']);
+                $manifest[$evaltype][] = $filedata;
+                break;
         }
     }
 

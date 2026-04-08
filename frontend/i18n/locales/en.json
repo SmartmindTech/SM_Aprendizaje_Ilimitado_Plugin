@@ -19,6 +19,7 @@
     "admin": "Administration",
     "siteadmin": "Site Administration",
     "iomad": "IOMAD",
+    "iomaddashboard": "IOMAD dashboard",
     "settings": "Settings",
     "notifications": "Notifications",
     "language": "Language",
@@ -273,5 +274,46 @@
     "eventsDesc": "Real-time event rules and alerts.",
     "searchLabel": "Search admin",
     "searchDesc": "Full access to Moodle's classic admin."
+  },
+  "iomad": {
+    "heading": "Administration",
+    "no_cards": "No options available for your account."
+  },
+  "siteadmin": {
+    "heading": "Site administration",
+    "description": "Configure the SmartMind plugin settings or open Moodle's full admin panel.",
+    "plugin_settings": "Plugin settings",
+    "full_admin": "Full Moodle admin"
+  },
+  "courseloader": {
+    "title": "SharePoint course loader",
+    "subtitle": "Paste a SharePoint folder URL to analyse its contents and import the course automatically.",
+    "course_card": "SharePoint course",
+    "search_placeholder": "Search course...",
+    "url_placeholder": "https://your-tenant.sharepoint.com/sites/...",
+    "url_toggle": "URL",
+    "list_toggle": "List",
+    "courses_cached": "courses available",
+    "sync": "Sync",
+    "sync_log": "Sync log",
+    "companies_card": "Target companies",
+    "company_search_placeholder": "Search company...",
+    "company_col": "Company",
+    "shortname_col": "Short name",
+    "companies_empty": "No companies found.",
+    "scan": "Scan folder",
+    "scanning": "Scanning...",
+    "scan_results": "Scan results",
+    "evals_short": "Evaluations",
+    "file_col": "File",
+    "type_col": "Type",
+    "size_col": "Size",
+    "import_card": "Import course",
+    "import": "Import course",
+    "importing": "Importing...",
+    "log": "Import log",
+    "success": "Course imported successfully",
+    "error": "Import failed",
+    "view_course": "View course"
   }
 }

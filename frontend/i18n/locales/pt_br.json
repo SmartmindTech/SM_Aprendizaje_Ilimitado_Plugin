@@ -19,6 +19,7 @@
     "admin": "Administração",
     "siteadmin": "Administração do site",
     "iomad": "IOMAD",
+    "iomaddashboard": "IOMAD dashboard",
     "settings": "Configurações",
     "notifications": "Notificações",
     "language": "Idioma",
@@ -273,5 +274,46 @@
     "eventsDesc": "Regras e alertas em tempo real.",
     "searchLabel": "Buscar na administração",
     "searchDesc": "Acesso completo ao admin clássico do Moodle."
+  },
+  "iomad": {
+    "heading": "Administração",
+    "no_cards": "Nenhuma opção disponível para sua conta."
+  },
+  "siteadmin": {
+    "heading": "Administração do site",
+    "description": "Configure as opções do plugin SmartMind ou abra o painel de administração completo do Moodle.",
+    "plugin_settings": "Configurações do plugin",
+    "full_admin": "Administração completa do Moodle"
+  },
+  "courseloader": {
+    "title": "Carregador de cursos do SharePoint",
+    "subtitle": "Cole a URL de uma pasta do SharePoint para analisar o conteúdo e importar o curso automaticamente.",
+    "course_card": "Curso no SharePoint",
+    "search_placeholder": "Buscar curso...",
+    "url_placeholder": "https://your-tenant.sharepoint.com/sites/...",
+    "url_toggle": "URL",
+    "list_toggle": "Lista",
+    "courses_cached": "cursos disponíveis",
+    "sync": "Sincronizar",
+    "sync_log": "Log de sincronização",
+    "companies_card": "Empresas de destino",
+    "company_search_placeholder": "Buscar empresa...",
+    "company_col": "Empresa",
+    "shortname_col": "Nome curto",
+    "companies_empty": "Nenhuma empresa encontrada.",
+    "scan": "Escanear pasta",
+    "scanning": "Escaneando...",
+    "scan_results": "Resultados da análise",
+    "evals_short": "Avaliações",
+    "file_col": "Arquivo",
+    "type_col": "Tipo",
+    "size_col": "Tamanho",
+    "import_card": "Importar curso",
+    "import": "Importar curso",
+    "importing": "Importando...",
+    "log": "Log de importação",
+    "success": "Curso importado com sucesso",
+    "error": "Falha na importação",
+    "view_course": "Ver curso"
   }
 }

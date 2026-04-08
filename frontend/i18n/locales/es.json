@@ -19,6 +19,7 @@
     "admin": "Administración",
     "siteadmin": "Administración del sitio",
     "iomad": "IOMAD",
+    "iomaddashboard": "IOMAD dashboard",
     "settings": "Configuración",
     "notifications": "Notificaciones",
     "language": "Idioma",
@@ -273,5 +274,46 @@
     "eventsDesc": "Reglas y alertas en tiempo real.",
     "searchLabel": "Buscar en administración",
     "searchDesc": "Acceso completo al admin clásico de Moodle."
+  },
+  "iomad": {
+    "heading": "Administración",
+    "no_cards": "No hay opciones disponibles para tu cuenta."
+  },
+  "siteadmin": {
+    "heading": "Administración del sitio",
+    "description": "Configura los ajustes del plugin SmartMind o accede al panel de administración completo de Moodle.",
+    "plugin_settings": "Ajustes del plugin",
+    "full_admin": "Administración completa de Moodle"
+  },
+  "courseloader": {
+    "title": "Cargador de cursos desde SharePoint",
+    "subtitle": "Pega la URL de una carpeta de SharePoint para analizar su contenido e importar el curso automáticamente.",
+    "course_card": "Curso en SharePoint",
+    "search_placeholder": "Buscar curso...",
+    "url_placeholder": "https://your-tenant.sharepoint.com/sites/...",
+    "url_toggle": "URL",
+    "list_toggle": "Lista",
+    "courses_cached": "cursos disponibles",
+    "sync": "Sincronizar",
+    "sync_log": "Registro de sincronización",
+    "companies_card": "Empresas de destino",
+    "company_search_placeholder": "Buscar empresa...",
+    "company_col": "Empresa",
+    "shortname_col": "Nombre corto",
+    "companies_empty": "No se encontraron empresas.",
+    "scan": "Escanear carpeta",
+    "scanning": "Escaneando...",
+    "scan_results": "Resultados del análisis",
+    "evals_short": "Evaluaciones",
+    "file_col": "Archivo",
+    "type_col": "Tipo",
+    "size_col": "Tamaño",
+    "import_card": "Importar curso",
+    "import": "Importar curso",
+    "importing": "Importando...",
+    "log": "Registro de importación",
+    "success": "Curso importado correctamente",
+    "error": "La importación falló",
+    "view_course": "Ver curso"
   }
 }

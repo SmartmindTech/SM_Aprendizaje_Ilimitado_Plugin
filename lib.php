@@ -25,6 +25,44 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
+ * Read the plugin's .env file as a flat key→value array.
+ *
+ * Used by the SharePoint client and the SMTP/Azure helpers to pick up
+ * credentials that aren't worth exposing in Moodle's admin UI. Keys are
+ * normalised to lowercase so call sites can use either casing.
+ *
+ * Result is cached for the request, so repeated calls are free.
+ *
+ * @return array
+ */
+function local_sm_graphics_plugin_load_config(): array {
+    static $cache = null;
+    if ($cache !== null) {
+        return $cache;
+    }
+    $cache = [];
+    $path = __DIR__ . '/.env';
+    if (!file_exists($path)) {
+        return $cache;
+    }
+    $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        $line = trim($line);
+        if ($line === '' || $line[0] === '#') {
+            continue;
+        }
+        $pos = strpos($line, '=');
+        if ($pos === false) {
+            continue;
+        }
+        $key = strtolower(trim(substr($line, 0, $pos)));
+        $value = trim(substr($line, $pos + 1));
+        $cache[$key] = $value;
+    }
+    return $cache;
+}
+
+/**
  * Build a URL pointing at a Vue SPA hash route.
  *
  * All user-facing navigation in testnuxt lives inside the SPA shell at
@@ -126,26 +164,30 @@ function local_sm_graphics_plugin_extend_navigation(global_navigation $navigatio
     }
 
     // IOMAD dashboard → SPA admin IOMAD dashboard.
-    if (strpos($scriptpath, 'iomad_company_admin/index.php') !== false) {
+    // Site admins are intentionally allowed through to the real Moodle
+    // admin pages — without this exception, clicking "Site administration"
+    // (or our plugin's own settings link) bounces back into the SPA in a
+    // loop and the admin can never reach /admin/settings.php.
+    if (strpos($scriptpath, 'iomad_company_admin/index.php') !== false && !is_siteadmin()) {
         $managerrec = local_sm_graphics_plugin_get_manager_record($USER->id);
-        if ($managerrec || is_siteadmin()) {
+        if ($managerrec) {
             redirect(new moodle_url($spapage, [], 'admin/iomad-dashboard'));
         }
     }
 
-    // IOMAD company edit → SPA company editor.
-    if (strpos($scriptpath, 'company_edit_form.php') !== false) {
+    // IOMAD company edit → SPA company editor (managers only).
+    if (strpos($scriptpath, 'company_edit_form.php') !== false && !is_siteadmin()) {
         $managerrec = local_sm_graphics_plugin_get_manager_record($USER->id);
-        if ($managerrec || is_siteadmin()) {
+        if ($managerrec) {
             $companyid = optional_param('companyid', 0, PARAM_INT);
             redirect(new moodle_url($spapage, [], 'admin/company-editor' . ($companyid ? '?companyid=' . $companyid : '')));
         }
     }
 
-    // IOMAD user creation → SPA create user.
-    if (strpos($scriptpath, 'company_user_create_form.php') !== false) {
+    // IOMAD user creation → SPA create user (managers only).
+    if (strpos($scriptpath, 'company_user_create_form.php') !== false && !is_siteadmin()) {
         $managerrec = local_sm_graphics_plugin_get_manager_record($USER->id);
-        if ($managerrec || is_siteadmin()) {
+        if ($managerrec) {
             redirect(new moodle_url($spapage, [], 'admin/create-user'));
         }
     }

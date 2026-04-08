@@ -25,10 +25,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_sm_graphics_plugin';
-$plugin->version = 2026040801;  // YYYYMMDDXX format — WIP recovery from IntelliJ shelves + Vite allowedHosts fix for Docker dev mode.
+$plugin->version = 2026040802;  // YYYYMMDDXX format — Courseloader UI overhaul + restore handoff + sharepoint_prepare_restore fast path.
 $plugin->requires = 2022112800; // Moodle 4.1+
 $plugin->maturity = MATURITY_ALPHA;
-$plugin->release = '1.1.0-nuxt.15';  // Nuxt branch, aligned with dev v1.1.0 backend
+$plugin->release = '1.1.0-nuxt.16';  // Nuxt branch, aligned with dev v1.1.0 backend
 
 // GitHub update server — configurable via UPDATE_BRANCH in .env.
 //

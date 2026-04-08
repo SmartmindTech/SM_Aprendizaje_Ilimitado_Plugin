@@ -43,16 +43,20 @@ class sharepoint_prepare_restore extends external_api {
             'folder_url'  => new external_value(PARAM_URL, 'SharePoint folder URL'),
             'categoryid'  => new external_value(PARAM_INT, 'Target course category ID (from company)'),
             'companyids'  => new external_value(PARAM_RAW, 'JSON array of selected company IDs', VALUE_DEFAULT, '[]'),
+            'mbz_item_id' => new external_value(PARAM_RAW, 'Pre-scanned MBZ item id (skips analyzer when set)', VALUE_DEFAULT, ''),
+            'mbz_name'    => new external_value(PARAM_RAW, 'Pre-scanned MBZ filename', VALUE_DEFAULT, ''),
         ]);
     }
 
-    public static function execute(string $folder_url, int $categoryid, string $companyids = '[]'): array {
+    public static function execute(string $folder_url, int $categoryid, string $companyids = '[]', string $mbz_item_id = '', string $mbz_name = ''): array {
         global $CFG, $SESSION;
 
         $params = self::validate_parameters(self::execute_parameters(), [
             'folder_url'  => $folder_url,
             'categoryid'  => $categoryid,
             'companyids'  => $companyids,
+            'mbz_item_id' => $mbz_item_id,
+            'mbz_name'    => $mbz_name,
         ]);
 
         $context = \context_system::instance();
@@ -61,15 +65,26 @@ class sharepoint_prepare_restore extends external_api {
         @set_time_limit(300);
         raise_memory_limit(MEMORY_EXTRA);
 
-        // 1. Scan SharePoint folder to get full manifest.
-        $manifest = \local_sm_graphics_plugin\sharepoint\course_analyzer::analyze($params['folder_url']);
-        if ($manifest === null || empty($manifest['mbz'])) {
-            return [
-                'success'   => false,
-                'contextid' => 0,
-                'filename'  => '',
-                'error'     => 'No MBZ file found in the SharePoint folder.',
+        // 1. Get the MBZ item id + name. Fast path: caller passed them
+        // from a previous scan_results, so we skip the analyzer call (no
+        // extra Graph API round-trip). Fallback: re-scan the folder.
+        $manifest = null;
+        if ($params['mbz_item_id'] !== '' && $params['mbz_name'] !== '') {
+            $mbz = [
+                'item_id' => $params['mbz_item_id'],
+                'name'    => $params['mbz_name'],
             ];
+        } else {
+            $manifest = \local_sm_graphics_plugin\sharepoint\course_analyzer::analyze($params['folder_url']);
+            if ($manifest === null || empty($manifest['mbz'])) {
+                return [
+                    'success'   => false,
+                    'contextid' => 0,
+                    'filename'  => '',
+                    'error'     => 'No MBZ file found in the SharePoint folder.',
+                ];
+            }
+            $mbz = $manifest['mbz'][0];
         }
 
         // 2. Download the MBZ from SharePoint.
@@ -83,7 +98,6 @@ class sharepoint_prepare_restore extends external_api {
             ];
         }
 
-        $mbz = $manifest['mbz'][0];
         $temppath = \local_sm_graphics_plugin\sharepoint\client::download_file(
             $parsed['site_id'], $parsed['drive_id'], $mbz['item_id'], $mbz['name']
         );
@@ -105,8 +119,14 @@ class sharepoint_prepare_restore extends external_api {
         // 4. Get the category context for the restore wizard.
         $catcontext = \context_coursecat::instance($params['categoryid']);
 
-        // 5. Store manifest + folder URL + company IDs in SESSION for post-restore use.
-        $SESSION->smgp_sp_manifest    = $manifest;
+        // 5. Store manifest (if we have it) + folder URL + company IDs in
+        // SESSION for the post-restore observer. Manifest is null on the
+        // fast path (no analyzer call) — that's fine, the observer only
+        // needs it when SCORM/PDF/Documentos sidecar files have to be
+        // attached after restore.
+        if ($manifest !== null) {
+            $SESSION->smgp_sp_manifest = $manifest;
+        }
         $SESSION->smgp_sp_folder_url  = $params['folder_url'];
         $SESSION->smgp_sp_categoryid  = $params['categoryid'];
         $SESSION->smgp_sp_companyids  = json_decode($params['companyids'], true) ?: [];

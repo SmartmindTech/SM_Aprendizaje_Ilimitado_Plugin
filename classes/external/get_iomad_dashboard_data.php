@@ -120,8 +120,46 @@ class get_iomad_dashboard_data extends external_api {
             ];
         }
 
+        // Flat list of admin cards for the dashboard grid (image13.png).
+        // Each card maps an IOMAD admin area key to a bootstrap-icon, a colour
+        // tag, and the first usable URL from its sub-options. Site admins see
+        // all cards; company managers see only the ones their permissions
+        // produced sub-options for.
+        $cardicons = [
+            'companies'      => ['icon' => 'bi-building',         'color' => 'blue'],
+            'users'          => ['icon' => 'bi-people',           'color' => 'blue'],
+            'courses'        => ['icon' => 'bi-file-earmark-text','color' => 'blue'],
+            'licenses'       => ['icon' => 'bi-rulers',           'color' => 'violet'],
+            'competences'    => ['icon' => 'bi-box',              'color' => 'violet'],
+            'emailtemplates' => ['icon' => 'bi-envelope',         'color' => 'blue'],
+            'shop'           => ['icon' => 'bi-bag',              'color' => 'blue'],
+            'reports'        => ['icon' => 'bi-bar-chart',        'color' => 'blue'],
+        ];
+
+        $cards = [];
+        foreach ($resultcategories as $cat) {
+            $key = $cat['key'] ?? '';
+            // Skip categories that aren't in the expected card list (e.g. configuration).
+            if (!isset($cardicons[$key])) {
+                continue;
+            }
+            // Use the first sub-option URL as the card target.
+            $firsturl = '';
+            if (!empty($cat['options'][0]['url'])) {
+                $firsturl = $cat['options'][0]['url'];
+            }
+            $cards[] = [
+                'key'        => $key,
+                'title'      => $cat['title'] ?? '',
+                'icon'       => $cardicons[$key]['icon'],
+                'icon_color' => $cardicons[$key]['color'],
+                'url'        => $firsturl,
+            ];
+        }
+
         return [
             'companyname' => $companyname ?: '',
+            'cards'       => $cards,
             'categories'  => $resultcategories,
         ];
     }
@@ -129,6 +167,15 @@ class get_iomad_dashboard_data extends external_api {
     public static function execute_returns(): external_single_structure {
         return new external_single_structure([
             'companyname' => new external_value(PARAM_TEXT, 'Current company name'),
+            'cards'       => new external_multiple_structure(
+                new external_single_structure([
+                    'key'        => new external_value(PARAM_TEXT, 'Card key'),
+                    'title'      => new external_value(PARAM_TEXT, 'Card title'),
+                    'icon'       => new external_value(PARAM_TEXT, 'Bootstrap-icon class (bi-*)'),
+                    'icon_color' => new external_value(PARAM_TEXT, 'Icon colour tag'),
+                    'url'        => new external_value(PARAM_RAW, 'Card URL'),
+                ])
+            ),
             'categories'  => new external_multiple_structure(
                 new external_single_structure([
                     'key'   => new external_value(PARAM_TEXT, 'Category key'),
