@@ -4,6 +4,14 @@ on:
   push:
     branches: [main, dev, testnuxt]
 
+# Serialize runs per branch. If a new push lands while a run is in progress,
+# cancel the older one — only the latest commit ever needs releasing, and
+# concurrent runs racing on the same `gh release create v$RELEASE` tag was
+# making everything fail.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   release:
     runs-on: ubuntu-latest
