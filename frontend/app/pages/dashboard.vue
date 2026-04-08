@@ -45,38 +45,49 @@
 
     <!-- ════════════════════════════════════════════════════════════ -->
     <!-- QUICK NAVIGATION  (mirrors dashboard_quick_nav.mustache)     -->
+    <!-- Content-type filters: only "Cursos" is wired up; the rest    -->
+    <!-- are placeholders waiting for backend support, just like the  -->
+    <!-- original PHP version (mydashboard.php:166-173).              -->
     <!-- ════════════════════════════════════════════════════════════ -->
     <div class="dashboard-quicknav">
-      <NuxtLink to="/courses" class="dashboard-quicknav__item dashboard-quicknav__item--green">
+      <a
+        href="#"
+        class="dashboard-quicknav__item dashboard-quicknav__item--blue"
+        @click.prevent="scrollToSection(enrolledRef)"
+      >
         <span class="dashboard-quicknav__icon">📚</span>
-        <span class="dashboard-quicknav__label">{{ $t('nav.courses') }}</span>
-      </NuxtLink>
-      <NuxtLink to="/catalogue" class="dashboard-quicknav__item dashboard-quicknav__item--purple">
-        <span class="dashboard-quicknav__icon">🔍</span>
-        <span class="dashboard-quicknav__label">{{ $t('nav.catalogue') }}</span>
-      </NuxtLink>
-      <NuxtLink to="/grades-certificates" class="dashboard-quicknav__item dashboard-quicknav__item--orange">
-        <span class="dashboard-quicknav__icon">🏆</span>
-        <span class="dashboard-quicknav__label">{{ $t('nav.grades') }}</span>
-      </NuxtLink>
-      <NuxtLink to="/profile" class="dashboard-quicknav__item dashboard-quicknav__item--teal">
-        <span class="dashboard-quicknav__icon">👤</span>
-        <span class="dashboard-quicknav__label">{{ $t('nav.profile') }}</span>
-      </NuxtLink>
-      <a :href="calendarUrl" class="dashboard-quicknav__item dashboard-quicknav__item--blue">
-        <span class="dashboard-quicknav__icon">📅</span>
-        <span class="dashboard-quicknav__label">{{ $t('dashboard.calendar') }}</span>
+        <span class="dashboard-quicknav__label">{{ $t('dashboard.quicknav.cursos') }}</span>
       </a>
-      <a :href="messagesUrl" class="dashboard-quicknav__item dashboard-quicknav__item--red">
-        <span class="dashboard-quicknav__icon">💬</span>
-        <span class="dashboard-quicknav__label">{{ $t('dashboard.messages') }}</span>
+      <a
+        href="#"
+        class="dashboard-quicknav__item dashboard-quicknav__item--red"
+        @click.prevent="scrollToSection(pildorasRef)"
+      >
+        <span class="dashboard-quicknav__icon">⚡</span>
+        <span class="dashboard-quicknav__label">{{ $t('dashboard.quicknav.pildoras') }}</span>
       </a>
+      <span class="dashboard-quicknav__item dashboard-quicknav__item--purple dashboard-quicknav__item--disabled">
+        <span class="dashboard-quicknav__icon">🎬</span>
+        <span class="dashboard-quicknav__label">{{ $t('dashboard.quicknav.videos') }}</span>
+      </span>
+      <span class="dashboard-quicknav__item dashboard-quicknav__item--orange dashboard-quicknav__item--disabled">
+        <span class="dashboard-quicknav__icon">⭐</span>
+        <span class="dashboard-quicknav__label">{{ $t('dashboard.quicknav.recomendaciones') }}</span>
+      </span>
+      <span class="dashboard-quicknav__item dashboard-quicknav__item--teal dashboard-quicknav__item--disabled">
+        <span class="dashboard-quicknav__icon">🗺️</span>
+        <span class="dashboard-quicknav__label">{{ $t('dashboard.quicknav.rutas') }}</span>
+      </span>
+      <span class="dashboard-quicknav__item dashboard-quicknav__item--green dashboard-quicknav__item--disabled">
+        <span class="dashboard-quicknav__icon">📊</span>
+        <span class="dashboard-quicknav__label">{{ $t('dashboard.quicknav.actividad') }}</span>
+      </span>
     </div>
 
     <!-- ════════════════════════════════════════════════════════════ -->
     <!-- SEGUIR APRENDIENDO — enrolled courses                        -->
     <!-- ════════════════════════════════════════════════════════════ -->
-    <div class="catalog-section catalog-section--enrolled">
+    <div ref="enrolledRef" class="catalog-section catalog-section--enrolled">
       <div class="catalog-section__header">
         <div>
           <h5 class="catalog-section__title">
@@ -181,7 +192,7 @@
     <!-- ════════════════════════════════════════════════════════════ -->
     <!-- PÍLDORAS — category sections                                 -->
     <!-- ════════════════════════════════════════════════════════════ -->
-    <div class="catalog-section catalog-section--pildoras-wrap">
+    <div ref="pildorasRef" class="catalog-section catalog-section--pildoras-wrap">
       <div class="catalog-section__header">
         <div>
           <h5 class="catalog-section__title">
@@ -310,6 +321,16 @@ const loading = ref(true)
 const error = ref<string | null>(null)
 const data = ref<DashboardData | null>(null)
 
+// Template refs for the quick-nav scroll targets. The Cursos chip
+// scrolls the Seguir aprendiendo section to the top of the viewport;
+// the Píldoras chip does the same for the Píldoras section.
+const enrolledRef = ref<HTMLElement | null>(null)
+const pildorasRef = ref<HTMLElement | null>(null)
+
+const scrollToSection = (target: HTMLElement | null) => {
+  target?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
+
 // Greeting derived from current time so we don't depend on a server-side
 // `greeting` field.
 const greeting = computed(() => {
@@ -351,10 +372,6 @@ const categorySections = computed<CategorySection[]>(() => {
   }
   return idx.slice(0, 3).map(i => all[i]!)
 })
-
-// External links — go to the Moodle backend for now.
-const calendarUrl = computed(() => `${authStore.wwwroot}/calendar/view.php`)
-const messagesUrl = computed(() => `${authStore.wwwroot}/message/index.php`)
 
 // Single bulk fetch — get_dashboard_data now consolidates enrolled,
 // finished, categories, recommended, recommended_for_you, news and

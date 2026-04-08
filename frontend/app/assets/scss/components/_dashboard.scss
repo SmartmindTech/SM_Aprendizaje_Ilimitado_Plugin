@@ -253,6 +253,15 @@ section.block_timeline {
 // CATALOG SECTION — Reusable section wrapper (header + content)
 // ═══════════════════════════════════════════════════════════════════
 .catalog-section {
+    // Leave breathing room above each section when it becomes a
+    // scrollIntoView target — the SmartMind navbar is sticky at the
+    // top (60px desktop / 50px mobile) and would otherwise overlap
+    // the section header when the dashboard quick-nav scrolls to it.
+    scroll-margin-top: $smgp-navbar-height + 16px;
+
+    @media (max-width: $smgp-bp-sm) {
+        scroll-margin-top: $smgp-navbar-height-mobile + 12px;
+    }
 
     &__header {
         display: flex;
