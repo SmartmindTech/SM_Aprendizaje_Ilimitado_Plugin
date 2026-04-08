@@ -95,23 +95,43 @@ class get_dashboard_data extends external_api {
         // Category sections.
         $categories = self::get_category_sections(6, 4);
 
-        // Recommended from finished.
+        // Recommended from finished — drives the "Sigue avanzando" section.
         $recommended = self::get_recommended($completedids, $enrolledids, 4);
 
+        // Recommended for you — based on smgp categories of currently
+        // enrolled courses, ranked by overall completion popularity.
+        // Drives the "Recomendado para ti" section.
+        $recommendedforyou = self::get_recommended_for_you($enrolledids, 4);
+
+        // News — 4 most recently created visible courses excluding ones
+        // the user is already enrolled in. Drives the "Novedades" section.
+        $news = self::get_news($enrolledids, 4);
+
+        // Recently viewed — delegated to the existing get_browsed_courses
+        // external so the dashboard hydrates in a single round-trip instead
+        // of two parallel calls.
+        $recentlyviewed = \local_sm_graphics_plugin\external\get_browsed_courses::execute(4);
+
         return [
-            'courses'         => $enrolled,
-            'finished'        => $finished,
-            'categories'      => $categories,
-            'recommended'     => $recommended,
-            'hascourses'      => !empty($enrolled),
-            'hasfinished'     => !empty($finished),
-            'hascategories'   => !empty($categories),
-            'hasrecommended'  => !empty($recommended),
-            'username'        => fullname($USER),
-            'enrolled_count'  => count($enrolledids),
-            'completed_count' => count($completedids),
-            'training_hours'  => $traininghours,
-            'certificates'    => $certificates,
+            'courses'              => $enrolled,
+            'finished'             => $finished,
+            'categories'           => $categories,
+            'recommended'          => $recommended,
+            'recommended_for_you'  => $recommendedforyou,
+            'news'                 => $news,
+            'recently_viewed'      => $recentlyviewed,
+            'hascourses'           => !empty($enrolled),
+            'hasfinished'          => !empty($finished),
+            'hascategories'        => !empty($categories),
+            'hasrecommended'       => !empty($recommended),
+            'hasrecommendedforyou' => !empty($recommendedforyou),
+            'hasnews'              => !empty($news),
+            'hasrecentlyviewed'    => !empty($recentlyviewed),
+            'username'             => fullname($USER),
+            'enrolled_count'       => count($enrolledids),
+            'completed_count'      => count($completedids),
+            'training_hours'       => $traininghours,
+            'certificates'         => $certificates,
         ];
     }
 
@@ -327,6 +347,119 @@ class get_dashboard_data extends external_api {
         return $out;
     }
 
+    /**
+     * Recommend courses based on the user's currently enrolled courses,
+     * ranked by how popular each candidate is across the whole platform.
+     *
+     * Algorithm:
+     *   1. Find the smgp categories of the courses the user is enrolled in.
+     *   2. Pull all visible courses linked to those categories.
+     *   3. Exclude courses the user is already enrolled in.
+     *   4. Rank the remaining candidates by completion count (the more
+     *      different users that completed it, the higher it scores).
+     *   5. Return the top $limit results, freshly formatted.
+     *
+     * Falls back to an empty array if the user has no enrolled courses,
+     * the smgp tables aren't there yet, or no candidate survives the filters.
+     *
+     * @param array $enrolledids Course IDs the user is currently enrolled in.
+     * @param int   $limit       Max courses to return.
+     * @return array
+     */
+    private static function get_recommended_for_you(array $enrolledids, int $limit): array {
+        global $DB;
+
+        if (empty($enrolledids) || !$DB->get_manager()->table_exists('local_smgp_course_category')) {
+            return [];
+        }
+
+        // 1. Smgp categories of the user's enrolled courses.
+        list($insql, $params) = $DB->get_in_or_equal($enrolledids, SQL_PARAMS_NAMED);
+        $catlinks = $DB->get_records_select('local_smgp_course_category', "courseid $insql", $params);
+        if (empty($catlinks)) {
+            return [];
+        }
+        $catids = array_unique(array_column($catlinks, 'categoryid'));
+
+        // 2. All courses in those categories.
+        list($catinsql, $catparams) = $DB->get_in_or_equal($catids, SQL_PARAMS_NAMED);
+        $alllinks = $DB->get_records_select('local_smgp_course_category', "categoryid $catinsql", $catparams);
+        $candidateids = array_unique(array_column($alllinks, 'courseid'));
+
+        // 3. Drop already enrolled.
+        $candidateids = array_values(array_diff($candidateids, $enrolledids));
+        if (empty($candidateids)) {
+            return [];
+        }
+
+        // 4. Rank by completion count. LEFT JOIN so courses with zero
+        // completions still appear (popularity = 0) and the slice picks
+        // them up if there's nothing more popular.
+        list($cinsql, $cparams) = $DB->get_in_or_equal($candidateids, SQL_PARAMS_NAMED);
+        $sql = "SELECT c.id, COUNT(cc.id) AS completions
+                  FROM {course} c
+             LEFT JOIN {course_completions} cc
+                    ON cc.course = c.id AND cc.timecompleted > 0
+                 WHERE c.id $cinsql
+                   AND c.visible = 1
+              GROUP BY c.id
+              ORDER BY completions DESC, c.id ASC";
+        $ranked = $DB->get_records_sql($sql, $cparams, 0, $limit);
+        if (empty($ranked)) {
+            return [];
+        }
+
+        // 5. Hydrate full course records in the popularity order.
+        $orderedids = array_keys($ranked);
+        list($oinsql, $oparams) = $DB->get_in_or_equal($orderedids, SQL_PARAMS_NAMED);
+        $courses = $DB->get_records_select('course', "id $oinsql", $oparams);
+
+        $out = [];
+        foreach ($orderedids as $cid) {
+            if (isset($courses[$cid])) {
+                $out[] = self::build_base($courses[$cid]);
+            }
+        }
+        return $out;
+    }
+
+    /**
+     * Most recently created visible courses, excluding the ones the user
+     * is already enrolled in. Drives the "Novedades" section.
+     *
+     * @param array $enrolledids Course IDs the user is currently enrolled in.
+     * @param int   $limit       Max courses to return.
+     * @return array
+     */
+    private static function get_news(array $enrolledids, int $limit): array {
+        global $DB;
+
+        $params = [];
+        $exclude = '';
+        if (!empty($enrolledids)) {
+            list($notin, $exparams) = $DB->get_in_or_equal($enrolledids, SQL_PARAMS_NAMED, 'ex', false);
+            $exclude = "AND id $notin";
+            $params = $exparams;
+        }
+
+        $sql = "SELECT *
+                  FROM {course}
+                 WHERE id <> " . SITEID . "
+                   AND visible = 1
+                   $exclude
+              ORDER BY timecreated DESC, id DESC";
+        $courses = $DB->get_records_sql($sql, $params, 0, $limit);
+        if (empty($courses)) {
+            return [];
+        }
+
+        $out = [];
+        foreach ($courses as $course) {
+            $out[] = self::build_base($course);
+        }
+        return $out;
+    }
+
     public static function execute_returns(): external_single_structure {
         $coursestruct = new external_single_structure([
             'id'                 => new external_value(PARAM_INT, 'Course ID'),
@@ -345,9 +478,9 @@ class get_dashboard_data extends external_api {
         ]);
 
         return new external_single_structure([
-            'courses'         => new external_multiple_structure($coursestruct),
-            'finished'        => new external_multiple_structure($coursestruct),
-            'categories'      => new external_multiple_structure(
+            'courses'              => new external_multiple_structure($coursestruct),
+            'finished'             => new external_multiple_structure($coursestruct),
+            'categories'           => new external_multiple_structure(
                 new external_single_structure([
                     'categoryname' => new external_value(PARAM_TEXT, 'Category name'),
                     'categoryid'   => new external_value(PARAM_INT, 'SmartMind category id'),
@@ -356,16 +489,22 @@ class get_dashboard_data extends external_api {
                     'count'        => new external_value(PARAM_INT, 'Total courses in category'),
                 ])
             ),
-            'recommended'     => new external_multiple_structure($coursestruct),
-            'hascourses'      => new external_value(PARAM_BOOL, 'Has enrolled courses'),
-            'hasfinished'     => new external_value(PARAM_BOOL, 'Has finished courses'),
-            'hascategories'   => new external_value(PARAM_BOOL, 'Has category sections'),
-            'hasrecommended'  => new external_value(PARAM_BOOL, 'Has recommended courses'),
-            'username'        => new external_value(PARAM_TEXT, 'User full name'),
-            'enrolled_count'  => new external_value(PARAM_INT, 'Number of enrolled courses'),
-            'completed_count' => new external_value(PARAM_INT, 'Number of completed courses'),
-            'training_hours'  => new external_value(PARAM_INT, 'Approx training hours last 90 days'),
-            'certificates'    => new external_value(PARAM_INT, 'Certificate count'),
+            'recommended'          => new external_multiple_structure($coursestruct),
+            'recommended_for_you'  => new external_multiple_structure($coursestruct),
+            'news'                 => new external_multiple_structure($coursestruct),
+            'recently_viewed'      => new external_multiple_structure($coursestruct),
+            'hascourses'           => new external_value(PARAM_BOOL, 'Has enrolled courses'),
+            'hasfinished'          => new external_value(PARAM_BOOL, 'Has finished courses'),
+            'hascategories'        => new external_value(PARAM_BOOL, 'Has category sections'),
+            'hasrecommended'       => new external_value(PARAM_BOOL, 'Has recommended courses'),
+            'hasrecommendedforyou' => new external_value(PARAM_BOOL, 'Has personalised recommendations'),
+            'hasnews'              => new external_value(PARAM_BOOL, 'Has news (recently created courses)'),
+            'hasrecentlyviewed'    => new external_value(PARAM_BOOL, 'Has recently viewed courses'),
+            'username'             => new external_value(PARAM_TEXT, 'User full name'),
+            'enrolled_count'       => new external_value(PARAM_INT, 'Number of enrolled courses'),
+            'completed_count'      => new external_value(PARAM_INT, 'Number of completed courses'),
+            'training_hours'       => new external_value(PARAM_INT, 'Approx training hours last 90 days'),
+            'certificates'         => new external_value(PARAM_INT, 'Certificate count'),
         ]);
     }
 }

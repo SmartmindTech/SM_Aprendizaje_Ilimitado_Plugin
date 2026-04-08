@@ -223,28 +223,73 @@
     </div>
 
     <!-- ════════════════════════════════════════════════════════════ -->
-    <!-- CURSOS COMPLETADOS — finished courses                        -->
+    <!-- RECOMENDADO PARA TI — based on enrolled categories +         -->
+    <!-- platform popularity                                          -->
     <!-- ════════════════════════════════════════════════════════════ -->
-    <div class="catalog-section catalog-section--completed">
+    <div class="catalog-section catalog-section--recommended">
       <div class="catalog-section__header">
         <div>
           <h5 class="catalog-section__title">
-            <i class="fas fa-trophy catalog-section__icon catalog-section__icon--green" />
-            {{ $t('dashboard.completedCourses') }}
+            <i class="fa fa-star catalog-section__icon catalog-section__icon--green" />
+            {{ $t('dashboard.recommendedForYou') }}
           </h5>
+          <p class="catalog-section__desc">{{ $t('dashboard.recommendedForYouDesc') }}</p>
         </div>
+        <NuxtLink
+          v-if="recommendedForYou.length"
+          to="/catalogue"
+          class="catalog-section__viewall"
+        >
+          {{ $t('dashboard.viewAll') }} →
+        </NuxtLink>
       </div>
       <div class="catalog-section__content">
-        <div v-if="finishedCourses.length" class="dashboard-recommended-grid">
+        <div v-if="recommendedForYou.length" class="dashboard-recommended-grid">
           <DashboardCourseCardBasic
-            v-for="course in finishedCourses"
+            v-for="course in recommendedForYou"
             :key="course.id"
             :course="course"
           />
         </div>
         <div v-else class="catalog-section__empty">
-          <i class="fas fa-trophy" />
-          <p>{{ $t('dashboard.completedEmpty') }}</p>
+          <i class="fa fa-star" />
+          <p>{{ $t('dashboard.recommendedForYouEmpty') }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!-- NOVEDADES — most recently created visible courses,           -->
+    <!-- excluding ones the user is already enrolled in               -->
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <div class="catalog-section catalog-section--news">
+      <div class="catalog-section__header">
+        <div>
+          <h5 class="catalog-section__title">
+            <i class="fa fa-bell catalog-section__icon catalog-section__icon--green" />
+            {{ $t('dashboard.news') }}
+          </h5>
+          <p class="catalog-section__desc">{{ $t('dashboard.newsDesc') }}</p>
+        </div>
+        <NuxtLink
+          v-if="newsCourses.length"
+          to="/catalogue"
+          class="catalog-section__viewall"
+        >
+          {{ $t('dashboard.viewAll') }} →
+        </NuxtLink>
+      </div>
+      <div class="catalog-section__content">
+        <div v-if="newsCourses.length" class="dashboard-recommended-grid">
+          <DashboardCourseCardBasic
+            v-for="course in newsCourses"
+            :key="course.id"
+            :course="course"
+          />
+        </div>
+        <div v-else class="catalog-section__empty">
+          <i class="fa fa-bell" />
+          <p>{{ $t('dashboard.newsEmpty') }}</p>
         </div>
       </div>
     </div>
@@ -258,13 +303,12 @@ import { useI18n } from 'vue-i18n'
 import type { DashboardCourse, CategorySection, DashboardData } from '~/types/dashboard'
 
 const authStore = useAuthStore()
-const { getDashboard, getRecentlyViewed } = useDashboardApi()
+const { getDashboard } = useDashboardApi()
 const { t } = useI18n()
 
 const loading = ref(true)
 const error = ref<string | null>(null)
 const data = ref<DashboardData | null>(null)
-const recentlyViewed = ref<DashboardCourse[]>([])
 
 // Greeting derived from current time so we don't depend on a server-side
 // `greeting` field.
@@ -288,9 +332,11 @@ const streakMessage = computed(() =>
     : t('dashboard.streakStart')
 )
 
-const enrolledCourses    = computed<DashboardCourse[]>(() => data.value?.courses     ?? [])
-const finishedCourses    = computed<DashboardCourse[]>(() => data.value?.finished    ?? [])
-const recommendedCourses = computed<DashboardCourse[]>(() => data.value?.recommended ?? [])
+const enrolledCourses    = computed<DashboardCourse[]>(() => data.value?.courses             ?? [])
+const recommendedCourses = computed<DashboardCourse[]>(() => data.value?.recommended         ?? [])
+const recommendedForYou  = computed<DashboardCourse[]>(() => data.value?.recommended_for_you ?? [])
+const newsCourses        = computed<DashboardCourse[]>(() => data.value?.news                ?? [])
+const recentlyViewed     = computed<DashboardCourse[]>(() => data.value?.recently_viewed     ?? [])
 
 // The backend may return up to 6 píldora categories — pick 3 at random,
 // mirroring the original PHP `array_rand` behaviour in the mustache version.
@@ -310,21 +356,15 @@ const categorySections = computed<CategorySection[]>(() => {
 const calendarUrl = computed(() => `${authStore.wwwroot}/calendar/view.php`)
 const messagesUrl = computed(() => `${authStore.wwwroot}/message/index.php`)
 
-// Fire both fetches in parallel — they don't depend on each other and
-// the dashboard waits on whichever finishes last to flip `loading` off.
-Promise.all([getDashboard(), getRecentlyViewed(4)]).then(([dashResult, viewedResult]) => {
+// Single bulk fetch — get_dashboard_data now consolidates enrolled,
+// finished, categories, recommended, recommended_for_you, news and
+// recently_viewed in one round-trip so the page hydrates with one call.
+getDashboard().then((result) => {
   loading.value = false
-  if (dashResult.error) {
-    error.value = dashResult.error
+  if (result.error) {
+    error.value = result.error
   } else {
-    data.value = dashResult.data as DashboardData
-  }
-  // Recently viewed is best-effort — surface a console warning but don't
-  // block the whole dashboard if just this one call fails.
-  if (viewedResult.error) {
-    console.warn('[dashboard] getRecentlyViewed failed:', viewedResult.error)
-  } else {
-    recentlyViewed.value = (viewedResult.data as DashboardCourse[]) ?? []
+    data.value = result.data as DashboardData
   }
 })
 </script>

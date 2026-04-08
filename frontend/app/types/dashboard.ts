@@ -34,10 +34,16 @@ export interface DashboardData {
   finished: DashboardCourse[]
   categories: CategorySection[]
   recommended: DashboardCourse[]
+  recommended_for_you: DashboardCourse[]
+  news: DashboardCourse[]
+  recently_viewed: DashboardCourse[]
   hascourses: boolean
   hasfinished: boolean
   hascategories: boolean
   hasrecommended: boolean
+  hasrecommendedforyou: boolean
+  hasnews: boolean
+  hasrecentlyviewed: boolean
   username: string
   enrolled_count: number
   completed_count: number
