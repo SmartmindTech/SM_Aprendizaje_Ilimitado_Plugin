@@ -64,7 +64,7 @@
               </template>
             </div>
 
-            <!-- mod_resource: intro + file preview (image/pdf/video/audio) + download -->
+            <!-- mod_resource: intro + file preview + (conditional) download -->
             <div
               v-else-if="activityInline.kind === 'resource'"
               class="smgp-activity-content smgp-activity-content--resource"
@@ -87,20 +87,28 @@
                   >
                 </div>
 
+                <!-- PDF: native browser viewer with toolbar (fills content area). -->
                 <div
                   v-else-if="activityInline.file.kind === 'pdf'"
-                  class="smgp-activity-content__preview"
+                  class="smgp-activity-content__document"
                 >
-                  <object
-                    :data="activityInline.file.url"
-                    type="application/pdf"
-                    class="smgp-activity-content__pdf"
-                  >
-                    <p>
-                      {{ $t('course_page.pdf_unsupported') }}
-                      <a :href="activityInline.file.url">{{ $t('course_page.download') }}</a>
-                    </p>
-                  </object>
+                  <iframe
+                    :src="`${activityInline.file.url}#toolbar=1&navpanes=0`"
+                    class="smgp-activity-content__document-frame"
+                    :title="activityInline.file.name"
+                  />
+                </div>
+
+                <!-- Office documents (doc/ppt/xls/...) via Google Docs Viewer. -->
+                <div
+                  v-else-if="activityInline.file.kind === 'document'"
+                  class="smgp-activity-content__document"
+                >
+                  <iframe
+                    :src="`https://docs.google.com/gview?url=${encodeURIComponent(activityInline.file.url)}&embedded=true`"
+                    class="smgp-activity-content__document-frame"
+                    :title="activityInline.file.name"
+                  />
                 </div>
 
                 <div
@@ -122,9 +130,9 @@
                   </audio>
                 </div>
 
-                <!-- Download button shown for everything except inline media. -->
+                <!-- Download button: skip for self-contained viewers (video, audio, pdf, document). -->
                 <div
-                  v-if="activityInline.file.kind !== 'video' && activityInline.file.kind !== 'audio'"
+                  v-if="!['video', 'audio', 'pdf', 'document'].includes(activityInline.file.kind)"
                   class="smgp-activity-content__file mt-2"
                 >
                   <a :href="activityInline.file.url" class="btn btn-primary btn-sm">
@@ -346,7 +354,7 @@ interface InlineFile {
   name: string
   size: string
   mimetype: string
-  kind: 'image' | 'pdf' | 'video' | 'audio' | 'other'
+  kind: 'image' | 'pdf' | 'document' | 'video' | 'audio' | 'other'
 }
 interface InlineChapter {
   title: string
@@ -450,17 +458,11 @@ getCoursePageData(courseid.value).then((result) => {
   background: var(--bs-primary-bg-subtle, #e8f0fe);
 }
 
-/* Resource preview chrome (was inline styles in PHP). */
+/* Image preview (was an inline style in PHP). */
 .smgp-activity-content__image {
   max-width: 100%;
   height: auto;
   border-radius: 8px;
-}
-.smgp-activity-content__pdf {
-  width: 100%;
-  height: 500px;
-  border-radius: 8px;
-  border: 1px solid var(--sl-border, #e5e7eb);
 }
 
 .smgp-course-content__redirect {

@@ -1056,6 +1056,8 @@ class get_activity_content extends external_api {
         $filedata = null;
         if ($file) {
             $mimetype = $file->get_mimetype();
+            $filename = $file->get_filename();
+            $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
             $kind = 'other';
             if (strpos($mimetype, 'image/') === 0) {
                 $kind = 'image';
@@ -1065,14 +1067,17 @@ class get_activity_content extends external_api {
                 $kind = 'video';
             } else if (strpos($mimetype, 'audio/') === 0) {
                 $kind = 'audio';
+            } else if (in_array($ext, ['ppt', 'pptx', 'doc', 'docx', 'xls', 'xlsx', 'odt', 'ods', 'odp'], true)) {
+                // Office documents — embed via Google Docs Viewer.
+                $kind = 'document';
             }
 
             $filedata = [
                 'url'      => \moodle_url::make_pluginfile_url(
                     $file->get_contextid(), $file->get_component(), $file->get_filearea(),
-                    $file->get_itemid(), $file->get_filepath(), $file->get_filename()
+                    $file->get_itemid(), $file->get_filepath(), $filename
                 )->out(false),
-                'name'     => $file->get_filename(),
+                'name'     => $filename,
                 'size'     => display_size($file->get_filesize()),
                 'mimetype' => $mimetype,
                 'kind'     => $kind,
@@ -1154,11 +1159,19 @@ class get_activity_content extends external_api {
                                 . '" style="max-width:100%;height:auto;border-radius:8px;"></div>';
                             break;
                         case 'pdf':
-                            $filehtml = '<div class="smgp-activity-content__preview">'
-                                . '<object data="' . $url . '" type="application/pdf" '
-                                . 'width="100%" height="500px" style="border-radius:8px;border:1px solid var(--sl-border,#e5e7eb);">'
-                                . '<p>Cannot preview PDF. <a href="' . $url . '">Download</a></p>'
-                                . '</object></div>';
+                            // Native browser viewer with toolbar.
+                            $filehtml = '<div class="smgp-activity-content__document">'
+                                . '<iframe src="' . $url . '#toolbar=1&navpanes=0" '
+                                . 'class="smgp-activity-content__document-frame" '
+                                . 'title="' . $name . '"></iframe></div>';
+                            break;
+                        case 'document':
+                            // Office docs (doc/ppt/xls/...) via Google Docs Viewer.
+                            $viewerurl = 'https://docs.google.com/gview?url=' . urlencode($url) . '&embedded=true';
+                            $filehtml = '<div class="smgp-activity-content__document">'
+                                . '<iframe src="' . $viewerurl . '" '
+                                . 'class="smgp-activity-content__document-frame" '
+                                . 'title="' . $name . '"></iframe></div>';
                             break;
                         case 'video':
                             $filehtml = '<div class="smgp-activity-content__video-player">'
@@ -1174,7 +1187,8 @@ class get_activity_content extends external_api {
                                 . '</audio></div>';
                             break;
                     }
-                    if ($f['kind'] !== 'video' && $f['kind'] !== 'audio') {
+                    // Download button: skip for self-contained viewers (video, audio, PDF, document).
+                    if (!in_array($f['kind'], ['video', 'audio', 'pdf', 'document'], true)) {
                         $filehtml .= '<div class="smgp-activity-content__file mt-2">'
                             . '<a href="' . $url . '" class="btn btn-primary btn-sm">'
                             . '<i class="icon-download"></i> Download '
@@ -1228,7 +1242,7 @@ class get_activity_content extends external_api {
                     'name'     => new external_value(PARAM_TEXT, 'File name'),
                     'size'     => new external_value(PARAM_TEXT, 'Human-readable file size'),
                     'mimetype' => new external_value(PARAM_RAW, 'MIME type'),
-                    'kind'     => new external_value(PARAM_ALPHA, 'image | pdf | video | audio | other'),
+                    'kind'     => new external_value(PARAM_ALPHA, 'image | pdf | document | video | audio | other'),
                 ], 'Resource file metadata', VALUE_OPTIONAL),
             ], 'Structured inline content for Vue frontend', VALUE_OPTIONAL),
         ]);
