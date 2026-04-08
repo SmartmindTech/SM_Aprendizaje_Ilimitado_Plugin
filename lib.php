@@ -339,6 +339,7 @@ function local_sm_graphics_plugin_before_standard_top_of_body_html(): string {
             . '.completion-info,[data-region="completion-info"],'
             . '[data-region="completionrequirements"],[data-region="activity-information"],'
             // SmartMind theme-specific elements.
+            . '.smgp-topnav,nav.smgp-topnav,'
             . '.smartmind-course-banner,.smartmind-page-header,'
             . 'nav.d-flex.flex-column[aria-label],'
             . '.btn-footer-popover,.footer-popover'

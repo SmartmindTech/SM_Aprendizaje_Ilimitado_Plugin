@@ -46,7 +46,7 @@
         <button
           class="smartmind-cat-badge"
           :class="{ 'smartmind-cat-badge--active': selectedCategory === 0 }"
-          @click="selectedCategory = 0"
+          @click="filterByCategory(0)"
         >
           {{ $t('catalogue.all') }}
         </button>
@@ -55,7 +55,7 @@
           :key="cat.id"
           class="smartmind-cat-badge"
           :class="{ 'smartmind-cat-badge--active': selectedCategory === cat.id }"
-          @click="selectedCategory = cat.id"
+          @click="filterByCategory(cat.id)"
         >
           {{ cat.name }}
         </button>
@@ -141,18 +141,22 @@ const visibleCourses = computed(() => {
   const courses = data.value?.courses ?? []
   const term = searchTerm.value.trim().toLowerCase()
   return courses.filter((c: any) => {
-    if (selectedCategory.value !== 0 && c.categoryid !== selectedCategory.value) return false
     if (term && !(c.fullname?.toLowerCase().includes(term))) return false
     if (selectedType.value !== 'all' && c.type && c.type !== selectedType.value) return false
     return true
   })
 })
 
-const fetchData = async () => {
+const fetchData = async (categoryid: number = 0) => {
   loading.value = true
-  const result = await getCatalogue(0)
+  const result = await getCatalogue(categoryid)
   loading.value = false
   if (result.error) { error.value = result.error } else { data.value = result.data }
+}
+
+const filterByCategory = (categoryid: number) => {
+  selectedCategory.value = categoryid
+  fetchData(categoryid)
 }
 
 fetchData()

@@ -333,9 +333,21 @@ function recursive_copy_overwrite(string $src, string $dst): array {
             }
             $result['count'] += $subresult['count'];
         } else {
+            // If the destination file already exists but isn't writable (e.g.
+            // it was created by `docker cp` as root and Apache can't overwrite
+            // it), copy() silently fails. Try to unlink it first so the next
+            // copy() lands on a fresh inode owned by the web user.
+            if (file_exists($dstpath) && !is_writable($dstpath)) {
+                @chmod($dstpath, 0666);
+            }
+            if (file_exists($dstpath)) {
+                @unlink($dstpath);
+            }
             if (!@copy($srcpath, $dstpath)) {
+                $err = error_get_last();
+                $detail = $err['message'] ?? 'unknown error';
                 $result['success'] = false;
-                $result['error'] = "Cannot copy file: $srcpath to $dstpath";
+                $result['error'] = "Cannot copy file: $srcpath to $dstpath ($detail)";
                 closedir($dir);
                 return $result;
             }
