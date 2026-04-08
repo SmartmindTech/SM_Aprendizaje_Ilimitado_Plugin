@@ -130,8 +130,8 @@
                 <i class="icon-chevron-down smgp-landing__chevron" />
               </div>
             </div>
-            <div v-if="section.hasactivities" class="smgp-landing__section-body">
-              <ul class="smgp-landing__activities">
+            <div v-if="section.hasactivities || data.canedit" class="smgp-landing__section-body">
+              <ul v-if="section.hasactivities" class="smgp-landing__activities">
                 <li
                   v-for="activity in section.activities"
                   :key="activity.cmid"
@@ -161,13 +161,29 @@
                   </div>
                   <button
                     v-if="data.canedit"
+                    type="button"
                     class="smgp-landing__delete-btn"
                     :data-cmid="activity.cmid"
+                    @click.stop="deleteState = { cmid: activity.cmid, name: activity.name }"
                   >
                     <i class="icon-circle-x" />
                   </button>
                 </li>
               </ul>
+              <div v-if="data.canedit" class="smgp-landing__add-section">
+                <button
+                  type="button"
+                  class="smgp-landing__add-btn"
+                  @click="togglePicker(section.number)"
+                >
+                  <i class="icon-plus" aria-hidden="true" />
+                  {{ $t('landing.add_activity') }}
+                </button>
+                <AddActivityPicker
+                  v-if="openPickerSection === section.number"
+                  @select="onActivitySelect($event, section.number)"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -236,12 +252,38 @@
         </div>
       </div>
     </div>
+
+    <!-- Add activity modal (Genially / Video URL) -->
+    <AddActivityModal
+      :open="addModalState.open"
+      :mode="addModalState.mode"
+      :sectionnum="addModalState.sectionnum"
+      :saving="addingActivity"
+      @close="addModalState.open = false"
+      @save="onAddSave"
+      @upload-fallback="onUploadFallback"
+    />
+
+    <!-- Delete activity confirmation modal -->
+    <DeleteActivityModal
+      :open="deleteState !== null"
+      :activity-name="deleteState?.name ?? ''"
+      :deleting="deletingActivity"
+      @close="deleteState = null"
+      @confirm="onDeleteConfirm"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
+import AddActivityPicker from '~/components/course/AddActivityPicker.vue'
+import AddActivityModal from '~/components/course/AddActivityModal.vue'
+import DeleteActivityModal from '~/components/course/DeleteActivityModal.vue'
+import type { ActivityType } from '~/components/course/activityTypes'
+
 const route = useRoute()
-const { getCourseLandingData, enrolUser, unenrolUser } = useCourseApi()
+const authStore = useAuthStore()
+const { getCourseLandingData, enrolUser, unenrolUser, addActivity, deleteActivity } = useCourseApi()
 
 const loading = ref(true)
 const error = ref<string | null>(null)
@@ -250,6 +292,25 @@ const enrolling = ref(false)
 const unenrolling = ref(false)
 const showUnenrolModal = ref(false)
 const expandedSections = ref<Record<number, boolean>>({})
+
+// ── Inline editor state (admin) ───────────────────────────────────
+// Single-open invariant: at most one section's picker is visible at a
+// time. Set to a section.number to open, null to close.
+const openPickerSection = ref<number | null>(null)
+
+// State for the Genially / Video URL modal. `mode` decides the modal
+// title and which input layout shows up.
+const addModalState = ref<{
+  open: boolean
+  mode: 'genially' | 'video'
+  sectionnum: number
+  type: string  // The actual modname sent to add_activity ('genially' or 'url')
+}>({ open: false, mode: 'genially', sectionnum: 0, type: 'genially' })
+const addingActivity = ref(false)
+
+// State for the delete confirmation modal — null means closed.
+const deleteState = ref<{ cmid: number; name: string } | null>(null)
+const deletingActivity = ref(false)
 
 const courseid = computed(() => Number(route.params.id))
 
@@ -288,19 +349,115 @@ const handleUnenrol = async () => {
   }
 }
 
-const fetchData = async () => {
-  loading.value = true
-  const result = await getCourseLandingData(courseid.value)
-  loading.value = false
+// ── Inline editor handlers ────────────────────────────────────────
+
+// Single-open toggle: clicking the same section closes the picker;
+// clicking a different section reopens it there.
+const togglePicker = (num: number) => {
+  openPickerSection.value = openPickerSection.value === num ? null : num
+}
+
+// User picked one of the 25 activity types from the picker grid.
+//   - Genially  → open the URL modal in genially mode (creates a mod_url
+//                 with display=embed via add_activity)
+//   - Video     → open the URL modal in video mode (also a mod_url, but
+//                 the modal exposes a URL/upload tab toggle)
+//   - Anything  → call add_activity directly; the backend returns a
+//     else        redirect_url to /course/modedit.php for that modname
+//                 and we navigate the browser there.
+const onActivitySelect = async (type: ActivityType, sectionnum: number) => {
+  openPickerSection.value = null
+
+  if (type.isGenially) {
+    addModalState.value = { open: true, mode: 'genially', sectionnum, type: 'genially' }
+    return
+  }
+  if (type.isVideo) {
+    addModalState.value = { open: true, mode: 'video', sectionnum, type: 'url' }
+    return
+  }
+
+  // Standard Moodle module type — ask the backend for the redirect URL.
+  const result = await addActivity(courseid.value, sectionnum, type.mod, '', '')
   if (result.error) {
     error.value = result.error
-  } else {
-    data.value = result.data
-    // Expand all sections by default
-    if (data.value?.sections) {
-      for (const section of data.value.sections) {
-        expandedSections.value[section.number] = true
-      }
+    return
+  }
+  const data = result.data as { success: boolean; cmid: number; redirect_url: string }
+  if (data?.redirect_url) {
+    window.location.href = data.redirect_url
+  }
+}
+
+// Save handler for the URL modal — sends the activity to the backend
+// and refreshes the landing data on success.
+const onAddSave = async ({ name, url }: { name: string; url: string }) => {
+  addingActivity.value = true
+  const result = await addActivity(
+    courseid.value,
+    addModalState.value.sectionnum,
+    addModalState.value.type,
+    name,
+    url,
+  )
+  addingActivity.value = false
+  if (result.error) {
+    error.value = result.error
+    return
+  }
+  addModalState.value.open = false
+  await fetchData()
+}
+
+// User chose "Subir archivo" → drop them on Moodle's standard form.
+const onUploadFallback = ({ sectionnum }: { sectionnum: number }) => {
+  const wwwroot = (authStore as { wwwroot?: string }).wwwroot ?? ''
+  const params = new URLSearchParams({
+    add: 'resource',
+    type: '',
+    course: String(courseid.value),
+    section: String(sectionnum),
+    return: '0',
+  })
+  window.location.href = `${wwwroot}/course/modedit.php?${params.toString()}`
+}
+
+const onDeleteConfirm = async () => {
+  if (!deleteState.value) return
+  deletingActivity.value = true
+  const result = await deleteActivity(deleteState.value.cmid)
+  deletingActivity.value = false
+  if (result.error) {
+    error.value = result.error
+    return
+  }
+  deleteState.value = null
+  await fetchData()
+}
+
+const fetchData = async () => {
+  // First fetch shows the spinner; subsequent refetches (after add /
+  // delete) keep the page mounted so the user doesn't lose context.
+  const isFirstFetch = data.value === null
+  if (isFirstFetch) loading.value = true
+
+  const result = await getCourseLandingData(courseid.value)
+  loading.value = false
+
+  if (result.error) {
+    error.value = result.error
+    return
+  }
+
+  data.value = result.data
+  if (!data.value?.sections) return
+
+  // Expand all sections on the very first fetch only — on subsequent
+  // refetches we preserve whatever the user had open/collapsed so an
+  // add/delete inside section 3 doesn't accidentally re-expand 1 and 2.
+  if (isFirstFetch) {
+    for (const section of data.value.sections) {
+      expandedSections.value[section.number] = true
     }
   }
 }

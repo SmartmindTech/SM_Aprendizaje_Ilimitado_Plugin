@@ -932,6 +932,105 @@
         color: $smgp-text;
         text-align: center;
     }
+
+    // Group header — spans the full grid row regardless of how many
+    // columns the responsive media queries collapse into. The colour
+    // is set inline by the picker template so each group inherits its
+    // semantic tint (blue resources, orange activities, pink events).
+    &__group-label {
+        grid-column: 1 / -1;
+        margin: $smgp-space-md 0 $smgp-space-xs;
+        padding-bottom: $smgp-space-xs;
+        font-size: $smgp-font-xs;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 1px solid currentColor;
+        opacity: 0.85;
+
+        // The very first group label has no top margin so it sits
+        // flush with the picker's own padding.
+        &:first-child {
+            margin-top: 0;
+        }
+    }
+}
+
+// Wrapper around the per-section "+ Añadir actividad" button + picker.
+// Adds breathing room above an empty section's button so it doesn't sit
+// flush against the section header.
+.smgp-landing__add-section {
+    padding: 0 1rem 1rem;
+}
+
+// ============================================================
+// Form helpers (used by the Add Activity modal)
+// ============================================================
+
+.smgp-form-group {
+    margin-bottom: $smgp-space-md;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.smgp-form-label {
+    display: block;
+    margin-bottom: $smgp-space-xs;
+    font-size: $smgp-font-sm;
+    font-weight: 600;
+    color: $smgp-text;
+}
+
+.smgp-form-hint {
+    display: block;
+    margin-top: $smgp-space-xs;
+    font-size: $smgp-font-xs;
+    color: $smgp-text-secondary;
+}
+
+// Tab row for the Video modal (URL ↔ Upload).
+.smgp-tab-row {
+    display: flex;
+    gap: $smgp-space-xs;
+    margin-bottom: $smgp-space-md;
+    border-bottom: 1px solid $smgp-border;
+}
+
+.smgp-tab {
+    background: none;
+    border: 0;
+    padding: $smgp-space-sm $smgp-space-md;
+    font-size: $smgp-font-sm;
+    font-weight: 500;
+    color: $smgp-text-secondary;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color 0.2s, border-color 0.2s;
+
+    &:hover {
+        color: $smgp-text;
+    }
+
+    &--active {
+        color: $smgp-primary;
+        border-bottom-color: $smgp-primary;
+    }
+}
+
+// Decorative-only variant of the upload zone — no hover/cursor since
+// the actual upload defers to Moodle's modedit form via the button below.
+.smgp-upload-zone--decorative {
+    cursor: default;
+    pointer-events: none;
+    opacity: 0.85;
+
+    p {
+        margin: $smgp-space-sm 0 0;
+        font-size: $smgp-font-sm;
+    }
 }
 
 // ============================================================

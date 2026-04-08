@@ -30,6 +30,22 @@ export const useCourseApi = () => {
   const unenrolUser = (courseid: number) =>
     call('local_sm_graphics_plugin_unenrol_user', { courseid })
 
+  // ── Course landing inline editor (admin) ───────────────────────────
+  // add_activity creates a mod_url inline when type is 'genially' or 'url',
+  // otherwise returns a redirect_url to Moodle's /course/modedit.php form
+  // for the requested module type. Capability: moodle/course:update.
+  const addActivity = (
+    courseid: number,
+    sectionnum: number,
+    type: string,
+    name: string,
+    url: string = '',
+  ) =>
+    call('local_sm_graphics_plugin_add_activity', { courseid, sectionnum, type, name, url })
+
+  const deleteActivity = (cmid: number) =>
+    call('local_sm_graphics_plugin_delete_activity', { cmid })
+
   // Phase 2 additions: objectives, translation, comments mentions ──────────
   const saveObjectives = (courseid: number, objectivesJson: string, translate: boolean = true) =>
     call('local_sm_graphics_plugin_save_objectives', {
@@ -59,6 +75,8 @@ export const useCourseApi = () => {
     getCourseProgress,
     enrolUser,
     unenrolUser,
+    addActivity,
+    deleteActivity,
     saveObjectives,
     translateCourse,
     searchCourseUsers,
