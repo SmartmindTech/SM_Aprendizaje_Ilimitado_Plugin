@@ -9,17 +9,20 @@
 
   <template v-else-if="data">
     <!-- Category list view -->
-    <div v-if="!showCreateForm" class="sm-managecategories p-4 w-100">
-      <div class="d-flex align-items-center mb-4">
-        <NuxtLink to="/management/courses" class="btn btn-outline-secondary me-3">
-          <i class="fa fa-arrow-left" />
+    <div v-if="!showCreateForm" class="smgp-mgmt-page">
+      <header class="smgp-mgmt-page__header d-flex align-items-start gap-3">
+        <NuxtLink to="/management/users" class="btn btn-outline-secondary mt-1">
+          <i class="icon-arrow-left" />
         </NuxtLink>
-        <h2 class="mb-0">{{ data.heading || 'Manage Categories' }}</h2>
-        <button class="btn btn-primary ms-auto" @click="showCreateForm = true">
-          <i class="fa fa-plus me-1" />
+        <div class="flex-grow-1">
+          <h1 class="smgp-mgmt-page__title">{{ $t('management.categories.title') }}</h1>
+          <p class="smgp-mgmt-page__desc">{{ $t('management.categories.desc') }}</p>
+        </div>
+        <button class="btn btn-primary" @click="showCreateForm = true">
+          <i class="icon-plus me-1" />
           {{ $t('categories.create') || 'Create category' }}
         </button>
-      </div>
+      </header>
 
       <template v-if="data.hascategories">
         <div class="table-responsive">

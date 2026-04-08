@@ -7,111 +7,117 @@
 
   <div v-else-if="error" class="alert alert-danger">{{ error }}</div>
 
-  <template v-else-if="data">
-    <div class="sm-usermanagement p-4 w-100">
-      <!-- Management option cards -->
-      <h2 class="mb-4">{{ data.heading || $t('nav.management') }}</h2>
-      <div class="mb-5">
-        <div class="sm-admin-cards">
-          <template v-for="option in data.options" :key="option.title">
-            <div v-if="option.disabled" class="card shadow-sm sm-admin-card sm-admin-card--disabled">
-              <div class="card-body d-flex flex-column align-items-center justify-content-center text-center p-3">
-                <i :class="'fa ' + option.icon + ' fa-2x mb-2 text-muted'" />
-                <h6 class="card-title mb-1 text-muted">{{ option.title }}</h6>
-                <p class="card-text text-muted small mb-0">{{ option.description }}</p>
-              </div>
-            </div>
-            <NuxtLink
-              v-else
-              :to="option.vue_route || option.url"
-              class="card text-decoration-none shadow-sm sm-admin-card"
-            >
-              <div class="card-body d-flex flex-column align-items-center justify-content-center text-center p-3">
-                <i :class="'fa ' + option.icon + ' fa-2x mb-2 text-primary'" />
-                <h6 class="card-title mb-1">{{ option.title }}</h6>
-                <p class="card-text text-muted small mb-0">{{ option.description }}</p>
-              </div>
-            </NuxtLink>
-          </template>
-        </div>
-      </div>
+  <div v-else-if="data" class="smgp-mgmt-page">
+    <header class="smgp-mgmt-page__header">
+      <h1 class="smgp-mgmt-page__title">{{ $t('management.users.title') }}</h1>
+      <p class="smgp-mgmt-page__desc">
+        {{ $t('management.users.desc') }}
+        <template v-if="data.companyname"> · <strong>{{ data.companyname }}</strong></template>
+      </p>
+    </header>
+
+    <!-- Quick actions card grid -->
+    <h2 class="smgp-mgmt-page__section-title">
+      <i class="icon-zap" aria-hidden="true" />
+      {{ $t('management.users.section_actions') }}
+    </h2>
+    <div class="smgp-mgmt-grid">
+      <NuxtLink to="/management/upload" class="smgp-mgmt-card">
+        <span class="smgp-mgmt-card__icon"><i class="icon-upload" /></span>
+        <span class="smgp-mgmt-card__text">
+          <span class="smgp-mgmt-card__title">{{ $t('management.users.card_upload') }}</span>
+          <span class="smgp-mgmt-card__desc">{{ $t('management.users.card_upload_desc') }}</span>
+        </span>
+      </NuxtLink>
+      <a :href="`${authStore.wwwroot}/blocks/iomad_company_admin/editusers.php`" class="smgp-mgmt-card">
+        <span class="smgp-mgmt-card__icon"><i class="icon-user-plus" /></span>
+        <span class="smgp-mgmt-card__text">
+          <span class="smgp-mgmt-card__title">{{ $t('management.users.card_create') }}</span>
+          <span class="smgp-mgmt-card__desc">{{ $t('management.users.card_create_desc') }}</span>
+        </span>
+      </a>
+      <a :href="`${authStore.wwwroot}/blocks/iomad_company_admin/company_edit_form.php`" class="smgp-mgmt-card">
+        <span class="smgp-mgmt-card__icon"><i class="icon-pencil" /></span>
+        <span class="smgp-mgmt-card__text">
+          <span class="smgp-mgmt-card__title">{{ $t('management.othermgmt.card_companyDetails') }}</span>
+          <span class="smgp-mgmt-card__desc">{{ $t('management.othermgmt.card_companyDetails_desc') }}</span>
+        </span>
+      </a>
+      <a :href="`${authStore.wwwroot}/blocks/iomad_company_admin/company_department.php`" class="smgp-mgmt-card">
+        <span class="smgp-mgmt-card__icon"><i class="icon-list-tree" /></span>
+        <span class="smgp-mgmt-card__text">
+          <span class="smgp-mgmt-card__title">{{ $t('management.othermgmt.card_departments') }}</span>
+          <span class="smgp-mgmt-card__desc">{{ $t('management.othermgmt.card_departments_desc') }}</span>
+        </span>
+      </a>
     </div>
 
-    <!-- Registered users -->
-    <div class="sm-userlist p-4 w-100">
-      <h3 class="mb-3 d-flex justify-content-between align-items-center">
-        <span>{{ data.userlist_heading || 'Registered users' }}</span>
+    <!-- User list table -->
+    <h2 class="smgp-mgmt-page__section-title">
+      <i class="icon-users" aria-hidden="true" />
+      {{ $t('management.users.section_users') }}
+      <span class="smgp-mgmt-userlist__count">
         <template v-if="data.haslimit">
-          <span
-            class="small border rounded px-2 py-1"
-            :class="data.limitreached ? 'text-danger fw-bold border-danger' : 'text-dark border-secondary'"
-          >
-            {{ data.studentcount }} / {{ data.maxstudents }}
-          </span>
+          {{ data.studentcount }} / {{ data.maxstudents }}
         </template>
-        <template v-else>
-          <span class="small text-dark border border-secondary rounded px-2 py-1">
-            {{ data.usercount }}
-          </span>
-        </template>
-      </h3>
+        <template v-else>{{ data.usercount }}</template>
+      </span>
+    </h2>
 
-      <div v-if="data.limitreached" class="alert alert-warning">
-        <i class="fa fa-exclamation-triangle" />
-        {{ data.limit_reached_msg || 'Student limit reached.' }}
-      </div>
-
-      <template v-if="data.hasusers">
-        <div class="table-responsive">
-          <table class="table table-striped table-hover align-middle sm-usermgmt-table">
-            <thead class="table-light">
-              <tr>
-                <th>{{ data.th_name || 'Name' }}</th>
-                <th>{{ data.th_email || 'Email' }}</th>
-                <th>{{ data.th_lastaccess || 'Last access' }}</th>
-                <th class="text-center">{{ data.th_actions || 'Actions' }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="user in data.users" :key="user.id || user.email">
-                <td>{{ user.fullname }}</td>
-                <td>{{ user.email }}</td>
-                <td>{{ user.lastaccess }}</td>
-                <td class="text-center text-nowrap">
-                  <a
-                    v-if="user.editurl"
-                    :href="user.editurl"
-                    class="btn btn-sm btn-outline-primary me-1"
-                  >
-                    <i class="fa fa-pen" />
-                    {{ data.edit_label || 'Edit' }}
-                  </a>
-                  <button
-                    v-if="user.deleteurl"
-                    class="btn btn-sm btn-outline-danger"
-                    @click="confirmDelete(user)"
-                  >
-                    <i class="fa fa-trash-can" />
-                    {{ data.delete_label || 'Delete' }}
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </template>
-
-      <div v-else class="alert alert-info">
-        {{ data.nousers || 'No users found.' }}
-      </div>
+    <div v-if="data.limitreached" class="alert alert-warning">
+      <i class="fa fa-exclamation-triangle" />
+      {{ data.limit_reached_msg || 'Student limit reached.' }}
     </div>
-  </template>
+
+    <div v-if="data.hasusers" class="table-responsive">
+      <table class="smgp-mgmt-table">
+        <thead>
+          <tr>
+            <th>{{ data.th_name || 'Name' }}</th>
+            <th>{{ data.th_email || 'Email' }}</th>
+            <th>{{ data.th_lastaccess || 'Last access' }}</th>
+            <th class="text-center">{{ data.th_actions || 'Actions' }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="user in data.users" :key="user.id || user.email">
+            <td>{{ user.fullname }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.lastaccess }}</td>
+            <td class="text-center text-nowrap">
+              <a
+                v-if="user.editurl"
+                :href="user.editurl"
+                class="btn btn-sm btn-outline-primary me-1"
+              >
+                <i class="icon-square-pen" />
+                {{ data.edit_label || 'Edit' }}
+              </a>
+              <button
+                v-if="user.deleteurl"
+                class="btn btn-sm btn-outline-danger"
+                @click="confirmDelete(user)"
+              >
+                <i class="icon-trash-2" />
+                {{ data.delete_label || 'Delete' }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div v-else class="alert alert-info">
+      {{ data.nousers || 'No users found.' }}
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 definePageMeta({ middleware: 'auth' })
 
 const { getCompanyUsers, deleteCompanyUser } = useManagementApi()
+const authStore = useAuthStore()
 
 const loading = ref(true)
 const error = ref<string | null>(null)
@@ -142,48 +148,16 @@ fetchData()
 </script>
 
 <style scoped>
-.sm-usermanagement,
-.sm-userlist {
-  width: 100%;
-  max-width: 100%;
-}
-
-.sm-admin-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 1rem;
-  width: 100%;
-}
-@media (min-width: 992px) {
-  .sm-admin-cards {
-    grid-template-columns: repeat(5, 1fr);
-  }
-}
-
-.sm-admin-card {
-  border: 1px solid #dee2e6;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.sm-admin-card .card-body {
-  min-height: 140px;
-}
-.sm-admin-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12) !important;
-}
-.sm-admin-card .card-title {
-  color: #1a1f35;
-}
-.sm-admin-card--disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
-.sm-usermgmt-table {
-  width: 100%;
-}
-.sm-usermgmt-table th {
-  white-space: nowrap;
+.smgp-mgmt-userlist__count {
+  margin-left: auto;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #64748b;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  padding: 0.25rem 0.75rem;
+  text-transform: none;
+  letter-spacing: 0;
 }
 </style>

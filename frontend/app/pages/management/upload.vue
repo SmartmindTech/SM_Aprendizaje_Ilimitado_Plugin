@@ -1,16 +1,27 @@
 <template>
-  <div class="sm-upload-container">
-    <div class="sm-upload-card">
-      <div class="text-center mb-4">
-        <i class="fa fa-cloud-upload fa-3x text-primary mb-3" />
-        <h3 class="mb-1">{{ $t('upload.title') || 'Upload Users' }}</h3>
-        <p class="text-muted small">{{ $t('upload.subtitle') || 'Upload a CSV file to create users in bulk.' }}</p>
-      </div>
+  <div class="smgp-mgmt-page">
+    <header class="smgp-mgmt-page__header">
+      <h1 class="smgp-mgmt-page__title">{{ $t('management.upload.title') }}</h1>
+      <p class="smgp-mgmt-page__desc">{{ $t('management.upload.desc') }}</p>
+    </header>
 
+    <!-- Sample CSV download card -->
+    <div class="smgp-mgmt-grid mb-3">
+      <button type="button" class="smgp-mgmt-card" @click="downloadSampleCsv">
+        <span class="smgp-mgmt-card__icon"><i class="icon-download" /></span>
+        <span class="smgp-mgmt-card__text">
+          <span class="smgp-mgmt-card__title">{{ $t('management.upload.downloadSample') }}</span>
+          <span class="smgp-mgmt-card__desc">{{ $t('management.upload.downloadSampleDesc') }}</span>
+        </span>
+      </button>
+    </div>
+
+    <!-- Upload form -->
+    <div class="sm-upload-card">
       <form @submit.prevent="handleSubmit">
         <div class="sm-upload-dropzone mb-4" @dragover.prevent @drop.prevent="onDrop">
           <label for="userfile" class="sm-upload-label">
-            <i class="fa fa-file-csv fa-2x text-muted mb-2" />
+            <i class="icon-file-text mb-2" style="font-size: 2rem;" />
             <span class="d-block fw-bold mb-1">{{ $t('upload.file_label') || 'Choose a CSV file' }}</span>
             <span class="text-muted small">{{ $t('upload.file_help') || 'Format: username, firstname, lastname, email' }}</span>
             <input
@@ -25,7 +36,7 @@
         </div>
 
         <div v-if="selectedFile" class="text-center mb-3 small text-muted">
-          <i class="fa fa-file me-1" /> {{ selectedFile.name }}
+          <i class="icon-file me-1" /> {{ selectedFile.name }}
         </div>
 
         <div class="d-flex align-items-center gap-3 mb-4">
@@ -45,7 +56,7 @@
           </NuxtLink>
           <button type="submit" class="btn btn-primary" :disabled="!selectedFile || uploading">
             <span v-if="uploading" class="spinner-border spinner-border-sm me-1" />
-            <i v-else class="fa fa-upload me-1" />
+            <i v-else class="icon-upload me-1" />
             {{ $t('upload.submit') || 'Upload' }}
           </button>
         </div>
@@ -90,25 +101,48 @@ const handleSubmit = async () => {
   const url = `${authStore.wwwroot}/local/sm_graphics_plugin/pages/uploadusers.php`
   window.location.href = url
 }
+
+// Generate a CSV sample client-side and trigger a browser download.
+// Columns mirror the existing Excel template at plantilla_usuarios.php
+// (username, firstname, lastname, email) and we ship two example rows
+// the user can replace.
+const downloadSampleCsv = () => {
+  const rows = [
+    ['username', 'firstname', 'lastname', 'email'],
+    ['juan.garcia',     'Juan',  'Garcia Lopez',     'juan.garcia@ejemplo.com'],
+    ['maria.rodriguez', 'Maria', 'Rodriguez Perez',  'maria.rodriguez@ejemplo.com'],
+  ]
+  // Quote every cell defensively in case names contain commas or quotes.
+  const csv = rows
+    .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+    .join('\r\n')
+  // Prepend BOM so Excel opens UTF-8 with accents intact.
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = 'plantilla_usuarios.csv'
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
 </script>
 
 <style scoped>
-.sm-upload-container {
-  width: 100%;
-  padding: 2rem 0;
-}
 .sm-upload-card {
-  width: 100%;
   background: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 12px;
-  padding: 2.5rem 2rem;
+  border: 1px solid #f3f4f6;
+  border-radius: 14px;
+  padding: 2rem;
+  max-width: 720px;
+  margin: 1.25rem auto 0;
 }
 .sm-upload-dropzone {
   border: 2px dashed #ced4da;
   border-radius: 8px;
   text-align: center;
-  padding: 3.5rem 1rem;
+  padding: 3rem 1rem;
   min-height: 200px;
   display: flex;
   align-items: center;
@@ -118,8 +152,8 @@ const handleSubmit = async () => {
 }
 .sm-upload-dropzone:hover,
 .sm-upload-dropzone:focus-within {
-  border-color: var(--bs-primary, #10b981);
-  background: #f0f7ff;
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.04);
 }
 .sm-upload-label {
   display: flex;
@@ -127,6 +161,7 @@ const handleSubmit = async () => {
   align-items: center;
   cursor: pointer;
   margin: 0;
+  color: #475569;
 }
 .sm-upload-input {
   display: block;
@@ -139,5 +174,15 @@ const handleSubmit = async () => {
   padding: 0.25rem 0.75rem;
   background: #f8fafc;
   cursor: pointer;
+}
+
+/* The download-sample button is rendered with the smgp-mgmt-card markup,
+   but it's a <button>, so neutralize the UA defaults that would show as
+   text-align:center, border, etc. */
+button.smgp-mgmt-card {
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  width: 100%;
 }
 </style>

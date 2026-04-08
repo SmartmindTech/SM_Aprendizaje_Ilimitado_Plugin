@@ -61,14 +61,14 @@ const navItems = computed<NavItem[]>(() => {
     ]
   }
 
-  // Manager items
+  // Manager items — the manager surface is intentionally minimal:
+  // user management (where the company-config quick actions live) and
+  // statistics. Courses + categories admin pages are still reachable
+  // by direct URL but no longer exposed in the top nav.
   if (authStore.isManager && !authStore.isAdmin) {
     return [
-      { key: 'sm-usermanagement',  to: '/management/users',     label: t('nav.usermgmt'),    matches: ['/management/users'] },
-      { key: 'sm-coursemanagement', to: '/management/courses',  label: t('nav.coursemgmt'),  matches: ['/management/courses'] },
-      { key: 'sm-categories',      to: '/management/categories', label: t('nav.categories'), matches: ['/management/categories'] },
-      { key: 'sm-othermanagement', to: '/admin/iomad-dashboard', label: t('nav.othermgmt'), matches: ['/admin/iomad-dashboard'] },
-      { key: 'sm-statistics',      to: '/statistics',           label: t('nav.statistics'),  matches: ['/statistics'] },
+      { key: 'sm-usermanagement', to: '/management/users', label: t('nav.usermgmt'),   matches: ['/management/users', '/management/upload', '/management/courses', '/management/categories'] },
+      { key: 'sm-statistics',     to: '/statistics',       label: t('nav.statistics'), matches: ['/statistics'] },
     ]
   }
 

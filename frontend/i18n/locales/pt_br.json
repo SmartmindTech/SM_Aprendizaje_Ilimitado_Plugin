@@ -80,6 +80,72 @@
     "courses_col": "Cursos atribuídos",
     "users_col": "Usuários"
   },
+  "management": {
+    "users": {
+      "title": "Gestão de usuários",
+      "desc": "Crie, edite e remova usuários da sua empresa.",
+      "section_actions": "Ações rápidas",
+      "section_users": "Usuários cadastrados",
+      "card_create": "Criar usuário",
+      "card_create_desc": "Adicione manualmente um novo usuário à empresa.",
+      "card_upload": "Importar em massa",
+      "card_upload_desc": "Importe usuários a partir de um arquivo CSV.",
+      "card_assign": "Atribuir a cursos",
+      "card_assign_desc": "Matricule usuários em cursos disponíveis.",
+      "card_licenses": "Licenças",
+      "card_licenses_desc": "Atribua e revise licenças de usuário."
+    },
+    "courses": {
+      "title": "Gestão de cursos",
+      "desc": "Administre o catálogo de cursos disponíveis para sua empresa.",
+      "section_actions": "Ações rápidas",
+      "section_companies": "Resumo por empresa",
+      "card_create": "Criar curso",
+      "card_create_desc": "Adicione manualmente um novo curso à empresa.",
+      "card_categories": "Categorias",
+      "card_categories_desc": "Organize o catálogo em categorias SmartMind.",
+      "card_assign": "Atribuir a usuários",
+      "card_assign_desc": "Matricule usuários em cursos selecionados.",
+      "card_loader": "Carregador SharePoint",
+      "card_loader_desc": "Importe cursos a partir de uma pasta do SharePoint."
+    },
+    "categories": {
+      "title": "Categorias do catálogo",
+      "desc": "Crie e edite as categorias exibidas no catálogo SmartMind."
+    },
+    "upload": {
+      "title": "Importar usuários",
+      "desc": "Envie um arquivo CSV para criar usuários em massa ou atualizar os existentes.",
+      "downloadSample": "Baixar modelo CSV",
+      "downloadSampleDesc": "Baixe um CSV de exemplo com as colunas obrigatórias e duas linhas de amostra para que você só precise substituir os dados."
+    },
+    "othermgmt": {
+      "title": "Outras gestões",
+      "desc": "Funções avançadas para gerenciar sua empresa, seus usuários e o catálogo SmartMind.",
+      "groupCatalog": "Catálogo e conteúdo",
+      "groupUsers": "Usuários",
+      "groupCompany": "Configuração da empresa",
+      "groupReports": "Relatórios e dados",
+      "card_courseMgmt": "Gestão de cursos",
+      "card_courseMgmt_desc": "Crie e edite os cursos disponíveis para sua empresa.",
+      "card_categories": "Categorias SmartMind",
+      "card_categories_desc": "Edite as categorias do catálogo.",
+      "card_courseLoader": "Carregador SharePoint",
+      "card_courseLoader_desc": "Importe cursos a partir de uma pasta do SharePoint.",
+      "card_userUpload": "Importar usuários",
+      "card_userUpload_desc": "Importe usuários em massa de um arquivo CSV.",
+      "card_statistics": "Estatísticas",
+      "card_statistics_desc": "Métricas de uso e progresso da empresa.",
+      "card_companyDetails": "Dados da empresa",
+      "card_companyDetails_desc": "Edite o nome, logo e contato da sua empresa.",
+      "card_departments": "Departamentos",
+      "card_departments_desc": "Organize os usuários em departamentos dentro da empresa.",
+      "card_emailTemplates": "Modelos de e-mail",
+      "card_emailTemplates_desc": "Personalize os e-mails automáticos enviados aos seus usuários.",
+      "card_companyCourses": "Cursos atribuídos",
+      "card_companyCourses_desc": "Gerencie quais cursos do catálogo sua empresa acessa."
+    }
+  },
   "mycourses": {
     "title": "Meus cursos",
     "desc": "Gerencie sua formação e continue de onde parou.",
@@ -326,6 +392,9 @@
   "iomad": {
     "heading": "Administração",
     "no_cards": "Nenhuma opção disponível para sua conta."
+  },
+  "iomadDashboard": {
+    "desc": "Painel completo de administração IOMAD: empresas, licenças, usuários e relatórios multi-tenant."
   },
   "siteadmin": {
     "heading": "Administração do site",

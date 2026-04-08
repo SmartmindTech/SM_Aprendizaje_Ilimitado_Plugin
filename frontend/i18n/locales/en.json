@@ -80,6 +80,72 @@
     "courses_col": "Assigned courses",
     "users_col": "Users"
   },
+  "management": {
+    "users": {
+      "title": "User management",
+      "desc": "Create, edit and remove users from your company.",
+      "section_actions": "Quick actions",
+      "section_users": "Registered users",
+      "card_create": "Create user",
+      "card_create_desc": "Manually add a new user to the company.",
+      "card_upload": "Bulk upload",
+      "card_upload_desc": "Import users from a CSV file.",
+      "card_assign": "Assign to courses",
+      "card_assign_desc": "Enrol users in available courses.",
+      "card_licenses": "Licenses",
+      "card_licenses_desc": "Assign and review user licenses."
+    },
+    "courses": {
+      "title": "Course management",
+      "desc": "Manage the catalogue of courses available to your company.",
+      "section_actions": "Quick actions",
+      "section_companies": "Company overview",
+      "card_create": "Create course",
+      "card_create_desc": "Manually add a new course to the company.",
+      "card_categories": "Categories",
+      "card_categories_desc": "Organise the catalogue into SmartMind categories.",
+      "card_assign": "Assign to users",
+      "card_assign_desc": "Enrol users into selected courses.",
+      "card_loader": "SharePoint loader",
+      "card_loader_desc": "Import courses from a SharePoint folder."
+    },
+    "categories": {
+      "title": "Catalogue categories",
+      "desc": "Create and edit the categories shown in the SmartMind catalogue."
+    },
+    "upload": {
+      "title": "Bulk upload users",
+      "desc": "Upload a CSV file to bulk-create users or update existing ones.",
+      "downloadSample": "Download CSV template",
+      "downloadSampleDesc": "Download a sample CSV with the required columns and two example rows you can replace with your own data."
+    },
+    "othermgmt": {
+      "title": "Other management",
+      "desc": "Advanced functions to manage your company, its users and the SmartMind catalogue.",
+      "groupCatalog": "Catalogue & content",
+      "groupUsers": "Users",
+      "groupCompany": "Company configuration",
+      "groupReports": "Reports & data",
+      "card_courseMgmt": "Course management",
+      "card_courseMgmt_desc": "Create and edit the courses available to your company.",
+      "card_categories": "SmartMind categories",
+      "card_categories_desc": "Edit the catalogue categories.",
+      "card_courseLoader": "SharePoint loader",
+      "card_courseLoader_desc": "Import courses from a SharePoint folder.",
+      "card_userUpload": "Bulk upload users",
+      "card_userUpload_desc": "Bulk-create users from a CSV file.",
+      "card_statistics": "Statistics",
+      "card_statistics_desc": "Usage and progress metrics for the company.",
+      "card_companyDetails": "Company details",
+      "card_companyDetails_desc": "Edit your company name, logo and contact info.",
+      "card_departments": "Departments",
+      "card_departments_desc": "Organise users into departments within the company.",
+      "card_emailTemplates": "Email templates",
+      "card_emailTemplates_desc": "Customise the automatic emails sent to your users.",
+      "card_companyCourses": "Assigned courses",
+      "card_companyCourses_desc": "Manage which catalogue courses your company can access."
+    }
+  },
   "mycourses": {
     "title": "My Courses",
     "desc": "Manage your training and continue where you left off.",
@@ -326,6 +392,9 @@
   "iomad": {
     "heading": "Administration",
     "no_cards": "No options available for your account."
+  },
+  "iomadDashboard": {
+    "desc": "Full IOMAD admin dashboard: companies, licenses, users and multi-tenant reporting."
   },
   "siteadmin": {
     "heading": "Site administration",

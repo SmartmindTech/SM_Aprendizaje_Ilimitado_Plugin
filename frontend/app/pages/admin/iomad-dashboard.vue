@@ -7,97 +7,117 @@
 
   <div v-else-if="error" class="alert alert-danger">{{ error }}</div>
 
-  <div v-else-if="data" class="sm-iomad-dashboard p-4 w-100">
-    <h2 :class="data.companyname ? 'mb-1' : 'mb-4'">
-      {{ $t('iomad.heading') }}
-    </h2>
-    <p v-if="data.companyname" class="text-muted mb-4">{{ data.companyname }}</p>
+  <div v-else class="smgp-mgmt-page">
+    <header class="smgp-mgmt-page__header">
+      <h1 class="smgp-mgmt-page__title">{{ $t('iomad.heading') }}</h1>
+      <p class="smgp-mgmt-page__desc">
+        {{ $t('iomadDashboard.desc') }}
+        <template v-if="data?.companyname"> · <strong>{{ data.companyname }}</strong></template>
+      </p>
+    </header>
 
-    <!-- Admin cards -->
-    <div class="sm-admin-cards">
-      <a
-        v-for="card in data.cards || []"
-        :key="card.key"
-        :href="card.url"
-        class="card text-decoration-none shadow-sm sm-admin-card"
-      >
-        <div class="card-body d-flex flex-column align-items-center justify-content-center text-center p-4">
-          <i :class="['bi', card.icon, 'sm-admin-card__icon', 'sm-admin-card__icon--' + (card.icon_color || 'blue')]" />
-          <h6 class="card-title mb-0 mt-3">{{ card.title }}</h6>
-        </div>
-      </a>
-      <div v-if="!data.cards?.length" class="text-muted">{{ $t('iomad.no_cards') }}</div>
-    </div>
+    <!-- Empty state -->
+    <p v-if="!groups.length" class="text-muted">{{ $t('iomad.no_cards') }}</p>
+
+    <template v-else>
+      <!-- Category tabs -->
+      <div class="smgp-mgmt-page__tabs" role="tablist">
+        <button
+          v-for="(group, idx) in groups"
+          :key="group.key"
+          type="button"
+          role="tab"
+          class="smgp-mgmt-page__tab"
+          :class="{ 'smgp-mgmt-page__tab--active': activeTab === idx }"
+          :aria-selected="activeTab === idx"
+          @click="activeTab = idx"
+        >
+          <i :class="group.icon" class="smgp-mgmt-page__tab-icon" />
+          <span>{{ group.title }}</span>
+        </button>
+      </div>
+
+      <!-- Cards for the active category -->
+      <div class="smgp-mgmt-grid">
+        <a
+          v-for="opt in groups[activeTab]?.options ?? []"
+          :key="opt.title + opt.url"
+          :href="opt.url"
+          class="smgp-mgmt-card"
+        >
+          <span class="smgp-mgmt-card__icon">
+            <i :class="iconForGroup(groups[activeTab]?.key)" />
+          </span>
+          <span class="smgp-mgmt-card__text">
+            <span class="smgp-mgmt-card__title">{{ opt.title }}</span>
+            <span class="smgp-mgmt-card__desc">{{ opt.description || groups[activeTab]?.title }}</span>
+          </span>
+        </a>
+      </div>
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed, ref } from 'vue'
+
 definePageMeta({ middleware: 'auth' })
 
 const { getIomadDashboard } = useAdminApi()
 
+interface IomadOption {
+  url: string
+  icon: string
+  title: string
+  description: string
+}
+interface IomadCategory {
+  key: string
+  icon: string
+  title: string
+  options: IomadOption[]
+}
+interface IomadDashboardData {
+  companyname: string
+  cards: unknown[]
+  categories: IomadCategory[]
+}
+
 const loading = ref(true)
 const error = ref<string | null>(null)
-const data = ref<any>(null)
+const data = ref<IomadDashboardData | null>(null)
+const activeTab = ref(0)
+
+// Map IOMAD category keys to a Lucide icon. The fallback covers any
+// future category the backend may add.
+const IOMAD_CATEGORY_ICONS: Record<string, string> = {
+  configuration:  'icon-cog',
+  companies:      'icon-building-2',
+  users:          'icon-users',
+  courses:        'icon-graduation-cap',
+  licenses:       'icon-rulers',
+  competences:    'icon-box',
+  emailtemplates: 'icon-mail',
+  shop:           'icon-shopping-bag',
+  reports:        'icon-bar-chart',
+}
+
+const iconForGroup = (key: string | undefined): string =>
+  (key && IOMAD_CATEGORY_ICONS[key]) || 'icon-link'
+
+// Render every category that has at least one option. Empty groups
+// (which can happen for categories the user has no permission on) are
+// dropped so the tab bar isn't cluttered with dead pills.
+const groups = computed(() =>
+  (data.value?.categories ?? []).filter(c => c.options.length > 0),
+)
 
 getIomadDashboard().then((result) => {
   loading.value = false
   if (result.error) {
     error.value = result.error
   } else {
-    data.value = result.data
+    data.value = result.data as IomadDashboardData
   }
 })
 </script>
-
-<style scoped>
-.sm-iomad-dashboard {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.sm-admin-cards {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1.25rem;
-  width: 100%;
-}
-@media (max-width: 992px) {
-  .sm-admin-cards {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-@media (max-width: 576px) {
-  .sm-admin-cards {
-    grid-template-columns: 1fr;
-  }
-}
-
-.sm-admin-card {
-  border: 1px solid #e9ecef;
-  border-radius: 0.75rem;
-  background: #fff;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  color: #1a1f35;
-}
-.sm-admin-card .card-body {
-  min-height: 170px;
-}
-.sm-admin-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10) !important;
-}
-.sm-admin-card .card-title {
-  font-weight: 600;
-}
-
-.sm-admin-card__icon {
-  font-size: 2.25rem;
-  line-height: 1;
-  display: inline-block;
-}
-.sm-admin-card__icon--green  { color: #16a34a; }
-.sm-admin-card__icon--blue   { color: #2563eb; }
-.sm-admin-card__icon--orange { color: #ea580c; }
-.sm-admin-card__icon--violet { color: #7c3aed; }
-</style>
