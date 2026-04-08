@@ -24,7 +24,7 @@
         <!-- Breadcrumb -->
         <div id="smgp-course-breadcrumb" class="smgp-course-breadcrumb">
           <NuxtLink to="/courses" class="smgp-course-breadcrumb__link">
-            {{ $t('course_page.mycourses_breadcrumb') || 'My courses' }}
+            {{ $t('course_page.mycourses_breadcrumb') }}
           </NuxtLink>
           <span class="smgp-course-breadcrumb__sep">/</span>
           <span class="smgp-course-breadcrumb__current">{{ data.coursename }}</span>
@@ -35,10 +35,31 @@
           <div v-if="activityLoading" class="text-center py-5">
             <div class="spinner-border text-primary" role="status" />
           </div>
-          <div v-else-if="activityContent" v-html="activityContent" />
+          <template v-else-if="activityRender === 'inline' && activityHtml">
+            <div v-html="activityHtml" />
+          </template>
+          <template v-else-if="activityRender === 'iframe' && activityIframeUrl">
+            <div class="smgp-course-content__iframe-wrap">
+              <iframe
+                :src="activityIframeUrl"
+                class="smgp-course-content__iframe"
+                allow="fullscreen; autoplay; encrypted-media"
+                allowfullscreen
+              />
+            </div>
+          </template>
+          <template v-else-if="activityRender === 'redirect' && currentActivity">
+            <div class="smgp-course-content__redirect">
+              <i class="icon-external-link" />
+              <p>{{ $t('course_page.redirect_message') }}</p>
+              <a :href="currentActivity.url" class="btn btn-success" target="_blank" rel="noopener">
+                {{ $t('course_page.open_activity') }}
+              </a>
+            </div>
+          </template>
           <div v-else class="smgp-course-content__placeholder">
             <i class="bi bi-collection-play" />
-            <p>{{ $t('course_page.select_activity') || 'Select an activity to begin' }}</p>
+            <p>{{ $t('course_page.select_activity') }}</p>
           </div>
         </div>
 
@@ -51,7 +72,7 @@
             @click="navigateActivity(-1)"
           >
             <i class="bi bi-chevron-left" />
-            <span>{{ $t('course_page.prev') || 'Previous' }}</span>
+            <span>{{ $t('course_page.prev') }}</span>
           </button>
           <div class="smgp-course-nav__center">
             <div id="smgp-course-progress-bar" class="smgp-course-progress-bar">
@@ -82,7 +103,7 @@
             :disabled="currentActivityIndex >= flatActivities.length - 1"
             @click="navigateActivity(1)"
           >
-            <span>{{ $t('course_page.next') || 'Next' }}</span>
+            <span>{{ $t('course_page.next') }}</span>
             <i class="bi bi-chevron-right" />
           </button>
         </div>
@@ -119,7 +140,7 @@
       <aside id="smgp-course-sidebar" class="smgp-course-sidebar" :class="{ 'smgp-course-sidebar--collapsed': sidebarCollapsed }">
         <div class="smgp-course-sidebar__header">
           <span class="smgp-course-sidebar__title">
-            {{ $t('course_page.module_content') || 'Module content' }}
+            {{ $t('course_page.module_content') }}
           </span>
           <span class="smgp-course-sidebar__count">
             <span id="smgp-sidebar-completed">{{ data.completedactivities }}</span>/{{ data.totalactivities }}
@@ -184,7 +205,7 @@
       <button
         id="smgp-sidebar-toggle"
         class="smgp-course-sidebar__toggle"
-        :title="$t('course_page.collapse_sidebar') || 'Toggle sidebar'"
+        :title="$t('course_page.collapse_sidebar')"
         @click="sidebarCollapsed = !sidebarCollapsed"
       >
         <i class="bi bi-chevron-right" />
@@ -195,7 +216,7 @@
     <button
       id="smgp-course-focus-btn"
       class="smgp-course-focus-btn"
-      :title="$t('course_page.focus_mode') || 'Focus mode'"
+      :title="$t('course_page.focus_mode')"
       type="button"
     >
       <i class="bi bi-arrows-fullscreen" />
@@ -212,7 +233,9 @@ const loading = ref(true)
 const error = ref<string | null>(null)
 const data = ref<any>(null)
 const selectedCmid = ref(0)
-const activityContent = ref<string | null>(null)
+const activityHtml = ref<string | null>(null)
+const activityIframeUrl = ref<string | null>(null)
+const activityRender = ref<'inline' | 'iframe' | 'redirect' | null>(null)
 const activityLoading = ref(false)
 const sidebarCollapsed = ref(false)
 
@@ -249,11 +272,19 @@ const selectActivity = async (activity: any) => {
   if (activity.islabel) return
   selectedCmid.value = activity.cmid
   activityLoading.value = true
+  activityHtml.value = null
+  activityIframeUrl.value = null
+  activityRender.value = null
   const result = await call('local_sm_graphics_plugin_get_activity_content', { cmid: activity.cmid })
   activityLoading.value = false
-  if (!result.error) {
-    activityContent.value = (result.data as any)?.content ?? null
+  if (result.error) {
+    error.value = result.error
+    return
   }
+  const payload = result.data as any
+  activityRender.value = payload?.rendermode ?? null
+  activityHtml.value = payload?.html ?? null
+  activityIframeUrl.value = payload?.iframeurl ?? null
 }
 
 const navigateActivity = (delta: number) => {
@@ -280,5 +311,26 @@ getCoursePageData(courseid.value).then((result) => {
 <style scoped>
 .smgp-course-activity--active {
   background: var(--bs-primary-bg-subtle, #e8f0fe);
+}
+
+.smgp-course-content__redirect {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 4rem 2rem;
+  text-align: center;
+  color: #6b7280;
+
+  i {
+    font-size: 3rem;
+    color: #10b981;
+  }
+
+  p {
+    margin: 0;
+    font-size: 1rem;
+  }
 }
 </style>
