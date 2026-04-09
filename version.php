@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_sm_graphics_plugin';
-$plugin->version = 2026040910;  // YYYYMMDDXX format — restore wizard parity, edit page IOMAD companies, instant i18n switching, green back buttons.
+$plugin->version = 2026040911;  // YYYYMMDDXX format — dedicated create-course page with structure editor + shared course_structure_builder utility.
 $plugin->requires = 2022112800; // Moodle 4.1+
 $plugin->maturity = MATURITY_ALPHA;
 $plugin->release = '1.1.0-nuxt.18';  // Nuxt branch, aligned with dev v1.1.0 backend

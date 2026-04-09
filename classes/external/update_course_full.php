@@ -75,6 +75,7 @@ class update_course_full extends external_api {
             'objectives_json'       => new external_value(PARAM_RAW, 'JSON array of objective strings', VALUE_DEFAULT, '[]'),
             'translate'             => new external_value(PARAM_BOOL, 'Translate objectives + summary via Gemini', VALUE_DEFAULT, true),
             'companyids'            => new external_value(PARAM_RAW, 'CSV of IOMAD company IDs to assign', VALUE_DEFAULT, ''),
+            'course_structure_json' => new external_value(PARAM_RAW, 'JSON structure [{sectionKey,name,activities:[...]}] for new courses', VALUE_DEFAULT, '[]'),
         ]);
     }
 
@@ -104,7 +105,8 @@ class update_course_full extends external_api {
         int $course_category = 0,
         string $objectives_json = '[]',
         bool $translate = true,
-        string $companyids = ''
+        string $companyids = '',
+        string $course_structure_json = '[]'
     ): array {
         global $DB, $CFG;
 
@@ -135,6 +137,7 @@ class update_course_full extends external_api {
             'objectives_json'       => $objectives_json,
             'translate'             => $translate,
             'companyids'            => $companyids,
+            'course_structure_json' => $course_structure_json,
         ]);
 
         // Capability check.
@@ -344,6 +347,22 @@ class update_course_full extends external_api {
                     'departmentid' => 0,
                 ]);
             }
+        }
+
+        // --- Materialise structure (new courses only) ---
+        // When creating a course from scratch, the admin may have pre-defined
+        // sections + activities via the structure editor. Apply them now.
+        if ($params['courseid'] === 0
+            && !empty($params['course_structure_json'])
+            && $params['course_structure_json'] !== '[]'
+        ) {
+            require_once($CFG->dirroot . '/local/sm_graphics_plugin/classes/util/course_structure_builder.php');
+            $structfailures = [];
+            \local_sm_graphics_plugin\util\course_structure_builder::create(
+                $newcourseid,
+                $params['course_structure_json'],
+                $structfailures,
+            );
         }
 
         return [

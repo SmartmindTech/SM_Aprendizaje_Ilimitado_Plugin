@@ -126,9 +126,9 @@
         <!-- ─── Deferred-config layout (quiz / assign / forum / ...) ────── -->
         <template v-else-if="layout === 'deferred'">
           <div class="smgp-form-group">
-            <div class="alert alert-warning py-2 px-3 mb-0 small">
-              <i class="bi bi-exclamation-triangle-fill" />
-              {{ $t('restore.activity_deferred_hint') || 'This activity type will be created as a blank, pre-named module. Open it in Moodle after the restore finishes to configure it.' }}
+            <div :class="deferredHint ? 'alert alert-info py-2 px-3 mb-0 small' : 'alert alert-warning py-2 px-3 mb-0 small'">
+              <i :class="deferredHint ? 'bi bi-info-circle-fill' : 'bi bi-exclamation-triangle-fill'" />
+              {{ deferredHint || $t('restore.activity_deferred_hint') || 'This activity type will be created as a blank, pre-named module. Open it in Moodle after the restore finishes to configure it.' }}
             </div>
           </div>
         </template>
@@ -191,6 +191,8 @@ const props = defineProps<{
   saving?: boolean
   editing?: boolean
   fileAccept?: string
+  /** Custom hint for the deferred layout (replaces the default warning). */
+  deferredHint?: string
   /** Preload for edit mode. */
   initial?: ActivityModalInitial | null
 }>()

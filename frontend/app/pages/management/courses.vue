@@ -22,7 +22,7 @@
       {{ $t('management.courses.section_actions') }}
     </h2>
     <div class="smgp-mgmt-grid">
-      <NuxtLink to="/courses/0/edit" class="smgp-mgmt-card">
+      <NuxtLink to="/admin/create-course" class="smgp-mgmt-card">
         <span class="smgp-mgmt-card__icon"><i class="icon-square-pen" /></span>
         <span class="smgp-mgmt-card__text">
           <span class="smgp-mgmt-card__title">{{ $t('management.courses.card_create') }}</span>
