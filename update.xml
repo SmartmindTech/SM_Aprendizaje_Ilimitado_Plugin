@@ -2,7 +2,7 @@
 <updates>
     <update>
         <component>local_sm_graphics_plugin</component>
-        <version>2026040802</version>
+        <version>2026040803</version>
         <release>1.1.0-nuxt.16</release>
         <requires>2022112800</requires>
         <maturity>50</maturity>
