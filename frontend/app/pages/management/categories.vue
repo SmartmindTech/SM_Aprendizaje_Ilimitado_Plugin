@@ -11,9 +11,13 @@
     <!-- Category list view -->
     <div v-if="!showCreateForm" class="smgp-mgmt-page">
       <header class="smgp-mgmt-page__header d-flex align-items-start gap-3">
-        <NuxtLink to="/management/users" class="btn btn-outline-secondary mt-1">
+        <button
+          type="button"
+          class="btn btn-outline-secondary mt-1"
+          @click="$router.back()"
+        >
           <i class="icon-arrow-left" />
-        </NuxtLink>
+        </button>
         <div class="flex-grow-1">
           <h1 class="smgp-mgmt-page__title">{{ $t('management.categories.title') }}</h1>
           <p class="smgp-mgmt-page__desc">{{ $t('management.categories.desc') }}</p>

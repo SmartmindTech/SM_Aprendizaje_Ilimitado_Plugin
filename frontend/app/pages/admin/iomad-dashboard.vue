@@ -8,12 +8,21 @@
   <div v-else-if="error" class="alert alert-danger">{{ error }}</div>
 
   <div v-else class="smgp-mgmt-page">
-    <header class="smgp-mgmt-page__header">
-      <h1 class="smgp-mgmt-page__title">{{ $t('iomad.heading') }}</h1>
-      <p class="smgp-mgmt-page__desc">
-        {{ $t('iomadDashboard.desc') }}
-        <template v-if="data?.companyname"> · <strong>{{ data.companyname }}</strong></template>
-      </p>
+    <header class="smgp-mgmt-page__header d-flex align-items-start gap-3">
+      <button
+        type="button"
+        class="btn btn-outline-secondary mt-1"
+        @click="$router.back()"
+      >
+        <i class="icon-arrow-left" />
+      </button>
+      <div class="flex-grow-1">
+        <h1 class="smgp-mgmt-page__title">{{ $t('iomad.heading') }}</h1>
+        <p class="smgp-mgmt-page__desc">
+          {{ $t('iomadDashboard.desc') }}
+          <template v-if="data?.companyname"> · <strong>{{ data.companyname }}</strong></template>
+        </p>
+      </div>
     </header>
 
     <!-- Empty state -->

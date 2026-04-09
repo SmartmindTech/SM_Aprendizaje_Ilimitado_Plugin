@@ -112,8 +112,8 @@
       "card_create_desc": "Manually add a new course to the company.",
       "card_categories": "Categories",
       "card_categories_desc": "Organise the catalogue into SmartMind categories.",
-      "card_assign": "Assign to users",
-      "card_assign_desc": "Enrol users into selected courses.",
+      "card_limits": "Companies & limits",
+      "card_limits_desc": "Manage companies and the maximum number of students per company.",
       "card_loader": "SharePoint loader",
       "card_loader_desc": "Import courses from a SharePoint folder."
     },
@@ -256,6 +256,20 @@
       "url": "URL",
       "wiki": "Wiki"
     }
+  },
+  "adminCompanyLimits": {
+    "heading": "Companies & limits",
+    "help": "Set the maximum number of students per company. 0 = unlimited.",
+    "th_company": "Company",
+    "th_shortname": "Short name",
+    "th_students": "Students",
+    "th_maxlimit": "Max limit",
+    "th_status": "Status",
+    "unlimited_label": "Unlimited",
+    "full_label": "Full",
+    "ok_label": "OK",
+    "save_label": "Save",
+    "no_companies": "No companies found."
   },
   "adminSettings": {
     "title": "Site administration",

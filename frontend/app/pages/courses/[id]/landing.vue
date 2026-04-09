@@ -16,10 +16,10 @@
       <div class="smgp-landing-hero__overlay">
         <div class="smgp-landing-hero__content">
           <div class="smgp-landing-hero__left">
-            <NuxtLink to="/dashboard" class="smgp-landing-hero__back">
+            <button type="button" class="smgp-landing-hero__back" @click="$router.back()">
               <i class="icon-arrow-left" />
               {{ $t('landing.back') }}
-            </NuxtLink>
+            </button>
             <h1 class="smgp-landing-hero__title">{{ data.coursename }}</h1>
             <div class="smgp-landing-hero__meta">
               <span class="smgp-landing-hero__meta-item">

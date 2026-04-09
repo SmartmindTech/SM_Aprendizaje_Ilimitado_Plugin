@@ -36,13 +36,13 @@
           <span class="smgp-mgmt-card__desc">{{ $t('management.courses.card_categories_desc') }}</span>
         </span>
       </NuxtLink>
-      <a :href="`${authStore.wwwroot}/blocks/iomad_company_admin/company_courses_form.php`" class="smgp-mgmt-card">
-        <span class="smgp-mgmt-card__icon"><i class="icon-users" /></span>
+      <NuxtLink to="/admin/company-limits" class="smgp-mgmt-card">
+        <span class="smgp-mgmt-card__icon"><i class="icon-building-2" /></span>
         <span class="smgp-mgmt-card__text">
-          <span class="smgp-mgmt-card__title">{{ $t('management.courses.card_assign') }}</span>
-          <span class="smgp-mgmt-card__desc">{{ $t('management.courses.card_assign_desc') }}</span>
+          <span class="smgp-mgmt-card__title">{{ $t('management.courses.card_limits') }}</span>
+          <span class="smgp-mgmt-card__desc">{{ $t('management.courses.card_limits_desc') }}</span>
         </span>
-      </a>
+      </NuxtLink>
       <NuxtLink to="/admin/courseloader" class="smgp-mgmt-card">
         <span class="smgp-mgmt-card__icon"><i class="icon-cloud-upload" /></span>
         <span class="smgp-mgmt-card__text">
@@ -90,7 +90,6 @@
 definePageMeta({ middleware: 'auth' })
 
 const { getCourseManagement } = useManagementApi()
-const authStore = useAuthStore()
 
 const loading = ref(true)
 const error = ref<string | null>(null)

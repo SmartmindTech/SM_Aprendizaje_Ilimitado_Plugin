@@ -112,8 +112,8 @@
       "card_create_desc": "Adicione manualmente um novo curso à empresa.",
       "card_categories": "Categorias",
       "card_categories_desc": "Organize o catálogo em categorias SmartMind.",
-      "card_assign": "Atribuir a usuários",
-      "card_assign_desc": "Matricule usuários em cursos selecionados.",
+      "card_limits": "Empresas e limites",
+      "card_limits_desc": "Gerencie as empresas e o número máximo de alunos por empresa.",
       "card_loader": "Carregador SharePoint",
       "card_loader_desc": "Importe cursos a partir de uma pasta do SharePoint."
     },
@@ -256,6 +256,20 @@
       "url": "URL",
       "wiki": "Wiki"
     }
+  },
+  "adminCompanyLimits": {
+    "heading": "Empresas e limites",
+    "help": "Defina o número máximo de alunos por empresa. 0 = ilimitado.",
+    "th_company": "Empresa",
+    "th_shortname": "Nome curto",
+    "th_students": "Alunos",
+    "th_maxlimit": "Limite máximo",
+    "th_status": "Status",
+    "unlimited_label": "Ilimitado",
+    "full_label": "Cheio",
+    "ok_label": "OK",
+    "save_label": "Salvar",
+    "no_companies": "Nenhuma empresa encontrada."
   },
   "adminSettings": {
     "title": "Administração do site",

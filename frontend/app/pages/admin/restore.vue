@@ -1,6 +1,15 @@
 <template>
   <div class="smgp-restore">
-    <h1 class="smgp-restore__title">{{ $t('restore.title') || 'Restore a course backup' }}</h1>
+    <div class="d-flex align-items-start gap-3">
+      <button
+        type="button"
+        class="btn btn-outline-secondary mt-1"
+        @click="$router.back()"
+      >
+        <i class="icon-arrow-left" />
+      </button>
+      <h1 class="smgp-restore__title mb-0">{{ $t('restore.title') || 'Restore a course backup' }}</h1>
+    </div>
 
     <!-- Step indicator -->
     <ol class="smgp-restore__steps">

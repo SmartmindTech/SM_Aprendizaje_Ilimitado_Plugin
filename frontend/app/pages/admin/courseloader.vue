@@ -1,7 +1,18 @@
 <template>
   <div class="smgp-courseloader">
-    <h1 class="smgp-courseloader__title">{{ $t('courseloader.title') }}</h1>
-    <p class="smgp-courseloader__subtitle">{{ $t('courseloader.subtitle') }}</p>
+    <div class="d-flex align-items-start gap-3">
+      <button
+        type="button"
+        class="btn btn-outline-secondary mt-1"
+        @click="$router.back()"
+      >
+        <i class="icon-arrow-left" />
+      </button>
+      <div class="flex-grow-1">
+        <h1 class="smgp-courseloader__title">{{ $t('courseloader.title') }}</h1>
+        <p class="smgp-courseloader__subtitle">{{ $t('courseloader.subtitle') }}</p>
+      </div>
+    </div>
 
     <!-- Card 1: course picker (search-as-you-type with optional manual URL) -->
     <section class="smgp-courseloader__section">

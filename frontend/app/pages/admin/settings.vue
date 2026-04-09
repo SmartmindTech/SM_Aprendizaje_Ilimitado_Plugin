@@ -1,8 +1,17 @@
 <template>
   <div class="smgp-admin-settings">
-    <header class="smgp-admin-settings__header">
-      <h1 class="smgp-admin-settings__title">{{ $t('adminSettings.title') }}</h1>
-      <p class="smgp-admin-settings__desc">{{ $t('adminSettings.desc') }}</p>
+    <header class="smgp-admin-settings__header d-flex align-items-start gap-3">
+      <button
+        type="button"
+        class="btn btn-outline-secondary mt-1"
+        @click="$router.back()"
+      >
+        <i class="icon-arrow-left" />
+      </button>
+      <div class="flex-grow-1">
+        <h1 class="smgp-admin-settings__title">{{ $t('adminSettings.title') }}</h1>
+        <p class="smgp-admin-settings__desc">{{ $t('adminSettings.desc') }}</p>
+      </div>
     </header>
 
     <!-- Section badges (tabs) -->

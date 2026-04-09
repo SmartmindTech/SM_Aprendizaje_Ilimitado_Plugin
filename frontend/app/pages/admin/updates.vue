@@ -1,6 +1,15 @@
 <template>
   <div>
-    <h1 class="mb-4">Plugin Updates</h1>
+    <div class="d-flex align-items-start gap-3 mb-4">
+      <button
+        type="button"
+        class="btn btn-outline-secondary mt-1"
+        @click="$router.back()"
+      >
+        <i class="icon-arrow-left" />
+      </button>
+      <h1 class="mb-0">Plugin Updates</h1>
+    </div>
 
     <div v-if="loading" class="text-center py-5">
       <div class="spinner-border text-primary" role="status" />

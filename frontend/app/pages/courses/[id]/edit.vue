@@ -9,12 +9,13 @@
 
   <form v-else class="smgp-mgmt-page smgp-course-editor" @submit.prevent="onSubmit">
     <header class="smgp-mgmt-page__header smgp-course-editor__header">
-      <NuxtLink
-        :to="`/courses/${courseid || '0'}/landing`"
+      <button
+        type="button"
         class="btn btn-outline-secondary mt-1"
+        @click="$router.back()"
       >
         <i class="icon-arrow-left" />
-      </NuxtLink>
+      </button>
       <div class="flex-grow-1">
         <h1 class="smgp-mgmt-page__title">
           {{ isNew ? ($t('editor.new_course') || 'New course') : ($t('editor.edit_course') || 'Edit course') }}
