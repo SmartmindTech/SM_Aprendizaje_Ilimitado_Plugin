@@ -80,6 +80,14 @@
     "courses_col": "Cursos atribuídos",
     "users_col": "Usuários"
   },
+  "profile": {
+    "member_since": "Membro desde",
+    "enrolled_courses": "Matriculados",
+    "completed_courses": "Concluídos",
+    "total_hours": "Horas",
+    "streak_days": "Dias seguidos",
+    "weekly_activity": "Atividade desta semana"
+  },
   "management": {
     "users": {
       "title": "Gestão de usuários",

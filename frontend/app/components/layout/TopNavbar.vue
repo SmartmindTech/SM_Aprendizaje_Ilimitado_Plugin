@@ -50,14 +50,16 @@ const route = useRoute()
 const { t } = useI18n()
 
 const navItems = computed<NavItem[]>(() => {
-  // Student items
+  // Student items — Mis cursos and Notas y diplomas were merged into the
+  // Profile page, so the student nav is intentionally compact: home,
+  // catalogue and profile. Profile keeps the legacy /courses + /grades-
+  // certificates routes in `matches` so the pill stays active even if a
+  // bookmark or older link still points there.
   if (!authStore.isManager && !authStore.isAdmin) {
     return [
-      { key: 'myhome',         to: '/dashboard',           label: t('nav.dashboard'),  matches: ['/dashboard'] },
-      { key: 'home',           to: '/catalogue',           label: t('nav.catalogue'),  matches: ['/catalogue'] },
-      { key: 'sm-mycourses',   to: '/courses',             label: t('nav.courses'),    matches: ['/courses'] },
-      { key: 'sm-gradescerts', to: '/grades-certificates', label: t('nav.grades'),     matches: ['/grades-certificates'] },
-      { key: 'sm-profile',     to: '/profile',             label: t('nav.profile'),    matches: ['/profile'] },
+      { key: 'myhome',     to: '/dashboard', label: t('nav.dashboard'), matches: ['/dashboard'] },
+      { key: 'home',       to: '/catalogue', label: t('nav.catalogue'), matches: ['/catalogue'] },
+      { key: 'sm-profile', to: '/profile',   label: t('nav.profile'),   matches: ['/profile', '/courses', '/grades-certificates'] },
     ]
   }
 

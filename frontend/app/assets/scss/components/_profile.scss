@@ -290,15 +290,6 @@
         i { color: #f59e0b; }
     }
 
-    &__chart {
-        display: flex;
-        align-items: flex-end;
-        justify-content: space-between;
-        height: 160px;
-        gap: 0.5rem;
-        padding-top: 1.5rem;
-    }
-
     &__chart-col {
         flex: 1;
         display: flex;

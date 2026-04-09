@@ -23,7 +23,7 @@
       <div class="smgp-course-main">
         <!-- Breadcrumb -->
         <div id="smgp-course-breadcrumb" class="smgp-course-breadcrumb">
-          <NuxtLink to="/courses" class="smgp-course-breadcrumb__link">
+          <NuxtLink to="/profile" class="smgp-course-breadcrumb__link">
             {{ $t('course_page.mycourses_breadcrumb') }}
           </NuxtLink>
           <span class="smgp-course-breadcrumb__sep">/</span>
