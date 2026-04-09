@@ -134,6 +134,23 @@ function local_sm_graphics_plugin_extend_navigation(global_navigation $navigatio
         }
     }
 
+    // ── Embed mode ─────────────────────────────────────────────────────
+    // When an activity is loaded inside the course player iframe
+    // (smgp_embed=1), force Moodle to use the minimal 'embedded' layout
+    // so it never renders navbar, drawers, or footer in the first place.
+    // This replaces the old approach of rendering full chrome and hiding
+    // it with CSS — faster, cleaner, no FOUC.
+    $isembed = !empty($_GET['smgp_embed']) || !empty($_COOKIE['smgp_embed']);
+    if ($isembed) {
+        try {
+            $PAGE->set_pagelayout('embedded');
+        } catch (\Throwable $e) {
+            // $PAGE may not be ready yet on rare code paths — the CSS
+            // fallback (body.smgp-embedded) in before_standard_top_of_body_html
+            // handles those cases.
+        }
+    }
+
     // Detect current script path reliably (works even before $PAGE->url is set).
     $scriptpath = isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : '';
 

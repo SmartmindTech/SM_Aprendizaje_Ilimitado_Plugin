@@ -307,6 +307,70 @@ body.smgp-course-player #page-wrapper {
     margin: $smgp-space-md 0;
     width: 100%;
   }
+
+  // Embeddable URL (YouTube, Vimeo, Genially) — responsive 16:9 iframe.
+  &__embed-frame {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border: none;
+    border-radius: 8px;
+  }
+
+  // Plain link for non-embeddable URLs.
+  &__url-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    font-size: 1.1rem;
+
+    i { font-size: 1.3rem; color: #10b981; }
+    a { color: #10b981; text-decoration: underline; }
+  }
+}
+
+// ===== Glossary (inline rendered) =====
+.smgp-glossary {
+  &__search {
+    width: 100%;
+    padding: 0.6rem 1rem;
+    border: 1px solid #E2DDD6;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+
+    &:focus { border-color: #10b981; }
+  }
+
+  &__entry {
+    padding: 1rem 0;
+    border-bottom: 1px solid #f1f0ed;
+
+    &:last-child { border-bottom: none; }
+  }
+
+  &__term {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #1A1814;
+    margin: 0 0 0.35rem;
+  }
+
+  &__definition {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #4a4540;
+
+    img { max-width: 100%; height: auto; }
+  }
+
+  &__empty {
+    color: #94a3b8;
+    text-align: center;
+    padding: 2rem 0;
+  }
 }
 
 // ===== Activity Navigation =====
@@ -471,6 +535,14 @@ body.smgp-course-player #page-wrapper {
   z-index: 10;
   box-shadow: $smgp-shadow-md;
 
+  // In focus mode, move to top-right corner and make always visible.
+  .smgp-course-page--focus & {
+    top: 0.75rem;
+    bottom: auto;
+    right: 1rem;
+    opacity: 0.7;
+  }
+
   &:hover {
     opacity: 1;
     transform: scale(1.1);
@@ -511,21 +583,16 @@ body.smgp-course-player #page-wrapper {
   }
 }
 
-// Focus mode: hide main SmartMind sidebar + header.
-// Class added to body when focus mode is active.
-body.smgp-course-focus-active {
-  padding-top: 0 !important;
-
-  .smgp-header,
-  .smgp-sidebar,
-  .smgp-sidebar__overlay {
+// Focus mode: hide top navbar and reclaim its space.
+// Class added to <html> when focus mode is active.
+html.smgp-focus-active {
+  .smgp-topnav {
     display: none !important;
   }
 
-  #page,
-  #page.drawers,
-  #page.drawers.drag-container {
-    margin-left: 0 !important;
+  .smgp-course-body {
+    top: 1rem !important;
+    height: calc(100vh - 1rem) !important;
   }
 }
 
@@ -792,12 +859,13 @@ body.smgp-course-focus-active {
   // Grid placement: column 2, row 2 — top-aligned with the content box.
   grid-column: 3;
   grid-row: 2;
-  align-self: stretch;
+  align-self: flex-start;
   width: 320px;
+  max-height: calc(100vh - var(--navbar-height, 60px) - 2rem);
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   background: #FFFFFF;
-  overflow: hidden;  // clips border-radius corners only — list scrolls internally
   border-radius: 14px;
   border: 1px solid #E2DDD6;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
@@ -843,8 +911,6 @@ body.smgp-course-focus-active {
   }
 
   &__sections, &__list {
-    flex: 1 1 auto;
-    min-height: 0;
     overflow-y: auto;
   }
 
@@ -946,12 +1012,60 @@ body.smgp-course-focus-active {
     flex-shrink: 0;
   }
 
-  &__activities {
-    display: none;
+  &--open{
+    background: rgba(16, 225, 129, 0.14) !important;
+
   }
 
-  &--expanded .smgp-course-section__activities {
-    display: block;
+}
+
+// ===== Sidebar Section (collapsible header) =====
+.smgp-course-section {
+  // Button reset
+  width: 100%;
+  background: white;
+  border: none;
+  font: inherit;
+  color: #1A1814;
+  text-align: left;
+  appearance: none;
+
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid #E2DDD6;
+  transition: background 0.12s;
+
+  &:hover { background: #ECEAE5; }
+
+  &__chevron {
+    font-size: 12px;
+    flex-shrink: 0;
+    color: #6B6660;
+    transition: transform 0.2s;
+  }
+
+  &__name {
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__activities {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.3s ease-out;
+
+    &--open {
+      max-height: 500px;
+      transition: max-height 0.4s ease-in;
+    }
   }
 }
 
@@ -1432,4 +1546,12 @@ body.smgp-embedded {
 
 #scorm_content{
   width: 100% !important;
+}
+
+.smgp-course-section--last{
+  border-radius: 0 0 14px 14px;
+
+  &:hover{
+    border-radius: 0 0 14px 14px;
+  }
 }

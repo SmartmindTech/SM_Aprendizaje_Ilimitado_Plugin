@@ -9,7 +9,7 @@
       >
       <div class="course-card__diffuse" />
       <div class="course-card__play">
-        <i class="fa fa-play" />
+        <i class="icon-play" style="font-size: 1.5rem" />
       </div>
     </NuxtLink>
     <div class="course-card__body">

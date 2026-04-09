@@ -43,7 +43,7 @@ use external_value;
 class get_activity_content extends external_api {
 
     /** @var string[] Activity types rendered inline (AJAX HTML). */
-    private static $inline_types = ['page', 'book', 'label', 'resource'];
+    private static $inline_types = ['page', 'book', 'label', 'resource', 'url', 'glossary'];
 
     /** @var string[] Activity types that redirect to the real Moodle page. */
     private static $redirect_types = ['forum', 'chat', 'bigbluebuttonbn', 'lti'];
@@ -971,6 +971,12 @@ class get_activity_content extends external_api {
             case 'label':
                 return self::build_label_data($cm, $context);
 
+            case 'url':
+                return self::build_url_data($cm, $context);
+
+            case 'glossary':
+                return self::build_glossary_data($cm, $context);
+
             default:
                 return ['kind' => 'unsupported'];
         }
@@ -1104,6 +1110,100 @@ class get_activity_content extends external_api {
             'kind'    => 'label',
             'content' => format_text($label->intro, $label->introformat, ['context' => $context]),
         ];
+    }
+
+    /**
+     * Build mod_url payload: external URL + optional intro.
+     *
+     * Genially URLs get a special 'embed' kind so the frontend can render
+     * them in a responsive iframe without Moodle's wrapper.
+     */
+    private static function build_url_data($cm, $context): array {
+        global $DB;
+        $urlrecord = $DB->get_record('url', ['id' => $cm->instance], '*', MUST_EXIST);
+        $intro = self::format_intro_text($urlrecord, $context, 'url');
+        $externalurl = trim($urlrecord->externalurl);
+
+        $kind = 'link';
+        $embedurl = $externalurl;
+        if (self::is_genially_url($externalurl)) {
+            $kind = 'embed';
+            $embedurl = self::normalize_genially_url($externalurl);
+        } else if (preg_match('/youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\//i', $externalurl)) {
+            $kind = 'embed';
+            $embedurl = self::normalize_youtube_url($externalurl);
+        } else if (preg_match('/vimeo\.com\/\d+/i', $externalurl)) {
+            $kind = 'embed';
+            $embedurl = self::normalize_vimeo_url($externalurl);
+        }
+
+        $data = [
+            'kind'       => 'url',
+            'url'        => $externalurl,
+            'embedurl'   => $embedurl,
+            'urlkind'    => $kind,
+            'name'       => format_string($urlrecord->name),
+        ];
+        if ($intro !== '') {
+            $data['intro'] = $intro;
+        }
+        return $data;
+    }
+
+    /**
+     * Convert a YouTube URL to an embeddable format.
+     */
+    private static function normalize_youtube_url(string $url): string {
+        if (preg_match('/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]+)/', $url, $m)) {
+            return 'https://www.youtube.com/embed/' . $m[1];
+        }
+        return $url;
+    }
+
+    /**
+     * Convert a Vimeo URL to an embeddable format.
+     */
+    private static function normalize_vimeo_url(string $url): string {
+        if (preg_match('/vimeo\.com\/(\d+)/', $url, $m)) {
+            return 'https://player.vimeo.com/video/' . $m[1];
+        }
+        return $url;
+    }
+
+    /**
+     * Build mod_glossary payload: intro + list of entries.
+     */
+    private static function build_glossary_data($cm, $context): array {
+        global $DB;
+        $glossary = $DB->get_record('glossary', ['id' => $cm->instance], '*', MUST_EXIST);
+        $intro = self::format_intro_text($glossary, $context, 'glossary');
+
+        $entries = $DB->get_records('glossary_entries', [
+            'glossaryid' => $glossary->id,
+            'approved'   => 1,
+        ], 'concept ASC', 'id, concept, definition, definitionformat');
+
+        $items = [];
+        foreach ($entries as $entry) {
+            $definition = file_rewrite_pluginfile_urls(
+                $entry->definition, 'pluginfile.php', $context->id,
+                'mod_glossary', 'entry', $entry->id
+            );
+            $items[] = [
+                'id'         => (int) $entry->id,
+                'concept'    => format_string($entry->concept),
+                'definition' => format_text($definition, $entry->definitionformat, ['context' => $context]),
+            ];
+        }
+
+        $data = [
+            'kind'    => 'glossary',
+            'entries' => $items,
+        ];
+        if ($intro !== '') {
+            $data['intro'] = $intro;
+        }
+        return $data;
     }
 
     /**

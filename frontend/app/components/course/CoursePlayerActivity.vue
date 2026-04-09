@@ -100,6 +100,68 @@
       v-html="inline.content"
     />
 
+    <!-- mod_url: external link or embeddable content (YouTube, Vimeo, Genially) -->
+    <div
+      v-else-if="inline.kind === 'url'"
+      class="smgp-activity-content smgp-activity-content--url"
+    >
+      <div
+        v-if="inline.intro"
+        class="smgp-activity-content__intro"
+        v-html="inline.intro"
+      />
+
+      <!-- Embeddable URL (YouTube, Vimeo, Genially) -->
+      <iframe
+        v-if="inline.urlkind === 'embed' && inline.embedurl"
+        :src="inline.embedurl"
+        class="smgp-activity-content__embed-frame"
+        allow="fullscreen; autoplay; encrypted-media"
+        allowfullscreen
+      />
+
+      <!-- Plain link -->
+      <div v-else class="smgp-activity-content__url-link">
+        <i class="icon-external-link" />
+        <a :href="inline.url" target="_blank" rel="noopener">
+          {{ inline.name || inline.url }}
+        </a>
+      </div>
+    </div>
+
+    <!-- mod_glossary: searchable list of term definitions -->
+    <div
+      v-else-if="inline.kind === 'glossary'"
+      class="smgp-activity-content smgp-activity-content--glossary"
+    >
+      <div
+        v-if="inline.intro"
+        class="smgp-activity-content__intro"
+        v-html="inline.intro"
+      />
+
+      <input
+        v-if="inline.entries && inline.entries.length > 5"
+        v-model="glossarySearch"
+        type="text"
+        class="smgp-glossary__search"
+        :placeholder="$t('course_page.glossary_search')"
+      >
+
+      <div
+        v-for="entry in filteredGlossaryEntries"
+        :key="entry.id"
+        class="smgp-glossary__entry"
+      >
+        <h4 class="smgp-glossary__term">{{ entry.concept }}</h4>
+        <div class="smgp-glossary__definition" v-html="entry.definition" />
+      </div>
+
+      <p v-if="inline.entries && inline.entries.length === 0" class="smgp-glossary__empty">
+        {{ $t('course_page.glossary_empty') }}
+      </p>
+    </div>
+
     <!-- Fallback: activity type the backend can't render inline -->
     <div v-else class="smgp-activity-content">
       <p>{{ $t('course_page.content_not_available') }}</p>
@@ -133,11 +195,22 @@
 <script setup lang="ts">
 import type { InlineData, ActivityRender } from '~/types/coursePlayer'
 
-defineProps<{
+const props = defineProps<{
   loading: boolean
   render: ActivityRender
   inline: InlineData | null
   iframeUrl: string | null
   redirectUrl?: string | null
 }>()
+
+const glossarySearch = ref('')
+
+const filteredGlossaryEntries = computed(() => {
+  const entries = props.inline?.entries ?? []
+  if (!glossarySearch.value) return entries
+  const q = glossarySearch.value.toLowerCase()
+  return entries.filter(e =>
+    e.concept.toLowerCase().includes(q) || e.definition.toLowerCase().includes(q),
+  )
+})
 </script>

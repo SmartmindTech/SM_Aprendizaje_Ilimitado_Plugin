@@ -17,13 +17,26 @@ export interface InlineChapter {
   total: number
 }
 
+export interface GlossaryEntry {
+  id: number
+  concept: string
+  definition: string
+}
+
 export interface InlineData {
-  kind: 'page' | 'book' | 'resource' | 'label' | 'unsupported'
+  kind: 'page' | 'book' | 'resource' | 'label' | 'url' | 'glossary' | 'unsupported'
   content?: string
   intro?: string
   empty?: boolean
   chapter?: InlineChapter
   file?: InlineFile
+  // URL activity fields
+  url?: string
+  embedurl?: string
+  urlkind?: 'link' | 'embed'
+  name?: string
+  // Glossary fields
+  entries?: GlossaryEntry[]
 }
 
 export type ActivityRender = 'inline' | 'iframe' | 'redirect' | null

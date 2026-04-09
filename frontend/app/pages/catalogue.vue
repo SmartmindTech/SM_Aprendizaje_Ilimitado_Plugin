@@ -9,7 +9,7 @@
     <!-- Search bar -->
     <div class="smartmind-catalogue-search mb-3">
       <div class="smartmind-catalogue-search__wrapper">
-        <i class="fa fa-search smartmind-catalogue-search__icon" />
+        <i class="icon-search smartmind-catalogue-search__icon" />
         <input
           v-model="searchTerm"
           type="text"
@@ -62,9 +62,9 @@
       </div>
 
       <!-- Result count -->
-      <div class="smartmind-catalogue-results">
-        <strong>{{ visibleCourses.length }}</strong> {{ $t('catalogue.results') }}
-      </div>
+      <!--borrado-->
+
+
 
       <!-- Course grid -->
       <div v-if="visibleCourses.length === 0" class="catalog-section__empty">

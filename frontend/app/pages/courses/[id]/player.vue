@@ -10,7 +10,10 @@
   <div
     v-else-if="data"
     class="smgp-course-page"
-    :class="{ 'smgp-course-page--sidebar-collapsed': sidebarCollapsed }"
+    :class="{
+      'smgp-course-page--sidebar-collapsed': sidebarCollapsed,
+      'smgp-course-page--focus': focusMode,
+    }"
   >
     <div class="smgp-course-body">
       <!-- Header (breadcrumb + current activity title) — left column, row 1 -->
@@ -92,8 +95,9 @@
       class="smgp-course-focus-btn"
       :title="$t('course_page.focus_mode')"
       type="button"
+      @click="focusMode = !focusMode"
     >
-      <i class="bi bi-arrows-fullscreen" />
+      <i :class="focusMode ? 'bi bi-fullscreen-exit' : 'bi bi-arrows-fullscreen'" />
     </button>
   </div>
 </template>
@@ -114,6 +118,15 @@ const activityIframeUrl = ref<string | null>(null)
 const activityRender = ref<ActivityRender>(null)
 const activityLoading = ref(false)
 const sidebarCollapsed = ref(false)
+const focusMode = ref(false)
+
+watch(focusMode, (on) => {
+  document.documentElement.classList.toggle('smgp-focus-active', on)
+})
+
+onBeforeUnmount(() => {
+  document.documentElement.classList.remove('smgp-focus-active')
+})
 
 const courseid = computed(() => Number(route.params.id))
 

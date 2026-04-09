@@ -17,7 +17,7 @@
       :aria-label="$t('nav.language')"
       @click="cycleLocale"
     >
-      <span class="smgp-lang-toggle__icon" aria-hidden="true" />
+      <i class="icon-globe" aria-hidden="true" />
       <span>{{ currentLocaleLabel }}</span>
     </button>
 

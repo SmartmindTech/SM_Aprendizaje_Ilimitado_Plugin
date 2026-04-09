@@ -241,12 +241,9 @@
 
   &:hover { color: #1a1a1a; }
 
-  .smgp-lang-toggle__icon {
-    font-family: "lucide";
-    font-size: 1.1rem;
-    color: $smgp-primary;
-    line-height: 1;
-    &::before { content: "\e193"; }            // globe
+  .icon-globe {
+    font-size: 1.3rem;
+    color: #10b981;
   }
 }
 
