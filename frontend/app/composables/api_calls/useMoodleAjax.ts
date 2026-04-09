@@ -31,6 +31,16 @@ export const useMoodleAjax = () => {
   /**
    * Get the sesskey from bootstrap data.
    */
+  /**
+   * Resolve the current UI locale so we can forward it to Moodle. The
+   * i18n-sync plugin keeps `document.documentElement.lang` in sync with
+   * the active vue-i18n locale, so reading that is safe outside setup().
+   */
+  const getUiLang = (): string => {
+    if (typeof document === 'undefined') return ''
+    return document.documentElement.lang || ''
+  }
+
   const getSesskey = (): string => {
     const bootstrap = window.__MOODLE_BOOTSTRAP__
     if (bootstrap?.sesskey) {
@@ -85,7 +95,13 @@ export const useMoodleAjax = () => {
     args: Record<string, unknown>,
   ): Promise<MoodleAjaxResult<T>> => {
     const sesskey = getSesskey()
-    const url = `${getAjaxUrl()}?sesskey=${encodeURIComponent(sesskey)}&info=${encodeURIComponent(methodname)}`
+    // Forward the Vue UI locale so Moodle's external calls use the same
+    // language the user is seeing — otherwise current_language() reads from
+    // the user's saved Moodle profile and backend-rendered labels/translations
+    // end up in the wrong locale.
+    const uiLang = getUiLang()
+    const langQs = uiLang ? `&lang=${encodeURIComponent(uiLang)}` : ''
+    const url = `${getAjaxUrl()}?sesskey=${encodeURIComponent(sesskey)}&info=${encodeURIComponent(methodname)}${langQs}`
 
     const body: MoodleAjaxCall[] = [
       { index: 0, methodname, args },
@@ -139,7 +155,9 @@ export const useMoodleAjax = () => {
   ): Promise<{ [K in keyof T]: MoodleAjaxResult<T[K]> }> => {
     const sesskey = getSesskey()
     const info = calls.map(c => c.methodname).join(',')
-    const url = `${getAjaxUrl()}?sesskey=${encodeURIComponent(sesskey)}&info=${encodeURIComponent(info)}`
+    const uiLang = getUiLang()
+    const langQs = uiLang ? `&lang=${encodeURIComponent(uiLang)}` : ''
+    const url = `${getAjaxUrl()}?sesskey=${encodeURIComponent(sesskey)}&info=${encodeURIComponent(info)}${langQs}`
 
     const body: MoodleAjaxCall[] = calls.map((c, index) => ({
       index,

@@ -148,58 +148,72 @@ class course_landing_renderer {
         // Course image.
         $courseimageurl = $this->get_course_image_url($course);
 
-        // Course summary — try translated version first.
-        $summarysource = $course->summary ?? '';
+        // Course summary — return all available translations so the SPA
+        // can switch language instantly without a round-trip.
+        $alllanguages = ['en', 'es', 'pt_br'];
+        $basesummary = $course->summary ?? '';
+        $summariesi18n = [];
         $dbman = $DB->get_manager();
+
+        // Build a summary for each supported language.
         if ($dbman->table_exists('local_smgp_course_translations')) {
-            $userlang = current_language();
-            if (!in_array($userlang, ['en', 'es', 'pt_br'])) {
-                if (strpos($userlang, 'es') === 0) {
-                    $userlang = 'es';
-                } else if (strpos($userlang, 'pt') === 0) {
-                    $userlang = 'pt_br';
-                } else {
-                    $userlang = 'en';
-                }
+            $translations = $DB->get_records('local_smgp_course_translations',
+                ['courseid' => $courseid], '', 'id, lang, summary');
+            $transmap = [];
+            foreach ($translations as $tr) {
+                $transmap[$tr->lang] = $tr->summary;
             }
-            $trans = $DB->get_record('local_smgp_course_translations',
-                ['courseid' => $courseid, 'lang' => $userlang], 'summary');
-            if ($trans && !empty(trim($trans->summary))) {
-                $summarysource = $trans->summary;
+            foreach ($alllanguages as $lang) {
+                $src = (!empty($transmap[$lang]) && trim($transmap[$lang]) !== '')
+                    ? $transmap[$lang]
+                    : $basesummary;
+                $summariesi18n[] = [
+                    'lang'    => $lang,
+                    'summary' => format_text($src, $course->summaryformat ?? FORMAT_HTML, [
+                        'context' => $coursecontext,
+                        'filter'  => false,
+                        'noclean' => false,
+                    ]),
+                ];
             }
         }
-        $summary = format_text($summarysource, $course->summaryformat ?? FORMAT_HTML, [
-            'context' => $coursecontext,
-        ]);
 
-        // Learning objectives from dedicated table (filtered by language with fallback).
+        // Pick the summary for the current request language (used by the
+        // old single-language fields for backwards compat).
+        $userlang = current_language();
+        if (!in_array($userlang, $alllanguages)) {
+            if (strpos($userlang, 'es') === 0) { $userlang = 'es'; }
+            else if (strpos($userlang, 'pt') === 0) { $userlang = 'pt_br'; }
+            else { $userlang = 'en'; }
+        }
+        $summary = $basesummary;
+        foreach ($summariesi18n as $si) {
+            if ($si['lang'] === $userlang) {
+                $summary = $si['summary'];
+                break;
+            }
+        }
+
+        // Learning objectives — return all languages at once.
         $objectives = [];
-        $dbman = $DB->get_manager();
+        $objectivesi18n = [];
         if ($dbman->table_exists('local_smgp_learning_objectives')) {
-            $userlang = current_language();
-            // Normalize language code.
-            if (!in_array($userlang, ['en', 'es', 'pt_br'])) {
-                if (strpos($userlang, 'es') === 0) {
-                    $userlang = 'es';
-                } else if (strpos($userlang, 'pt') === 0) {
-                    $userlang = 'pt_br';
-                } else {
-                    $userlang = 'en';
-                }
+            $allrows = $DB->get_records('local_smgp_learning_objectives',
+                ['courseid' => $courseid], 'lang ASC, sortorder ASC');
+            $bylang = [];
+            foreach ($allrows as $row) {
+                $bylang[$row->lang][] = ['text' => format_string($row->objective)];
             }
-            // Try user's language, then Spanish, then any.
-            $objectiverecords = $DB->get_records('local_smgp_learning_objectives',
-                ['courseid' => $courseid, 'lang' => $userlang], 'sortorder ASC', 'id, objective');
-            if (empty($objectiverecords)) {
-                $objectiverecords = $DB->get_records('local_smgp_learning_objectives',
-                    ['courseid' => $courseid, 'lang' => 'es'], 'sortorder ASC', 'id, objective');
+            foreach ($alllanguages as $lang) {
+                $objectivesi18n[] = [
+                    'lang'       => $lang,
+                    'objectives' => $bylang[$lang] ?? [],
+                ];
             }
-            if (empty($objectiverecords)) {
-                $objectiverecords = $DB->get_records('local_smgp_learning_objectives',
-                    ['courseid' => $courseid], 'sortorder ASC', 'id, objective');
-            }
-            foreach ($objectiverecords as $obj) {
-                $objectives[] = ['text' => format_string($obj->objective)];
+            // Current-language objectives for the old single-language field.
+            $objectives = $bylang[$userlang] ?? $bylang['es'] ?? [];
+            if (empty($objectives) && !empty($bylang)) {
+                $objectives = reset($bylang);
             }
         }
 
@@ -376,6 +390,9 @@ class course_landing_renderer {
             // Learning objectives.
             'objectives'         => $objectives,
             'has_objectives'     => !empty($objectives),
+            // All-language variants for instant client-side locale switching.
+            'summaries_i18n'     => $summariesi18n,
+            'objectives_i18n'    => $objectivesi18n,
         ];
     }
 

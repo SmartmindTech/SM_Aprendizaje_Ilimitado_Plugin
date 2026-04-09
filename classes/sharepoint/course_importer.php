@@ -83,6 +83,101 @@ class course_importer {
         rebuild_course_cache($courseid, true);
     }
 
+    /**
+     * Apply a subset of a SharePoint manifest (typically a per-section drop
+     * from the restore wizard) to an already-existing course, optionally
+     * forcing every newly created module into a specific section number.
+     *
+     * Returns `['applied' => int, 'messages' => string[]]`.
+     *
+     * When `$sectionnum` is null, existing behaviour is preserved (the
+     * underlying workers place modules into the section they decide).
+     *
+     * @param int $courseid
+     * @param array $subset Same shape as the full manifest but filtered to
+     *                      just the entries the admin dropped.
+     * @param int|null $sectionnum When set, every newly created module is
+     *                             moved into this section after creation.
+     * @return array{applied: int, messages: string[]}
+     */
+    public static function apply_manifest_subset(int $courseid, array $subset, ?int $sectionnum = null): array {
+        global $DB;
+
+        \core_php_time_limit::raise(300);
+
+        $messages = [];
+        $applied = 0;
+
+        // Snapshot the course's existing cmids so we can identify which
+        // ones the subset created and move them into the target section.
+        $beforecmids = [];
+        if ($sectionnum !== null) {
+            $beforecmids = $DB->get_fieldset_select('course_modules', 'id', 'course = :cid', ['cid' => $courseid]);
+            $beforecmids = array_flip($beforecmids);
+        }
+
+        // Save site/drive IDs for the download proxy — the existing
+        // workers rely on them being in plugin config.
+        if (!empty($subset['site_id'])) {
+            set_config('sp_last_site_id', $subset['site_id'], 'local_sm_graphics_plugin');
+        }
+        if (!empty($subset['drive_id'])) {
+            set_config('sp_last_drive_id', $subset['drive_id'], 'local_sm_graphics_plugin');
+        }
+
+        try {
+            if (!empty($subset['scorm'])) {
+                $log = self::configure_scorm_activities($courseid, $subset);
+                $messages = array_merge($messages, $log);
+                $applied += count($subset['scorm']);
+            }
+            $resources = array_merge($subset['pdf'] ?? [], $subset['documents'] ?? []);
+            if (!empty($resources)) {
+                $log = self::create_url_resources($courseid, $subset);
+                $messages = array_merge($messages, $log);
+                $applied += count($resources);
+            }
+            $evals = array_merge($subset['evaluations_aiken'] ?? [], $subset['evaluations_gift'] ?? []);
+            if (!empty($evals)) {
+                $log = self::import_evaluations($courseid, $subset);
+                $messages = array_merge($messages, $log);
+                $applied += count($evals);
+            }
+        } catch (\Throwable $e) {
+            $messages[] = 'apply_manifest_subset error: ' . $e->getMessage();
+        }
+
+        // If a target section was provided, move every freshly-created
+        // module into it. We use moveto_module for proper ordering.
+        if ($sectionnum !== null) {
+            require_once(__DIR__ . '/../../../../course/lib.php');
+            $aftercmids = $DB->get_fieldset_select('course_modules', 'id', 'course = :cid', ['cid' => $courseid]);
+            $targetsection = $DB->get_record('course_sections', [
+                'course'  => $courseid,
+                'section' => $sectionnum,
+            ], '*', IGNORE_MISSING);
+            if ($targetsection) {
+                foreach ($aftercmids as $cmid) {
+                    if (isset($beforecmids[$cmid])) {
+                        continue; // already existed before.
+                    }
+                    try {
+                        $cm = get_coursemodule_from_id('', (int) $cmid, $courseid, false, IGNORE_MISSING);
+                        if ($cm) {
+                            moveto_module($cm, $targetsection);
+                        }
+                    } catch (\Throwable $ignore) {
+                        // Best-effort — skip if the module vanished.
+                    }
+                }
+            }
+        }
+
+        rebuild_course_cache($courseid, true);
+
+        return ['applied' => $applied, 'messages' => $messages];
+    }
+
     public static function import(array $manifest, int $categoryid): array {
         global $CFG;
 

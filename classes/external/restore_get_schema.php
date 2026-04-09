@@ -77,15 +77,30 @@ class restore_get_schema extends external_api {
         }
 
         // Sections.
+        // section_number comes from parsing the section.xml inside each
+        // section directory — Moodle stores the visible position there.
+        // The Vue wizard needs both section_id (the immutable backup id)
+        // and section_number (the user-facing index) so the
+        // setting_section_section_<n>_included key can be assembled.
         $sectionsindex = [];
         if (isset($xml->information->contents->sections->section)) {
             foreach ($xml->information->contents->sections->section as $sec) {
-                $sectionid = (string) $sec->sectionid;
+                $sectionid    = (string) $sec->sectionid;
+                $directory    = (string) $sec->directory;
+                $title        = (string) $sec->title;
+                $sectionnum   = self::parse_section_number($extractdir, $directory);
+                $userinfoflag = self::section_has_userinfo($extractdir, $directory);
+
                 $sectionsindex[$sectionid] = [
-                    'section_id'  => (int) $sec->sectionid,
-                    'title'       => (string) $sec->title,
-                    'directory'   => (string) $sec->directory,
-                    'activities'  => [],
+                    'section_id'     => (int) $sec->sectionid,
+                    'section_number' => $sectionnum,
+                    'title'          => $title,
+                    'original_name'  => $title,
+                    'directory'      => $directory,
+                    'included'       => true,
+                    'userinfo'       => $userinfoflag,
+                    'section_key'    => 'setting_section_section_' . $sectionnum . '_included',
+                    'activities'     => [],
                 ];
             }
         }
@@ -94,11 +109,20 @@ class restore_get_schema extends external_api {
         if (isset($xml->information->contents->activities->activity)) {
             foreach ($xml->information->contents->activities->activity as $act) {
                 $sectionid = (string) $act->sectionid;
+                $cmid      = (int) $act->moduleid;
+                $modname   = (string) $act->modulename;
+                $title     = (string) $act->title;
+                $directory = (string) $act->directory;
+
                 $activity = [
-                    'cmid'         => (int) $act->moduleid,
-                    'name'         => (string) $act->title,
-                    'modname'      => (string) $act->modulename,
-                    'directory'    => (string) $act->directory,
+                    'cmid'          => $cmid,
+                    'name'          => $title,
+                    'original_name' => $title,
+                    'modname'       => $modname,
+                    'directory'     => $directory,
+                    'included'      => true,
+                    'userinfo'      => self::activity_has_userinfo($extractdir, $directory),
+                    'activity_key'  => 'setting_activity_' . $modname . '_' . $cmid . '_included',
                 ];
                 if (isset($sectionsindex[$sectionid])) {
                     $sectionsindex[$sectionid]['activities'][] = $activity;
@@ -115,21 +139,77 @@ class restore_get_schema extends external_api {
         ];
     }
 
+    /**
+     * Parse the visible section number from the backup's section.xml so the
+     * Vue wizard can assemble the matching setting_section_section_<n>_*
+     * keys. Falls back to 0 if the file is missing or unparseable.
+     */
+    private static function parse_section_number(string $extractdir, string $directory): int {
+        $path = $extractdir . '/' . $directory . '/section.xml';
+        if (!file_exists($path)) {
+            return 0;
+        }
+        $xml = @simplexml_load_file($path);
+        if ($xml === false) {
+            return 0;
+        }
+        // Moodle's section.xml puts the visible index under <number>.
+        return isset($xml->number) ? (int) $xml->number : 0;
+    }
+
+    /**
+     * Best-effort detection of whether the section's backup actually
+     * contains user data (so the Vue wizard can grey-out the "with users"
+     * toggle when there's nothing to include). The check is intentionally
+     * cheap: just look for a non-empty users.xml inside the section dir.
+     */
+    private static function section_has_userinfo(string $extractdir, string $directory): bool {
+        $path = $extractdir . '/' . $directory . '/users.xml';
+        return file_exists($path) && filesize($path) > 200;
+    }
+
+    /**
+     * Same as section_has_userinfo() but for an activity directory.
+     */
+    private static function activity_has_userinfo(string $extractdir, string $directory): bool {
+        $path = $extractdir . '/' . $directory . '/users.xml';
+        if (file_exists($path) && filesize($path) > 200) {
+            return true;
+        }
+        // Some activity types put user data in grades.xml / completion.xml.
+        foreach (['grades.xml', 'completion.xml', 'logs.xml'] as $f) {
+            $p = $extractdir . '/' . $directory . '/' . $f;
+            if (file_exists($p) && filesize($p) > 200) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static function execute_returns(): external_single_structure {
         return new external_single_structure([
             'success' => new external_value(PARAM_BOOL, 'Query succeeded'),
             'error'   => new external_value(PARAM_TEXT, 'Error message if failed'),
             'sections' => new external_multiple_structure(
                 new external_single_structure([
-                    'section_id' => new external_value(PARAM_INT, 'Section ID from backup'),
-                    'title'      => new external_value(PARAM_TEXT, 'Section title'),
-                    'directory'  => new external_value(PARAM_TEXT, 'Extraction directory'),
+                    'section_id'     => new external_value(PARAM_INT, 'Section ID from backup'),
+                    'section_number' => new external_value(PARAM_INT, 'Visible section index (0, 1, 2…)'),
+                    'title'          => new external_value(PARAM_TEXT, 'Section title (editable)'),
+                    'original_name'  => new external_value(PARAM_TEXT, 'Original section title (immutable, for rename matching)'),
+                    'directory'      => new external_value(PARAM_TEXT, 'Extraction directory'),
+                    'included'       => new external_value(PARAM_BOOL, 'Whether the section is included by default'),
+                    'userinfo'       => new external_value(PARAM_BOOL, 'Whether the section has user data in the backup'),
+                    'section_key'    => new external_value(PARAM_TEXT, 'Restore plan setting key for include flag'),
                     'activities' => new external_multiple_structure(
                         new external_single_structure([
-                            'cmid'      => new external_value(PARAM_INT, 'CM ID from backup'),
-                            'name'      => new external_value(PARAM_TEXT, 'Activity name'),
-                            'modname'   => new external_value(PARAM_TEXT, 'Module name (quiz, forum, ...)'),
-                            'directory' => new external_value(PARAM_TEXT, 'Extraction directory'),
+                            'cmid'          => new external_value(PARAM_INT, 'CM ID from backup'),
+                            'name'          => new external_value(PARAM_TEXT, 'Activity name (editable)'),
+                            'original_name' => new external_value(PARAM_TEXT, 'Original activity name (immutable, for rename matching)'),
+                            'modname'       => new external_value(PARAM_TEXT, 'Module name (quiz, forum, ...)'),
+                            'directory'     => new external_value(PARAM_TEXT, 'Extraction directory'),
+                            'included'      => new external_value(PARAM_BOOL, 'Whether the activity is included by default'),
+                            'userinfo'      => new external_value(PARAM_BOOL, 'Whether the activity has user data in the backup'),
+                            'activity_key'  => new external_value(PARAM_TEXT, 'Restore plan setting key for include flag'),
                         ])
                     ),
                 ])

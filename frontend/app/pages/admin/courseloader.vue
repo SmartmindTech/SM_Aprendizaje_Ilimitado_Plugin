@@ -3,7 +3,7 @@
     <div class="d-flex align-items-start gap-3">
       <button
         type="button"
-        class="btn btn-outline-secondary mt-1"
+        class="btn smgp-back-btn mt-1"
         @click="$router.back()"
       >
         <i class="icon-arrow-left" />
@@ -577,13 +577,27 @@ async function onImport() {
     return
   }
 
-  // Step 2: persist the filename + folder URL so the restore wizard can
-  // pick them up after navigation. sessionStorage works because both
-  // pages share the same browser tab/origin.
+  // Step 2: persist the filename + folder URL + scan manifest so the
+  // restore wizard's Confirm step can render the same file table the
+  // courseloader showed (SCORMs / PDFs / evaluations / etc.). sessionStorage
+  // works because both pages share the same browser tab/origin.
   if (prepare.data.filename) {
     window.sessionStorage.setItem('smgp_restore_sp_filename', prepare.data.filename)
   }
   window.sessionStorage.setItem('smgp_restore_sp_folder_url', currentUrl.value)
+  if (scanResult.value && !scanResult.value.error) {
+    // Strip down to the bits the wizard needs (no item_ids — those are
+    // only useful for the prepare backend call we already finished).
+    const slim = {
+      mbz: (scanResult.value.mbz ?? []).map((f: any) => ({ name: f.name, size: f.size })),
+      scorm: (scanResult.value.scorm ?? []).map((f: any) => ({ name: f.name, size: f.size })),
+      pdf: (scanResult.value.pdf ?? []).map((f: any) => ({ name: f.name, size: f.size })),
+      documents: (scanResult.value.documents ?? []).map((f: any) => ({ name: f.name, size: f.size })),
+      evaluations_aiken: (scanResult.value.evaluations_aiken ?? []).map((f: any) => ({ name: f.name, size: f.size })),
+      evaluations_gift: (scanResult.value.evaluations_gift ?? []).map((f: any) => ({ name: f.name, size: f.size })),
+    }
+    window.sessionStorage.setItem('smgp_restore_sp_scan', JSON.stringify(slim))
+  }
   // Selected companies are already persisted under smgp_restore_company_ids
   // by the watch in the companies-state block above.
 

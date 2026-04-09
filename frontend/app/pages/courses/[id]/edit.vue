@@ -9,13 +9,12 @@
 
   <form v-else class="smgp-mgmt-page smgp-course-editor" @submit.prevent="onSubmit">
     <header class="smgp-mgmt-page__header smgp-course-editor__header">
-      <button
-        type="button"
-        class="btn btn-outline-secondary mt-1"
-        @click="$router.back()"
+      <NuxtLink
+        :to="`/courses/${courseid || '0'}/landing`"
+        class="btn smgp-back-btn mt-1"
       >
         <i class="icon-arrow-left" />
-      </button>
+      </NuxtLink>
       <div class="flex-grow-1">
         <h1 class="smgp-mgmt-page__title">
           {{ isNew ? ($t('editor.new_course') || 'New course') : ($t('editor.edit_course') || 'Edit course') }}
@@ -49,32 +48,54 @@
           <label>{{ $t('editor.shortname') || 'Short name' }}</label>
           <input v-model="form.shortname" type="text" class="form-control" required>
         </div>
-        <div class="smgp-editor-field">
-          <label>{{ $t('editor.moodle_category') || 'Moodle category' }}</label>
-          <select v-model="form.categoryid" class="form-control" required>
-            <option v-for="cat in data?.moodle_categories ?? []" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
-          </select>
+        <div class="smgp-editor-field smgp-editor-field--full">
+          <div class="smgp-editor-companies-header">
+            <label>{{ $t('editor.companies') || 'Companies' }} <i class="bi bi-info-circle smgp-editor-tip" :title="$t('editor.tip_companies')" /></label>
+            <input
+              v-model="companySearch"
+              type="text"
+              class="form-control form-control-sm smgp-editor-companies-search"
+              :placeholder="$t('courseloader.company_search_placeholder') || 'Search company...'"
+            >
+          </div>
+          <div class="smgp-editor-companies">
+            <div
+              v-for="c in filteredEditCompanies"
+              :key="c.id"
+              class="form-check"
+            >
+              <input
+                :id="`co-${c.id}`"
+                v-model="selectedCompanyIds"
+                class="form-check-input"
+                type="checkbox"
+                :value="c.id"
+              >
+              <label class="form-check-label" :for="`co-${c.id}`">
+                {{ c.name }} <span class="text-muted small">({{ c.shortname }})</span>
+              </label>
+            </div>
+            <p v-if="!filteredEditCompanies.length" class="text-muted small mb-0">
+              {{ $t('courseloader.companies_empty') || 'No companies found.' }}
+            </p>
+          </div>
         </div>
         <div class="smgp-editor-field">
-          <label>{{ $t('editor.idnumber') || 'ID number' }}</label>
-          <input v-model="form.idnumber" type="text" class="form-control" maxlength="100">
-        </div>
-        <div class="smgp-editor-field">
-          <label>{{ $t('editor.visible') || 'Visible' }}</label>
+          <label>{{ $t('editor.visible') || 'Visible' }} <i class="bi bi-info-circle smgp-editor-tip" :title="$t('editor.tip_visible')" /></label>
           <select v-model.number="form.visible" class="form-control">
             <option :value="1">{{ $t('editor.yes') || 'Yes' }}</option>
             <option :value="0">{{ $t('editor.no') || 'No' }}</option>
           </select>
         </div>
         <div class="smgp-editor-field">
-          <label>{{ $t('editor.enablecompletion') || 'Completion tracking' }}</label>
+          <label>{{ $t('editor.enablecompletion') || 'Completion tracking' }} <i class="bi bi-info-circle smgp-editor-tip" :title="$t('editor.tip_enablecompletion')" /></label>
           <select v-model.number="form.enablecompletion" class="form-control">
             <option :value="1">{{ $t('editor.yes') || 'Yes' }}</option>
             <option :value="0">{{ $t('editor.no') || 'No' }}</option>
           </select>
         </div>
         <div class="smgp-editor-field">
-          <label>{{ $t('editor.format') || 'Course format' }}</label>
+          <label>{{ $t('editor.format') || 'Course format' }} <i class="bi bi-info-circle smgp-editor-tip" :title="$t('editor.tip_format')" /></label>
           <select v-model="form.format" class="form-control">
             <option value="topics">{{ $t('editor.format_topics') || 'Topics' }}</option>
             <option value="weekly">{{ $t('editor.format_weekly') || 'Weekly' }}</option>
@@ -82,12 +103,15 @@
             <option value="singleactivity">{{ $t('editor.format_singleactivity') || 'Single activity' }}</option>
           </select>
         </div>
-        <div v-if="showNumsections" class="smgp-editor-field">
-          <label>{{ $t('editor.numsections') || 'Number of sections' }}</label>
-          <input v-model.number="form.numsections" type="number" min="1" max="52" class="form-control">
+        <div class="smgp-editor-field">
+          <label>{{ $t('editor.lang') || 'Force language' }} <i class="bi bi-info-circle smgp-editor-tip" :title="$t('editor.tip_lang')" /></label>
+          <select v-model="form.lang" class="form-control">
+            <option value="">{{ $t('editor.lang_default') || 'Use site default' }}</option>
+            <option v-for="l in data?.languages ?? []" :key="l.code" :value="l.code">{{ l.name }}</option>
+          </select>
         </div>
         <div class="smgp-editor-field">
-          <label>{{ $t('editor.startdate') || 'Start date' }}</label>
+          <label>{{ $t('editor.startdate') || 'Start date' }} <i class="bi bi-info-circle smgp-editor-tip" :title="$t('editor.tip_startdate')" /></label>
           <input
             type="date"
             class="form-control"
@@ -96,7 +120,7 @@
           >
         </div>
         <div class="smgp-editor-field">
-          <label>{{ $t('editor.enddate') || 'End date' }}</label>
+          <label>{{ $t('editor.enddate') || 'End date' }} <i class="bi bi-info-circle smgp-editor-tip" :title="$t('editor.tip_enddate')" /></label>
           <input
             type="date"
             class="form-control"
@@ -104,20 +128,9 @@
             @input="form.enddate = dateStringToTs(($event.target as HTMLInputElement).value)"
           >
         </div>
-        <div class="smgp-editor-field smgp-editor-field--full">
-          <label>{{ $t('editor.lang') || 'Force language' }}</label>
-          <select v-model="form.lang" class="form-control">
-            <option value="">{{ $t('editor.lang_default') || 'Use site default' }}</option>
-            <option v-for="l in data?.languages ?? []" :key="l.code" :value="l.code">{{ l.name }}</option>
-          </select>
-        </div>
-        <div class="smgp-editor-field smgp-editor-field--full">
-          <label>{{ $t('editor.summary') || 'Summary' }}</label>
-          <textarea v-model="form.summary" rows="4" class="form-control" />
-        </div>
         <!-- Course image: full-width row with preview + file picker. -->
         <div class="smgp-editor-field smgp-editor-field--full">
-          <label>{{ $t('editor.course_image') || 'Course image' }}</label>
+          <label>{{ $t('editor.course_image') || 'Course image' }} <i class="bi bi-info-circle smgp-editor-tip" :title="$t('editor.tip_course_image')" /></label>
           <div class="smgp-editor-image-row">
             <div class="smgp-editor-image-preview">
               <img
@@ -148,19 +161,7 @@
     <!-- ──────────────────────────────────────────────────────────── -->
     <!-- Section 2: SmartMind metadata (component supplies its own card) -->
     <!-- ──────────────────────────────────────────────────────────── -->
-    <h2 class="smgp-mgmt-page__section-title">
-      <i class="icon-settings" />
-      {{ $t('editor.metadata') || 'SmartMind metadata' }}
-    </h2>
     <MetadataFields v-model="metaModel" :categories="data?.smgp_categories ?? []" />
-
-    <!-- ──────────────────────────────────────────────────────────── -->
-    <!-- Section 3: Learning objectives (component supplies its own card) -->
-    <!-- ──────────────────────────────────────────────────────────── -->
-    <h2 class="smgp-mgmt-page__section-title">
-      <i class="icon-list-checks" />
-      {{ $t('editor.objectives') || 'Learning objectives' }}
-    </h2>
     <ObjectivesEditor v-model="objectivesModel" />
 
     <!-- Save button repeated at the bottom for long-form ergonomics. -->
@@ -176,7 +177,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useMoodleAjax } from '~/composables/api_calls/useMoodleAjax'
 import ObjectivesEditor from '~/components/editor/ObjectivesEditor.vue'
@@ -220,7 +221,7 @@ const newImagePreview = ref<string>('')
 // "Numsections" only applies to topics/weekly course formats — the
 // input is hidden for the other two formats so it doesn't confuse
 // the admin.
-const showNumsections = computed(() => form.format === 'topics' || form.format === 'weekly')
+
 
 const onImageChange = (e: Event) => {
   const file = (e.target as HTMLInputElement).files?.[0]
@@ -313,6 +314,16 @@ const metaModel = reactive({
 })
 
 const objectivesModel = ref<string[]>([])
+const selectedCompanyIds = ref<number[]>([])
+const companySearch = ref('')
+const filteredEditCompanies = computed(() => {
+  const all = (data.value?.companies ?? []) as Array<{ id: number; name: string; shortname: string }>
+  const q = companySearch.value.trim().toLowerCase()
+  if (!q) return all
+  return all.filter(c =>
+    c.name.toLowerCase().includes(q) || c.shortname.toLowerCase().includes(q),
+  )
+})
 
 const saving = ref(false)
 const saveError = ref<string | null>(null)
@@ -320,20 +331,23 @@ const saveError = ref<string | null>(null)
 async function fetchData() {
   loading.value = true
   error.value = null
-  const result = await call('local_sm_graphics_plugin_get_course_edit_data', { courseid: courseid.value })
+  const result = await call<{ core: any; meta: any; objectives: any[]; moodle_categories: any[]; smgp_categories: any[]; languages: any[]; companies: any[]; assigned_company_ids: number[]; descriptions_i18n: any[]; objectives_i18n: any[] }>(
+    'local_sm_graphics_plugin_get_course_edit_data', { courseid: courseid.value },
+  )
   if (result.error) {
     error.value = result.error
   } else {
     data.value = result.data
-    Object.assign(form, result.data.core)
-    Object.assign(metaModel, result.data.meta)
+    Object.assign(form, result.data!.core)
+    Object.assign(metaModel, result.data!.meta)
     // Both summary and meta.description are stored as HTML — strip tags
     // for the textarea so the user sees plain text instead of literal
     // <p>...</p>. They get re-wrapped on submit.
-    form.summary = stripHtml(result.data.core?.summary ?? '')
-    metaModel.description = stripHtml(result.data.meta?.description ?? '')
-    objectivesModel.value = (result.data.objectives || []).map((o: any) => o.text)
-    currentImageUrl.value = result.data.core?.courseimage_url ?? ''
+    form.summary = stripHtml(result.data!.core?.summary ?? '')
+    metaModel.description = stripHtml(result.data!.meta?.description ?? '')
+    objectivesModel.value = (result.data!.objectives || []).map((o: any) => o.text)
+    currentImageUrl.value = result.data!.core?.courseimage_url ?? ''
+    selectedCompanyIds.value = result.data!.assigned_company_ids ?? []
     newImageFile.value = null
     newImagePreview.value = ''
   }
@@ -353,7 +367,7 @@ async function onSubmit() {
     imageBase64 = await fileToBase64(newImageFile.value)
   }
 
-  const result = await call('local_sm_graphics_plugin_update_course_full', {
+  const result = await call<{ success: boolean; courseid: number }>('local_sm_graphics_plugin_update_course_full', {
     courseid: courseid.value,
     fullname: form.fullname,
     shortname: form.shortname,
@@ -378,6 +392,7 @@ async function onSubmit() {
     description: wrapAsHtml(metaModel.description),
     course_category: metaModel.course_category,
     objectives_json: JSON.stringify(objectivesModel.value),
+    companyids: selectedCompanyIds.value.join(','),
     translate: true,
   })
   saving.value = false
@@ -389,6 +404,26 @@ async function onSubmit() {
 }
 
 fetchData()
+
+// Instant locale switching for description + objectives using the
+// pre-loaded all-language arrays from the initial fetch.
+const { locale } = useI18n()
+watch(locale, (newLang) => {
+  if (!data.value) return
+  const lang = String(newLang)
+
+  // Swap description.
+  const di = (data.value.descriptions_i18n ?? []).find((d: { lang: string }) => d.lang === lang)
+  if (di) {
+    metaModel.description = di.description
+  }
+
+  // Swap objectives.
+  const oi = (data.value.objectives_i18n ?? []).find((o: { lang: string }) => o.lang === lang)
+  if (oi) {
+    objectivesModel.value = oi.objectives.map((o: { text: string }) => o.text)
+  }
+})
 </script>
 
 <style scoped lang="scss">
@@ -411,11 +446,49 @@ fetchData()
 // White card wrapping the core fields grid. Mirrors the visual weight
 // of MetadataFields/ObjectivesEditor (which supply their own cards) so
 // the three sections look like siblings.
+
+.smgp-editor-tip {
+  color: #94a3b8;
+  font-size: 0.7rem;
+  cursor: help;
+  margin-left: 0.15rem;
+}
+
+.smgp-editor-companies-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.4rem;
+  label { margin: 0; }
+}
+.smgp-editor-companies-search {
+  max-width: 220px;
+}
+
+.smgp-editor-companies {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.35rem 1rem;
+  max-height: 220px;
+  overflow-y: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 0.75rem;
+  background: #fff;
+  @media (max-width: 768px) { grid-template-columns: 1fr; }
+  .form-check {
+    .form-check-input:checked { background-color: #10b981; border-color: #10b981; }
+    .form-check-label { font-size: 0.85rem; }
+  }
+}
+
 .smgp-editor-card {
   background: #fff;
   border: 1px solid #f3f4f6;
   border-radius: 14px;
   padding: 1.25rem 1.5rem;
+  margin-bottom: 1rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
@@ -438,6 +511,15 @@ fetchData()
     font-weight: 600;
     font-size: 0.85rem;
     color: #1e293b;
+  }
+
+  // Force white background on every form element inside the card.
+  input,
+  select,
+  textarea,
+  .form-control,
+  .form-select {
+    background-color: #fff !important;
   }
 
   // Inputs lose the harsh Bootstrap border in favor of the SmartMind

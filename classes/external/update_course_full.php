@@ -74,6 +74,7 @@ class update_course_full extends external_api {
             // Objectives as a JSON-encoded array of strings.
             'objectives_json'       => new external_value(PARAM_RAW, 'JSON array of objective strings', VALUE_DEFAULT, '[]'),
             'translate'             => new external_value(PARAM_BOOL, 'Translate objectives + summary via Gemini', VALUE_DEFAULT, true),
+            'companyids'            => new external_value(PARAM_RAW, 'CSV of IOMAD company IDs to assign', VALUE_DEFAULT, ''),
         ]);
     }
 
@@ -102,7 +103,8 @@ class update_course_full extends external_api {
         string $description = '',
         int $course_category = 0,
         string $objectives_json = '[]',
-        bool $translate = true
+        bool $translate = true,
+        string $companyids = ''
     ): array {
         global $DB, $CFG;
 
@@ -132,6 +134,7 @@ class update_course_full extends external_api {
             'course_category'       => $course_category,
             'objectives_json'       => $objectives_json,
             'translate'             => $translate,
+            'companyids'            => $companyids,
         ]);
 
         // Capability check.
@@ -321,6 +324,27 @@ class update_course_full extends external_api {
 
         $transaction->allow_commit();
         rebuild_course_cache($newcourseid, true);
+
+        // --- IOMAD company assignment sync ---
+        // Replace the course's company_course rows with exactly the set
+        // the admin checked, so unchecking a company removes it.
+        $companycsv = trim($params['companyids']);
+        if ($DB->get_manager()->table_exists('company_course')) {
+            $wantedids = $companycsv !== ''
+                ? array_filter(array_map('intval', explode(',', $companycsv)))
+                : [];
+            // Remove all existing assignments for this course.
+            $DB->delete_records('company_course', ['courseid' => $newcourseid]);
+            // Re-insert only the selected ones.
+            foreach ($wantedids as $cid) {
+                if ($cid <= 0) continue;
+                $DB->insert_record('company_course', (object) [
+                    'companyid'    => $cid,
+                    'courseid'     => $newcourseid,
+                    'departmentid' => 0,
+                ]);
+            }
+        }
 
         return [
             'success'  => true,

@@ -465,4 +465,30 @@ $functions = [
         'ajax'         => true,
         'capabilities' => 'moodle/restore:restorecourse',
     ],
+
+    'local_sm_graphics_plugin_get_course_categories' => [
+        'classname'    => 'local_sm_graphics_plugin\external\get_course_categories',
+        'methodname'   => 'execute',
+        'description'  => 'List all visible Moodle course categories with depth (used by the restore wizard destination dropdown and courseloader).',
+        'type'         => 'read',
+        'ajax'         => true,
+    ],
+
+    'local_sm_graphics_plugin_get_courses_for_restore' => [
+        'classname'    => 'local_sm_graphics_plugin\external\get_courses_for_restore',
+        'methodname'   => 'execute',
+        'description'  => 'List courses the current user can restore into (capability-checked) for the merge/replace destination flows.',
+        'type'         => 'read',
+        'ajax'         => true,
+        'capabilities' => 'moodle/restore:restorecourse',
+    ],
+
+    'local_sm_graphics_plugin_list_restore_backups' => [
+        'classname'    => 'local_sm_graphics_plugin\external\list_restore_backups',
+        'methodname'   => 'execute',
+        'description'  => 'List existing course/user backup files and any in-progress restores for the wizard landing page.',
+        'type'         => 'read',
+        'ajax'         => true,
+        'capabilities' => 'moodle/restore:restorecourse',
+    ],
 ];

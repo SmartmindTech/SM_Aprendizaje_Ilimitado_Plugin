@@ -193,13 +193,29 @@
     font-size: 0.9rem;
     color: #1a1a1a;
     vertical-align: middle;
+    background: #fff;
   }
 
   tr:last-child td {
     border-bottom: 0;
   }
 
-  tbody tr:hover {
-    background: #f9fafb;
+  tbody tr:hover td {
+    background: #f8fafc;
+  }
+}
+
+// ── Green back button (replaces btn-outline-secondary on all admin pages) ──
+.smgp-back-btn {
+  background: #fff;
+  border: 1px solid #10b981;
+  color: #10b981;
+  border-radius: 8px;
+  padding: 0.4rem 0.75rem;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  &:hover, &:focus, &:active {
+    background: #f0fdf4;
+    border-color: #15803d;
+    color: #15803d;
   }
 }

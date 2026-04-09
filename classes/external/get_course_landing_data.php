@@ -182,6 +182,31 @@ class get_course_landing_data extends external_api {
                 ])
             ),
             'has_objectives'         => new external_value(PARAM_BOOL, 'Has learning objectives'),
+            'summaries_i18n'         => new external_multiple_structure(
+                new external_single_structure([
+                    'lang'    => new external_value(PARAM_ALPHAEXT, 'Language code'),
+                    'summary' => new external_value(PARAM_RAW, 'Summary HTML for this language'),
+                ]),
+                'All-language summaries for instant client-side switching',
+                VALUE_DEFAULT,
+                []
+            ),
+            'objectives_i18n'        => new external_multiple_structure(
+                new external_single_structure([
+                    'lang'       => new external_value(PARAM_ALPHAEXT, 'Language code'),
+                    'objectives' => new external_multiple_structure(
+                        new external_single_structure([
+                            'text' => new external_value(PARAM_TEXT, 'Objective text'),
+                        ]),
+                        'Objectives for this language',
+                        VALUE_DEFAULT,
+                        []
+                    ),
+                ]),
+                'All-language objectives for instant client-side switching',
+                VALUE_DEFAULT,
+                []
+            ),
         ]);
     }
 }

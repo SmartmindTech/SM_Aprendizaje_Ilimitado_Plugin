@@ -13,7 +13,7 @@
       <header class="smgp-mgmt-page__header d-flex align-items-start gap-3">
         <button
           type="button"
-          class="btn btn-outline-secondary mt-1"
+          class="btn smgp-back-btn mt-1"
           @click="$router.back()"
         >
           <i class="icon-arrow-left" />

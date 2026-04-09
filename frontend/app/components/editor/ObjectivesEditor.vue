@@ -1,8 +1,9 @@
 <template>
   <div class="smgp-objectives">
     <h3 class="smgp-objectives__heading">
-      <i class="icon-list-checks" />
+      <i class="bi bi-list-check" />
       {{ $t('editor.objectives') || 'Learning objectives' }}
+      <i class="bi bi-info-circle smgp-objectives__tip" :title="$t('editor.tip_objectives')" />
     </h3>
     <ul class="smgp-objectives__list">
       <li
@@ -84,11 +85,14 @@ function onDragEnd() {
 <style scoped lang="scss">
 .smgp-objectives {
   background: #fff;
+  border: 1px solid #e2e8f0;
   border-radius: 12px;
   padding: 1.25rem;
+  margin-bottom: 1rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 
   &__heading { font-size: 1rem; font-weight: 600; color: #1e293b; margin: 0 0 0.75rem; }
+  &__tip { color: #94a3b8; font-size: 0.7rem; cursor: help; margin-left: 0.15rem; }
   &__list { list-style: none; padding: 0; margin: 0 0 0.75rem; }
   &__row {
     display: flex;
@@ -103,5 +107,9 @@ function onDragEnd() {
   &__handle { cursor: grab; color: #94a3b8; user-select: none; }
   &__input { flex: 1; }
   &__remove { flex-shrink: 0; }
+  :deep(.form-control),
+  :deep(.form-select) {
+    background-color: #fff !important;
+  }
 }
 </style>

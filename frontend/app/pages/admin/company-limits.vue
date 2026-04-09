@@ -11,7 +11,7 @@
     <div class="d-flex align-items-start gap-3 mb-2">
       <button
         type="button"
-        class="btn btn-outline-secondary mt-1"
+        class="btn smgp-back-btn mt-1"
         @click="$router.back()"
       >
         <i class="icon-arrow-left" />
@@ -25,8 +25,8 @@
     <template v-if="companies.length">
       <form @submit.prevent="saveAll">
         <div class="table-responsive">
-          <table class="table table-striped table-hover align-middle">
-            <thead class="table-light">
+          <table class="table table-hover align-middle smgp-limits-table">
+            <thead>
               <tr>
                 <th>{{ $t('adminCompanyLimits.th_company') }}</th>
                 <th>{{ $t('adminCompanyLimits.th_shortname') }}</th>
@@ -49,7 +49,7 @@
                   >
                 </td>
                 <td class="text-center">
-                  <span v-if="company.status === 'unlimited'" class="badge bg-secondary">
+                  <span v-if="company.status === 'unlimited'" class="badge" style="background-color:#94a3b8">
                     {{ $t('adminCompanyLimits.unlimited_label') }}
                   </span>
                   <span v-else-if="company.limitreached" class="badge bg-danger">
@@ -134,3 +134,28 @@ const saveAll = async () => {
 
 fetchData()
 </script>
+
+<style scoped lang="scss">
+.smgp-limits-table {
+  --bs-table-bg: #fff;
+  --bs-table-striped-bg: #fff;
+  --bs-table-hover-bg: #f8fafc;
+
+  thead th {
+    background: #f9fafb;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #64748b;
+    font-weight: 600;
+  }
+
+  tbody td {
+    background: #fff;
+  }
+
+  .form-control {
+    background-color: #fff !important;
+  }
+}
+</style>

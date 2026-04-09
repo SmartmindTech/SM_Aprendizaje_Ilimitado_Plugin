@@ -24,7 +24,7 @@
             <div class="smgp-landing-hero__meta">
               <span class="smgp-landing-hero__meta-item">
                 <i class="icon-bar-chart-2" />
-                {{ data.level_label }}
+                {{ $t(`editor.level_${data.level}`) || data.level_label }}
               </span>
               <span class="smgp-landing-hero__meta-item">
                 <i class="icon-list-checks" />
@@ -35,6 +35,8 @@
                 {{ data.total_activities }} {{ $t('landing.modules') }}
               </span>
             </div>
+
+            <div v-if="data.hassummary" class="smgp-landing-hero__summary" v-html="data.coursesummary" />
           </div>
 
           <div class="smgp-landing-hero__right">
@@ -190,6 +192,15 @@
 
         <!-- Right column: sidebar -->
         <aside class="smgp-landing__sidebar">
+          <div v-if="data.has_objectives" class="smgp-landing__sidebar-card">
+            <h3 class="smgp-landing__sidebar-title">{{ $t('landing.what_you_will_learn') }}</h3>
+            <ul class="smgp-landing__objectives-list">
+              <li v-for="(obj, i) in data.objectives" :key="i">
+                <i class="icon-check-circle" /> {{ obj.text }}
+              </li>
+            </ul>
+          </div>
+
           <div v-if="data.has_content_types" class="smgp-landing__sidebar-card">
             <h3 class="smgp-landing__sidebar-title">{{ $t('landing.content_types') }}</h3>
             <ul class="smgp-landing__content-types">
@@ -215,10 +226,7 @@
           </div>
 
           <div v-if="data.canedit" class="smgp-landing__sidebar-actions" style="margin-top: 0.75rem;">
-            <NuxtLink
-              :to="`/courses/${courseid}/edit`"
-              class="smgp-landing__btn smgp-landing__btn--secondary"
-            >
+            <NuxtLink :to="`/courses/${courseid}/edit`" class="smgp-landing__btn smgp-landing__btn--secondary">
               <i class="icon-square-pen" />
               {{ $t('landing.edit') }}
             </NuxtLink>
@@ -468,4 +476,27 @@ const fetchData = async () => {
 }
 
 fetchData()
+
+// Instant locale switching: the backend returns summaries_i18n and
+// objectives_i18n with all three languages pre-loaded. When the user
+// switches locale, we just pick the right entry — no round-trip.
+const { locale } = useI18n()
+watch(locale, (newLang) => {
+  if (!data.value) return
+  const lang = String(newLang)
+
+  // Swap summary.
+  const si = (data.value.summaries_i18n ?? []).find((s: { lang: string }) => s.lang === lang)
+  if (si) {
+    data.value.coursesummary = si.summary
+    data.value.hassummary = !!si.summary?.trim()
+  }
+
+  // Swap objectives.
+  const oi = (data.value.objectives_i18n ?? []).find((o: { lang: string }) => o.lang === lang)
+  if (oi) {
+    data.value.objectives = oi.objectives
+    data.value.has_objectives = oi.objectives.length > 0
+  }
+})
 </script>

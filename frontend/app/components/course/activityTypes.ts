@@ -19,6 +19,18 @@
  * hardcoded in Spanish so en/pt_br work without ceremony.
  */
 
+/**
+ * Which layout the unified create/edit modal should render for this type.
+ *
+ *   - 'url'      → name + external URL (genially / video / plain mod_url)
+ *   - 'file'     → name + file upload (resource / scorm / folder / imscp / h5pactivity)
+ *   - 'body'     → name + rich-text body (label / page)
+ *   - 'deferred' → name only, warning that the module is created blank and
+ *                  must be finished in Moodle's native UI after restore
+ *                  (quiz / assign / forum / ...)
+ */
+export type ActivityLayout = 'url' | 'file' | 'body' | 'deferred'
+
 export interface ActivityType {
   /** Moodle modname or pseudo-type ('genially', 'video') sent to add_activity. */
   mod: string
@@ -30,6 +42,14 @@ export interface ActivityType {
   isGenially?: boolean
   /** Whether the picker should open the URL modal in Video mode. */
   isVideo?: boolean
+  /**
+   * Layout the unified activity create/edit modal should render when this
+   * type is picked inside the restore wizard. Omit on landing-page types
+   * that still rely on the redirect-to-modedit.php flow.
+   */
+  layout?: ActivityLayout
+  /** Accept filter for file-upload layouts (e.g. '.zip' for scorm). */
+  fileAccept?: string
 }
 
 export interface ActivityTypeGroup {
@@ -46,43 +66,43 @@ export const ACTIVITY_TYPE_GROUPS: ActivityTypeGroup[] = [
     i18nKey: 'landing.activityGroup.resources',
     color: '#3b82f6',
     types: [
-      { mod: 'video',       iconClass: 'icon-film',          i18nKey: 'landing.activityType.video', isVideo: true },
-      { mod: 'resource',    iconClass: 'icon-file-up',       i18nKey: 'landing.activityType.resource' },
-      { mod: 'label',       iconClass: 'icon-type',          i18nKey: 'landing.activityType.label' },
-      { mod: 'folder',      iconClass: 'icon-folder',        i18nKey: 'landing.activityType.folder' },
-      { mod: 'h5pactivity', iconClass: 'icon-circle-play',   i18nKey: 'landing.activityType.h5pactivity' },
-      { mod: 'book',        iconClass: 'icon-book-open',     i18nKey: 'landing.activityType.book' },
-      { mod: 'page',        iconClass: 'icon-file-text',     i18nKey: 'landing.activityType.page' },
-      { mod: 'imscp',       iconClass: 'icon-package',       i18nKey: 'landing.activityType.imscp' },
-      { mod: 'url',         iconClass: 'icon-link',          i18nKey: 'landing.activityType.url' },
+      { mod: 'video',       iconClass: 'icon-film',          i18nKey: 'landing.activityType.video', isVideo: true, layout: 'url' },
+      { mod: 'resource',    iconClass: 'icon-file-up',       i18nKey: 'landing.activityType.resource', layout: 'file' },
+      { mod: 'label',       iconClass: 'icon-type',          i18nKey: 'landing.activityType.label', layout: 'body' },
+      { mod: 'folder',      iconClass: 'icon-folder',        i18nKey: 'landing.activityType.folder', layout: 'file' },
+      { mod: 'h5pactivity', iconClass: 'icon-circle-play',   i18nKey: 'landing.activityType.h5pactivity', layout: 'file', fileAccept: '.h5p' },
+      { mod: 'book',        iconClass: 'icon-book-open',     i18nKey: 'landing.activityType.book', layout: 'deferred' },
+      { mod: 'page',        iconClass: 'icon-file-text',     i18nKey: 'landing.activityType.page', layout: 'body' },
+      { mod: 'imscp',       iconClass: 'icon-package',       i18nKey: 'landing.activityType.imscp', layout: 'file', fileAccept: '.zip' },
+      { mod: 'url',         iconClass: 'icon-link',          i18nKey: 'landing.activityType.url', layout: 'url' },
     ],
   },
   {
     i18nKey: 'landing.activityGroup.activities',
     color: '#f97316',
     types: [
-      { mod: 'genially',         iconClass: 'icon-presentation',        i18nKey: 'landing.activityType.genially', isGenially: true },
-      { mod: 'quiz',             iconClass: 'icon-circle-help',         i18nKey: 'landing.activityType.quiz' },
-      { mod: 'assign',           iconClass: 'icon-file-text',           i18nKey: 'landing.activityType.assign' },
-      { mod: 'lesson',           iconClass: 'icon-graduation-cap',      i18nKey: 'landing.activityType.lesson' },
-      { mod: 'scorm',            iconClass: 'icon-box',                 i18nKey: 'landing.activityType.scorm' },
-      { mod: 'workshop',         iconClass: 'icon-users',               i18nKey: 'landing.activityType.workshop' },
-      { mod: 'forum',            iconClass: 'icon-message-circle',      i18nKey: 'landing.activityType.forum' },
-      { mod: 'glossary',         iconClass: 'icon-notebook-text',       i18nKey: 'landing.activityType.glossary' },
-      { mod: 'wiki',             iconClass: 'icon-book-open',           i18nKey: 'landing.activityType.wiki' },
-      { mod: 'data',             iconClass: 'icon-database',            i18nKey: 'landing.activityType.data' },
-      { mod: 'choice',           iconClass: 'icon-circle-check',        i18nKey: 'landing.activityType.choice' },
-      { mod: 'survey',           iconClass: 'icon-clipboard-check',     i18nKey: 'landing.activityType.survey' },
-      { mod: 'feedback',         iconClass: 'icon-message-square-text', i18nKey: 'landing.activityType.feedback' },
-      { mod: 'lti',              iconClass: 'icon-external-link',       i18nKey: 'landing.activityType.lti' },
-      { mod: 'iomadcertificate', iconClass: 'icon-award',               i18nKey: 'landing.activityType.iomadcertificate' },
+      { mod: 'genially',         iconClass: 'icon-presentation',        i18nKey: 'landing.activityType.genially', isGenially: true, layout: 'url' },
+      { mod: 'quiz',             iconClass: 'icon-circle-help',         i18nKey: 'landing.activityType.quiz', layout: 'deferred' },
+      { mod: 'assign',           iconClass: 'icon-file-text',           i18nKey: 'landing.activityType.assign', layout: 'deferred' },
+      { mod: 'lesson',           iconClass: 'icon-graduation-cap',      i18nKey: 'landing.activityType.lesson', layout: 'deferred' },
+      { mod: 'scorm',            iconClass: 'icon-box',                 i18nKey: 'landing.activityType.scorm', layout: 'file', fileAccept: '.zip' },
+      { mod: 'workshop',         iconClass: 'icon-users',               i18nKey: 'landing.activityType.workshop', layout: 'deferred' },
+      { mod: 'forum',            iconClass: 'icon-message-circle',      i18nKey: 'landing.activityType.forum', layout: 'deferred' },
+      { mod: 'glossary',         iconClass: 'icon-notebook-text',       i18nKey: 'landing.activityType.glossary', layout: 'deferred' },
+      { mod: 'wiki',             iconClass: 'icon-book-open',           i18nKey: 'landing.activityType.wiki', layout: 'deferred' },
+      { mod: 'data',             iconClass: 'icon-database',            i18nKey: 'landing.activityType.data', layout: 'deferred' },
+      { mod: 'choice',           iconClass: 'icon-circle-check',        i18nKey: 'landing.activityType.choice', layout: 'deferred' },
+      { mod: 'survey',           iconClass: 'icon-clipboard-check',     i18nKey: 'landing.activityType.survey', layout: 'deferred' },
+      { mod: 'feedback',         iconClass: 'icon-message-square-text', i18nKey: 'landing.activityType.feedback', layout: 'deferred' },
+      { mod: 'lti',              iconClass: 'icon-external-link',       i18nKey: 'landing.activityType.lti', layout: 'deferred' },
+      { mod: 'iomadcertificate', iconClass: 'icon-award',               i18nKey: 'landing.activityType.iomadcertificate', layout: 'deferred' },
     ],
   },
   {
     i18nKey: 'landing.activityGroup.events',
     color: '#ec4899',
     types: [
-      { mod: 'trainingevent', iconClass: 'icon-video', i18nKey: 'landing.activityType.trainingevent' },
+      { mod: 'trainingevent', iconClass: 'icon-video', i18nKey: 'landing.activityType.trainingevent', layout: 'deferred' },
     ],
   },
 ]

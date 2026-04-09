@@ -144,28 +144,74 @@ class get_course_edit_data extends external_api {
                 $meta['sepe_code']             = $rec->sepe_code ?? '';
                 $meta['description']           = $rec->description ?? '';
             }
+            // If a translation exists for the current language, prefer it
+            // so the edit page shows the translated description on switch.
+            if ($DB->get_manager()->table_exists('local_smgp_course_translations')) {
+                $userlang = current_language();
+                if (!in_array($userlang, ['en', 'es', 'pt_br'])) {
+                    if (strpos($userlang, 'es') === 0) { $userlang = 'es'; }
+                    else if (strpos($userlang, 'pt') === 0) { $userlang = 'pt_br'; }
+                    else { $userlang = 'en'; }
+                }
+                $trans = $DB->get_record('local_smgp_course_translations',
+                    ['courseid' => $courseid, 'lang' => $userlang], 'summary');
+                if ($trans && !empty(trim($trans->summary))) {
+                    $meta['description'] = strip_tags($trans->summary);
+                }
+            }
             $catlink = $DB->get_record('local_smgp_course_category', ['courseid' => $courseid]);
             if ($catlink) {
                 $meta['course_category'] = (int) $catlink->categoryid;
             }
         }
 
-        // Learning objectives for this course (source language only — editor UI).
+        // Learning objectives — return current-language set (compat) plus
+        // all-language variants so the client can swap instantly on locale switch.
+        $alllanguages = ['en', 'es', 'pt_br'];
         $objectives = [];
+        $objectivesi18n = [];
+        $descriptionsi18n = [];
         $dbman = $DB->get_manager();
+
         if ($courseid > 0 && $dbman->table_exists('local_smgp_learning_objectives')) {
             $lang = current_language();
-            if (!in_array($lang, ['en', 'es', 'pt_br'])) {
+            if (!in_array($lang, $alllanguages)) {
                 $lang = strpos($lang, 'es') === 0 ? 'es' : (strpos($lang, 'pt') === 0 ? 'pt_br' : 'en');
             }
-            $recs = $DB->get_records('local_smgp_learning_objectives',
-                ['courseid' => $courseid, 'lang' => $lang], 'sortorder ASC', 'objective');
-            if (empty($recs)) {
-                $recs = $DB->get_records('local_smgp_learning_objectives',
-                    ['courseid' => $courseid], 'sortorder ASC', 'objective');
+            // All rows for all languages.
+            $allrows = $DB->get_records('local_smgp_learning_objectives',
+                ['courseid' => $courseid], 'lang ASC, sortorder ASC');
+            $bylang = [];
+            foreach ($allrows as $row) {
+                $bylang[$row->lang][] = ['text' => $row->objective];
             }
-            foreach ($recs as $r) {
-                $objectives[] = ['text' => $r->objective];
+            foreach ($alllanguages as $l) {
+                $objectivesi18n[] = ['lang' => $l, 'objectives' => $bylang[$l] ?? []];
+            }
+            // Current-language set for compat.
+            $objectives = $bylang[$lang] ?? $bylang['es'] ?? [];
+            if (empty($objectives) && !empty($bylang)) {
+                $objectives = reset($bylang);
+            }
+        }
+
+        // All-language descriptions for instant switching.
+        if ($courseid > 0 && $dbman->table_exists('local_smgp_course_translations')) {
+            $basedesc = $meta['description'] ?? '';
+            // Source description from meta (already set above).
+            $translations = $DB->get_records('local_smgp_course_translations',
+                ['courseid' => $courseid], '', 'id, lang, summary');
+            $transmap = [];
+            foreach ($translations as $tr) {
+                $transmap[$tr->lang] = strip_tags($tr->summary);
+            }
+            foreach ($alllanguages as $l) {
+                $descriptionsi18n[] = [
+                    'lang'        => $l,
+                    'description' => (!empty($transmap[$l]) && trim($transmap[$l]) !== '')
+                        ? $transmap[$l]
+                        : $basedesc,
+                ];
             }
         }
 
@@ -192,6 +238,24 @@ class get_course_edit_data extends external_api {
             $languages[] = ['code' => (string) $code, 'name' => (string) $name];
         }
 
+        // IOMAD companies (all available + which ones this course is assigned to).
+        $allcompanies = [];
+        $assignedcompanyids = [];
+        if ($dbman->table_exists('company') && $dbman->table_exists('company_course')) {
+            $rows = $DB->get_records('company', null, 'name ASC', 'id, name, shortname');
+            foreach ($rows as $row) {
+                $allcompanies[] = [
+                    'id'        => (int) $row->id,
+                    'name'      => format_string($row->name),
+                    'shortname' => format_string($row->shortname),
+                ];
+            }
+            if ($courseid > 0) {
+                $assigned = $DB->get_records('company_course', ['courseid' => $courseid], '', 'companyid');
+                $assignedcompanyids = array_map('intval', array_keys($assigned));
+            }
+        }
+
         return [
             'core'              => $core,
             'meta'              => $meta,
@@ -199,6 +263,10 @@ class get_course_edit_data extends external_api {
             'moodle_categories' => $moodlecats,
             'smgp_categories'   => $smgpcats,
             'languages'         => $languages,
+            'companies'            => $allcompanies,
+            'assigned_company_ids' => $assignedcompanyids,
+            'descriptions_i18n'    => $descriptionsi18n,
+            'objectives_i18n'      => $objectivesi18n,
         ];
     }
 
@@ -248,11 +316,52 @@ class get_course_edit_data extends external_api {
                     'name' => new external_value(PARAM_TEXT, 'SmartMind category name'),
                 ])
             ),
+            'companies' => new external_multiple_structure(
+                new external_single_structure([
+                    'id'        => new external_value(PARAM_INT, 'Company ID'),
+                    'name'      => new external_value(PARAM_TEXT, 'Company name'),
+                    'shortname' => new external_value(PARAM_TEXT, 'Company shortname'),
+                ]),
+                'All IOMAD companies',
+                VALUE_DEFAULT,
+                []
+            ),
+            'assigned_company_ids' => new external_multiple_structure(
+                new external_value(PARAM_INT, 'Company ID assigned to this course'),
+                'Company IDs currently assigned to this course',
+                VALUE_DEFAULT,
+                []
+            ),
             'languages' => new external_multiple_structure(
                 new external_single_structure([
                     'code' => new external_value(PARAM_TEXT, 'Language code (e.g. es, en, pt_br)'),
                     'name' => new external_value(PARAM_TEXT, 'Localised language display name'),
                 ])
+            ),
+            'descriptions_i18n' => new external_multiple_structure(
+                new external_single_structure([
+                    'lang'        => new external_value(PARAM_ALPHAEXT, 'Language code'),
+                    'description' => new external_value(PARAM_RAW, 'Description for this language'),
+                ]),
+                'All-language descriptions for instant client-side switching',
+                VALUE_DEFAULT,
+                []
+            ),
+            'objectives_i18n' => new external_multiple_structure(
+                new external_single_structure([
+                    'lang'       => new external_value(PARAM_ALPHAEXT, 'Language code'),
+                    'objectives' => new external_multiple_structure(
+                        new external_single_structure([
+                            'text' => new external_value(PARAM_TEXT, 'Objective text'),
+                        ]),
+                        'Objectives for this language',
+                        VALUE_DEFAULT,
+                        []
+                    ),
+                ]),
+                'All-language objectives for instant client-side switching',
+                VALUE_DEFAULT,
+                []
             ),
         ]);
     }

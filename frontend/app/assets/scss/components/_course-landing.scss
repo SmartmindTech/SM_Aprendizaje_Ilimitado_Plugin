@@ -571,6 +571,11 @@
     flex: 0 0 340px;
     position: sticky;
     top: 1rem;
+    // Push the sidebar stack down so its first card's top edge aligns
+    // with the first section card in the left column — i.e. sits below
+    // the "Contenido del curso" heading that only exists on the left.
+    // Matches $smgp-font-xl line-height + $smgp-space-lg margin-bottom.
+    padding-top: calc(#{$smgp-font-xl} * 1.3 + #{$smgp-space-lg});
 }
 
 .smgp-landing__sidebar-card {
@@ -590,10 +595,35 @@
 
 // ---- Learning objectives bullet list ----
 
+// Hero description block — sits inside the dark hero banner under the
+// meta row, tinted light to stay readable on the dark background.
+.smgp-landing-hero__summary {
+    margin-top: 1rem;
+    max-width: 680px;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.95rem;
+    line-height: 1.55;
+    p { margin: 0 0 0.5rem; &:last-child { margin-bottom: 0; } }
+    ul, ol { margin: 0 0 0.5rem 1.2rem; padding: 0; }
+    a { color: #5eead4; text-decoration: underline; }
+    b, strong { color: #fff; }
+}
+
 .smgp-landing__objectives-list {
     list-style: none;
     padding: 0;
     margin: 0;
+    li {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+        padding: 0.45rem 0;
+        border-bottom: 1px solid #f1f5f9;
+        color: #1e293b;
+        font-size: 0.92rem;
+        &:last-child { border-bottom: none; }
+        i { color: #10b981; flex-shrink: 0; margin-top: 0.15rem; }
+    }
 }
 
 .smgp-landing__objective-item {

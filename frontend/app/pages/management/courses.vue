@@ -50,6 +50,13 @@
           <span class="smgp-mgmt-card__desc">{{ $t('management.courses.card_loader_desc') }}</span>
         </span>
       </NuxtLink>
+      <NuxtLink to="/admin/restore" class="smgp-mgmt-card">
+        <span class="smgp-mgmt-card__icon"><i class="icon-rotate-ccw" /></span>
+        <span class="smgp-mgmt-card__text">
+          <span class="smgp-mgmt-card__title">{{ $t('management.courses.card_restore') }}</span>
+          <span class="smgp-mgmt-card__desc">{{ $t('management.courses.card_restore_desc') }}</span>
+        </span>
+      </NuxtLink>
     </div>
 
     <!-- Company overview table -->
