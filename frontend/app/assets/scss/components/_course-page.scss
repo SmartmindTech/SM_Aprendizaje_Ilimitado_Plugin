@@ -139,6 +139,18 @@ body.smgp-course-player #page-wrapper {
     min-height: 0;
   }
 
+  // URL activities (Genially / YouTube / Vimeo embeds, plain external
+  // links) — expand to fill the full content area too. Without this the
+  // embedded iframe was capped to the column's text-readable max-width
+  // and rendered in a tiny corner.
+  > .smgp-activity-content--url {
+    flex: 1;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
   &__placeholder,
   &__loading,
   &__error {
@@ -191,7 +203,8 @@ body.smgp-course-player #page-wrapper {
 
   // Resource content (PDFs, files): stretch the box to fill, drop chrome.
   // (Iframe-mode rules live further down — see "IFRAME MODE" section.)
-  &:has(.smgp-activity-content--resource) {
+  &:has(.smgp-activity-content--resource),
+  &:has(.smgp-activity-content--url) {
     flex: 1 1 0;
     min-height: 0;
     padding: 0;
@@ -308,12 +321,18 @@ body.smgp-course-player #page-wrapper {
     width: 100%;
   }
 
-  // Embeddable URL (YouTube, Vimeo, Genially) — responsive 16:9 iframe.
+  // Embeddable URL (YouTube, Vimeo, Genially). The iframe stretches to fill
+  // the full activity column instead of being capped to a 16:9 aspect ratio
+  // against a narrow text-readable max-width. min-height keeps it usable on
+  // very short viewports.
   &__embed-frame {
+    flex: 1;
     width: 100%;
-    aspect-ratio: 16 / 9;
+    height: 100%;
+    min-height: 70vh;
     border: none;
     border-radius: 8px;
+    display: block;
   }
 
   // Plain link for non-embeddable URLs.

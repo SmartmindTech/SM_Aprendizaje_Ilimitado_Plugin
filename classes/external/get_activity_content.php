@@ -34,6 +34,7 @@ require_once($CFG->libdir . '/externallib.php');
 
 use external_api;
 use external_function_parameters;
+use external_multiple_structure;
 use external_single_structure;
 use external_value;
 
@@ -1327,10 +1328,18 @@ class get_activity_content extends external_api {
             'totalpages'   => new external_value(PARAM_INT, 'Total pages in activity (for quiz page navigation)'),
             // Structured inline payload for the Vue frontend. Only present when
             // rendermode === 'inline'. Vue renders all chrome from this data.
+            //
+            // IMPORTANT: every field used by ANY kind must be declared here
+            // (as VALUE_OPTIONAL when not always present). Moodle silently
+            // strips fields not declared in execute_returns(), which is why
+            // mod_url embeds (genially / youtube / vimeo) and mod_glossary
+            // entries previously rendered as empty — `urlkind`, `embedurl`,
+            // `url`, `name`, `entries` were all stripped before reaching the
+            // SPA.
             'inline'       => new external_single_structure([
-                'kind'    => new external_value(PARAM_ALPHA, 'page | book | resource | label | unsupported'),
+                'kind'    => new external_value(PARAM_ALPHA, 'page | book | resource | label | url | glossary | unsupported'),
                 'content' => new external_value(PARAM_RAW, 'Moodle-formatted user content (page/book/label only)', VALUE_OPTIONAL),
-                'intro'   => new external_value(PARAM_RAW, 'Resource intro text (resource only)', VALUE_OPTIONAL),
+                'intro'   => new external_value(PARAM_RAW, 'Activity intro text (resource/url/glossary)', VALUE_OPTIONAL),
                 'empty'   => new external_value(PARAM_BOOL, 'True if the activity has no content (book with no chapters)', VALUE_OPTIONAL),
                 'chapter' => new external_single_structure([
                     'title'   => new external_value(PARAM_TEXT, 'Chapter title'),
@@ -1344,6 +1353,21 @@ class get_activity_content extends external_api {
                     'mimetype' => new external_value(PARAM_RAW, 'MIME type'),
                     'kind'     => new external_value(PARAM_ALPHA, 'image | pdf | document | video | audio | other'),
                 ], 'Resource file metadata', VALUE_OPTIONAL),
+                // mod_url fields: shown for kind === 'url'.
+                'url'      => new external_value(PARAM_RAW, 'External URL (mod_url only)', VALUE_OPTIONAL),
+                'embedurl' => new external_value(PARAM_RAW, 'Normalized embeddable URL for iframe (mod_url, when urlkind=embed)', VALUE_OPTIONAL),
+                'urlkind'  => new external_value(PARAM_ALPHA, 'embed | link (mod_url only)', VALUE_OPTIONAL),
+                'name'     => new external_value(PARAM_TEXT, 'Display name (mod_url only)', VALUE_OPTIONAL),
+                // mod_glossary entries: shown for kind === 'glossary'.
+                'entries'  => new external_multiple_structure(
+                    new external_single_structure([
+                        'id'         => new external_value(PARAM_INT, 'Entry id'),
+                        'concept'    => new external_value(PARAM_TEXT, 'Term'),
+                        'definition' => new external_value(PARAM_RAW, 'HTML-formatted definition'),
+                    ]),
+                    'Glossary entries (mod_glossary only)',
+                    VALUE_OPTIONAL
+                ),
             ], 'Structured inline content for Vue frontend', VALUE_OPTIONAL),
         ]);
     }

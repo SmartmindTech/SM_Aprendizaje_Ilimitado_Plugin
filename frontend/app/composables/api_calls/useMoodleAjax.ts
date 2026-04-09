@@ -121,11 +121,50 @@ export const useMoodleAjax = () => {
         return { data: null, error: `HTTP ${response.status}: ${response.statusText}` }
       }
 
-      const json = await response.json()
+      // Read as text first so we can show the raw response in diagnostics
+      // when JSON.parse fails or the structure is unexpected. Without this
+      // a misconfigured backend just yields a generic "Invalid response
+      // format" with no clue about what actually came back.
+      const rawText = await response.text()
+      let json: unknown
+      try {
+        json = JSON.parse(rawText)
+      } catch {
+        console.error(
+          `[useMoodleAjax] ${methodname} returned non-JSON. Raw response (first 1000 chars):\n${rawText.slice(0, 1000)}`
+        )
+        return { data: null, error: 'Invalid response format from Moodle (not JSON)' }
+      }
 
       // Moodle returns an array of results (one per call in the batch).
-      if (!Array.isArray(json) || json.length === 0) {
-        return { data: null, error: 'Invalid response format from Moodle' }
+      // We accept either a non-array OR an empty array as the same failure
+      // mode and surface the raw payload — both the parsed JSON and the
+      // original text — so the copy-paste from the console always carries
+      // the full diagnostic.
+      const isEmptyArray = Array.isArray(json) && json.length === 0
+      if (!Array.isArray(json) || isEmptyArray) {
+        const stringified = (() => {
+          try {
+            return JSON.stringify(json, null, 2)
+          } catch {
+            return String(json)
+          }
+        })()
+        const shape = isEmptyArray
+          ? 'empty array'
+          : json === null
+            ? 'null'
+            : Array.isArray(json)
+              ? 'array'
+              : typeof json
+        console.error(
+          `[useMoodleAjax] ${methodname} returned unexpected response shape (${shape}).\n` +
+          `Parsed value: ${stringified}\n` +
+          `Raw text (first 1000 chars): ${rawText.slice(0, 1000)}`
+        )
+        const maybeException = (json as { exception?: { message?: string; errorcode?: string } } | null)?.exception
+        const errorMessage = maybeException?.message || maybeException?.errorcode || 'Invalid response format from Moodle'
+        return { data: null, error: errorMessage }
       }
 
       const result = json[0]
