@@ -112,6 +112,43 @@ class get_dashboard_data extends external_api {
         // of two parallel calls.
         $recentlyviewed = \local_sm_graphics_plugin\external\get_browsed_courses::execute(4);
 
+        // ── Gamification banner data ──
+        // Award the daily-visit XP bonus *before* anything else. The
+        // award_xp call is idempotent on (userid, source, sourceid) so the
+        // user can only earn it once per calendar day, regardless of how
+        // many times they refresh. This makes "any visit to the platform"
+        // count, not only freshly-fired user_loggedin events (which never
+        // fire on long-lived sessions or SSO/cookie reauths).
+        $todayepoch = self::today_local_epoch();
+        \local_sm_graphics_plugin\gamification\xp_service::award_xp(
+            $USER->id,
+            \local_sm_graphics_plugin\gamification\xp_service::SOURCE_LOGIN_DAILY,
+            $todayepoch,
+            \local_sm_graphics_plugin\gamification\xp_service::XP_PER_LOGIN_DAILY,
+            'Daily visit bonus'
+        );
+
+        // Trigger any pending unlocks so first-time visitors get a coherent
+        // banner on their very first dashboard load.
+        \local_sm_graphics_plugin\gamification\achievement_service::check_and_unlock($USER->id);
+        $xprow = \local_sm_graphics_plugin\gamification\xp_service::get_user_xp($USER->id);
+        $userlevel = (int) $xprow->level;
+
+        // XP earned today: sum of xp_log rows for the user since today's
+        // local-midnight epoch.
+        $xptoday = (int) ($DB->get_field_sql(
+            "SELECT COALESCE(SUM(xp_amount), 0)
+               FROM {local_smgp_xp_log}
+              WHERE userid = :uid AND timecreated >= :since",
+            ['uid' => $USER->id, 'since' => $todayepoch]
+        ) ?: 0);
+
+        // Login streak: consecutive days where the user has a login_daily
+        // entry in xp_log. The streak is alive until midnight tonight, so if
+        // there's no entry for today *yet* but yesterday has one, we still
+        // count from yesterday.
+        $loginstreak = self::compute_login_streak($USER->id);
+
         return [
             'courses'              => $enrolled,
             'finished'             => $finished,
@@ -132,7 +169,67 @@ class get_dashboard_data extends external_api {
             'completed_count'      => count($completedids),
             'training_hours'       => $traininghours,
             'certificates'         => $certificates,
+
+            // Gamification banner.
+            'streakdays'  => $loginstreak,
+            'xppoints'    => $xptoday,
+            'userlevel'   => $userlevel,
         ];
+    }
+
+    /**
+     * Local-midnight epoch for today, in the user's timezone.
+     */
+    private static function today_local_epoch(): int {
+        $today = new \DateTime('now', \core_date::get_user_timezone_object());
+        $today->setTime(0, 0, 0);
+        return (int) $today->getTimestamp();
+    }
+
+    /**
+     * Consecutive days for which there is a login_daily entry in
+     * local_smgp_xp_log. Caps at 365 days.
+     *
+     * Streak semantics (Duolingo-style):
+     *   - If TODAY has an entry, the streak includes today and walks back.
+     *   - If today has NO entry but yesterday does, the streak is "alive
+     *     but at risk": we walk back starting from yesterday so the user
+     *     still sees their count until midnight tonight.
+     *   - If neither today nor yesterday has an entry, the streak is broken.
+     */
+    private static function compute_login_streak(int $userid): int {
+        global $DB;
+
+        $checkdate = new \DateTime('now', \core_date::get_user_timezone_object());
+
+        $hasentryfor = function (\DateTime $d) use ($DB, $userid): bool {
+            $epoch = (int) (clone $d)->setTime(0, 0, 0)->getTimestamp();
+            return $DB->record_exists('local_smgp_xp_log', [
+                'userid'   => $userid,
+                'source'   => \local_sm_graphics_plugin\gamification\xp_service::SOURCE_LOGIN_DAILY,
+                'sourceid' => $epoch,
+            ]);
+        };
+
+        // If today has no entry yet, allow a one-day grace and start from
+        // yesterday. The streak only breaks if yesterday is also empty.
+        if (!$hasentryfor($checkdate)) {
+            $checkdate->modify('-1 day');
+            if (!$hasentryfor($checkdate)) {
+                return 0;
+            }
+        }
+
+        $streak = 0;
+        for ($i = 0; $i < 365; $i++) {
+            if ($hasentryfor($checkdate)) {
+                $streak++;
+                $checkdate->modify('-1 day');
+            } else {
+                break;
+            }
+        }
+        return $streak;
     }
 
     private static function format_enrolled_course(\stdClass $course): array {
@@ -505,6 +602,11 @@ class get_dashboard_data extends external_api {
             'completed_count'      => new external_value(PARAM_INT, 'Number of completed courses'),
             'training_hours'       => new external_value(PARAM_INT, 'Approx training hours last 90 days'),
             'certificates'         => new external_value(PARAM_INT, 'Certificate count'),
+
+            // Gamification banner.
+            'streakdays'  => new external_value(PARAM_INT, 'Consecutive days with a daily login bonus'),
+            'xppoints'    => new external_value(PARAM_INT, 'XP earned today'),
+            'userlevel'   => new external_value(PARAM_INT, 'Current level'),
         ]);
     }
 }

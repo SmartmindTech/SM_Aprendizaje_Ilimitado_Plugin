@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="local/sm_graphics_plugin/db" VERSION="2026031700" COMMENT="Tables for SM Graphic Layer Plugin">
+<XMLDB PATH="local/sm_graphics_plugin/db" VERSION="2026040900" COMMENT="Tables for SM Graphic Layer Plugin">
   <TABLES>
     <TABLE NAME="local_smgp_course_meta" COMMENT="Stores course metadata (pricing, level, duration, codes, etc.)">
       <FIELDS>
@@ -178,6 +178,77 @@
       </KEYS>
       <INDEXES>
         <INDEX NAME="courseid_lang_unique" UNIQUE="true" FIELDS="courseid, lang"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_smgp_xp" COMMENT="Per-user total XP and level (gamification)">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="FK to user.id"/>
+        <FIELD NAME="xp_total" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" COMMENT="Lifetime XP earned"/>
+        <FIELD NAME="level" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="1" COMMENT="Current level derived from xp_total"/>
+        <FIELD NAME="last_updated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="userid_unique" UNIQUE="true" FIELDS="userid"/>
+        <INDEX NAME="ix_xp_total" UNIQUE="false" FIELDS="xp_total"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_smgp_xp_log" COMMENT="Audit trail of every XP award (for transparency and recent activity feed)">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="FK to user.id"/>
+        <FIELD NAME="source" TYPE="char" LENGTH="50" NOTNULL="true" COMMENT="activity_complete, course_complete, streak, login_daily, achievement, manual"/>
+        <FIELD NAME="sourceid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" COMMENT="Related cmid/courseid/achievementid (0 if not applicable)"/>
+        <FIELD NAME="xp_amount" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" COMMENT="XP delta (positive = gain)"/>
+        <FIELD NAME="description" TYPE="char" LENGTH="255" NOTNULL="false" COMMENT="Optional human-readable description"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="ix_userid_time" UNIQUE="false" FIELDS="userid, timecreated"/>
+        <INDEX NAME="ix_source_sourceid" UNIQUE="false" FIELDS="source, sourceid"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_smgp_achievement" COMMENT="Catalog of achievement definitions (seeded by install/upgrade)">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="code" TYPE="char" LENGTH="64" NOTNULL="true" COMMENT="Unique stable identifier (e.g. first_course)"/>
+        <FIELD NAME="name_key" TYPE="char" LENGTH="128" NOTNULL="true" COMMENT="Lang string key for the name"/>
+        <FIELD NAME="description_key" TYPE="char" LENGTH="128" NOTNULL="true" COMMENT="Lang string key for the description"/>
+        <FIELD NAME="icon" TYPE="char" LENGTH="64" NOTNULL="true" DEFAULT="trophy" COMMENT="Icon identifier (font-awesome name or emoji)"/>
+        <FIELD NAME="condition_type" TYPE="char" LENGTH="50" NOTNULL="true" COMMENT="courses_completed, activities_completed, streak_days, total_hours, perfect_quiz, manual"/>
+        <FIELD NAME="condition_value" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" COMMENT="Threshold value for the condition"/>
+        <FIELD NAME="xp_reward" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" COMMENT="XP awarded when unlocked"/>
+        <FIELD NAME="sortorder" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="enabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="code_unique" UNIQUE="true" FIELDS="code"/>
+        <INDEX NAME="ix_sortorder" UNIQUE="false" FIELDS="sortorder"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_smgp_user_achievement" COMMENT="Per-user achievement unlocks">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="FK to user.id"/>
+        <FIELD NAME="achievementid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="FK to local_smgp_achievement.id"/>
+        <FIELD NAME="unlocked_at" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="fk_achievementid" TYPE="foreign" FIELDS="achievementid" REFTABLE="local_smgp_achievement" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="userid_achievementid_unique" UNIQUE="true" FIELDS="userid, achievementid"/>
+        <INDEX NAME="ix_userid" UNIQUE="false" FIELDS="userid"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="local_smgp_sp_courses" COMMENT="Cached SharePoint course folders (synced daily)">

@@ -298,3 +298,51 @@ $string['ai_duration_label']        = 'Estimado por IA';
 // Redesign do player de cursos.
 $string['course_page_module_content']       = 'Conteúdo do módulo';
 $string['course_page_mycourses_breadcrumb'] = 'Meus cursos';
+
+// ── Gamification: achievements ──
+$string['achievement_first_activity_name']  = 'Primeiro passo';
+$string['achievement_first_activity_desc']  = 'Conclua sua primeira atividade.';
+$string['achievement_first_course_name']    = 'Formatura';
+$string['achievement_first_course_desc']    = 'Conclua seu primeiro curso.';
+$string['achievement_activities_10_name']   = 'Em movimento';
+$string['achievement_activities_10_desc']   = 'Conclua 10 atividades.';
+$string['achievement_activities_50_name']   = 'Maratona de aprendizado';
+$string['achievement_activities_50_desc']   = 'Conclua 50 atividades.';
+$string['achievement_activities_100_name']  = 'Centurião';
+$string['achievement_activities_100_desc']  = 'Conclua 100 atividades.';
+$string['achievement_courses_3_name']       = 'Colecionador';
+$string['achievement_courses_3_desc']       = 'Conclua 3 cursos.';
+$string['achievement_courses_10_name']      = 'Estudante experiente';
+$string['achievement_courses_10_desc']      = 'Conclua 10 cursos.';
+$string['achievement_courses_25_name']      = 'Mestre do catálogo';
+$string['achievement_courses_25_desc']      = 'Conclua 25 cursos.';
+$string['achievement_streak_3_name']        = 'Em sequência';
+$string['achievement_streak_3_desc']        = 'Mantenha uma sequência de 3 dias.';
+$string['achievement_streak_7_name']        = 'Constância semanal';
+$string['achievement_streak_7_desc']        = 'Mantenha uma sequência de 7 dias.';
+$string['achievement_streak_30_name']       = 'Imparável';
+$string['achievement_streak_30_desc']       = 'Mantenha uma sequência de 30 dias.';
+$string['achievement_hours_10_name']        = 'Dez horas de voo';
+$string['achievement_hours_10_desc']        = 'Acumule 10 horas de aprendizado.';
+$string['achievement_hours_50_name']        = 'Veterano';
+$string['achievement_hours_50_desc']        = 'Acumule 50 horas de aprendizado.';
+$string['achievement_hours_100_name']       = 'Erudito';
+$string['achievement_hours_100_desc']       = 'Acumule 100 horas de aprendizado.';
+$string['achievement_xp_1000_name']         = 'Mil pontos';
+$string['achievement_xp_1000_desc']         = 'Alcance 1.000 XP.';
+$string['achievement_xp_5000_name']         = 'Lenda viva';
+$string['achievement_xp_5000_desc']         = 'Alcance 5.000 XP.';
+
+// ── Gamification: missions ──
+$string['mission_daily_visit_name']             = 'Passe por aqui';
+$string['mission_daily_visit_desc']             = 'Acesse a plataforma hoje.';
+$string['mission_daily_complete_1_name']        = 'Pequeno avanço';
+$string['mission_daily_complete_1_desc']        = 'Conclua 1 atividade hoje.';
+$string['mission_daily_complete_3_name']        = 'Em sequência';
+$string['mission_daily_complete_3_desc']        = 'Conclua 3 atividades hoje.';
+$string['mission_weekly_complete_5_name']       = 'Aprendiz constante';
+$string['mission_weekly_complete_5_desc']       = 'Conclua 5 atividades esta semana.';
+$string['mission_weekly_streak_5_name']         = 'Cinco dias seguidos';
+$string['mission_weekly_streak_5_desc']         = 'Mantenha uma sequência de login de 5 dias.';
+$string['mission_weekly_complete_course_name']  = 'Feche um curso';
+$string['mission_weekly_complete_course_desc']  = 'Termine 1 curso esta semana.';

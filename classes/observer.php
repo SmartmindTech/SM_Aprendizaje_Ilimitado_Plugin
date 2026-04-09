@@ -220,6 +220,111 @@ class observer {
     }
 
     /**
+     * Gamification: award XP when a course module is marked complete.
+     * Idempotent on (userid, cmid) so re-firing the same event is harmless.
+     *
+     * Wrapped in a try/catch so a gamification failure never blocks the
+     * underlying user flow (completion, login, etc.).
+     *
+     * @param \core\event\course_module_completion_updated $event
+     */
+    public static function activity_completed(\core\event\course_module_completion_updated $event): void {
+        try {
+            $userid = (int) ($event->relateduserid ?: $event->userid);
+            if ($userid <= 0) {
+                return;
+            }
+
+            // Only award XP when the new state is "complete-ish" (>= 1).
+            // The event's other['completionstate'] holds the new state.
+            $other = $event->other ?? [];
+            $newstate = isset($other['completionstate']) ? (int) $other['completionstate'] : null;
+            if ($newstate !== null && $newstate < 1) {
+                return;
+            }
+
+            $cmid = (int) $event->contextinstanceid;
+            if ($cmid <= 0) {
+                return;
+            }
+
+            \local_sm_graphics_plugin\gamification\xp_service::award_xp(
+                $userid,
+                \local_sm_graphics_plugin\gamification\xp_service::SOURCE_ACTIVITY,
+                $cmid,
+                \local_sm_graphics_plugin\gamification\xp_service::XP_PER_ACTIVITY,
+                'Activity completed'
+            );
+
+            \local_sm_graphics_plugin\gamification\achievement_service::check_and_unlock($userid);
+        } catch (\Throwable $e) {
+            error_log('[SMGP-GAMIFY] activity_completed failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Gamification: award XP when a course is fully completed.
+     *
+     * @param \core\event\course_completed $event
+     */
+    public static function course_completed(\core\event\course_completed $event): void {
+        try {
+            $userid = (int) ($event->relateduserid ?: $event->userid);
+            $courseid = (int) $event->courseid;
+            if ($userid <= 0 || $courseid <= 0) {
+                return;
+            }
+
+            \local_sm_graphics_plugin\gamification\xp_service::award_xp(
+                $userid,
+                \local_sm_graphics_plugin\gamification\xp_service::SOURCE_COURSE,
+                $courseid,
+                \local_sm_graphics_plugin\gamification\xp_service::XP_PER_COURSE,
+                'Course completed'
+            );
+
+            \local_sm_graphics_plugin\gamification\achievement_service::check_and_unlock($userid);
+        } catch (\Throwable $e) {
+            error_log('[SMGP-GAMIFY] course_completed failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Gamification: award a small daily-login XP bonus, idempotent per day.
+     * Uses today's epoch (midnight in user TZ) as sourceid so the same user
+     * can only earn it once per calendar day.
+     *
+     * Critically, this MUST never throw — Moodle dispatches this observer
+     * from /login/index.php; an uncaught exception here would lock users out.
+     *
+     * @param \core\event\user_loggedin $event
+     */
+    public static function user_loggedin(\core\event\user_loggedin $event): void {
+        try {
+            $userid = (int) ($event->objectid ?: $event->userid);
+            if ($userid <= 0) {
+                return;
+            }
+
+            $today = new \DateTime('now', \core_date::get_user_timezone_object());
+            $today->setTime(0, 0, 0);
+            $todayepoch = (int) $today->getTimestamp();
+
+            \local_sm_graphics_plugin\gamification\xp_service::award_xp(
+                $userid,
+                \local_sm_graphics_plugin\gamification\xp_service::SOURCE_LOGIN_DAILY,
+                $todayepoch,
+                \local_sm_graphics_plugin\gamification\xp_service::XP_PER_LOGIN_DAILY,
+                'Daily login bonus'
+            );
+
+            \local_sm_graphics_plugin\gamification\achievement_service::check_and_unlock($userid);
+        } catch (\Throwable $e) {
+            error_log('[SMGP-GAMIFY] user_loggedin failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Send login credentials email immediately when a new user is created.
      *
      * @param \core\event\user_created $event

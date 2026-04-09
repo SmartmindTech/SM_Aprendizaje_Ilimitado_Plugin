@@ -49,4 +49,18 @@ $observers = [
         'eventname' => '\core\event\user_created',
         'callback'  => 'local_sm_graphics_plugin\observer::user_created',
     ],
+
+    // ── Gamification observers ──
+    [
+        'eventname' => '\core\event\course_module_completion_updated',
+        'callback'  => 'local_sm_graphics_plugin\observer::activity_completed',
+    ],
+    [
+        'eventname' => '\core\event\course_completed',
+        'callback'  => 'local_sm_graphics_plugin\observer::course_completed',
+    ],
+    [
+        'eventname' => '\core\event\user_loggedin',
+        'callback'  => 'local_sm_graphics_plugin\observer::user_loggedin',
+    ],
 ];

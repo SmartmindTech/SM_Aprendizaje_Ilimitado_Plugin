@@ -611,5 +611,80 @@ function xmldb_local_sm_graphics_plugin_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026040803, 'local', 'sm_graphics_plugin');
     }
 
+    if ($oldversion < 2026040900) {
+        // Gamification: create XP and achievement tables.
+        $dbman = $DB->get_manager();
+
+        // local_smgp_xp.
+        $xptable = new xmldb_table('local_smgp_xp');
+        if (!$dbman->table_exists($xptable)) {
+            $xptable->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE);
+            $xptable->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL);
+            $xptable->add_field('xp_total', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $xptable->add_field('level', XMLDB_TYPE_INTEGER, '5', null, XMLDB_NOTNULL, null, '1');
+            $xptable->add_field('last_updated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $xptable->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+            $xptable->add_index('userid_unique', XMLDB_INDEX_UNIQUE, ['userid']);
+            $xptable->add_index('ix_xp_total', XMLDB_INDEX_NOTUNIQUE, ['xp_total']);
+            $dbman->create_table($xptable);
+        }
+
+        // local_smgp_xp_log.
+        $xplogtable = new xmldb_table('local_smgp_xp_log');
+        if (!$dbman->table_exists($xplogtable)) {
+            $xplogtable->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE);
+            $xplogtable->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL);
+            $xplogtable->add_field('source', XMLDB_TYPE_CHAR, '50', null, XMLDB_NOTNULL);
+            $xplogtable->add_field('sourceid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $xplogtable->add_field('xp_amount', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $xplogtable->add_field('description', XMLDB_TYPE_CHAR, '255');
+            $xplogtable->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $xplogtable->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+            $xplogtable->add_index('ix_userid_time', XMLDB_INDEX_NOTUNIQUE, ['userid', 'timecreated']);
+            $xplogtable->add_index('ix_source_sourceid', XMLDB_INDEX_NOTUNIQUE, ['source', 'sourceid']);
+            $dbman->create_table($xplogtable);
+        }
+
+        // local_smgp_achievement.
+        $achtable = new xmldb_table('local_smgp_achievement');
+        if (!$dbman->table_exists($achtable)) {
+            $achtable->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE);
+            $achtable->add_field('code', XMLDB_TYPE_CHAR, '64', null, XMLDB_NOTNULL);
+            $achtable->add_field('name_key', XMLDB_TYPE_CHAR, '128', null, XMLDB_NOTNULL);
+            $achtable->add_field('description_key', XMLDB_TYPE_CHAR, '128', null, XMLDB_NOTNULL);
+            $achtable->add_field('icon', XMLDB_TYPE_CHAR, '64', null, XMLDB_NOTNULL, null, 'trophy');
+            $achtable->add_field('condition_type', XMLDB_TYPE_CHAR, '50', null, XMLDB_NOTNULL);
+            $achtable->add_field('condition_value', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $achtable->add_field('xp_reward', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $achtable->add_field('sortorder', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $achtable->add_field('enabled', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1');
+            $achtable->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+            $achtable->add_index('code_unique', XMLDB_INDEX_UNIQUE, ['code']);
+            $achtable->add_index('ix_sortorder', XMLDB_INDEX_NOTUNIQUE, ['sortorder']);
+            $dbman->create_table($achtable);
+        }
+
+        // local_smgp_user_achievement.
+        $uatable = new xmldb_table('local_smgp_user_achievement');
+        if (!$dbman->table_exists($uatable)) {
+            $uatable->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE);
+            $uatable->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL);
+            $uatable->add_field('achievementid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL);
+            $uatable->add_field('unlocked_at', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $uatable->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+            $uatable->add_key('fk_achievementid', XMLDB_KEY_FOREIGN, ['achievementid'], 'local_smgp_achievement', ['id']);
+            $uatable->add_index('userid_achievementid_unique', XMLDB_INDEX_UNIQUE, ['userid', 'achievementid']);
+            $uatable->add_index('ix_userid', XMLDB_INDEX_NOTUNIQUE, ['userid']);
+            $dbman->create_table($uatable);
+        }
+
+        // Seed default achievement catalog.
+        if (class_exists('\local_sm_graphics_plugin\gamification\achievement_service')) {
+            \local_sm_graphics_plugin\gamification\achievement_service::seed_defaults();
+        }
+
+        upgrade_plugin_savepoint(true, 2026040900, 'local', 'sm_graphics_plugin');
+    }
+
     return true;
 }

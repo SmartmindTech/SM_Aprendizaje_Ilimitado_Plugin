@@ -414,6 +414,16 @@ $functions = [
         'capabilities' => 'local/sm_graphics_plugin:view',
     ],
 
+    // ── Gamification: claim a daily/weekly mission ──
+    'local_sm_graphics_plugin_claim_mission' => [
+        'classname'    => 'local_sm_graphics_plugin\external\claim_mission',
+        'methodname'   => 'execute',
+        'description'  => 'Validate and award the XP for a completed mission',
+        'type'         => 'write',
+        'ajax'         => true,
+        'capabilities' => 'local/sm_graphics_plugin:view',
+    ],
+
     // ── Phase 5: Vue course editor ──
     'local_sm_graphics_plugin_get_course_edit_data' => [
         'classname'    => 'local_sm_graphics_plugin\external\get_course_edit_data',

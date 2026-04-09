@@ -39,6 +39,12 @@ function xmldb_local_sm_graphics_plugin_install() {
     local_sm_graphics_plugin_deploy_lang_overrides();
     local_sm_graphics_plugin_deploy_certificate_type();
     local_sm_graphics_plugin_enable_activity_modules();
+
+    // Seed the gamification achievement catalog.
+    if (class_exists('\local_sm_graphics_plugin\gamification\achievement_service')) {
+        \local_sm_graphics_plugin\gamification\achievement_service::seed_defaults();
+    }
+
     return true;
 }
 
