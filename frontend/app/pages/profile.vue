@@ -1,62 +1,83 @@
 <template>
-  <div v-if="loading" class="text-center py-5">
-    <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">{{ $t('app.loading') }}</span>
-    </div>
-  </div>
-
-  <div v-else-if="error" class="alert alert-danger">{{ error }}</div>
-
-  <div v-else-if="data" class="smgp-profile">
-    <!-- ============================================================ -->
-    <!-- Avatar + name header                                          -->
-    <!-- ============================================================ -->
-    <div class="smgp-profile__header">
-      <img :src="data.avatarurl" :alt="data.fullname" class="smgp-profile__avatar">
-      <div class="smgp-profile__header-info">
-        <h1 class="smgp-profile__name">{{ data.fullname }}</h1>
-        <p v-if="data.has_department" class="smgp-profile__department">
-          <i class="icon-building" /> {{ data.department }}
-        </p>
-        <p class="smgp-profile__meta">
-          <i class="icon-calendar" /> {{ $t('profile.member_since') }} {{ data.joindate }}
-        </p>
-      </div>
+  <div class="smgp-profile-page">
+    <!-- Tab navigation -->
+    <div class="smgp-profile-tabs">
+      <button
+        v-for="tab in tabs" :key="tab.key"
+        class="smgp-profile-tabs__btn"
+        :class="{ 'smgp-profile-tabs__btn--active': activeTab === tab.key }"
+        @click="setTab(tab.key)"
+      >
+        <i :class="tab.icon" />
+        {{ tab.label }}
+      </button>
     </div>
 
-    <!-- ============================================================ -->
-    <!-- Stats                                                         -->
-    <!-- ============================================================ -->
-    <div class="smgp-profile__stats">
-      <div class="smgp-profile__stat">
-        <span class="smgp-profile__stat-value">{{ data.course_count }}</span>
-        <span class="smgp-profile__stat-label">{{ $t('profile.enrolled_courses') }}</span>
+    <!-- Tab content -->
+    <div v-if="activeTab === 'profile'">
+      <div v-if="loading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">{{ $t('app.loading') }}</span>
+        </div>
       </div>
-      <div class="smgp-profile__stat">
-        <span class="smgp-profile__stat-value">{{ data.completed_count }}</span>
-        <span class="smgp-profile__stat-label">{{ $t('profile.completed_courses') }}</span>
-      </div>
-      <div class="smgp-profile__stat">
-        <span class="smgp-profile__stat-value">{{ data.total_hours }}h</span>
-        <span class="smgp-profile__stat-label">{{ $t('profile.total_hours') }}</span>
-      </div>
-      <div class="smgp-profile__stat">
-        <span class="smgp-profile__stat-value">{{ data.streak }}</span>
-        <span class="smgp-profile__stat-label">{{ $t('profile.streak_days') }}</span>
+
+      <div v-else-if="error" class="alert alert-danger">{{ error }}</div>
+
+      <div v-else-if="data" class="smgp-profile">
+        <!-- ============================================================ -->
+        <!-- Avatar + name header                                          -->
+        <!-- ============================================================ -->
+        <div class="smgp-profile__header">
+          <img :src="data.avatarurl" :alt="data.fullname" class="smgp-profile__avatar">
+          <div class="smgp-profile__header-info">
+            <h1 class="smgp-profile__name">{{ data.fullname }}</h1>
+            <p v-if="data.has_department" class="smgp-profile__department">
+              <i class="icon-building" /> {{ data.department }}
+            </p>
+            <p class="smgp-profile__meta">
+              <i class="icon-calendar" /> {{ $t('profile.member_since') }} {{ data.joindate }}
+            </p>
+          </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- Stats                                                         -->
+        <!-- ============================================================ -->
+        <div class="smgp-profile__stats">
+          <div class="smgp-profile__stat">
+            <span class="smgp-profile__stat-value">{{ data.course_count }}</span>
+            <span class="smgp-profile__stat-label">{{ $t('profile.enrolled_courses') }}</span>
+          </div>
+          <div class="smgp-profile__stat">
+            <span class="smgp-profile__stat-value">{{ data.completed_count }}</span>
+            <span class="smgp-profile__stat-label">{{ $t('profile.completed_courses') }}</span>
+          </div>
+          <div class="smgp-profile__stat">
+            <span class="smgp-profile__stat-value">{{ data.total_hours }}h</span>
+            <span class="smgp-profile__stat-label">{{ $t('profile.total_hours') }}</span>
+          </div>
+          <div class="smgp-profile__stat">
+            <span class="smgp-profile__stat-value">{{ data.streak }}</span>
+            <span class="smgp-profile__stat-label">{{ $t('profile.streak_days') }}</span>
+          </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- Weekly activity chart (Chart.js via vue-chartjs)              -->
+        <!-- ============================================================ -->
+        <div class="smgp-profile__chart">
+          <h3 class="smgp-profile__chart-title">
+            {{ $t('profile.weekly_activity') }}
+          </h3>
+          <div class="smgp-profile__chart-canvas">
+            <Bar :data="weekChartData" :options="weekChartOptions" />
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- ============================================================ -->
-    <!-- Weekly activity chart (Chart.js via vue-chartjs)              -->
-    <!-- ============================================================ -->
-    <div class="smgp-profile__chart">
-      <h3 class="smgp-profile__chart-title">
-        {{ $t('profile.weekly_activity') }}
-      </h3>
-      <div class="smgp-profile__chart-canvas">
-        <Bar :data="weekChartData" :options="weekChartOptions" />
-      </div>
-    </div>
+    <ProfileMyCourses v-else-if="activeTab === 'courses'" />
+    <ProfileGradesCerts v-else-if="activeTab === 'grades'" />
   </div>
 </template>
 
@@ -79,17 +100,34 @@ ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Title)
 
 definePageMeta({ middleware: ['auth'] })
 
+const route = useRoute()
+const router = useRouter()
+const { t } = useI18n()
 const { call } = useMoodleAjax()
 
 const loading = ref(true)
 const error = ref<string | null>(null)
 const data = ref<any>(null)
 
+// ── Tabs ─────────────────────────────────────────────────────────
+type TabKey = 'profile' | 'courses' | 'grades'
+
+const tabs = computed(() => [
+  { key: 'profile' as TabKey, label: t('nav.profile'), icon: 'icon-user' },
+  { key: 'courses' as TabKey, label: t('nav.courses'), icon: 'icon-book-open' },
+  { key: 'grades'  as TabKey, label: t('nav.grades'),  icon: 'icon-award' },
+])
+
+const validTabs: TabKey[] = ['profile', 'courses', 'grades']
+const initialTab = validTabs.includes(route.query.tab as TabKey) ? (route.query.tab as TabKey) : 'profile'
+const activeTab = ref<TabKey>(initialTab)
+
+function setTab(key: TabKey) {
+  activeTab.value = key
+  router.replace({ query: key === 'profile' ? {} : { tab: key } })
+}
+
 // ── Weekly activity chart data ───────────────────────────────────
-// Maps the backend's data.week_activity (one entry per day with
-// {day, count, istoday, ispast}) into a Chart.js dataset. The colour
-// of each bar is decided per-data-point so today/past/future can have
-// distinct visuals without splitting into multiple datasets.
 const SMGP_GREEN_TODAY  = '#059669'
 const SMGP_GREEN_PAST   = '#10b981'
 const SMGP_GREY_FUTURE  = '#e2e8f0'
@@ -117,9 +155,6 @@ const weekChartData = computed(() => {
         }),
         borderRadius: 6,
         borderSkipped: false,
-        // Cap bar thickness so 7 narrow bars look like a chart, not
-        // a grid of fat blocks. maxBarThickness wins over the grid
-        // calculation when the container is wide.
         maxBarThickness: 32,
       },
     ],
@@ -189,11 +224,47 @@ fetchAll()
 </script>
 
 <style scoped lang="scss">
-.smgp-profile {
-  max-width: 960px;
+.smgp-profile-page {
   margin: 2rem auto;
   padding: 0 1rem;
+}
 
+.smgp-profile-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 0;
+
+  &__btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.65rem 1.25rem;
+    border: none;
+    background: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #64748b;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: color 0.2s, border-color 0.2s;
+
+    i { font-size: 1.1rem; }
+
+    &:hover {
+      color: #1e293b;
+    }
+
+    &--active {
+      color: #10b981;
+      border-bottom-color: #10b981;
+    }
+  }
+}
+
+.smgp-profile {
   &__header {
     display: flex;
     gap: 2rem;
@@ -251,7 +322,7 @@ fetchAll()
     margin-top: 0.25rem;
   }
   &__chart {
-    display:flex;
+    display: flex;
     flex-direction: column;
     background: #fff;
     height: auto;
@@ -260,10 +331,6 @@ fetchAll()
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     margin-bottom: 1.5rem;
   }
-  // Title gets its own top + horizontal padding because the .smgp-
-  // profile__chart card itself has no padding — that way the title
-  // sits flush with the rest of the card content but visually
-  // breathes away from the rounded corners.
   &__chart-title {
     justify-content: start;
     font-size: 1.1rem;
@@ -271,17 +338,9 @@ fetchAll()
     color: #1e293b;
     margin: 0;
     padding: 1.25rem 1.5rem 0.75rem;
-
   }
-
-  // Fixed-height wrapper around the Chart.js canvas. Chart.js needs a
-  // parent with an explicit height when maintainAspectRatio is false,
-  // otherwise the canvas grows unbounded as it tries to fit its data.
-  // The padding lives on the wrapper so the chart never touches the
-  // card edges; box-sizing border-box keeps the 280 px the actual
-  // chart area regardless of padding.
   &__chart-canvas {
-    padding-top:3rem;
+    padding-top: 3rem;
     padding-bottom: 3rem;
     min-height: 250px;
     width: 80%;
@@ -291,13 +350,6 @@ fetchAll()
     align-items: center;
     justify-content: center;
     box-sizing: border-box;
-
-
-    // Chart.js writes inline width/height attributes onto the <canvas>
-    // when it auto-sizes, and those win over normal CSS rules. The
-    // !important here clamps the canvas to its parent so it can never
-    // overflow horizontally or vertically — the actual chart still
-    // respects the parent thanks to maintainAspectRatio: false.
   }
 }
 </style>

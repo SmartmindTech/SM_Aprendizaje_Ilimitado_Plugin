@@ -34,7 +34,6 @@ body.smgp-course-player #page-wrapper {
   padding: 12px 0 0;
   font-size: 13px;
   color: #A09B96;
-  order: 0;
 
   &__link {
     cursor: pointer;
@@ -49,7 +48,6 @@ body.smgp-course-player #page-wrapper {
 .smgp-course-activity-info {
   padding: 4px 0 8px;
   align-self: flex-start;
-  order: 1;
 
   &__title {
     font-size: 26px;
@@ -67,10 +65,14 @@ body.smgp-course-player #page-wrapper {
 }
 
 // ===== Main Body Layout =====
-// Both columns fill the viewport height. Content area defines the space;
-// sidebar scrolls internally if activities overflow.
+// CSS Grid: 2 columns (main + sidebar), 2 rows (header + body).
+// The header (breadcrumb + activity title) lives in row 1 of the left column
+// only. The content box and the sidebar share row 2, so they always align at
+// the top regardless of how tall the header is — no hardcoded offsets.
 .smgp-course-body {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto;  // main fills, sidebar takes its natural width
+  grid-template-rows: auto 1fr;     // header sized by content, body fills remaining
   position: fixed;
   top: calc(var(--navbar-height, 60px) + 1px); // navbar height + border
   left: 0;
@@ -79,20 +81,30 @@ body.smgp-course-player #page-wrapper {
   background: #F5F3EE;
   z-index: 1;
   margin: 0 auto;
-  padding: 0 clamp(1rem, 3vw, 4rem);
+  padding: 0 3rem 0 3rem;
+  grid-column: 1;
+}
+
+.smgp-course-header {
+  grid-column: 1;
+  grid-row: 1;
+  padding: 0 clamp(1.5rem, 3vw, 3rem);
+  min-width: 0;
 }
 
 .smgp-course-main {
-  flex: 1;
+  grid-column: 1;
+  grid-row: 2;
   min-width: 0;
-  width: 80%;
   display: flex;
   flex-direction: column;
   align-items: stretch;
   overflow-y: auto;
   overflow-x: hidden;
   margin-bottom: 0;
-  padding: 1rem clamp(1.5rem, 3vw, 3rem);
+  padding: 0 clamp(1.5rem, 3vw, 3rem) 1rem;
+  border-radius: 15px;
+
 }
 
 // ===== Content Area (single activity loaded via AJAX) =====
@@ -155,34 +167,30 @@ body.smgp-course-player #page-wrapper {
     opacity: 0.7;
   }
 
-  &__iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border: none;
-    border-radius: 0;
-    color-scheme: light dark;
-    display: block;
-    
+  // "Open in new tab" redirect screen for activities the player can't render.
+  &__redirect {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 4rem 2rem;
+    text-align: center;
+    color: #6b7280;
+
+    i {
+      font-size: 3rem;
+      color: #10b981;
+    }
+
+    p {
+      margin: 0;
+      font-size: 1rem;
+    }
   }
 
-  // Rounded wrapper for the iframe.
-  // position: relative is the key — gives the absolute iframe a resolved height.
-  &__iframe-wrap {
-    position: relative;
-    width: 100%;
-    flex: 1;
-    overflow: hidden;
-    min-width: 320px;
-    min-height: 0;
-    border-radius: 14px;
-    align-self: stretch;
-  }
-
-  // When content area has an iframe or document, stretch to fill.
-  &:has(.smgp-course-content__iframe),
+  // Resource content (PDFs, files): stretch the box to fill, drop chrome.
+  // (Iframe-mode rules live further down — see "IFRAME MODE" section.)
   &:has(.smgp-activity-content--resource) {
     flex: 1 1 0;
     min-height: 0;
@@ -190,17 +198,10 @@ body.smgp-course-player #page-wrapper {
     align-items: stretch;
     overflow: hidden;
     max-height: none;
-    border-radius: 0;
     border: none;
     box-shadow: none;
+    border-radius: 0;
   }
-}
-
-// When displaying an iframe (SCORM, quiz), expand main area to use full width.
-.smgp-course-main:has(.smgp-course-content__iframe) {
-  width: 100%;
-  padding-left: 0;
-  padding-right: 0;
 }
 
 // Hide Moodle's default SCORM navigation panel — we use our own nav.
@@ -266,19 +267,13 @@ body.smgp-course-player #page-wrapper {
     font-size: $smgp-font-sm;
   }
 
-  &__preview {
+  // Image preview — applied directly to <img>.
+  &__image {
     margin: $smgp-space-md 0;
   }
 
-  // Document viewer (PDF, PPT, DOC, etc.) — fills entire content area.
-  &__document {
-    flex: 1;
-    width: 100%;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-  }
-
+  // Document viewer (PDF, PPT, DOC, etc.) — applied directly to <iframe>,
+  // fills entire content area.
   &__document-frame {
     flex: 1;
     width: 100%;
@@ -289,36 +284,28 @@ body.smgp-course-player #page-wrapper {
     display: block;
   }
 
+  // Download button — applied directly to <a>.
   &__file {
     margin-top: $smgp-space-md;
     flex-shrink: 0;
   }
 
+  // Video player — applied directly to <video>. The black background
+  // letterboxes the contained video (object-fit: contain leaves transparent
+  // areas where the element's own bg shows through).
   &__video-player {
     background: #000;
-    overflow: hidden;
-    margin: 0;
     width: 100%;
     height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    .smgp-video-player {
-      width: 100%;
-      height: 100%;
-      max-height: 100%;
-      object-fit: contain;
-      display: block;
-    }
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
   }
 
+  // Audio player — applied directly to <audio>.
   &__audio-player {
     margin: $smgp-space-md 0;
-
-    .smgp-audio-player {
-      width: 100%;
-    }
+    width: 100%;
   }
 }
 
@@ -802,20 +789,22 @@ body.smgp-course-focus-active {
 
 // ===== Module Content Sidebar (floating panel) =====
 .smgp-course-sidebar {
+  // Grid placement: column 2, row 2 — top-aligned with the content box.
+  grid-column: 3;
+  grid-row: 2;
+  align-self: stretch;
   width: 320px;
-  flex-shrink: 0;
-  align-self: flex-start;
   display: flex;
   flex-direction: column;
   background: #FFFFFF;
-  overflow: hidden;
-  // Floating card look — margins on all sides, larger on the right.
-  margin: 16px 24px 16px 0;
+  overflow: hidden;  // clips border-radius corners only — list scrolls internally
   border-radius: 14px;
   border: 1px solid #E2DDD6;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   transition: width $smgp-transition-base, opacity $smgp-transition-fast,
               margin $smgp-transition-base;
+  margin-left: 1rem;
+
 
   &--collapsed {
     width: 0;
@@ -854,38 +843,39 @@ body.smgp-course-focus-active {
   }
 
   &__sections, &__list {
-    flex: 0 1 auto;
+    flex: 1 1 auto;
     min-height: 0;
     overflow-y: auto;
   }
 
   &__toggle {
+    // Sits at the boundary between the content area and the sidebar.
+    // When the sidebar collapses, slides to the viewport's right edge.
+    // The parent .smgp-course-page--sidebar-collapsed class drives the move.
     position: absolute;
-    right: calc(320px + 24px + clamp(1rem, 3vw, 4rem)); // sidebar width + right margin + body padding
-    top: calc(16px + 47px); // sidebar top margin + header height, sits just below header
-    width: 24px;
-    height: 32px;
-    border: 1px solid #E2DDD6;
+    right: 22rem;
+    top: 7rem;
+    z-index: 5;
+    transition: right $smgp-transition-base;
+
+    border: 1px solid lightgray;
     border-right: none;
-    border-radius: 8px 0 0 8px;
+    border-radius: 20px;
     background: #FFFFFF;
     color: #A09B96;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 5;
-    box-shadow: -2px 0 4px rgba(0, 0, 0, 0.04);
-    transition: right $smgp-transition-base;
 
     &:hover {
       background: #F0EDE8;
       color: #1A1814;
     }
 
+    // When the sidebar is collapsed, slide the toggle to the viewport's right edge.
     .smgp-course-page--sidebar-collapsed & {
       right: 0;
-      box-shadow: none;
     }
   }
 }
@@ -967,15 +957,32 @@ body.smgp-course-focus-active {
 
 // ===== Activity Item =====
 // ===== Sidebar Activity Item (flat list — matching dump.html) =====
+// Rendered as <button> for accessibility — reset native button chrome.
 .smgp-course-activity {
+  // Button reset
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  appearance: none;
+
+  // Layout
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 12px 20px;
   border-bottom: 1px solid #E2DDD6;
+  border-left: 3px solid transparent;
   cursor: pointer;
   transition: background 0.12s;
-  border-left: 3px solid transparent;
+
+  &:focus-visible {
+    outline: 2px solid #10b981;
+    outline-offset: -2px;
+  }
 
   &:hover {
     background: #F0EDE8;
@@ -1171,22 +1178,52 @@ body.smgp-course-focus-active {
   }
 }
 
-// Genially iframe — responsive.
-.smgp-course-content__iframe--genially {
-  aspect-ratio: 16 / 9;
+// ============================================================
+// IFRAME MODE — single source of truth
+// ============================================================
+// Activated when an iframe activity (SCORM, quiz, embed) is showing.
+// The template adds `--iframe` to .smgp-course-main and .smgp-course-content
+// via :class. EVERYTHING that controls the iframe's position and size lives
+// in this section — do not add iframe rules elsewhere in this file.
+//
+// Knobs (left to right = outer to inner):
+//   1. .smgp-course-main--iframe       → lateral spacing of the iframe block
+//   2. .smgp-course-content--iframe    → the box: size, radius, fill behaviour
+//   3. .smgp-course-content--iframe > iframe → the iframe element itself
+
+// 1. Main column: full width, no lateral padding while an iframe is showing.
+.smgp-course-main--iframe {
   width: 100%;
-  height: auto;
-  max-height: 100%;
+  padding-left: 0;
+  padding-right: 0;
 }
 
-// Iframe fills its wrapper via absolute positioning — scrolls internally.
-.smgp-course-content__iframe {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  min-width: 320px;
+// 2. The content box: stretches to fill the available height, drops chrome,
+//    becomes the positioning context for the absolutely-placed iframe inside.
+.smgp-course-content--iframe {
+  flex: 1 1 0;
+  min-height: 0;
+  padding: 0;
+  align-items: stretch;
+  overflow: hidden;
+  max-height: none;
+  border: none;
+  box-shadow: none;
+  border-radius: 14px;
+  position: relative;
+
+  // 3. The iframe element: fills the box. No class of its own — targeted
+  //    via the parent modifier so the template stays minimal.
+  > iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    min-width: 320px;
+    border: none;
+    display: block;
+    color-scheme: light dark;
+  }
 }
 
 // FOUC fix — hidden until JS swaps content.
@@ -1281,6 +1318,7 @@ html:has(> body.smgp-embedded) {
 
 body.smgp-embedded {
   .navbar,
+  .smgp-topnav,
   #page-header,
   .drawer-left,
   .drawer-right,

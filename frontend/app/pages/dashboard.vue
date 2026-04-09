@@ -96,7 +96,7 @@
           </h5>
           <p class="catalog-section__desc">{{ $t('dashboard.continueLearningDesc') }}</p>
         </div>
-        <NuxtLink to="/profile" class="catalog-section__viewall">
+        <NuxtLink to="/profile?tab=courses" class="catalog-section__viewall">
           {{ $t('dashboard.continueLearningCta') }}
         </NuxtLink>
       </div>

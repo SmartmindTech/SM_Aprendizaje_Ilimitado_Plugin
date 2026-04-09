@@ -354,16 +354,23 @@ function local_sm_graphics_plugin_before_standard_top_of_body_html(): string {
     }
 
     // Embed mode: when an activity is loaded inside our course page iframe,
-    // hide all Moodle chrome. Detected by smgp_embed=1 GET param OR cookie
-    // (cookie persists across internal iframe navigations like wiki create.php).
+    // hide all Moodle chrome via theme_smartmind/scss/smartmind/_embed.scss.
+    // Detected by smgp_embed=1 GET param OR cookie (cookie persists across
+    // internal iframe navigations like wiki create.php).
+    //
+    // The body class can't be added via $PAGE->add_body_class() because every
+    // hook Moodle exposes runs AFTER $OUTPUT->header() has frozen body
+    // attributes. We add it client-side via a tiny inline script that runs
+    // synchronously as the very first node inside <body>, before any visible
+    // content paints — no FOUC.
+    //
+    // To change how the iframe content sits, edit _embed.scss — not this file.
     $isembed = !empty($_GET['smgp_embed']) || !empty($_COOKIE['smgp_embed']);
 
-    // Set cookie on first embed request so subsequent navigations keep embed mode.
     if (!empty($_GET['smgp_embed']) && empty($_COOKIE['smgp_embed'])) {
-        setcookie('smgp_embed', '1', 0, '/mod/'); // Scoped to /mod/ paths only.
+        setcookie('smgp_embed', '1', 0, '/mod/'); // Scoped to /mod/ paths.
     }
 
-    // Clear embed cookie on non-/mod/ pages (user left the embed context).
     $scriptEmbed = $_SERVER['SCRIPT_NAME'] ?? '';
     if (!empty($_COOKIE['smgp_embed']) && strpos($scriptEmbed, '/mod/') === false) {
         setcookie('smgp_embed', '', time() - 3600, '/mod/');
@@ -371,35 +378,7 @@ function local_sm_graphics_plugin_before_standard_top_of_body_html(): string {
     }
 
     if ($isembed) {
-        $css = '<style id="smgp-embed-fix">'
-            . '.navbar,#page-header,.secondary-navigation,.drawer-left,.drawer-right,'
-            . '.drawer-toggles,.drawer,[data-region="drawer"],#page-footer,footer,'
-            . '.breadcrumb-nav,nav[aria-label="Navigation bar"],.activity-navigation,'
-            . '.activity-header .moremenu,'
-            . '#scormnav,#scormtop,.scorm-right,#scorm_toc_toggle,#scorm_toc,'
-            . '.activity-information,.automatic-completion-conditions,.completionrequirements,'
-            . '.completion-info,[data-region="completion-info"],'
-            . '[data-region="completionrequirements"],[data-region="activity-information"],'
-            // SmartMind theme-specific elements.
-            . '.smgp-topnav,nav.smgp-topnav,'
-            . '.smartmind-course-banner,.smartmind-page-header,'
-            . 'nav.d-flex.flex-column[aria-label],'
-            . '.btn-footer-popover,.footer-popover'
-            . '{display:none!important}'
-            . '#page,#page.drawers,#page.drawers.drag-container'
-            . '{display:block!important;grid-template-columns:none!important;margin:0!important;padding:0!important}'
-            . '#topofscroll,#page-content{margin:0!important;padding:0!important}'
-            . '#page-wrapper{display:block!important}'
-            . '#region-main{border:none!important;box-shadow:none!important;border-radius:0!important;'
-            . 'padding:1rem!important;margin:0 auto!important;max-width:960px!important}'
-            . '</style>';
-        // Quiz: keep right drawer for question navigation.
-        $pagepathEmbed = $_SERVER['SCRIPT_NAME'] ?? '';
-        if (strpos($pagepathEmbed, '/mod/quiz/') !== false) {
-            $css .= '<style>#mod_quiz_navblock{display:block!important}</style>';
-        }
-        $css .= '<script>document.body.classList.add("smgp-embedded");</script>';
-        return $css;
+        return '<script>document.body.classList.add("smgp-embedded");</script>';
     }
 
     // Backup/restore wizard pages: intentionally no body injection.
