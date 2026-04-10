@@ -13,6 +13,10 @@ export interface MoodleBootstrap {
   companyid: number
   companyname: string
   pluginbaseurl: string
+  /** Login token (CSRF) — only present when unauthenticated. */
+  logintoken?: string
+  /** Moodle login URL — only present when unauthenticated. */
+  loginurl?: string
 }
 
 declare global {

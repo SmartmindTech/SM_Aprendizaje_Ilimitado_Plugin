@@ -24,6 +24,18 @@ defined('MOODLE_INTERNAL') || die();
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+// Redirect to the Vue SPA login page if the plugin is installed.
+// The SPA handles its own login UI and POSTs credentials back to Moodle.
+// On failed login POST, Moodle re-renders this layout → pass error flag.
+$spapath = $CFG->dirroot . '/local/sm_graphics_plugin/pages/spa.php';
+if (file_exists($spapath)) {
+    $params = [];
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $params['loginerror'] = 1;
+    }
+    redirect(new moodle_url('/local/sm_graphics_plugin/pages/spa.php', $params, 'login'));
+}
+
 $bodyattributes = $OUTPUT->body_attributes();
 
 $templatecontext = [

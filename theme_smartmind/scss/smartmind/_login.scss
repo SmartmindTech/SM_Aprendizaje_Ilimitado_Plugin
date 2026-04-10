@@ -97,84 +97,119 @@ html.smgp-dark {
 // ── Welcome Section (hero) ─────────────────────────────────────────────────
 
 .smgp-welcome {
-    max-width: 720px;
+    position: relative;
     width: 100%;
-    text-align: center;
-    padding: 4rem 2rem 2rem;
-    margin-top: 2rem;
     min-height: 100vh;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
 
+    // ── Animated background orbs ──
+    &__bg {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    &__orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        opacity: 0.5;
+        will-change: transform;
+
+        &--1 {
+            width: 500px;
+            height: 500px;
+            background: rgba(16, 185, 129, 0.18);
+            top: -10%;
+            right: -8%;
+            animation: smgp-float1 14s ease-in-out infinite;
+        }
+
+        &--2 {
+            width: 400px;
+            height: 400px;
+            background: rgba(16, 185, 129, 0.12);
+            bottom: -5%;
+            left: -6%;
+            animation: smgp-float2 18s ease-in-out infinite;
+        }
+
+        &--3 {
+            width: 250px;
+            height: 250px;
+            background: rgba(16, 185, 129, 0.10);
+            top: 40%;
+            left: 50%;
+            animation: smgp-float3 12s ease-in-out infinite;
+        }
+    }
+
+    // ── Content wrapper ──
+    &__content {
+        position: relative;
+        z-index: 1;
+        max-width: 680px;
+        width: 100%;
+        text-align: center;
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    // ── Logo ──
     &__logo {
-        margin-bottom: 1.25rem;
+        margin-bottom: 2rem;
     }
 
     &__logo-img {
-        width: 80px;
-        height: 80px;
+        width: 72px;
+        height: 72px;
         object-fit: contain;
 
         @media (max-width: 480px) {
-            width: 64px;
-            height: 64px;
+            width: 60px;
+            height: 60px;
         }
     }
 
+    // ── Title ──
     &__title {
         font-family: 'Inter', -apple-system, sans-serif;
-        font-size: 2.5rem;
-        font-weight: 700;
+        font-size: clamp(2.5rem, 6vw, 4rem);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1.1;
+        margin: 0 0 1rem;
         color: #1a1a1a;
-        margin: 0 0 0.5rem;
-        line-height: 1.2;
-
-        @media (max-width: 480px) {
-            font-size: 2rem;
-        }
+        background: linear-gradient(135deg, #1a1a1a 40%, #10b981 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
 
+    // ── Tagline ──
     &__tagline {
-        font-size: 1.1rem;
+        font-size: 1.15rem;
         color: #64748b;
-        margin: 0 0 3rem;
+        margin: 0 0 3.5rem;
         font-weight: 400;
+        max-width: 420px;
+        line-height: 1.6;
     }
 
-    &__hero {
-        margin-bottom: 2.5rem;
-    }
-
-    &__hero-title {
-        font-family: 'Inter', sans-serif;
-        font-size: 1.5rem;
-        font-weight: 600;
-        color: #1a1a1a;
-        margin: 0 0 0.5rem;
-
-        @media (max-width: 480px) {
-            font-size: 1.25rem;
-        }
-    }
-
-    &__hero-subtitle {
-        font-size: 1rem;
-        color: #64748b;
-        margin: 0;
-        max-width: 500px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    // Features grid — 2x2.
+    // ── Features — 2x2 grid ──
     &__features {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1.25rem;
-        margin-bottom: 3rem;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+        margin-bottom: 3.5rem;
         width: 100%;
+        max-width: 560px;
 
         @media (max-width: 480px) {
             grid-template-columns: 1fr;
@@ -182,106 +217,144 @@ html.smgp-dark {
     }
 
     &__feature {
-        background: #ffffff;
-        border: 1px solid rgba(0, 0, 0, 0.06);
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.35rem;
+        padding: 1.25rem;
         border-radius: 16px;
-        padding: 1.5rem;
-        text-align: left;
-        transition: box-shadow 200ms ease, transform 200ms ease, border-color 200ms ease;
-
-        &:hover {
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-            transform: translateY(-2px);
-            border-color: rgba(0, 0, 0, 0.12);
-        }
+        transition: transform 250ms ease, box-shadow 250ms ease;
+        font-family: 'Inter', sans-serif;
+        // Per-card color set via --fc variable below.
+        background: rgba(var(--fc), 0.07);
+        border: 1px solid rgba(var(--fc), 0.12);
 
         h3 {
-            font-family: 'Inter', sans-serif;
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             font-weight: 600;
             color: #1a1a1a;
-            margin: 0.5rem 0 0.25rem;
+            margin: 0.25rem 0 0;
         }
 
         p {
-            font-size: 0.85rem;
+            font-size: 0.78rem;
             color: #64748b;
             margin: 0;
-            line-height: 1.4;
+            line-height: 1.45;
         }
+
+        &:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(var(--fc), 0.18);
+        }
+
+        // 1. Courses — amber
+        &:nth-child(1) { --fc: 245, 158, 11; }
+        // 2. Progress — blue
+        &:nth-child(2) { --fc: 59, 130, 246; }
+        // 3. Certificates — gold
+        &:nth-child(3) { --fc: 234, 179, 8; }
+        // 4. Devices — cyan
+        &:nth-child(4) { --fc: 6, 182, 212; }
     }
 
     &__feature-icon {
         width: 36px;
         height: 36px;
         border-radius: 10px;
-        background: rgba(16, 185, 129, 0.08);
+        background: rgba(var(--fc), 0.15);
         display: flex;
         align-items: center;
         justify-content: center;
 
         [class^="icon-"] {
             font-size: 1.1rem;
-            color: #10b981;
+            color: rgb(var(--fc));
         }
     }
 
-    // CTA buttons.
+    // ── CTA buttons ──
     &__cta {
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 0.75rem;
-        margin-bottom: 2rem;
+        gap: 1rem;
+        margin-bottom: 3rem;
     }
 
     &__btn {
-        min-width: 240px;
-        max-width: 300px;
-        height: 48px;
-        border-radius: 9999px;
+        border-radius: 14px;
         font-family: 'Inter', sans-serif;
-        font-weight: 500;
+        font-weight: 600;
         font-size: 1rem;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 0.5rem;
-        transition: background-color 200ms ease, box-shadow 200ms ease, transform 100ms ease;
+        gap: 0.6rem;
+        transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
 
         &--signin {
-            background-color: #10b981;
-            border-color: #10b981;
+            min-width: 260px;
+            height: 56px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border: none;
             color: #ffffff;
+            font-size: 1.05rem;
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
 
             &:hover {
-                background-color: #059669;
-                box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+                transform: translateY(-2px);
+                box-shadow: 0 8px 30px rgba(16, 185, 129, 0.45);
                 color: #ffffff;
             }
 
             &:active {
-                transform: scale(0.98);
+                transform: translateY(0) scale(0.98);
             }
         }
 
         &--verify {
-            background-color: transparent;
-            border: 1.5px solid #e2e8f0;
-            color: #10b981;
+            min-width: 220px;
+            height: 44px;
+            background: transparent;
+            border: none;
+            color: #64748b;
+            font-weight: 500;
+            font-size: 0.9rem;
+
+            [class^="icon-"] {
+                font-size: 1rem;
+            }
 
             &:hover {
-                border-color: #10b981;
-                background-color: rgba(16, 185, 129, 0.04);
                 color: #10b981;
             }
         }
     }
 
+    // ── Footer ──
     &__footer {
         font-size: 0.75rem;
         color: #94a3b8;
     }
+}
+
+// ── Orb float animations ──
+@keyframes smgp-float1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33%      { transform: translate(-40px, 30px) scale(1.05); }
+    66%      { transform: translate(20px, -20px) scale(0.95); }
+}
+
+@keyframes smgp-float2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33%      { transform: translate(30px, -25px) scale(1.08); }
+    66%      { transform: translate(-20px, 15px) scale(0.96); }
+}
+
+@keyframes smgp-float3 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50%      { transform: translate(-30px, -30px) scale(1.1); }
 }
 
 // ── Login Card ─────────────────────────────────────────────────────────────

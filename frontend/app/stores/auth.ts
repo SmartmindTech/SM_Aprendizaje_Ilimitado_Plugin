@@ -10,7 +10,7 @@ export const useAuthStore = defineStore('auth', () => {
   const initialized = ref(false)
 
   // Getters
-  const isAuthenticated = computed(() => !!user.value)
+  const isAuthenticated = computed(() => !!user.value && user.value.userid > 0)
   const isManager = computed(() => user.value?.ismanager ?? false)
   const isAdmin = computed(() => user.value?.isadmin ?? false)
   const fullname = computed(() => user.value?.fullname ?? '')

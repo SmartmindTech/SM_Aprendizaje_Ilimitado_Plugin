@@ -29,7 +29,10 @@
 
 require_once(__DIR__ . '/../../../config.php');
 require_once(__DIR__ . '/../lib.php');
-require_login();
+
+// Do NOT call require_login() — the Vue SPA has its own login page.
+// Instead, detect whether the user is authenticated and pass that info
+// in the bootstrap data. The Vue router redirects to #/login when needed.
 
 global $CFG, $USER, $DB, $OUTPUT, $PAGE;
 
@@ -39,35 +42,59 @@ $PAGE->set_title(get_string('pluginname', 'local_sm_graphics_plugin'));
 $PAGE->set_pagelayout('spa');
 
 // Build bootstrap data for the Vue app.
-$managerrec = local_sm_graphics_plugin_get_manager_record($USER->id);
-$isadmin = is_siteadmin();
+$isauthenticated = isloggedin() && !isguestuser();
 
-$companyid = 0;
-$companyname = '';
-if ($managerrec) {
-    $companyid = $managerrec->companyid;
-    $companyname = $DB->get_field('company', 'name', ['id' => $companyid]) ?: '';
-} else if ($isadmin) {
-    $rec = $DB->get_record('company_users', ['userid' => $USER->id], 'companyid', IGNORE_MULTIPLE);
-    if ($rec) {
-        $companyid = $rec->companyid;
+if ($isauthenticated) {
+    $managerrec = local_sm_graphics_plugin_get_manager_record($USER->id);
+    $isadmin = is_siteadmin();
+
+    $companyid = 0;
+    $companyname = '';
+    if ($managerrec) {
+        $companyid = $managerrec->companyid;
         $companyname = $DB->get_field('company', 'name', ['id' => $companyid]) ?: '';
+    } else if ($isadmin) {
+        $rec = $DB->get_record('company_users', ['userid' => $USER->id], 'companyid', IGNORE_MULTIPLE);
+        if ($rec) {
+            $companyid = $rec->companyid;
+            $companyname = $DB->get_field('company', 'name', ['id' => $companyid]) ?: '';
+        }
     }
-}
 
-$bootstrapdata = [
-    'wwwroot'     => $CFG->wwwroot,
-    'sesskey'     => sesskey(),
-    'userid'      => (int) $USER->id,
-    'fullname'    => fullname($USER),
-    'email'       => $USER->email,
-    'lang'        => current_language(),
-    'ismanager'   => !empty($managerrec),
-    'isadmin'     => $isadmin,
-    'companyid'   => (int) $companyid,
-    'companyname' => $companyname,
-    'pluginbaseurl' => $CFG->wwwroot . '/local/sm_graphics_plugin',
-];
+    $bootstrapdata = [
+        'wwwroot'       => $CFG->wwwroot,
+        'sesskey'       => sesskey(),
+        'userid'        => (int) $USER->id,
+        'fullname'      => fullname($USER),
+        'email'         => $USER->email,
+        'lang'          => current_language(),
+        'ismanager'     => !empty($managerrec),
+        'isadmin'       => $isadmin,
+        'companyid'     => (int) $companyid,
+        'companyname'   => $companyname,
+        'pluginbaseurl' => $CFG->wwwroot . '/local/sm_graphics_plugin',
+    ];
+} else {
+    // Not logged in — provide minimal data so the SPA can render the login page.
+    // Set wantsurl so Moodle redirects back here after successful login.
+    $SESSION->wantsurl = (new moodle_url('/local/sm_graphics_plugin/pages/spa.php'))->out(false);
+
+    $bootstrapdata = [
+        'wwwroot'       => $CFG->wwwroot,
+        'sesskey'       => '',
+        'userid'        => 0,
+        'fullname'      => '',
+        'email'         => '',
+        'lang'          => current_language(),
+        'ismanager'     => false,
+        'isadmin'       => false,
+        'companyid'     => 0,
+        'companyname'   => '',
+        'pluginbaseurl' => $CFG->wwwroot . '/local/sm_graphics_plugin',
+        'logintoken'    => \core\session\manager::get_login_token(),
+        'loginurl'      => (new moodle_url('/login/index.php'))->out(false),
+    ];
+}
 
 // Try to fetch HTML from a running Nuxt dev server first (instantaneous HMR).
 // If unreachable, fall back to the pre-built frontend_dist/.

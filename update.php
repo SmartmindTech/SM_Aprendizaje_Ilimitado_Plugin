@@ -312,6 +312,11 @@ function recursive_copy_overwrite(string $src, string $dst): array {
         }
     }
 
+    // Ensure the destination directory is writable (docker cp may leave it owned by root).
+    if (!is_writable($dst)) {
+        @chmod($dst, 0755);
+    }
+
     while (($file = readdir($dir)) !== false) {
         if ($file === '.' || $file === '..') {
             continue;

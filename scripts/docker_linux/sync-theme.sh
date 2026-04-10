@@ -57,6 +57,12 @@ for item in "$REPO"/theme_smartmind/*; do
     $DOCKER_CMD cp "$item" "$DOCKER_CONTAINER:$MOODLE_ROOT/theme/smartmind/"
 done
 
+# --- Fix ownership (docker cp leaves files owned by root) ---
+echo "Fixing file ownership..."
+$DOCKER_CMD exec "$DOCKER_CONTAINER" chown -R www-data:www-data \
+    "$MOODLE_ROOT/local/sm_graphics_plugin" \
+    "$MOODLE_ROOT/theme/smartmind"
+
 # --- Deploy lang overrides + purge caches ---
 echo "Deploying lang overrides and purging caches..."
 $DOCKER_CMD exec "$DOCKER_CONTAINER" php -r "

@@ -57,7 +57,7 @@
             }"
             @click="$emit('select', activity)"
           >
-            <i :class="['smgp-course-activity__icon-box', activity.iconclass]" />
+            <i :class="['smgp-course-activity__icon-box', activity.iconclass]" :style="{ color: typeColor(activity.modname), background: typeBg(activity.modname) }" />
             <div class="smgp-course-activity__text">
               <p class="smgp-course-activity__name">{{ activity.name }}</p>
             </div>
@@ -103,6 +103,29 @@ defineEmits<{
 }>()
 
 const CIRCUMFERENCE = 2 * Math.PI * 7 // ≈ 43.98
+
+const TYPE_COLORS: Record<string, string> = {
+  scorm: '#16a34a', h5pactivity: '#16a34a', choice: '#16a34a',
+  quiz: '#ef4444', survey: '#ef4444',
+  url: '#3b82f6', resource: '#3b82f6', page: '#3b82f6', folder: '#3b82f6',
+  assign: '#eab308', workshop: '#eab308',
+  lesson: '#f97316', forum: '#f97316', chat: '#f97316',
+  feedback: '#8b5cf6', data: '#8b5cf6', glossary: '#8b5cf6', lti: '#8b5cf6',
+  book: '#a16207', wiki: '#a16207',
+  bigbluebuttonbn: '#ec4899', iomadcertificate: '#ec4899',
+}
+
+function typeColor(modname: string) {
+  return TYPE_COLORS[modname] || '#6b7280'
+}
+
+function typeBg(modname: string) {
+  const hex = typeColor(modname)
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  return `rgba(${r}, ${g}, ${b}, 0.12)`
+}
 
 const visibleActivities = (section: any) =>
   (section.activities || []).filter((a: any) => !a.isforum && !a.islabel)

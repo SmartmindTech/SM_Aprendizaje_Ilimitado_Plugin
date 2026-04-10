@@ -1,0 +1,545 @@
+// ============================================
+// Login Page
+// ============================================
+
+.smgp-login-page {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $body-bg;
+  overflow: hidden;
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+
+// ── Animated background orbs ──
+
+.smgp-login-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.smgp-login-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.5;
+  will-change: transform;
+
+  &--1 {
+    width: 500px;
+    height: 500px;
+    background: rgba($smgp-primary, 0.18);
+    top: -10%;
+    right: -8%;
+    animation: smgp-float1 14s ease-in-out infinite;
+  }
+
+  &--2 {
+    width: 400px;
+    height: 400px;
+    background: rgba($smgp-primary, 0.12);
+    bottom: -5%;
+    left: -6%;
+    animation: smgp-float2 18s ease-in-out infinite;
+  }
+
+  &--3 {
+    width: 250px;
+    height: 250px;
+    background: rgba($smgp-primary, 0.10);
+    top: 40%;
+    left: 50%;
+    animation: smgp-float3 12s ease-in-out infinite;
+  }
+}
+
+@keyframes smgp-float1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%      { transform: translate(-40px, 30px) scale(1.05); }
+  66%      { transform: translate(20px, -20px) scale(0.95); }
+}
+
+@keyframes smgp-float2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%      { transform: translate(30px, -25px) scale(1.08); }
+  66%      { transform: translate(-20px, 15px) scale(0.96); }
+}
+
+@keyframes smgp-float3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%      { transform: translate(-30px, -30px) scale(1.1); }
+}
+
+// ── Top nav (theme + language toggles) ──
+
+.smgp-login-topnav {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+
+  &__btn {
+    background: transparent;
+    border: none;
+    color: $smgp-gray-500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: $smgp-radius-full;
+    font-size: $smgp-font-sm;
+    font-weight: 500;
+    transition: background $smgp-transition-base, color $smgp-transition-base;
+
+    [class^="icon-"] {
+      font-size: 1rem;
+    }
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.06);
+      color: $smgp-gray-900;
+    }
+  }
+}
+
+// ── Content panels ──
+
+.smgp-login-content {
+  position: relative;
+  z-index: 1;
+  max-width: 680px;
+  width: 100%;
+  text-align: center;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+// ── Welcome panel ──
+
+.smgp-login-logo {
+  margin-bottom: 2rem;
+
+  img {
+    width: 72px;
+    height: 72px;
+    object-fit: contain;
+
+    @media (max-width: $smgp-bp-sm) {
+      width: 60px;
+      height: 60px;
+    }
+  }
+}
+
+.smgp-login-title {
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin: 0 0 1rem;
+  background: linear-gradient(135deg, $smgp-gray-900 40%, $smgp-primary 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.smgp-login-tagline1, .smgp-login-tagline2 {
+  font-size: 1.15rem;
+  color: $smgp-gray-500;
+  font-weight: 400;
+  max-width: 420px;
+  line-height: 1.6;
+}
+
+// ── Features 2x2 grid ──
+
+.smgp-login-features {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 3.5rem;
+  width: 100%;
+  max-width: 560px;
+  margin-top: 2rem;
+
+  @media (max-width: $smgp-bp-sm) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.smgp-login-feature {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+  padding: 1.25rem;
+  border-radius: $smgp-radius-xl;
+  transition: transform 250ms ease, box-shadow 250ms ease;
+  background: rgba(var(--fc), 0.07);
+  border: 1px solid rgba(var(--fc), 0.12);
+
+  h3 {
+    font-size: $smgp-font-sm;
+    font-weight: 600;
+    color: $smgp-gray-900;
+    margin: 0.25rem 0 0;
+  }
+
+  p {
+    font-size: 0.78rem;
+    color: $smgp-gray-500;
+    margin: 0;
+    line-height: 1.45;
+  }
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(var(--fc), 0.18);
+  }
+
+  // Per-card colours
+  &:nth-child(1) { --fc: 245, 158, 11; }   // amber
+  &:nth-child(2) { --fc: 59, 130, 246; }    // blue
+  &:nth-child(3) { --fc: 234, 179, 8; }     // gold
+  &:nth-child(4) { --fc: 6, 182, 212; }     // cyan
+}
+
+.smgp-login-feature-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(var(--fc), 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  [class^="icon-"] {
+    font-size: 1.1rem;
+    color: rgb(var(--fc));
+  }
+}
+
+// ── CTA buttons ──
+
+.smgp-login-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 3rem;
+}
+
+.smgp-login-btn-signin {
+  min-width: 260px;
+  height: 56px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, $smgp-primary 0%, $smgp-primary-dark 100%);
+  border: none;
+  color: #ffffff;
+  font-size: 1.05rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  box-shadow: 0 4px 20px rgba($smgp-primary, 0.3);
+  transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba($smgp-primary, 0.45);
+    color: #ffffff;
+  }
+
+  &:active {
+    transform: translateY(0) scale(0.98);
+  }
+}
+
+.smgp-login-btn-verify {
+  min-width: 220px;
+  height: 44px;
+  background: transparent;
+  border: none;
+  color: $smgp-gray-500;
+  font-weight: 500;
+  font-size: $smgp-font-sm;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: color $smgp-transition-base;
+
+  &:hover {
+    color: $smgp-primary;
+  }
+}
+
+.smgp-login-footer {
+  font-size: $smgp-font-xs;
+  color: $smgp-gray-400;
+}
+
+// ── Login form card ──
+
+.smgp-login-card {
+  max-width: 440px;
+  width: 100%;
+  text-align: left;
+}
+
+.smgp-login-back {
+  background: none;
+  border: none;
+  color: $smgp-gray-500;
+  font-size: $smgp-font-sm;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0;
+  margin-bottom: 1.5rem;
+  transition: color $smgp-transition-base;
+
+  &:hover {
+    color: $smgp-primary;
+  }
+}
+
+.smgp-login-card-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: $smgp-gray-900;
+  margin: 0 0 0.25rem;
+  text-align: center;
+}
+
+.smgp-login-card-subtitle {
+  font-size: $smgp-font-sm;
+  color: $smgp-gray-500;
+  margin: 0 0 2rem;
+  text-align: center;
+}
+
+.smgp-login-input-group {
+  position: relative;
+  margin-bottom: 1rem;
+
+  label {
+    font-size: $smgp-font-sm;
+    font-weight: 500;
+    color: $smgp-gray-700;
+    margin-bottom: 0.35rem;
+    display: block;
+  }
+
+  .smgp-login-input-wrap {
+    position: relative;
+  }
+
+  [class^="icon-"] {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: $smgp-gray-400;
+    font-size: 1.1rem;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  input {
+    width: 100%;
+    height: 48px;
+    border-radius: $smgp-radius-lg;
+    border: 1.5px solid $smgp-gray-200;
+    padding-left: 42px;
+    font-size: 0.95rem;
+    background: #ffffff;
+    transition: border-color $smgp-transition-base, box-shadow $smgp-transition-base;
+
+    &::placeholder {
+      color: $smgp-gray-400;
+    }
+
+    &:focus {
+      border-color: $smgp-primary;
+      box-shadow: 0 0 0 3px rgba($smgp-primary, 0.12);
+      outline: none;
+    }
+  }
+}
+
+.smgp-login-submit {
+  width: 100%;
+  height: 48px;
+  border-radius: $smgp-radius-lg;
+  background: $smgp-primary;
+  border: none;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background $smgp-transition-base, box-shadow $smgp-transition-base;
+  margin-top: 0.5rem;
+
+  &:hover:not(:disabled) {
+    background: $smgp-primary-dark;
+    box-shadow: 0 4px 14px rgba($smgp-primary, 0.3);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+}
+
+.smgp-login-forgot {
+  text-align: right;
+  margin-top: 0.75rem;
+
+  a {
+    font-size: $smgp-font-xs;
+    color: $smgp-primary;
+    text-decoration: none;
+
+    &:hover {
+      color: $smgp-primary-dark;
+      text-decoration: underline;
+    }
+  }
+}
+
+.smgp-login-error {
+  background: rgba($smgp-danger, 0.08);
+  border: 1px solid rgba($smgp-danger, 0.2);
+  border-radius: $smgp-radius-lg;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  color: $smgp-danger;
+  font-size: $smgp-font-sm;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.smgp-login-switch {
+  text-align: center;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid $smgp-gray-200;
+
+  button {
+    background: none;
+    border: none;
+    color: $smgp-primary;
+    font-size: $smgp-font-sm;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+
+    &:hover {
+      color: $smgp-primary-dark;
+      text-decoration: underline;
+    }
+  }
+}
+
+// ── Verify certificate panel ──
+
+.smgp-verify-result {
+  margin-top: 1rem;
+  border-radius: $smgp-radius-lg;
+  padding: 1.25rem;
+
+  &--success {
+    background: rgba($smgp-primary, 0.06);
+    border: 1px solid rgba($smgp-primary, 0.15);
+  }
+
+  &--error {
+    background: rgba($smgp-danger, 0.06);
+    border: 1px solid rgba($smgp-danger, 0.15);
+    text-align: center;
+    color: $smgp-danger;
+  }
+}
+
+.smgp-verify-check {
+  text-align: center;
+  margin-bottom: 0.5rem;
+  color: $smgp-primary;
+  font-size: 2rem;
+}
+
+.smgp-verify-success-text {
+  text-align: center;
+  font-weight: 600;
+  color: $smgp-primary;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+
+.smgp-verify-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid rgba($smgp-primary, 0.1);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.smgp-verify-label {
+  font-size: $smgp-font-xs;
+  color: $smgp-gray-500;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.smgp-verify-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: $smgp-gray-900;
+
+  &--code {
+    font-family: monospace;
+    letter-spacing: 0.1em;
+  }
+}
+
+// ── Transitions ──
+
+.smgp-panel-enter-active,
+.smgp-panel-leave-active {
+  transition: opacity 250ms ease, transform 250ms ease;
+}
+
+.smgp-panel-enter-from {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+.smgp-panel-leave-to {
+  opacity: 0;
+  transform: translateY(-12px);
+}

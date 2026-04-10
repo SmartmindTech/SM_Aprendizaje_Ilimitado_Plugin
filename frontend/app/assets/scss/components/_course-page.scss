@@ -946,12 +946,13 @@ html.smgp-focus-active {
     border: 1px solid lightgray;
     border-right: none;
     border-radius: 20px;
-    background: #FFFFFF;
-    color: #A09B96;
+    background: #ffffff;
+    color: black;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 1rem;
 
     &:hover {
       background: #F0EDE8;
@@ -961,6 +962,14 @@ html.smgp-focus-active {
     // When the sidebar is collapsed, slide the toggle to the viewport's right edge.
     .smgp-course-page--sidebar-collapsed & {
       right: 0;
+      border-radius: 20px 0 0 20px;
+      font-size: 1.5rem;
+      background: #10b981;
+      color: white;
+
+      &:hover{
+        background: #15803d;
+      }
     }
   }
 }
@@ -1031,10 +1040,6 @@ html.smgp-focus-active {
     flex-shrink: 0;
   }
 
-  &--open{
-    background: rgba(16, 225, 129, 0.14) !important;
-
-  }
 
 }
 
@@ -1062,7 +1067,7 @@ html.smgp-focus-active {
   &__chevron {
     font-size: 12px;
     flex-shrink: 0;
-    color: #6B6660;
+    color: #6B66;
     transition: transform 0.2s;
   }
 
@@ -1146,7 +1151,6 @@ html.smgp-focus-active {
     justify-content: center;
     flex-shrink: 0;
     font-size: 14px;
-    background: rgba(16, 185, 129, 0.08);
     color: #10b981;
   }
 
@@ -1262,6 +1266,7 @@ html.smgp-focus-active {
 
     i {
       transform: rotate(90deg);
+      color: white;
     }
 
     .smgp-course-page--sidebar-collapsed & i {

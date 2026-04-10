@@ -24,54 +24,59 @@
 
     {{! ── 1. Welcome Section (hero) ── }}
     <div class="smgp-welcome smgp-panel" id="smgp-welcome">
-        <div class="smgp-welcome__logo">
-            <img src="{{wwwroot}}/theme/smartmind/pix/smartmind_logo.png" alt="SmartMind" class="smgp-welcome__logo-img">
+
+        {{! Animated background orbs }}
+        <div class="smgp-welcome__bg" aria-hidden="true">
+            <div class="smgp-welcome__orb smgp-welcome__orb--1"></div>
+            <div class="smgp-welcome__orb smgp-welcome__orb--2"></div>
+            <div class="smgp-welcome__orb smgp-welcome__orb--3"></div>
         </div>
 
-        <h1 class="smgp-welcome__title">{{#str}}login_title, theme_smartmind{{/str}}</h1>
-        <p class="smgp-welcome__tagline">{{#str}}login_tagline, theme_smartmind{{/str}}</p>
-
-        <div class="smgp-welcome__hero">
-            <h2 class="smgp-welcome__hero-title">{{#str}}login_hero_title, theme_smartmind{{/str}}</h2>
-            <p class="smgp-welcome__hero-subtitle">{{#str}}login_hero_subtitle, theme_smartmind{{/str}}</p>
-        </div>
-
-        <div class="smgp-welcome__features">
-            <div class="smgp-welcome__feature">
-                <div class="smgp-welcome__feature-icon"><i class="icon-graduation-cap"></i></div>
-                <h3>{{#str}}login_feat1_title, theme_smartmind{{/str}}</h3>
-                <p>{{#str}}login_feat1_desc, theme_smartmind{{/str}}</p>
+        <div class="smgp-welcome__content">
+            <div class="smgp-welcome__logo">
+                <img src="{{wwwroot}}/theme/smartmind/pix/smartmind_logo.png" alt="SmartMind" class="smgp-welcome__logo-img">
             </div>
-            <div class="smgp-welcome__feature">
-                <div class="smgp-welcome__feature-icon"><i class="icon-bar-chart"></i></div>
-                <h3>{{#str}}login_feat2_title, theme_smartmind{{/str}}</h3>
-                <p>{{#str}}login_feat2_desc, theme_smartmind{{/str}}</p>
-            </div>
-            <div class="smgp-welcome__feature">
-                <div class="smgp-welcome__feature-icon"><i class="icon-award"></i></div>
-                <h3>{{#str}}login_feat3_title, theme_smartmind{{/str}}</h3>
-                <p>{{#str}}login_feat3_desc, theme_smartmind{{/str}}</p>
-            </div>
-            <div class="smgp-welcome__feature">
-                <div class="smgp-welcome__feature-icon"><i class="icon-phone"></i></div>
-                <h3>{{#str}}login_feat4_title, theme_smartmind{{/str}}</h3>
-                <p>{{#str}}login_feat4_desc, theme_smartmind{{/str}}</p>
-            </div>
-        </div>
 
-        <div class="smgp-welcome__cta">
-            <button type="button" class="btn smgp-welcome__btn smgp-welcome__btn--signin" id="smgp-show-login">
-                <i class="icon-arrow-right"></i>
-                {{#str}}login_signin, theme_smartmind{{/str}}
-            </button>
-            <button type="button" class="btn smgp-welcome__btn smgp-welcome__btn--verify" id="smgp-show-verify">
-                <i class="icon-search"></i>
-                {{#str}}login_verify_cert, theme_smartmind{{/str}}
-            </button>
-        </div>
+            <h1 class="smgp-welcome__title">{{#str}}login_title, theme_smartmind{{/str}}</h1>
+            <p class="smgp-welcome__tagline">{{#str}}login_tagline, theme_smartmind{{/str}}</p>
 
-        <div class="smgp-welcome__footer">
-            {{#str}}login_footer, theme_smartmind{{/str}}
+            <div class="smgp-welcome__features">
+                <div class="smgp-welcome__feature">
+                    <div class="smgp-welcome__feature-icon"><i class="icon-graduation-cap"></i></div>
+                    <h3>{{#str}}login_feat1_title, theme_smartmind{{/str}}</h3>
+                    <p>{{#str}}login_feat1_desc, theme_smartmind{{/str}}</p>
+                </div>
+                <div class="smgp-welcome__feature">
+                    <div class="smgp-welcome__feature-icon"><i class="icon-bar-chart"></i></div>
+                    <h3>{{#str}}login_feat2_title, theme_smartmind{{/str}}</h3>
+                    <p>{{#str}}login_feat2_desc, theme_smartmind{{/str}}</p>
+                </div>
+                <div class="smgp-welcome__feature">
+                    <div class="smgp-welcome__feature-icon"><i class="icon-award"></i></div>
+                    <h3>{{#str}}login_feat3_title, theme_smartmind{{/str}}</h3>
+                    <p>{{#str}}login_feat3_desc, theme_smartmind{{/str}}</p>
+                </div>
+                <div class="smgp-welcome__feature">
+                    <div class="smgp-welcome__feature-icon"><i class="icon-phone"></i></div>
+                    <h3>{{#str}}login_feat4_title, theme_smartmind{{/str}}</h3>
+                    <p>{{#str}}login_feat4_desc, theme_smartmind{{/str}}</p>
+                </div>
+            </div>
+
+            <div class="smgp-welcome__cta">
+                <button type="button" class="btn smgp-welcome__btn smgp-welcome__btn--signin" id="smgp-show-login">
+                    {{#str}}login_signin, theme_smartmind{{/str}}
+                    <i class="icon-arrow-right"></i>
+                </button>
+                <button type="button" class="btn smgp-welcome__btn smgp-welcome__btn--verify" id="smgp-show-verify">
+                    <i class="icon-search"></i>
+                    {{#str}}login_verify_cert, theme_smartmind{{/str}}
+                </button>
+            </div>
+
+            <div class="smgp-welcome__footer">
+                {{#str}}login_footer, theme_smartmind{{/str}}
+            </div>
         </div>
     </div>
 
@@ -283,22 +288,22 @@
 .smgp-dark .smgp-login-page { background: transparent; }
 
 /* Welcome section */
-.smgp-dark .smgp-welcome__title,
-.smgp-dark .smgp-welcome__hero-title,
+.smgp-dark .smgp-welcome__title { background: linear-gradient(135deg, #f1f5f9 40%, #34d399 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 .smgp-dark .smgp-login-title { color: #f1f5f9; }
 .smgp-dark .smgp-welcome__tagline,
-.smgp-dark .smgp-welcome__hero-subtitle,
 .smgp-dark .smgp-login-subtitle,
 .smgp-dark .smgp-welcome__footer { color: #94a3b8; }
-.smgp-dark .smgp-welcome__feature { background: #1e293b; border-color: rgba(255,255,255,0.08); }
+.smgp-dark .smgp-welcome__feature { background: rgba(var(--fc),0.1); border-color: rgba(var(--fc),0.18); }
 .smgp-dark .smgp-welcome__feature h3 { color: #e2e8f0; }
 .smgp-dark .smgp-welcome__feature p { color: #94a3b8; }
-.smgp-dark .smgp-welcome__feature-icon { background: #334155; }
-.smgp-dark .smgp-welcome__feature-icon [class^="icon-"] { color: #e2e8f0; }
-.smgp-dark .smgp-welcome__btn--signin { background-color: #e2e8f0; border-color: #e2e8f0; color: #0f172a; }
-.smgp-dark .smgp-welcome__btn--signin:hover { background-color: #fff; color: #000; }
-.smgp-dark .smgp-welcome__btn--verify { border-color: rgba(255,255,255,0.15); color: #e2e8f0; }
-.smgp-dark .smgp-welcome__btn--verify:hover { border-color: #e2e8f0; background: rgba(255,255,255,0.05); color: #f1f5f9; }
+.smgp-dark .smgp-welcome__feature:hover { box-shadow: 0 6px 20px rgba(var(--fc),0.25); }
+.smgp-dark .smgp-welcome__feature-icon { background: rgba(var(--fc),0.2); }
+.smgp-dark .smgp-welcome__orb--1 { background: rgba(16,185,129,0.12); }
+.smgp-dark .smgp-welcome__orb--2 { background: rgba(16,185,129,0.08); }
+.smgp-dark .smgp-welcome__orb--3 { background: rgba(16,185,129,0.06); }
+.smgp-dark .smgp-welcome__btn--signin { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #fff; }
+.smgp-dark .smgp-welcome__btn--verify { color: #94a3b8; }
+.smgp-dark .smgp-welcome__btn--verify:hover { color: #34d399; }
 
 /* Cards (login + verify) */
 .smgp-dark .smgp-login-card { background: #1e293b; box-shadow: 0 4px 24px rgba(0,0,0,0.4); }

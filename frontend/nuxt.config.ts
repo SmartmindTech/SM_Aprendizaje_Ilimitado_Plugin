@@ -126,6 +126,14 @@ export default defineNuxtConfig({
           target: process.env.MOODLE_URL || 'http://localhost:8080',
           changeOrigin: true,
         },
+        '/local': {
+          target: process.env.MOODLE_URL || 'http://localhost:8080',
+          changeOrigin: true,
+        },
+        '/theme': {
+          target: process.env.MOODLE_URL || 'http://localhost:8080',
+          changeOrigin: true,
+        },
       },
     },
   },

@@ -62,6 +62,10 @@ Get-ChildItem $themeDir -Exclude ".git", ".idea", "dump.html" | ForEach-Object {
     docker cp "$($_.FullName)" "${DOCKER_CONTAINER}:${MR}/theme/smartmind/"
 }
 
+# --- Fix ownership (docker cp leaves files owned by root) ---
+Write-Host "Fixing file ownership..."
+docker exec $DOCKER_CONTAINER chown -R www-data:www-data "$MR/local/sm_graphics_plugin" "$MR/theme/smartmind"
+
 # --- Deploy lang overrides + purge caches ---
 Write-Host "Deploying lang overrides and purging caches..."
 docker exec $DOCKER_CONTAINER php -r "define('CLI_SCRIPT',true); require('/var/www/html/config.php'); require_once('/var/www/html/local/sm_graphics_plugin/db/install.php'); local_sm_graphics_plugin_deploy_lang_overrides(); purge_all_caches();"

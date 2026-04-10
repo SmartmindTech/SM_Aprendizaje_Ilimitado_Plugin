@@ -3,11 +3,17 @@
 </template>
 
 <script setup lang="ts">
-// Root route is just a redirect to the dashboard. We use a route middleware so
-// the redirect happens BEFORE the page component mounts — using `await
-// navigateTo()` inside <script setup> made the setup async, which suspends the
-// whole app render and leaves a blank gray screen.
+// Root route — redirect based on auth state.
+// Uses a route middleware so the redirect happens BEFORE the component mounts
+// (avoids the blank gray screen caused by async setup).
 definePageMeta({
-  middleware: [() => navigateTo('/dashboard', { replace: true })],
+  middleware: [() => {
+    const auth = useAuthStore()
+    if (!auth.initialized) auth.init()
+    if (auth.isAuthenticated) {
+      return navigateTo('/dashboard', { replace: true })
+    }
+    return navigateTo('/login', { replace: true })
+  }],
 })
 </script>
