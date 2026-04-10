@@ -39,15 +39,23 @@
               <span class="smgp-profile-missions__mission-text">{{ m.name }}</span>
               <span class="smgp-profile-missions__mission-reward">+{{ m.xp_reward }} XP</span>
             </div>
+            <div class="smgp-profile-missions__mission-sub-row">
+              <p
+                v-if="m.description"
+                class="smgp-profile-missions__mission-desc"
+              >
+                {{ m.description }}
+              </p>
+              <span class="smgp-profile-missions__mission-progress">
+                {{ m.progress }} / {{ m.target }}
+              </span>
+            </div>
             <div class="smgp-profile-missions__mission-bar">
               <div
                 class="smgp-profile-missions__mission-fill"
                 :class="{ 'is-full': m.progress >= m.target }"
                 :style="{ width: m.progress_pct + '%' }"
               />
-            </div>
-            <div class="smgp-profile-missions__mission-progress">
-              {{ m.progress }} / {{ m.target }}
             </div>
           </div>
         </div>
@@ -156,6 +164,7 @@ async function onClaim(code: string) {
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   padding: 1.25rem 1.5rem;
+  height: auto;
 
   &__head {
     display: flex;
@@ -197,12 +206,12 @@ async function onClaim(code: string) {
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.55rem;
   }
   &__mission {
     border: 1px solid #f1f5f9;
     border-radius: 10px;
-    padding: 0.75rem 0.9rem;
+    padding: 0.55rem 0.75rem;
     background: #f8fafc;
     transition: background 0.2s, border-color 0.2s;
 
@@ -218,19 +227,19 @@ async function onClaim(code: string) {
   }
   &__mission-row {
     display: flex;
-    gap: 0.75rem;
+    gap: 0.65rem;
     align-items: flex-start;
   }
   &__mission-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 9px;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
     background: #d1fae5;
     color: #059669;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1rem;
+    font-size: 0.9rem;
     flex-shrink: 0;
   }
   &__mission-body {
@@ -241,7 +250,7 @@ async function onClaim(code: string) {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.15rem;
   }
   &__mission-text {
     font-size: 0.85rem;
@@ -254,12 +263,34 @@ async function onClaim(code: string) {
     color: #059669;
     font-weight: 700;
   }
+  // Description on the left, progress counter on the right — both share
+  // a single row so the card stays compact.
+  &__mission-sub-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.3rem;
+  }
+  &__mission-desc {
+    margin: 0;
+    font-size: 0.72rem;
+    color: #64748b;
+    line-height: 1.3;
+    flex: 1;
+    min-width: 0;
+  }
+  &__mission-progress {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
   &__mission-bar {
-    height: 6px;
+    height: 5px;
     background: #e2e8f0;
     border-radius: 999px;
     overflow: hidden;
-    margin-bottom: 0.3rem;
   }
   &__mission-fill {
     height: 100%;
@@ -271,30 +302,25 @@ async function onClaim(code: string) {
       background: linear-gradient(90deg, #10b981, #34d399);
     }
   }
-  &__mission-progress {
-    text-align: right;
-    font-size: 0.7rem;
-    color: #94a3b8;
-  }
   &__mission-action {
-    margin-top: 0.65rem;
+    margin-top: 0.45rem;
     display: flex;
     justify-content: flex-end;
   }
   &__claim-btn {
     display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
+    gap: 0.3rem;
     border: none;
     background: #10b981;
     color: #fff;
     border-radius: 999px;
-    padding: 0.4rem 0.95rem;
-    font-size: 0.78rem;
+    padding: 0.3rem 0.85rem;
+    font-size: 0.75rem;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.15s;
-    min-width: 110px;
+    min-width: 100px;
     justify-content: center;
 
     &:hover:not(:disabled) {

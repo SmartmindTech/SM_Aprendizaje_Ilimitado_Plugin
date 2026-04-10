@@ -107,8 +107,12 @@ class get_completed_courses extends external_api {
             if (!$course->visible || !empty($foundids[$course->id])) {
                 continue;
             }
-            $progress = \core_completion\progress::get_course_progress_percentage($course, $userid);
-            if ($progress !== null && round($progress) >= 100) {
+            // Trackable-only progress so a course full of forum/label items
+            // doesn't drag the percentage down or up.
+            $progress = \local_sm_graphics_plugin\gamification\completion_filter::course_progress_percentage(
+                (int) $course->id, (int) $userid
+            );
+            if ($progress >= 100) {
                 $course->timecompleted = 0;
                 $completed[$course->id] = $course;
             }

@@ -75,14 +75,13 @@ class grades_certificates_renderer {
                 }
             }
 
-            // Progress — try completion tracking first, fall back to grade percentage.
-            $progress = 0;
-            $courseobj = get_course($courseid);
-            $progressval = \core_completion\progress::get_course_progress_percentage($courseobj, $userid);
-            if ($progressval !== null) {
-                $progress = round($progressval);
-            } else if ($hasgrade && $grademax > 0) {
-                // Use grade percentage as progress when completion tracking isn't enabled.
+            // Progress — trackable-only completion (forum/label excluded).
+            // Falls back to grade percentage when no activities have completion
+            // tracking enabled.
+            $progress = \local_sm_graphics_plugin\gamification\completion_filter::course_progress_percentage(
+                (int) $courseid, (int) $userid
+            );
+            if ($progress === 0 && $hasgrade && $grademax > 0) {
                 $progress = $percentage;
             }
 
@@ -223,15 +222,15 @@ class grades_certificates_renderer {
         }
 
         // 4. Fallback: check if course progress meets the custom completion percentage.
-        $courseobj = get_course($courseid);
-        $progress = \core_completion\progress::get_course_progress_percentage($courseobj, $userid);
-        if ($progress !== null) {
-            // Use our custom completion threshold (default 100%).
-            $pricing = $DB->get_record('local_smgp_course_meta', ['courseid' => $courseid]);
-            $threshold = ($pricing && isset($pricing->completion_percentage)) ? (int)$pricing->completion_percentage : 100;
-            if (round($progress) >= $threshold) {
-                return true;
-            }
+        // Uses the trackable-only helper so the threshold is evaluated against
+        // the same activities the user navigates in the player.
+        $progress = \local_sm_graphics_plugin\gamification\completion_filter::course_progress_percentage(
+            (int) $courseid, (int) $userid
+        );
+        $pricing = $DB->get_record('local_smgp_course_meta', ['courseid' => $courseid]);
+        $threshold = ($pricing && isset($pricing->completion_percentage)) ? (int) $pricing->completion_percentage : 100;
+        if ($progress >= $threshold) {
+            return true;
         }
 
         return false;

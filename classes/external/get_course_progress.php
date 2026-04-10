@@ -98,8 +98,12 @@ class get_course_progress extends external_api {
         // Collect cmids by module type for batch progress queries.
         $cmidsbytype = [];
         $cminfomap = [];
+        // Skip module types that the SmartMind player doesn't show as
+        // standalone activities — keep this list in sync with
+        // \local_sm_graphics_plugin\gamification\completion_filter::EXCLUDED_MODULES.
+        $excluded = ['forum', 'label'];
         foreach ($modinfo->get_cms() as $cminfo) {
-            if ($cminfo->modname === 'forum' || !$cminfo->uservisible) {
+            if (in_array($cminfo->modname, $excluded, true) || !$cminfo->uservisible) {
                 continue;
             }
             $cmidsbytype[$cminfo->modname][$cminfo->id] = $cminfo->instance;

@@ -237,8 +237,11 @@ class get_dashboard_data extends external_api {
 
         $base = self::build_base($course);
 
-        $progress = \core_completion\progress::get_course_progress_percentage($course, $USER->id);
-        $base['progress'] = $progress !== null ? (int) round($progress) : 0;
+        // Use our trackable-only helper so the % matches the player's
+        // activity list (forums and labels are excluded).
+        $base['progress'] = \local_sm_graphics_plugin\gamification\completion_filter::course_progress_percentage(
+            (int) $course->id, (int) $USER->id
+        );
 
         $base['lastcmid'] = (int) ($DB->get_field_sql(
             "SELECT contextinstanceid FROM {logstore_standard_log}

@@ -103,20 +103,14 @@ class course_page_renderer {
         // Build sections and activities.
         $sectionsdata = $this->build_sections($modinfo, $completion, $USER->id);
 
-        // Count totals.
-        $totalactivities = 0;
-        $completedactivities = 0;
-        foreach ($sectionsdata as $section) {
-            $totalactivities += $section['totalcount'];
-            $completedactivities += $section['completedcount'];
-        }
-
-        // Overall progress.
-        $progress = \core_completion\progress::get_course_progress_percentage(
-            (object)['id' => $course->id],
-            $USER->id
+        // Overall progress + totals — trackable-only so it matches the
+        // player's navigable activity list (forums and labels excluded).
+        $cp = \local_sm_graphics_plugin\gamification\completion_filter::course_progress(
+            (int) $course->id, (int) $USER->id
         );
-        $overallprogress = round($progress ?? 0);
+        $totalactivities     = $cp['total'];
+        $completedactivities = $cp['completed'];
+        $overallprogress     = $cp['percentage'];
 
         // Stats.
         $teacherdata = $this->get_teachers($course->id, $coursecontext);

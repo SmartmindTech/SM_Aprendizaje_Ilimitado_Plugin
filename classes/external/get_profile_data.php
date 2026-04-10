@@ -101,14 +101,21 @@ class get_profile_data extends external_api {
         // so it doubles as the "transitioned to complete" timestamp.
         // Just visiting an activity, or revisiting an already-complete one,
         // does NOT update timemodified, so it does not count here.
+        //
+        // We also filter out activity types the SmartMind player doesn't show
+        // (forum, label) via completion_filter so the gamification numbers
+        // match the player's flatActivities list.
+        $cf = \local_sm_graphics_plugin\gamification\completion_filter::build('c');
 
         // Total hours spent: sum the per-activity duration (AI-estimated when
         // available in local_smgp_activity_duration, otherwise default 5 min).
         $sql = "SELECT COALESCE(SUM(COALESCE(d.duration_minutes, 5)), 0) AS minutes
                   FROM {course_modules_completion} c
              LEFT JOIN {local_smgp_activity_duration} d ON d.cmid = c.coursemoduleid
-                 WHERE c.userid = :uid AND c.completionstate >= 1";
-        $totalminutes = (int) $DB->get_field_sql($sql, ['uid' => $userid]);
+                  {$cf['join']}
+                 WHERE c.userid = :uid AND c.completionstate >= 1
+                   AND {$cf['where']}";
+        $totalminutes = (int) $DB->get_field_sql($sql, ['uid' => $userid] + $cf['params']);
         $totalhours = (int) round($totalminutes / 60);
 
         // Weekly activity: count completions whose timemodified falls in each
@@ -125,11 +132,15 @@ class get_profile_data extends external_api {
             $daystart = (clone $date)->setTime(0, 0, 0)->getTimestamp();
             $dayend = (clone $date)->setTime(23, 59, 59)->getTimestamp();
 
-            $count = (int) $DB->count_records_select(
-                'course_modules_completion',
-                'userid = :uid AND completionstate >= 1
-                 AND timemodified BETWEEN :start AND :end',
-                ['uid' => $userid, 'start' => $daystart, 'end' => $dayend]
+            $countsql = "SELECT COUNT(c.id)
+                           FROM {course_modules_completion} c
+                           {$cf['join']}
+                          WHERE c.userid = :uid AND c.completionstate >= 1
+                            AND c.timemodified BETWEEN :start AND :end
+                            AND {$cf['where']}";
+            $count = (int) $DB->count_records_sql(
+                $countsql,
+                ['uid' => $userid, 'start' => $daystart, 'end' => $dayend] + $cf['params']
             );
 
             $weekactivity[] = [
@@ -155,14 +166,18 @@ class get_profile_data extends external_api {
         // The streak is alive until midnight tonight, so a user that has not
         // completed anything *yet today* but did yesterday still sees their
         // count. Capped at 365 days backwards.
-        $hascompletionon = function (\DateTime $d) use ($DB, $userid): bool {
+        $hascompletionon = function (\DateTime $d) use ($DB, $userid, $cf): bool {
             $daystart = (clone $d)->setTime(0, 0, 0)->getTimestamp();
             $dayend   = (clone $d)->setTime(23, 59, 59)->getTimestamp();
-            return $DB->record_exists_select(
-                'course_modules_completion',
-                'userid = :uid AND completionstate >= 1
-                 AND timemodified BETWEEN :start AND :end',
-                ['uid' => $userid, 'start' => $daystart, 'end' => $dayend]
+            $existssql = "SELECT 1
+                            FROM {course_modules_completion} c
+                            {$cf['join']}
+                           WHERE c.userid = :uid AND c.completionstate >= 1
+                             AND c.timemodified BETWEEN :start AND :end
+                             AND {$cf['where']}";
+            return $DB->record_exists_sql(
+                $existssql,
+                ['uid' => $userid, 'start' => $daystart, 'end' => $dayend] + $cf['params']
             );
         };
         $checkdate = clone $today;

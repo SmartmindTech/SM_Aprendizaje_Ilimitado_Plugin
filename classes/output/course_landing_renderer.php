@@ -226,13 +226,13 @@ class course_landing_renderer {
         $enrolledrealuser = is_enrolled($coursecontext, $USER->id, '', true);
 
         if ($enrolledrealuser) {
-            // Progress percentage.
-            $progressval = \core_completion\progress::get_course_progress_percentage($course, $USER->id);
-            if ($progressval !== null) {
-                $progress = round($progressval);
-                if ($progress > 0) {
-                    $hasstarted = true;
-                }
+            // Progress percentage — trackable-only (forum/label excluded) so
+            // it matches the activity counts the user sees in the player.
+            $progress = \local_sm_graphics_plugin\gamification\completion_filter::course_progress_percentage(
+                (int) $course->id, (int) $USER->id
+            );
+            if ($progress > 0) {
+                $hasstarted = true;
             }
 
             // Check if user has viewed any activity SINCE their current enrolment.
@@ -316,15 +316,18 @@ class course_landing_renderer {
         // Build sections with completion + duration data (needs $enrolledrealuser and $lastviewedcmid).
         $sections = $this->build_sections($modinfo, $enrolledrealuser, $lastviewedcmid);
 
-        // Count total activities, completed, durations, and build content type breakdown.
-        $totalactivities = 0;
-        $totalcompleted = 0;
+        // Trackable-only totals (single source of truth for the hero stats).
+        $cp = \local_sm_graphics_plugin\gamification\completion_filter::course_progress(
+            (int) $course->id, (int) $USER->id
+        );
+        $totalactivities = $cp['total'];
+        $totalcompleted  = $cp['completed'];
+
+        // Durations and content type breakdown still come from sections.
         $totaldurationmin = 0;
         $remainingdurationmin = 0;
         $typecounts = [];
         foreach ($sections as $section) {
-            $totalactivities += $section['activity_count'];
-            $totalcompleted += $section['completed_count'];
             foreach ($section['activities'] as $act) {
                 $label = $act['modtypelabel'];
                 if (!isset($typecounts[$label])) {
@@ -435,7 +438,8 @@ class course_landing_renderer {
             if (!empty($modinfo->sections[$sectionnum])) {
                 foreach ($modinfo->sections[$sectionnum] as $cmid) {
                     $mod = $modinfo->cms[$cmid];
-                    if (!$mod->uservisible || $mod->modname === 'label') {
+                    if (!$mod->uservisible || in_array($mod->modname,
+                            \local_sm_graphics_plugin\gamification\completion_filter::EXCLUDED_MODULES, true)) {
                         continue;
                     }
 

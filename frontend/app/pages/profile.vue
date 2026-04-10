@@ -150,6 +150,7 @@ function setTab(key: TabKey) {
   margin: 2rem auto;
   padding: 0 1rem;
   max-width: 1200px;
+  height: auto;
 
   &__row {
     display: grid;

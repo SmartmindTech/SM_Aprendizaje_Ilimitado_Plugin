@@ -252,11 +252,19 @@ class achievement_service {
         // required, and a missing class would lock users out. We query the
         // raw tables directly so we depend on nothing but $DB.
 
-        // Activities completed.
-        $activitiescompleted = (int) $DB->count_records_select(
-            'course_modules_completion',
-            'userid = :uid AND completionstate >= 1',
-            ['uid' => $userid]
+        // Filter out activity types the SmartMind player doesn't show (forum,
+        // label) so the metrics match what the user actually does in the player.
+        $cf = completion_filter::build('cmc');
+
+        // Activities completed (trackable types only).
+        $countsql = "SELECT COUNT(cmc.id)
+                       FROM {course_modules_completion} cmc
+                       {$cf['join']}
+                      WHERE cmc.userid = :uid AND cmc.completionstate >= 1
+                        AND {$cf['where']}";
+        $activitiescompleted = (int) $DB->count_records_sql(
+            $countsql,
+            ['uid' => $userid] + $cf['params']
         );
 
         // Courses completed: read straight from {course_completions}.
@@ -273,13 +281,15 @@ class achievement_service {
         $streak = self::compute_streak($userid);
 
         // Total hours: sum AI-estimated durations (or default 5 min) for all
-        // completed activities. Same source as get_profile_data so the value
-        // shown to the user matches the value gating the achievement.
-        $sql = "SELECT COALESCE(SUM(COALESCE(d.duration_minutes, 5)), 0) AS minutes
-                  FROM {course_modules_completion} c
-             LEFT JOIN {local_smgp_activity_duration} d ON d.cmid = c.coursemoduleid
-                 WHERE c.userid = :uid AND c.completionstate >= 1";
-        $totalminutes = (int) $DB->get_field_sql($sql, ['uid' => $userid]);
+        // completed trackable activities. Same source as get_profile_data so
+        // the value shown to the user matches the value gating the achievement.
+        $hourssql = "SELECT COALESCE(SUM(COALESCE(d.duration_minutes, 5)), 0) AS minutes
+                       FROM {course_modules_completion} cmc
+                  LEFT JOIN {local_smgp_activity_duration} d ON d.cmid = cmc.coursemoduleid
+                       {$cf['join']}
+                      WHERE cmc.userid = :uid AND cmc.completionstate >= 1
+                        AND {$cf['where']}";
+        $totalminutes = (int) $DB->get_field_sql($hourssql, ['uid' => $userid] + $cf['params']);
         $totalhours = (int) round($totalminutes / 60);
 
         // Total XP.
@@ -305,14 +315,19 @@ class achievement_service {
     private static function compute_streak(int $userid): int {
         global $DB;
 
-        $hascompletionon = function (\DateTime $d) use ($DB, $userid): bool {
+        $cf = completion_filter::build('cmc');
+        $hascompletionon = function (\DateTime $d) use ($DB, $userid, $cf): bool {
             $daystart = (clone $d)->setTime(0, 0, 0)->getTimestamp();
             $dayend   = (clone $d)->setTime(23, 59, 59)->getTimestamp();
-            return $DB->record_exists_select(
-                'course_modules_completion',
-                'userid = :uid AND completionstate >= 1
-                 AND timemodified BETWEEN :start AND :end',
-                ['uid' => $userid, 'start' => $daystart, 'end' => $dayend]
+            $sql = "SELECT 1
+                      FROM {course_modules_completion} cmc
+                      {$cf['join']}
+                     WHERE cmc.userid = :uid AND cmc.completionstate >= 1
+                       AND cmc.timemodified BETWEEN :start AND :end
+                       AND {$cf['where']}";
+            return $DB->record_exists_sql(
+                $sql,
+                ['uid' => $userid, 'start' => $daystart, 'end' => $dayend] + $cf['params']
             );
         };
 

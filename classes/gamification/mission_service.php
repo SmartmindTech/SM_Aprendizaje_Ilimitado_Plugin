@@ -192,16 +192,28 @@ class mission_service {
     public static function compute_progress(int $userid, string $condition): int {
         global $DB;
 
+        // Shared filter that excludes module types not shown in the player
+        // (forum, label) so mission progress matches what the user actually
+        // does on screen.
+        $cf = completion_filter::build('cmc');
+        $countTrackable = function (int $start, int $end) use ($DB, $userid, $cf): int {
+            $sql = "SELECT COUNT(cmc.id)
+                      FROM {course_modules_completion} cmc
+                      {$cf['join']}
+                     WHERE cmc.userid = :uid AND cmc.completionstate >= 1
+                       AND cmc.timemodified BETWEEN :start AND :end
+                       AND {$cf['where']}";
+            return (int) $DB->count_records_sql(
+                $sql,
+                ['uid' => $userid, 'start' => $start, 'end' => $end] + $cf['params']
+            );
+        };
+
         switch ($condition) {
             case self::COND_ACTIVITIES_TODAY: {
                 $start = self::today_epoch();
                 $end = $start + DAYSECS - 1;
-                return (int) $DB->count_records_select(
-                    'course_modules_completion',
-                    'userid = :uid AND completionstate >= 1
-                     AND timemodified BETWEEN :start AND :end',
-                    ['uid' => $userid, 'start' => $start, 'end' => $end]
-                );
+                return $countTrackable($start, $end);
             }
 
             case self::COND_LOGIN_TODAY: {
@@ -216,12 +228,7 @@ class mission_service {
             case self::COND_ACTIVITIES_WEEK: {
                 $start = self::week_monday_epoch();
                 $end = $start + (7 * DAYSECS) - 1;
-                return (int) $DB->count_records_select(
-                    'course_modules_completion',
-                    'userid = :uid AND completionstate >= 1
-                     AND timemodified BETWEEN :start AND :end',
-                    ['uid' => $userid, 'start' => $start, 'end' => $end]
-                );
+                return $countTrackable($start, $end);
             }
 
             case self::COND_LOGIN_STREAK: {

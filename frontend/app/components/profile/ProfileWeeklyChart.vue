@@ -95,7 +95,7 @@ const chartOptions = computed(() => ({
         padding: 8,
       },
       border: { display: false },
-      grace: '10%'
+      grace: '5%'
     },
   },
 }))
