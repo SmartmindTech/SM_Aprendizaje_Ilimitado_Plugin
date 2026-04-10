@@ -104,9 +104,10 @@
 
 <script setup lang="ts">
 import type { InlineData, ActivityRender } from '~/types/coursePlayer'
+import { useCourseStore } from '~/stores/course'
 
 const route = useRoute()
-const { getCoursePageData } = useCourseApi()
+const courseStore = useCourseStore()
 const { call } = useMoodleAjax()
 
 const loading = ref(true)
@@ -181,12 +182,12 @@ const navigateActivity = (delta: number) => {
   }
 }
 
-getCoursePageData(courseid.value).then((result) => {
+courseStore.fetchPlayer(courseid.value).then(() => {
   loading.value = false
-  if (result.error) {
-    error.value = result.error
+  if (courseStore.playerError) {
+    error.value = courseStore.playerError
   } else {
-    data.value = result.data
+    data.value = courseStore.getPlayerData(courseid.value)
     if (flatActivities.value.length > 0) {
       selectActivity(flatActivities.value[0])
     }

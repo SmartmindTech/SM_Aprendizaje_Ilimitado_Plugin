@@ -16,6 +16,8 @@
         :data-key="item.key"
         class="smgp-topnav__item"
         :class="{ 'smgp-topnav__item--active': isActive(item) }"
+        @mouseenter="prefetch(item)"
+        @focusin="prefetch(item)"
       >
         <span class="smartmind-nav-icon" aria-hidden="true">
           <i class="fa fa-fw" />
@@ -36,6 +38,9 @@ import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import logoUrl from '~/assets/img/smartmind_logo.png'
+import { useDashboardStore } from '~/stores/dashboard'
+import { useCatalogueStore } from '~/stores/catalogue'
+import { useProfileStore } from '~/stores/profile'
 
 interface NavItem {
   key: string
@@ -85,5 +90,12 @@ const navItems = computed<NavItem[]>(() => {
 
 function isActive(item: NavItem) {
   return item.matches.some(p => route.path === p || route.path.startsWith(p + '/'))
+}
+
+/** Prefetch store data on hover/focus so the page loads instantly. */
+function prefetch(item: NavItem) {
+  if (item.to === '/dashboard')  useDashboardStore().fetch()
+  if (item.to === '/catalogue')  useCatalogueStore().fetch()
+  if (item.to === '/profile')    useProfileStore().fetchProfile()
 }
 </script>

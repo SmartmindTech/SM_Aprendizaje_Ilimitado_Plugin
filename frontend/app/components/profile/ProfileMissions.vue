@@ -113,7 +113,9 @@ const emit = defineEmits<{
   (e: 'claimed', payload: ClaimMissionResult): void
 }>()
 
-const { claimMission } = useProfileApi()
+import { useProfileStore } from '~/stores/profile'
+
+const profileStore = useProfileStore()
 
 const missionsTab = ref<'daily' | 'weekly'>('daily')
 const claimingCode = ref<string | null>(null)
@@ -139,19 +141,15 @@ async function onClaim(code: string) {
   if (claimingCode.value) return
   claimingCode.value = code
   try {
-    const result = await claimMission(code)
-    if (result.error) {
-      // Surface so it's debuggable; the most likely cause is that the
-      // new external function hasn't been registered yet (Moodle requires
-      // an admin upgrade after services.php changes).
-      console.error('[smgp] claimMission failed:', result.error)
+    const claim = await profileStore.claimMission(code)
+    if (!claim) {
+      console.error('[smgp] claimMission failed')
       return
     }
-    const payload = result.data as ClaimMissionResult
-    if (!payload.success) {
-      console.warn('[smgp] claim rejected:', payload.reason)
+    if (!claim.success) {
+      console.warn('[smgp] claim rejected:', claim.reason)
     }
-    emit('claimed', payload)
+    emit('claimed', claim)
   } finally {
     claimingCode.value = null
   }

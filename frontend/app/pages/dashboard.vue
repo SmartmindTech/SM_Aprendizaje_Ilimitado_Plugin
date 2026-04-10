@@ -310,20 +310,27 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
-import type { DashboardCourse, CategorySection, DashboardData } from '~/types/dashboard'
+import type { CategorySection } from '~/types/dashboard'
+import { useDashboardStore } from '~/stores/dashboard'
 
 const authStore = useAuthStore()
-const { getDashboard } = useDashboardApi()
+const dashboardStore = useDashboardStore()
 const { t } = useI18n()
 
-const loading = ref(true)
-const error = ref<string | null>(null)
-const data = ref<DashboardData | null>(null)
+// ── Store state ──
+const {
+  loading, error,
+  enrolledCourses, recommendedCourses, recommendedForYou,
+  newsCourses, recentlyViewed, allCategories,
+  streakDays, xpPoints, userLevel,
+} = storeToRefs(dashboardStore)
 
-// Template refs for the quick-nav scroll targets. The Cursos chip
-// scrolls the Seguir aprendiendo section to the top of the viewport;
-// the Píldoras chip does the same for the Píldoras section.
+// Fetch from cache or API (no-op if cache is still valid).
+dashboardStore.fetch()
+
+// Template refs for the quick-nav scroll targets.
 const enrolledRef = ref<HTMLElement | null>(null)
 const pildorasRef = ref<HTMLElement | null>(null)
 
@@ -331,8 +338,7 @@ const scrollToSection = (target: HTMLElement | null) => {
   target?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 
-// Greeting derived from current time so we don't depend on a server-side
-// `greeting` field.
+// Greeting derived from current time.
 const greeting = computed(() => {
   const h = new Date().getHours()
   const name = authStore.fullname?.split(' ')[0] || ''
@@ -341,29 +347,17 @@ const greeting = computed(() => {
   return t('dashboard.greetingEvening', { name })
 })
 
-// Streak / XP / level fall back to placeholder values until the
-// composable returns them.
-const streakDays = computed(() => data.value?.streakdays ?? 0)
-const xpPoints   = computed(() => data.value?.xppoints ?? 0)
-const userLevel  = computed(() => data.value?.userlevel ?? 1)
-
 const streakMessage = computed(() =>
   streakDays.value > 0
     ? t('dashboard.streakActive', { days: streakDays.value })
     : t('dashboard.streakStart')
 )
 
-const enrolledCourses    = computed<DashboardCourse[]>(() => data.value?.courses             ?? [])
-const recommendedCourses = computed<DashboardCourse[]>(() => data.value?.recommended         ?? [])
-const recommendedForYou  = computed<DashboardCourse[]>(() => data.value?.recommended_for_you ?? [])
-const newsCourses        = computed<DashboardCourse[]>(() => data.value?.news                ?? [])
-const recentlyViewed     = computed<DashboardCourse[]>(() => data.value?.recently_viewed     ?? [])
-
 // The backend may return up to 6 píldora categories — pick 3 at random,
 // mirroring the original PHP `array_rand` behaviour in the mustache version.
 // Fisher–Yates shuffle on a copy so we don't mutate the source array.
 const categorySections = computed<CategorySection[]>(() => {
-  const all = data.value?.categories ?? []
+  const all = allCategories.value
   if (all.length <= 3) return all
   const idx = [...all.keys()]
   for (let i = idx.length - 1; i > 0; i--) {
@@ -371,17 +365,5 @@ const categorySections = computed<CategorySection[]>(() => {
     ;[idx[i], idx[j]] = [idx[j]!, idx[i]!]
   }
   return idx.slice(0, 3).map(i => all[i]!)
-})
-
-// Single bulk fetch — get_dashboard_data now consolidates enrolled,
-// finished, categories, recommended, recommended_for_you, news and
-// recently_viewed in one round-trip so the page hydrates with one call.
-getDashboard().then((result) => {
-  loading.value = false
-  if (result.error) {
-    error.value = result.error
-  } else {
-    data.value = result.data as DashboardData
-  }
 })
 </script>

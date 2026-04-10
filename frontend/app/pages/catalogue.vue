@@ -115,14 +115,20 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
+import { useCatalogueStore } from '~/stores/catalogue'
+import type { CatalogueCourse } from '~/types/catalogue'
 
-const { getCatalogue } = useCourseApi()
+const catalogueStore = useCatalogueStore()
 const { t } = useI18n()
 
-const loading = ref(true)
-const error = ref<string | null>(null)
-const data = ref<any>(null)
+const { loading, error, data, courses } = storeToRefs(catalogueStore)
+
+// Fetch from cache or API.
+catalogueStore.fetch()
+
+// ── Local filter state ──
 const selectedCategory = ref(0)
 const selectedType = ref('all')
 const searchTerm = ref('')
@@ -137,23 +143,13 @@ const typeFilters = computed(() => [
   { id: 'microcredencial', label: 'Microcredencial',            icon: '🏅' },
 ])
 
-const visibleCourses = computed(() => {
-  const courses = data.value?.courses ?? []
+const visibleCourses = computed<CatalogueCourse[]>(() => {
+  const all = courses.value
   const term = searchTerm.value.trim().toLowerCase()
-  return courses.filter((c: any) => {
+  return all.filter((c) => {
     if (selectedCategory.value !== 0 && c.categoryid !== selectedCategory.value) return false
-    if (term && !(c.fullname?.toLowerCase().includes(term))) return false
-    if (selectedType.value !== 'all' && c.type && c.type !== selectedType.value) return false
+    if (term && !c.fullname.toLowerCase().includes(term)) return false
     return true
   })
 })
-
-const fetchData = async () => {
-  loading.value = true
-  const result = await getCatalogue(0)
-  loading.value = false
-  if (result.error) { error.value = result.error } else { data.value = result.data }
-}
-
-fetchData()
 </script>

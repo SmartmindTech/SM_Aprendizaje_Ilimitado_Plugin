@@ -60,8 +60,9 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useProfileApi } from '~/composables/api_calls/useProfileApi'
-import type { ProfileData, ClaimMissionResult } from '~/types/profile'
+import { storeToRefs } from 'pinia'
+import type { ClaimMissionResult } from '~/types/profile'
+import { useProfileStore } from '~/stores/profile'
 
 import ProfileHeader from '~/components/profile/ProfileHeader.vue'
 import ProfileStats from '~/components/profile/ProfileStats.vue'
@@ -76,52 +77,24 @@ definePageMeta({ middleware: ['auth'] })
 const route = useRoute()
 const router = useRouter()
 const { t } = useI18n()
-const { getProfileData } = useProfileApi()
 
-// ── Profile data state ──
-const loading = ref(true)
-const error = ref<string | null>(null)
-const data = ref<ProfileData | null>(null)
+const profileStore = useProfileStore()
+const {
+  profileLoading: loading,
+  profileError: error,
+  profileData: data,
+} = storeToRefs(profileStore)
 
-async function fetchAll() {
-  loading.value = true
-  error.value = null
-  const result = await getProfileData()
-  loading.value = false
-  if (result.error) {
-    error.value = result.error
-    return
-  }
-  data.value = result.data as ProfileData
-}
-
-fetchAll()
+// Fetch from cache or API.
+profileStore.fetchProfile()
 
 /**
- * Triggered after a successful mission claim. We patch the in-memory
- * profile snapshot so the header XP bar / level ring animate to the new
- * value (CSS transitions on width / stroke-dashoffset already handle the
- * tween) and the claimed mission flips to the "claimed" state without
- * needing a full refetch.
+ * Triggered after a successful mission claim. The store patches
+ * XP/level in-memory so the UI animates without a full refetch.
  */
-function onMissionClaimed(result: ClaimMissionResult) {
-  if (!data.value || !result.success) return
-
-  data.value.xp_total           = result.xp_total
-  data.value.level              = result.level
-  data.value.xp_into_level      = result.xp_into_level
-  data.value.xp_for_next        = result.xp_for_next
-  data.value.xp_to_next         = result.xp_to_next
-  data.value.level_progress_pct = result.level_progress_pct
-
-  const flip = (m: ProfileData['daily_missions'][number]) => {
-    if (m.code === result.mission_code) {
-      m.claimed = true
-      m.claimable = false
-    }
-  }
-  data.value.daily_missions.forEach(flip)
-  data.value.weekly_missions.forEach(flip)
+async function onMissionClaimed(result: ClaimMissionResult) {
+  // The store handles the in-memory patch via claimMission().
+  // This handler receives the result already applied by ProfileMissions.
 }
 
 // ── Tabs ──

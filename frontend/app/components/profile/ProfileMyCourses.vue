@@ -75,11 +75,18 @@
 </template>
 
 <script setup lang="ts">
-const { getMyCourses } = useCourseApi()
+import { storeToRefs } from 'pinia'
+import { useProfileStore } from '~/stores/profile'
 
-const loading = ref(true)
-const error = ref<string | null>(null)
-const data = ref<any>(null)
+const profileStore = useProfileStore()
+const {
+  myCoursesLoading: loading,
+  myCoursesError: error,
+  myCoursesData: data,
+} = storeToRefs(profileStore)
+
+profileStore.fetchMyCourses()
+
 const filter = ref<'inprogress' | 'completed' | 'all'>('inprogress')
 
 const filteredCourses = computed(() => {
@@ -89,10 +96,5 @@ const filteredCourses = computed(() => {
   if (filter.value === 'inprogress') return enrolled
   if (filter.value === 'completed') return completed
   return [...enrolled, ...completed]
-})
-
-getMyCourses().then((result) => {
-  loading.value = false
-  if (result.error) { error.value = result.error } else { data.value = result.data }
 })
 </script>

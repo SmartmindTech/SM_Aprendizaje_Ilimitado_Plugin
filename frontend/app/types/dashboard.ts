@@ -15,11 +15,6 @@ export interface DashboardCourse {
   progress: number
   lastcmid: number
   lastaccess: number
-  timecompleted: number
-  timecompleted_text: string
-  grade: string
-  grademax: string
-  hasgrade: boolean
 }
 
 export interface CategorySection {
@@ -38,19 +33,8 @@ export interface DashboardData {
   recommended_for_you: DashboardCourse[]
   news: DashboardCourse[]
   recently_viewed: DashboardCourse[]
-  hascourses: boolean
-  hasfinished: boolean
-  hascategories: boolean
-  hasrecommended: boolean
-  hasrecommendedforyou: boolean
-  hasnews: boolean
-  hasrecentlyviewed: boolean
-  username: string
   enrolled_count: number
   completed_count: number
-  training_hours: number
-  certificates: number
-  // Optional gamification fields the backend may add later.
   streakdays?: number
   xppoints?: number
   userlevel?: number

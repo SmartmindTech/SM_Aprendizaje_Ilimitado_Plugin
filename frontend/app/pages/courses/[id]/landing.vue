@@ -291,10 +291,15 @@ import AddActivityPicker from '~/components/course/AddActivityPicker.vue'
 import AddActivityModal from '~/components/course/AddActivityModal.vue'
 import DeleteActivityModal from '~/components/course/DeleteActivityModal.vue'
 import type { ActivityType } from '~/components/course/activityTypes'
+import { useCourseStore } from '~/stores/course'
+import { useDashboardStore } from '~/stores/dashboard'
+import { useCatalogueStore } from '~/stores/catalogue'
+import { useProfileStore } from '~/stores/profile'
 
 const route = useRoute()
 const authStore = useAuthStore()
-const { getCourseLandingData, enrolUser, unenrolUser, addActivity, deleteActivity } = useCourseApi()
+const courseStore = useCourseStore()
+const { enrolUser, unenrolUser, addActivity, deleteActivity } = useCourseApi()
 
 const loading = ref(true)
 const error = ref<string | null>(null)
@@ -344,7 +349,11 @@ const enrol = async () => {
   if (result.error) {
     error.value = result.error
   } else {
-    await fetchData()
+    // Invalidate sibling stores affected by enrolment change.
+    useDashboardStore().invalidate()
+    useCatalogueStore().invalidate()
+    useProfileStore().invalidateMyCourses()
+    await fetchData(true)
   }
 }
 
@@ -356,7 +365,11 @@ const handleUnenrol = async () => {
   if (result.error) {
     error.value = result.error
   } else {
-    await fetchData()
+    // Invalidate sibling stores affected by unenrolment.
+    useDashboardStore().invalidate()
+    useCatalogueStore().invalidate()
+    useProfileStore().invalidateMyCourses()
+    await fetchData(true)
   }
 }
 
@@ -426,7 +439,8 @@ const onAddSave = async ({ name, url }: { name: string; url: string }) => {
     return
   }
   addModalState.value.open = false
-  await fetchData()
+  courseStore.invalidatePlayer(courseid.value)
+  await fetchData(true)
 }
 
 // User chose "Subir archivo" → drop them on Moodle's standard resource
@@ -445,24 +459,25 @@ const onDeleteConfirm = async () => {
     return
   }
   deleteState.value = null
-  await fetchData()
+  courseStore.invalidatePlayer(courseid.value)
+  await fetchData(true)
 }
 
-const fetchData = async () => {
+const fetchData = async (force = false) => {
   // First fetch shows the spinner; subsequent refetches (after add /
   // delete) keep the page mounted so the user doesn't lose context.
   const isFirstFetch = data.value === null
   if (isFirstFetch) loading.value = true
 
-  const result = await getCourseLandingData(courseid.value)
+  await courseStore.fetchLanding(courseid.value, { force })
   loading.value = false
 
-  if (result.error) {
-    error.value = result.error
+  if (courseStore.landingError) {
+    error.value = courseStore.landingError
     return
   }
 
-  data.value = result.data
+  data.value = courseStore.getLandingData(courseid.value)
   if (!data.value?.sections) return
 
   // Expand all sections on the very first fetch only — on subsequent
