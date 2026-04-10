@@ -1,95 +1,99 @@
 <template>
   <div class="smgp-profile-header">
-    <!-- Info button (top-right) -->
-    <button
-      ref="infoBtnEl"
-      type="button"
-      class="smgp-profile-header__info-btn"
-      :class="{ 'is-active': infoOpen }"
-      :aria-label="$t('profile.info_button_aria')"
-      :aria-expanded="infoOpen"
-      @click="infoOpen = !infoOpen"
-    >
-      <i class="icon-info" />
-    </button>
+    <!-- Top row: Avatar + Identity -->
+    <div class="smgp-profile-header__top">
+      <div class="smgp-profile-header__avatar-wrap">
+        <img :src="data.avatarurl" :alt="data.fullname" class="smgp-profile-header__avatar">
+      </div>
+      <div class="smgp-profile-header__identity">
+        <h1 class="smgp-profile-header__name">{{ data.fullname }}</h1>
+        <p v-if="data.has_department" class="smgp-profile-header__department">{{ data.department }}</p>
+        <p class="smgp-profile-header__meta">
+          {{ data.course_count }} {{ $t('profile.enrolled_courses') }}
+          <span class="smgp-profile-header__sep">&middot;</span>
+          {{ data.completed_count }} {{ $t('profile.completed_courses') }}
+        </p>
+      </div>
 
-    <!-- Info dropdown -->
-    <transition name="smgp-info-fade">
-      <div v-if="infoOpen" ref="infoPanelEl" class="smgp-profile-header__info-panel" role="dialog">
-        <div class="smgp-profile-header__info-head">
-          <h4 class="smgp-profile-header__info-title">{{ $t('profile.info_title') }}</h4>
-          <button
-            type="button"
-            class="smgp-profile-header__info-close"
-            :aria-label="$t('profile.info_close')"
-            @click="infoOpen = false"
-          >
-            <i class="icon-x" />
-          </button>
+      <!-- Info button -->
+      <button
+        ref="infoBtnEl"
+        type="button"
+        class="smgp-profile-header__info-btn"
+        :class="{ 'is-active': infoOpen }"
+        @click="infoOpen = !infoOpen"
+      >
+        <i class="icon-info" />
+      </button>
+
+      <!-- Info dropdown -->
+      <transition name="smgp-info-fade">
+        <div v-if="infoOpen" ref="infoPanelEl" class="smgp-profile-header__info-panel" role="dialog">
+          <div class="smgp-profile-header__info-head">
+            <h4 class="smgp-profile-header__info-title">{{ $t('profile.info_title') }}</h4>
+            <button type="button" class="smgp-profile-header__info-close" @click="infoOpen = false">
+              <i class="icon-x" />
+            </button>
+          </div>
+          <p class="smgp-profile-header__info-intro">{{ $t('profile.info_intro') }}</p>
+          <ul class="smgp-profile-header__info-list">
+            <li class="smgp-profile-header__info-row">
+              <i class="smgp-profile-header__info-icon icon-check-circle" />
+              <span>{{ $t('profile.info_xp_activity_title') }}</span>
+            </li>
+            <li class="smgp-profile-header__info-row">
+              <i class="smgp-profile-header__info-icon icon-graduation-cap" />
+              <span>{{ $t('profile.info_xp_course_title') }}</span>
+            </li>
+            <li class="smgp-profile-header__info-row">
+              <i class="smgp-profile-header__info-icon icon-log-in" />
+              <span>{{ $t('profile.info_xp_login_title') }}</span>
+            </li>
+            <li class="smgp-profile-header__info-row">
+              <i class="smgp-profile-header__info-icon icon-trophy" />
+              <span>{{ $t('profile.info_xp_achievement_title') }}</span>
+            </li>
+          </ul>
         </div>
-        <p class="smgp-profile-header__info-intro">{{ $t('profile.info_intro') }}</p>
-        <ul class="smgp-profile-header__info-list">
-          <li class="smgp-profile-header__info-row">
-            <i class="smgp-profile-header__info-icon icon-check-circle" />
-            <span class="smgp-profile-header__info-text">{{ $t('profile.info_xp_activity_title') }}</span>
-          </li>
-          <li class="smgp-profile-header__info-row">
-            <i class="smgp-profile-header__info-icon icon-graduation-cap" />
-            <span class="smgp-profile-header__info-text">{{ $t('profile.info_xp_course_title') }}</span>
-          </li>
-          <li class="smgp-profile-header__info-row">
-            <i class="smgp-profile-header__info-icon icon-log-in" />
-            <span class="smgp-profile-header__info-text">{{ $t('profile.info_xp_login_title') }}</span>
-          </li>
-          <li class="smgp-profile-header__info-row">
-            <i class="smgp-profile-header__info-icon icon-trophy" />
-            <span class="smgp-profile-header__info-text">{{ $t('profile.info_xp_achievement_title') }}</span>
-          </li>
-        </ul>
-      </div>
-    </transition>
-
-    <!-- Avatar with level ring -->
-    <div class="smgp-profile-header__avatar-wrap">
-      <svg class="smgp-profile-header__ring" viewBox="0 0 160 160">
-        <circle class="smgp-profile-header__ring-track" cx="80" cy="80" r="72" />
-        <circle
-          class="smgp-profile-header__ring-progress" cx="80" cy="80" r="72"
-          :stroke-dasharray="ringCircumference"
-          :stroke-dashoffset="ringDashOffset"
-        />
-      </svg>
-      <img :src="data.avatarurl" :alt="data.fullname" class="smgp-profile-header__avatar">
-      <div class="smgp-profile-header__level-badge">
-        <span class="smgp-profile-header__level-num">{{ data.level }}</span>
-        <span class="smgp-profile-header__level-label">{{ $t('profile.level') }}</span>
-      </div>
+      </transition>
     </div>
 
-    <!-- Identity + XP bar -->
-    <div class="smgp-profile-header__info">
-      <h1 class="smgp-profile-header__name">{{ data.fullname }}</h1>
-      <p v-if="data.has_department" class="smgp-profile-header__department">
-        <i class="icon-building-2" /> {{ data.department }}
-      </p>
-      <p class="smgp-profile-header__meta">
-        <i class="icon-calendar" /> {{ $t('profile.member_since') }} {{ data.joindate }}
-      </p>
-
-      <div class="smgp-profile-header__xp">
-        <div class="smgp-profile-header__xp-row">
-          <span class="smgp-profile-header__xp-amount">
-            {{ $t('profile.xp_progress', { current: data.xp_into_level, next: data.xp_for_next }) }}
-          </span>
-          <span class="smgp-profile-header__xp-next">
-            {{ $t('profile.xp_to_next', { xp: data.xp_to_next }) }}
-          </span>
+    <!-- Stats row (below avatar, full width) -->
+    <div class="smgp-profile-header__stats">
+      <div class="smgp-profile-header__stat">
+        <div class="smgp-profile-header__stat-icon smgp-profile-header__stat-icon--xp">
+          <i class="icon-star" />
         </div>
-        <div class="smgp-profile-header__xp-bar">
-          <div
-            class="smgp-profile-header__xp-fill"
-            :style="{ width: data.level_progress_pct + '%' }"
-          />
+        <div>
+          <span class="smgp-profile-header__stat-value">{{ data.xp_total?.toLocaleString() }}</span>
+          <span class="smgp-profile-header__stat-label">{{ $t('profile.xp_total') }}</span>
+        </div>
+      </div>
+      <div class="smgp-profile-header__stat">
+        <div class="smgp-profile-header__stat-icon smgp-profile-header__stat-icon--streak">
+          <i class="icon-zap" />
+        </div>
+        <div>
+          <span class="smgp-profile-header__stat-value">{{ data.streak }} {{ $t('profile.days_short') }}</span>
+          <span class="smgp-profile-header__stat-label">{{ $t('profile.streak_days') }}</span>
+        </div>
+      </div>
+      <div class="smgp-profile-header__stat">
+        <div class="smgp-profile-header__stat-icon smgp-profile-header__stat-icon--courses">
+          <i class="icon-book-open" />
+        </div>
+        <div>
+          <span class="smgp-profile-header__stat-value">{{ data.course_count }}</span>
+          <span class="smgp-profile-header__stat-label">{{ $t('profile.enrolled_courses') }}</span>
+        </div>
+      </div>
+      <div class="smgp-profile-header__stat">
+        <div class="smgp-profile-header__stat-icon smgp-profile-header__stat-icon--hours">
+          <i class="icon-clock" />
+        </div>
+        <div>
+          <span class="smgp-profile-header__stat-value">{{ data.total_hours }}h</span>
+          <span class="smgp-profile-header__stat-label">{{ $t('profile.total_hours') }}</span>
         </div>
       </div>
     </div>
@@ -97,19 +101,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import type { ProfileData } from '~/types/profile'
 
-const props = defineProps<{ data: ProfileData }>()
+defineProps<{ data: ProfileData }>()
 
-// ── Level ring (SVG circumference math) ──
-const ringCircumference = 2 * Math.PI * 72
-const ringDashOffset = computed(() => {
-  const pct = props.data.level_progress_pct ?? 0
-  return ringCircumference - (ringCircumference * pct) / 100
-})
-
-// ── Info dropdown ──
 const infoOpen = ref(false)
 const infoBtnEl = ref<HTMLElement | null>(null)
 const infoPanelEl = ref<HTMLElement | null>(null)
@@ -139,62 +135,134 @@ onBeforeUnmount(() => {
 
 <style scoped lang="scss">
 .smgp-profile-header {
-  position: relative;
-  display: flex;
-  gap: 2rem;
-  align-items: center;
-  padding: 2rem;
   background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-  margin-bottom: 1.5rem;
+  border-radius: 14px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
 
-  @media (max-width: 720px) {
-    flex-direction: column;
-    text-align: center;
+  // ── Top: avatar + identity ──
+  &__top {
+    position: relative;
+    display: flex;
+    gap: 1.25rem;
+    align-items: center;
+    margin-bottom: 1.25rem;
+
+    @media (max-width: 640px) {
+      flex-direction: column;
+      text-align: center;
+    }
+  }
+  &__avatar-wrap { flex-shrink: 0; }
+  &__avatar {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #e2e8f0;
+  }
+  &__identity { flex: 1; min-width: 0; }
+  &__name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+  }
+  &__department {
+    color: #64748b;
+    margin: 0.2rem 0 0;
+    font-size: 0.82rem;
+  }
+  &__meta {
+    color: #94a3b8;
+    margin: 0.1rem 0 0;
+    font-size: 0.78rem;
+  }
+  &__sep { margin: 0 0.3rem; }
+
+  // ── Stats row (full width, below avatar) ──
+  &__stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+    @media (max-width: 640px) { grid-template-columns: repeat(2, 1fr); }
+  }
+  &__stat {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    border-radius: 12px;
+    border: 1px solid transparent;
+
+    &:nth-child(1) { background: #ecfdf5; border-color: #d1fae5; } // XP — green
+    &:nth-child(2) { background: #fffbeb; border-color: #fef3c7; } // Streak — amber
+    &:nth-child(3) { background: #f5f3ff; border-color: #ede9fe; } // Courses — purple
+    &:nth-child(4) { background: #eff6ff; border-color: #dbeafe; } // Hours — blue
+  }
+  &__stat-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    &--xp      { background: #d1fae5; color: #059669; }
+    &--streak  { background: #fde68a; color: #b45309; }
+    &--courses { background: #ddd6fe; color: #6d28d9; }
+    &--hours   { background: #bfdbfe; color: #1d4ed8; }
+  }
+  &__stat-value {
+    display: block;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1.2;
+  }
+  &__stat-label {
+    display: block;
+    font-size: 0.7rem;
+    color: #94a3b8;
+    margin-top: 0.05rem;
   }
 
   // ── Info button ──
   &__info-btn {
     position: absolute;
-    top: 1rem;
-    right: 1rem;
-    width: 36px;
-    height: 36px;
+    top: 0;
+    right: 0;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
-    border: 1px solid #d1fae5;
-    background: #ecfdf5;
-    color: #10b981;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    color: #94a3b8;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: all 0.15s;
-    z-index: 5;
-
-    i { font-size: 1.05rem; }
-
-    &:hover,
-    &.is-active {
+    i { font-size: 0.85rem; }
+    &:hover, &.is-active {
       background: #10b981;
       border-color: #10b981;
       color: #fff;
-      transform: scale(1.05);
     }
   }
-
-  // ── Info dropdown panel ──
   &__info-panel {
     position: absolute;
-    top: 3.75rem;
-    right: 1rem;
-    width: 300px;
+    top: 2.5rem;
+    right: 0;
+    width: 280px;
     max-width: calc(100vw - 2rem);
     background: #fff;
     border: 1px solid #e2e8f0;
-    border-radius: 14px;
-    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
-    padding: 1.1rem 1.1rem 1rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.15);
+    padding: 1rem;
     z-index: 10;
     text-align: left;
   }
@@ -202,10 +270,10 @@ onBeforeUnmount(() => {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.4rem;
   }
   &__info-title {
-    font-size: 0.95rem;
+    font-size: 0.88rem;
     font-weight: 700;
     color: #1e293b;
     margin: 0;
@@ -215,19 +283,18 @@ onBeforeUnmount(() => {
     background: transparent;
     color: #94a3b8;
     cursor: pointer;
-    width: 26px;
-    height: 26px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-
     &:hover { background: #f1f5f9; color: #1e293b; }
   }
   &__info-intro {
-    font-size: 0.78rem;
+    font-size: 0.75rem;
     color: #64748b;
-    margin: 0 0 0.75rem;
+    margin: 0 0 0.5rem;
     line-height: 1.4;
   }
   &__info-list {
@@ -236,159 +303,40 @@ onBeforeUnmount(() => {
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
+    gap: 0.35rem;
   }
   &__info-row {
     display: flex;
     align-items: center;
-    gap: 0.65rem;
-    padding: 0.5rem 0.6rem;
+    gap: 0.5rem;
+    padding: 0.4rem 0.5rem;
     background: #f8fafc;
     border-radius: 8px;
-    border: 1px solid #f1f5f9;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: #1e293b;
   }
   &__info-icon {
-    width: 28px;
-    height: 28px;
-    border-radius: 7px;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
     background: #ecfdf5;
     color: #059669;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     flex-shrink: 0;
-  }
-  &__info-text {
-    font-size: 0.82rem;
-    font-weight: 500;
-    color: #1e293b;
-    line-height: 1.3;
-  }
-
-  // ── Avatar / ring ──
-  &__avatar-wrap {
-    position: relative;
-    width: 160px;
-    height: 160px;
-    flex-shrink: 0;
-  }
-  &__ring {
-    position: absolute;
-    inset: 0;
-    width: 160px;
-    height: 160px;
-    transform: rotate(-90deg);
-  }
-  &__ring-track {
-    fill: none;
-    stroke: #e2e8f0;
-    stroke-width: 6;
-  }
-  &__ring-progress {
-    fill: none;
-    stroke: #10b981;
-    stroke-width: 6;
-    stroke-linecap: round;
-    transition: stroke-dashoffset 0.6s ease;
-  }
-  &__avatar {
-    position: absolute;
-    inset: 12px;
-    width: calc(100% - 24px);
-    height: calc(100% - 24px);
-    border-radius: 50%;
-    object-fit: cover;
-  }
-  &__level-badge {
-    position: absolute;
-    bottom: -4px;
-    right: -4px;
-    background: #10b981;
-    color: #fff;
-    border: 4px solid #fff;
-    border-radius: 50%;
-    width: 56px;
-    height: 56px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
-  }
-  &__level-num {
-    font-size: 1.25rem;
-    font-weight: 800;
-    line-height: 1;
-  }
-  &__level-label {
-    font-size: 0.55rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-top: 0.1rem;
-    opacity: 0.9;
-  }
-
-  // ── Identity ──
-  &__info {
-    flex: 1;
-    min-width: 0;
-  }
-  &__name {
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: #1e293b;
-    margin: 0 0 0.5rem;
-  }
-  &__department,
-  &__meta {
-    color: #64748b;
-    margin: 0.25rem 0;
-    font-size: 0.9rem;
-    i { margin-right: 0.35rem; }
-  }
-
-  // ── XP bar ──
-  &__xp {
-    margin-top: 1rem;
-  }
-  &__xp-row {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    margin-bottom: 0.4rem;
-    font-size: 0.85rem;
-
-    @media (max-width: 720px) { flex-direction: column; gap: 0.2rem; }
-  }
-  &__xp-amount {
-    font-weight: 600;
-    color: #1e293b;
-  }
-  &__xp-next {
-    color: #64748b;
-  }
-  &__xp-bar {
-    height: 10px;
-    background: #f1f5f9;
-    border-radius: 999px;
-    overflow: hidden;
-  }
-  &__xp-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #10b981, #34d399);
-    border-radius: 999px;
-    transition: width 0.6s ease;
   }
 }
 
 .smgp-info-fade-enter-active,
 .smgp-info-fade-leave-active {
-  transition: opacity 0.18s ease, transform 0.18s ease;
+  transition: opacity 0.15s ease, transform 0.15s ease;
 }
 .smgp-info-fade-enter-from,
 .smgp-info-fade-leave-to {
   opacity: 0;
-  transform: translateY(-6px);
+  transform: translateY(-4px);
 }
 </style>
