@@ -146,4 +146,119 @@ class completion_filter {
     public static function course_progress_percentage(int $courseid, int $userid): int {
         return self::course_progress($courseid, $userid)['percentage'];
     }
+
+    // ──────────────────────────────────────────────────────────────────
+    // Unified streak (login-based — most lenient)
+    // ──────────────────────────────────────────────────────────────────
+
+    /**
+     * Consecutive-day login streak for a user (Duolingo-style grace).
+     *
+     * Counts consecutive days that have a `SOURCE_LOGIN_DAILY` entry in
+     * the XP log. If today has no entry yet but yesterday does, the
+     * streak is considered alive (grace period until midnight).
+     *
+     * This is the single source of truth — dashboard, profile,
+     * achievements and missions all call this method.
+     *
+     * @param int $userid
+     * @return int Number of consecutive days (0–365).
+     */
+    public static function login_streak(int $userid): int {
+        global $DB;
+
+        $checkdate = new \DateTime('now', \core_date::get_user_timezone_object());
+
+        $hasentryfor = function (\DateTime $d) use ($DB, $userid): bool {
+            $epoch = (int) (clone $d)->setTime(0, 0, 0)->getTimestamp();
+            return $DB->record_exists('local_smgp_xp_log', [
+                'userid'   => $userid,
+                'source'   => xp_service::SOURCE_LOGIN_DAILY,
+                'sourceid' => $epoch,
+            ]);
+        };
+
+        // Grace: if today is empty, check yesterday. Break only if both empty.
+        if (!$hasentryfor($checkdate)) {
+            $checkdate->modify('-1 day');
+            if (!$hasentryfor($checkdate)) {
+                return 0;
+            }
+        }
+
+        $streak = 0;
+        for ($i = 0; $i < 365; $i++) {
+            if ($hasentryfor($checkdate)) {
+                $streak++;
+                $checkdate->modify('-1 day');
+            } else {
+                break;
+            }
+        }
+        return $streak;
+    }
+
+    // ──────────────────────────────────────────────────────────────────
+    // Unified "is course completed"
+    // ──────────────────────────────────────────────────────────────────
+
+    /**
+     * Whether a course should be considered completed for a user.
+     *
+     * A course is completed if ANY of these is true:
+     *   1. Moodle standard completion (`course_completions.timecompleted > 0`)
+     *   2. IOMAD track completion (`local_iomad_track.timecompleted > 0`)
+     *   3. Trackable progress ≥ threshold (from `local_smgp_course_meta`,
+     *      defaults to 100%)
+     *
+     * @param int $courseid
+     * @param int $userid
+     * @return bool
+     */
+    public static function is_course_completed(int $courseid, int $userid): bool {
+        global $DB;
+
+        // 1. Moodle standard completion.
+        if ($DB->record_exists_select('course_completions',
+                'course = :cid AND userid = :uid AND timecompleted > 0',
+                ['cid' => $courseid, 'uid' => $userid])) {
+            return true;
+        }
+
+        // 2. IOMAD track completion (table may not exist).
+        if ($DB->get_manager()->table_exists('local_iomad_track')) {
+            if ($DB->record_exists_select('local_iomad_track',
+                    'courseid = :cid AND userid = :uid AND timecompleted > 0',
+                    ['cid' => $courseid, 'uid' => $userid])) {
+                return true;
+            }
+        }
+
+        // 3. Trackable progress ≥ custom threshold (default 100%).
+        $meta = $DB->get_record('local_smgp_course_meta', ['courseid' => $courseid]);
+        $threshold = ($meta && isset($meta->completion_percentage))
+            ? (int) $meta->completion_percentage : 100;
+        if (self::course_progress_percentage($courseid, $userid) >= $threshold) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Count how many courses a user has completed (using unified criteria).
+     *
+     * @param int $userid
+     * @return int
+     */
+    public static function completed_course_count(int $userid): int {
+        $courses = enrol_get_users_courses($userid, true);
+        $count = 0;
+        foreach ($courses as $course) {
+            if (self::is_course_completed((int) $course->id, $userid)) {
+                $count++;
+            }
+        }
+        return $count;
+    }
 }

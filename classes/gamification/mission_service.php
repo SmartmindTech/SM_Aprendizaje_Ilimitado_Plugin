@@ -232,58 +232,33 @@ class mission_service {
             }
 
             case self::COND_LOGIN_STREAK: {
-                return self::current_login_streak($userid);
+                return completion_filter::login_streak($userid);
             }
 
             case self::COND_COURSES_WEEK: {
+                // Count courses completed this week using unified criteria.
                 $start = self::week_monday_epoch();
                 $end = $start + (7 * DAYSECS) - 1;
-                return (int) $DB->count_records_select(
+                // Moodle standard completions this week.
+                $moodlecount = (int) $DB->count_records_select(
                     'course_completions',
                     'userid = :uid AND timecompleted BETWEEN :start AND :end',
                     ['uid' => $userid, 'start' => $start, 'end' => $end]
                 );
+                // IOMAD completions this week (if available).
+                $iomadcount = 0;
+                if ($DB->get_manager()->table_exists('local_iomad_track')) {
+                    $iomadcount = (int) $DB->count_records_select(
+                        'local_iomad_track',
+                        'userid = :uid AND timecompleted BETWEEN :start AND :end',
+                        ['uid' => $userid, 'start' => $start, 'end' => $end]
+                    );
+                }
+                return $moodlecount + $iomadcount;
             }
         }
 
         return 0;
-    }
-
-    /**
-     * Same Duolingo-style streak as get_dashboard_data, but kept here so the
-     * mission service has zero coupling to other modules.
-     */
-    private static function current_login_streak(int $userid): int {
-        global $DB;
-
-        $checkdate = new \DateTime('now', \core_date::get_user_timezone_object());
-
-        $hasentryfor = function (\DateTime $d) use ($DB, $userid): bool {
-            $epoch = (int) (clone $d)->setTime(0, 0, 0)->getTimestamp();
-            return $DB->record_exists('local_smgp_xp_log', [
-                'userid'   => $userid,
-                'source'   => xp_service::SOURCE_LOGIN_DAILY,
-                'sourceid' => $epoch,
-            ]);
-        };
-
-        if (!$hasentryfor($checkdate)) {
-            $checkdate->modify('-1 day');
-            if (!$hasentryfor($checkdate)) {
-                return 0;
-            }
-        }
-
-        $streak = 0;
-        for ($i = 0; $i < 365; $i++) {
-            if ($hasentryfor($checkdate)) {
-                $streak++;
-                $checkdate->modify('-1 day');
-            } else {
-                break;
-            }
-        }
-        return $streak;
     }
 
     /**

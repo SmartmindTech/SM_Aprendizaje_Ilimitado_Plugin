@@ -267,18 +267,11 @@ class achievement_service {
             ['uid' => $userid] + $cf['params']
         );
 
-        // Courses completed: read straight from {course_completions}.
-        // Moodle marks a course as completed by setting timecompleted on
-        // this table — exactly what is_course_complete() checks under the
-        // hood. Counting non-zero timecompleted is equivalent and library-free.
-        $coursescompleted = (int) $DB->count_records_select(
-            'course_completions',
-            'userid = :uid AND timecompleted IS NOT NULL AND timecompleted > 0',
-            ['uid' => $userid]
-        );
+        // Courses completed (unified criteria: Moodle + IOMAD + progress).
+        $coursescompleted = completion_filter::completed_course_count($userid);
 
-        // Streak: consecutive days with at least one completion transition.
-        $streak = self::compute_streak($userid);
+        // Streak: unified login-based streak.
+        $streak = completion_filter::login_streak($userid);
 
         // Total hours: sum AI-estimated durations (or default 5 min) for all
         // completed trackable activities. Same source as get_profile_data so
@@ -303,52 +296,6 @@ class achievement_service {
             self::COND_TOTAL_HOURS          => $totalhours,
             self::COND_TOTAL_XP             => $totalxp,
         ];
-    }
-
-    /**
-     * Days of consecutive completion activity. Caps at 365.
-     *
-     * Streak semantics match get_profile_data: if today has no completion
-     * yet but yesterday does, the streak is alive (counts from yesterday).
-     * Only breaks if neither today nor yesterday has any completion.
-     */
-    private static function compute_streak(int $userid): int {
-        global $DB;
-
-        $cf = completion_filter::build('cmc');
-        $hascompletionon = function (\DateTime $d) use ($DB, $userid, $cf): bool {
-            $daystart = (clone $d)->setTime(0, 0, 0)->getTimestamp();
-            $dayend   = (clone $d)->setTime(23, 59, 59)->getTimestamp();
-            $sql = "SELECT 1
-                      FROM {course_modules_completion} cmc
-                      {$cf['join']}
-                     WHERE cmc.userid = :uid AND cmc.completionstate >= 1
-                       AND cmc.timemodified BETWEEN :start AND :end
-                       AND {$cf['where']}";
-            return $DB->record_exists_sql(
-                $sql,
-                ['uid' => $userid, 'start' => $daystart, 'end' => $dayend] + $cf['params']
-            );
-        };
-
-        $checkdate = new \DateTime('now', \core_date::get_user_timezone_object());
-        if (!$hascompletionon($checkdate)) {
-            $checkdate->modify('-1 day');
-            if (!$hascompletionon($checkdate)) {
-                return 0;
-            }
-        }
-
-        $streak = 0;
-        for ($i = 0; $i < 365; $i++) {
-            if ($hascompletionon($checkdate)) {
-                $streak++;
-                $checkdate->modify('-1 day');
-            } else {
-                break;
-            }
-        }
-        return $streak;
     }
 
     /**

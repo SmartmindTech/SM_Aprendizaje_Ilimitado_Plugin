@@ -85,14 +85,8 @@ class get_profile_data extends external_api {
         $enrolledcourses = enrol_get_users_courses($userid, true);
         $coursecount = count($enrolledcourses);
 
-        // Completed courses count.
-        $completedcount = 0;
-        foreach ($enrolledcourses as $course) {
-            $completion = new \completion_info($course);
-            if ($completion->is_course_complete($userid)) {
-                $completedcount++;
-            }
-        }
+        // Completed courses count (unified criteria).
+        $completedcount = \local_sm_graphics_plugin\gamification\completion_filter::completed_course_count($userid);
 
         // ── Stats based on course-module COMPLETIONS ──
         // We treat an "activity done" as a course_modules_completion row whose
@@ -162,42 +156,8 @@ class get_profile_data extends external_api {
         }
         unset($day);
 
-        // Streak: consecutive days with at least one completion transition.
-        // The streak is alive until midnight tonight, so a user that has not
-        // completed anything *yet today* but did yesterday still sees their
-        // count. Capped at 365 days backwards.
-        $hascompletionon = function (\DateTime $d) use ($DB, $userid, $cf): bool {
-            $daystart = (clone $d)->setTime(0, 0, 0)->getTimestamp();
-            $dayend   = (clone $d)->setTime(23, 59, 59)->getTimestamp();
-            $existssql = "SELECT 1
-                            FROM {course_modules_completion} c
-                            {$cf['join']}
-                           WHERE c.userid = :uid AND c.completionstate >= 1
-                             AND c.timemodified BETWEEN :start AND :end
-                             AND {$cf['where']}";
-            return $DB->record_exists_sql(
-                $existssql,
-                ['uid' => $userid, 'start' => $daystart, 'end' => $dayend] + $cf['params']
-            );
-        };
-        $checkdate = clone $today;
-        if (!$hascompletionon($checkdate)) {
-            $checkdate->modify('-1 day');
-            if (!$hascompletionon($checkdate)) {
-                $checkdate = null; // Streak is broken.
-            }
-        }
-        $streak = 0;
-        if ($checkdate !== null) {
-            for ($i = 0; $i < 365; $i++) {
-                if ($hascompletionon($checkdate)) {
-                    $streak++;
-                    $checkdate->modify('-1 day');
-                } else {
-                    break;
-                }
-            }
-        }
+        // Streak: unified login-based streak (single source of truth).
+        $streak = \local_sm_graphics_plugin\gamification\completion_filter::login_streak($userid);
 
         // ── Gamification: XP, level, achievements, recent XP feed ──
         // Award the daily-visit XP bonus first (idempotent per calendar day)

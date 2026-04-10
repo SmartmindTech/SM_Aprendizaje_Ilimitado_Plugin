@@ -62,16 +62,8 @@ class get_dashboard_data extends external_api {
             }
             $enrolledids[] = (int) $course->id;
 
-            $completion = new \completion_info($course);
-            $iscompleted = $completion->is_enabled() && $completion->is_course_complete($USER->id);
-
-            // Also treat courses with 100% trackable progress as finished,
-            // even if Moodle's course-level completion hasn't triggered.
-            $trackprogress = \local_sm_graphics_plugin\gamification\completion_filter::course_progress_percentage(
-                (int) $course->id, (int) $USER->id
-            );
-
-            if ($iscompleted || $trackprogress >= 100) {
+            if (\local_sm_graphics_plugin\gamification\completion_filter::is_course_completed(
+                    (int) $course->id, (int) $USER->id)) {
                 $completedids[] = (int) $course->id;
                 $finished[] = self::format_finished_course($course);
             } else {
@@ -140,7 +132,7 @@ class get_dashboard_data extends external_api {
         // entry in xp_log. The streak is alive until midnight tonight, so if
         // there's no entry for today *yet* but yesterday has one, we still
         // count from yesterday.
-        $loginstreak = self::compute_login_streak($USER->id);
+        $loginstreak = \local_sm_graphics_plugin\gamification\completion_filter::login_streak($USER->id);
 
         return [
             'courses'              => $enrolled,
@@ -190,41 +182,6 @@ class get_dashboard_data extends external_api {
      *     still sees their count until midnight tonight.
      *   - If neither today nor yesterday has an entry, the streak is broken.
      */
-    private static function compute_login_streak(int $userid): int {
-        global $DB;
-
-        $checkdate = new \DateTime('now', \core_date::get_user_timezone_object());
-
-        $hasentryfor = function (\DateTime $d) use ($DB, $userid): bool {
-            $epoch = (int) (clone $d)->setTime(0, 0, 0)->getTimestamp();
-            return $DB->record_exists('local_smgp_xp_log', [
-                'userid'   => $userid,
-                'source'   => \local_sm_graphics_plugin\gamification\xp_service::SOURCE_LOGIN_DAILY,
-                'sourceid' => $epoch,
-            ]);
-        };
-
-        // If today has no entry yet, allow a one-day grace and start from
-        // yesterday. The streak only breaks if yesterday is also empty.
-        if (!$hasentryfor($checkdate)) {
-            $checkdate->modify('-1 day');
-            if (!$hasentryfor($checkdate)) {
-                return 0;
-            }
-        }
-
-        $streak = 0;
-        for ($i = 0; $i < 365; $i++) {
-            if ($hasentryfor($checkdate)) {
-                $streak++;
-                $checkdate->modify('-1 day');
-            } else {
-                break;
-            }
-        }
-        return $streak;
-    }
-
     private static function format_enrolled_course(\stdClass $course): array {
         global $USER, $DB;
 
