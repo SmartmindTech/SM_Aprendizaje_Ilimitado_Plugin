@@ -74,7 +74,7 @@
           <i class="icon-zap" />
         </div>
         <div>
-          <span class="smgp-profile-header__stat-value">{{ data.streak }} {{ $t('profile.days_short') }}</span>
+          <span class="smgp-profile-header__stat-value">{{ data.streak }}</span>
           <span class="smgp-profile-header__stat-label">{{ $t('profile.streak_days') }}</span>
         </div>
       </div>
