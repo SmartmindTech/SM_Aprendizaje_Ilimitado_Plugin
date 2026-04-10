@@ -25,6 +25,14 @@
 defined('MOODLE_INTERNAL') || die();
 
 $functions = [
+    'local_sm_graphics_plugin_get_activity_progress' => [
+        'classname'   => 'local_sm_graphics_plugin\external\get_activity_progress',
+        'methodname'  => 'execute',
+        'description' => 'Lightweight progress-only data for a single activity (polling)',
+        'type'        => 'read',
+        'ajax'        => true,
+        'capabilities' => 'local/sm_graphics_plugin:view',
+    ],
     'local_sm_graphics_plugin_get_activity_content' => [
         'classname'   => 'local_sm_graphics_plugin\external\get_activity_content',
         'methodname'  => 'execute',

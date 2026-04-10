@@ -25,10 +25,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_sm_graphics_plugin';
-$plugin->version = 2026040922;  // YYYYMMDDXX format — Course progress percentages now exclude forum/label across dashboard, player, landing, completed courses and grades.
+$plugin->version = 2026040923;  // YYYYMMDDXX format — granular progress rings + SCORM embed styles + dashboard perf fix.
 $plugin->requires = 2022112800; // Moodle 4.1+
 $plugin->maturity = MATURITY_ALPHA;
-$plugin->release = '1.1.0-nuxt.39';  // Nuxt branch, aligned with dev v1.1.0 backend
+$plugin->release = '1.1.0-nuxt.40';  // Nuxt branch, aligned with dev v1.1.0 backend
 
 // GitHub update server — configurable via UPDATE_BRANCH in .env.
 //

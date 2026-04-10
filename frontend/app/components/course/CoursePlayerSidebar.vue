@@ -14,6 +14,7 @@
 
     <div class="smgp-course-sidebar__list">
       <template v-for="(section, idx) in sectionsWithActivities" :key="section.id">
+        <!-- Collapsible section header with progress ring -->
         <button
           type="button"
           class="smgp-course-section"
@@ -28,8 +29,19 @@
             :class="isSectionOpen(section.id) ? 'bi-chevron-down' : 'bi-chevron-right'"
           />
           <span class="smgp-course-section__name" :title="section.name">{{ section.name }}</span>
+          <svg class="smgp-section-ring" viewBox="0 0 20 20">
+            <circle class="smgp-section-ring__bg" cx="10" cy="10" r="7" fill="none" stroke-width="2" />
+            <circle
+              class="smgp-section-ring__fill"
+              cx="10" cy="10" r="7"
+              fill="none" stroke-width="2"
+              :stroke-dasharray="CIRCUMFERENCE"
+              :stroke-dashoffset="sectionRingOffset(section)"
+            />
+          </svg>
         </button>
 
+        <!-- Activities (collapsed/expanded) -->
         <div
           class="smgp-course-section__activities"
           :class="{ 'smgp-course-section__activities--open': isSectionOpen(section.id) }"
@@ -58,16 +70,13 @@
               class="smgp-course-activity__completion smgp-activity-ring"
               viewBox="0 0 20 20"
             >
-              <circle
-                class="smgp-activity-ring__bg"
-                cx="10" cy="10" r="7"
-                fill="none" stroke-width="2"
-              />
+              <circle class="smgp-activity-ring__bg" cx="10" cy="10" r="7" fill="none" stroke-width="2" />
               <circle
                 class="smgp-activity-ring__fill"
                 cx="10" cy="10" r="7"
                 fill="none" stroke-width="2"
-                stroke-dasharray="43.98" stroke-dashoffset="43.98"
+                :stroke-dasharray="CIRCUMFERENCE"
+                :stroke-dashoffset="activityRingOffset(activity)"
               />
             </svg>
           </button>
@@ -84,11 +93,16 @@ const props = defineProps<{
   collapsed: boolean
   completed: number
   total: number
+  activeCompleted?: number
+  activeTotal?: number
+  progressMap?: Map<number, { completed: number; total: number }>
 }>()
 
 defineEmits<{
   (e: 'select', activity: any): void
 }>()
+
+const CIRCUMFERENCE = 2 * Math.PI * 7 // ≈ 43.98
 
 const visibleActivities = (section: any) =>
   (section.activities || []).filter((a: any) => !a.isforum && !a.islabel)
@@ -97,7 +111,7 @@ const sectionsWithActivities = computed(() =>
   props.sections.filter(s => visibleActivities(s).length > 0),
 )
 
-// Use string keys to avoid number/string mismatch from backend JSON.
+// ── Collapsible section state ────────────────────────────────────────
 const openIds = ref<string[]>([])
 
 function toggleSection(id: any) {
@@ -128,4 +142,72 @@ watch(() => props.selectedCmid, (cmid) => {
     }
   }
 }, { immediate: true })
+
+// ── Progress rings ───────────────────────────────────────────────────
+
+/** Section ring: combines Moodle completion + granular sub-item progress. */
+const sectionRingOffset = (section: any): number => {
+  const acts = visibleActivities(section)
+  if (acts.length === 0) return CIRCUMFERENCE
+  let totalProgress = 0
+  for (const act of acts) {
+    if (act.iscomplete) {
+      totalProgress += 1
+    } else {
+      let completed = 0
+      let total = 0
+      if (act.cmid === props.selectedCmid) {
+        completed = props.activeCompleted ?? 0
+        total = props.activeTotal ?? 0
+      } else if (props.progressMap?.has(act.cmid)) {
+        const saved = props.progressMap.get(act.cmid)!
+        completed = saved.completed
+        total = saved.total
+      }
+      if (total > 0 && completed > 0) {
+        totalProgress += Math.min(completed / total, 1)
+      }
+    }
+  }
+  const pct = totalProgress / acts.length
+  return CIRCUMFERENCE - (CIRCUMFERENCE * pct)
+}
+
+/** Activity ring: proportional fill for active/visited, empty for unvisited. */
+const activityRingOffset = (activity: any): number => {
+  let completed = 0
+  let total = 0
+  if (activity.cmid === props.selectedCmid) {
+    completed = props.activeCompleted ?? 0
+    total = props.activeTotal ?? 0
+  } else if (props.progressMap?.has(activity.cmid)) {
+    const saved = props.progressMap.get(activity.cmid)!
+    completed = saved.completed
+    total = saved.total
+  }
+  if (total > 0 && completed > 0) {
+    const pct = Math.min(completed / total, 1)
+    return CIRCUMFERENCE - (CIRCUMFERENCE * pct)
+  }
+  return CIRCUMFERENCE
+}
 </script>
+
+<style scoped lang="scss">
+.smgp-section-ring {
+  flex-shrink: 0;
+  margin-left: auto;
+  width: 16px;
+  height: 16px;
+  transform: rotate(-90deg);
+
+  &__bg {
+    stroke: #E2DDD6;
+  }
+  &__fill {
+    stroke: #10b981;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.4s ease;
+  }
+}
+</style>

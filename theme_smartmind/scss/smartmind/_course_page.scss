@@ -203,8 +203,25 @@ body.smgp-course-player #page-wrapper {
   padding-right: 0;
 }
 
-// Hide Moodle's default SCORM navigation panel — we use our own nav.
-#scorm_navpanel {
+// Hide Moodle's default SCORM navigation panel + TOC — we use our own nav.
+#scorm_navpanel,
+#scorm_toc,
+#scorm_toc_title,
+#scorm_toc_toggle,
+.scorm_toc_title,
+.toc-title,
+#toc,
+// Moodle 5.0 SCORM player: the dropdown TOC + its container.
+.scorm-toc,
+[data-region="toc"],
+select.scorm_nav_panel,
+.yui3-widget.yui3-panel,
+// The "→ Liderazgo ∨" dropdown is a <select> inside #scorm_layout.
+#scorm_layout > select,
+#scorm_layout > .scorm_controls,
+// Generic: any element that looks like a SCORM nav above the content.
+.scormpage-nav,
+.scorm-top-nav {
   display: none !important;
 }
 
@@ -1274,40 +1291,7 @@ body.smgp-course-player {
 
 // ===== Embed Mode (iframed activity pages) =====
 // Ensure the iframe viewport can scroll (Moodle/theme may set overflow: hidden on html).
-html:has(> body.smgp-embedded) {
-  overflow: auto !important;
-  height: auto !important;
-}
-
-body.smgp-embedded {
-  .navbar,
-  .smgp-topnav,
-  #page-header,
-  .drawer-left,
-  .drawer-right,
-  .drawer-toggles,
-  .drawer,
-  [data-region="drawer"],
-  #page-footer,
-  footer,
-  .smgp-custom-header,
-  .smgp-custom-sidebar,
-  .smgp-header,
-  .smgp-sidebar,
-  .smgp-sidebar__overlay,
-  #nav-drawer,
-  .breadcrumb-nav,
-  nav[aria-label="Navigation bar"],
-  .secondary-navigation,
-  .activity-navigation,
-  .activity-header .moremenu,
-  .smgp-focus-bar,
-  .smgp-course-focus-btn,
-  .smgp-focus-mode-btn,
-  #smgp-comments-source,
-  #smgp-comments-container {
-    display: none !important;
-  }
+// Embed mode styles moved to _embed.scss
 
   // Force every Moodle wrapper to flow naturally so the iframe can scroll.
   // Boost theme sets overflow:hidden / min-height:100vh on several of these,

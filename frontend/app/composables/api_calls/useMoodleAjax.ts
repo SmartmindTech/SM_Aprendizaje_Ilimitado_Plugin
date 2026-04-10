@@ -46,22 +46,6 @@ export const useMoodleAjax = () => {
   }
 
   /**
-   * Resolve the current UI locale so we can forward it to Moodle as a
-   * `lang` query parameter. The i18n-sync plugin keeps
-   * `document.documentElement.lang` in sync with the active vue-i18n locale,
-   * so reading it is safe outside of a setup() context and doesn't require
-   * a Nuxt app instance. Returns an empty string when not available.
-   *
-   * Used as a fallback transport for callers that don't include `lang` in
-   * their args object — the preferred pattern is still to pass it explicitly
-   * (see useProfileApi for the canonical example).
-   */
-  const getUiLang = (): string => {
-    if (typeof document === 'undefined') return ''
-    return document.documentElement.lang || ''
-  }
-
-  /**
    * Call a single Moodle external function.
    *
    * @param methodname - Full function name (e.g., 'local_sm_graphics_plugin_enrol_user')
@@ -101,9 +85,7 @@ export const useMoodleAjax = () => {
     args: Record<string, unknown>,
   ): Promise<MoodleAjaxResult<T>> => {
     const sesskey = getSesskey()
-    const lang = getUiLang()
-    const langSuffix = lang ? `&lang=${encodeURIComponent(lang)}` : ''
-    const url = `${getAjaxUrl()}?sesskey=${encodeURIComponent(sesskey)}&info=${encodeURIComponent(methodname)}${langSuffix}`
+    const url = `${getAjaxUrl()}?sesskey=${encodeURIComponent(sesskey)}&info=${encodeURIComponent(methodname)}`
 
     const body: MoodleAjaxCall[] = [
       { index: 0, methodname, args },
@@ -195,10 +177,8 @@ export const useMoodleAjax = () => {
     calls: Array<{ methodname: string; args: Record<string, unknown> }>,
   ): Promise<{ [K in keyof T]: MoodleAjaxResult<T[K]> }> => {
     const sesskey = getSesskey()
-    const lang = getUiLang()
-    const langSuffix = lang ? `&lang=${encodeURIComponent(lang)}` : ''
     const info = calls.map(c => c.methodname).join(',')
-    const url = `${getAjaxUrl()}?sesskey=${encodeURIComponent(sesskey)}&info=${encodeURIComponent(info)}${langSuffix}`
+    const url = `${getAjaxUrl()}?sesskey=${encodeURIComponent(sesskey)}&info=${encodeURIComponent(info)}`
 
     const body: MoodleAjaxCall[] = calls.map((c, index) => ({
       index,

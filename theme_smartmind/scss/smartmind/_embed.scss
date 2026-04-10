@@ -1,0 +1,115 @@
+// ════════════════════════════════════════════════════════════════════
+// Embed mode styles — applied to Moodle pages loaded inside the Vue
+// course player's <iframe> (smgp_embed=1 query parameter).
+//
+// The body gets the `.smgp-embedded` class via an inline <script>
+// injected by lib.php's before_standard_html_head hook.
+//
+// IMPORTANT: These styles compile into the SmartMind theme CSS and
+// apply to ALL Moodle pages rendered with the SmartMind theme. For
+// popup/embedded layouts where the theme CSS may not load, lib.php
+// also injects a fallback <style> block via inject_embed_styles().
+// Keep both in sync.
+// ════════════════════════════════════════════════════════════════════
+
+// Allow the outer <html> to scroll naturally inside the iframe.
+html:has(> body.smgp-embedded) {
+  overflow: auto !important;
+  height: auto !important;
+}
+
+body.smgp-embedded {
+  // ── Hide navigation chrome ─────────────────────────────────────
+  .navbar,
+  .smgp-topnav,
+  #page-header,
+  .drawer-left,
+  .drawer-right,
+  .drawer-toggles,
+  .drawer,
+  [data-region="drawer"],
+  #page-footer,
+  footer,
+  .smgp-custom-header,
+  .smgp-custom-sidebar,
+  .smgp-header,
+  .smgp-sidebar,
+  .smgp-sidebar__overlay,
+  #nav-drawer,
+  .breadcrumb-nav,
+  nav[aria-label="Navigation bar"],
+  .secondary-navigation,
+  .activity-navigation,
+  .activity-header,
+  #smgp-comments-source,
+  #smgp-comments-container,
+  .smgp-focus-bar,
+  .smgp-course-focus-btn,
+  .smgp-focus-mode-btn,
+  // SCORM-specific chrome
+  #scormtop,
+  #scorm_navpanel,
+  #scorm_toc,
+  #scorm_toc_title,
+  #scorm_toc_toggle,
+  .scorm_toc_title,
+  #toc,
+  .scorm-toc,
+  [data-region="toc"],
+  #scorm_layout > select,
+  #scorm_layout > .scorm_controls,
+  .scormnav,
+  .breadcrumb,
+  #page-navbar {
+    display: none !important;
+  }
+
+  // ── Moodle wrapper reset ───────────────────────────────────────
+  // Boost theme sets overflow:hidden / min-height:100vh / grid on
+  // several wrappers which clips content inside the iframe.
+  #page-wrapper,
+  #page,
+  #page.drawers,
+  #page.drawers.drag-container {
+    display: block !important;
+    grid-template-columns: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  #page-content,
+  #region-main-box,
+  #region-main,
+  [role="main"] {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+  }
+
+  // ── SCORM content sizing ───────────────────────────────────────
+  // After hiding #scormtop, let the SCORM content expand to fill
+  // the available space. Do NOT force height:100vh — that breaks
+  // some SCORM packages. Instead, let the content flow naturally
+  // and only set width to 100%.
+  #scorm_layout {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  #scorm_object,
+  #scorm_content {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  #scorm_object iframe,
+  iframe.scorm_object,
+  iframe[name="scorm_object"] {
+    width: 100% !important;
+    border: none !important;
+  }
+}
