@@ -10,7 +10,7 @@
       <div class="recommended-card__diffuse" />
     </NuxtLink>
     <div class="recommended-card__info">
-      <span v-if="course.categoryname" class="recommended-card__badge">{{ course.categoryname }}</span>
+      <span v-if="course.sm_category" class="recommended-card__badge">{{ course.sm_category }}</span>
       <h3 class="recommended-card__title">
         <NuxtLink :to="`/courses/${course.id}/landing`">{{ course.fullname }}</NuxtLink>
       </h3>

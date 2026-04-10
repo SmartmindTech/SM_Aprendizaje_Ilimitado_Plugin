@@ -108,6 +108,7 @@ class get_browsed_courses extends external_api {
      * @return array
      */
     private static function format_course(\stdClass $course): array {
+        global $DB;
         $courseobj = new \core_course_list_element($course);
 
         $imageurl = '';
@@ -127,11 +128,30 @@ class get_browsed_courses extends external_api {
             $categoryname = $cat ? format_string($cat->name) : '';
         }
 
+        // SmartMind category.
+        $smcategory = '';
+        if ($DB->get_manager()->table_exists('local_smgp_course_category')
+                && $DB->get_manager()->table_exists('local_smgp_categories')) {
+            $smcat = $DB->get_record_sql(
+                "SELECT c.name
+                   FROM {local_smgp_course_category} cc
+                   JOIN {local_smgp_categories} c ON c.id = cc.categoryid
+                  WHERE cc.courseid = :cid
+                  ORDER BY c.sortorder ASC
+                  LIMIT 1",
+                ['cid' => $course->id]
+            );
+            if ($smcat) {
+                $smcategory = format_string($smcat->name);
+            }
+        }
+
         return [
             'id'                 => (int) $course->id,
             'fullname'           => format_string($course->fullname),
             'shortname'          => format_string($course->shortname),
             'categoryname'       => $categoryname,
+            'sm_category'        => $smcategory,
             'image'              => $imageurl,
             'progress'           => 0,
             'lastcmid'           => 0,
@@ -157,6 +177,7 @@ class get_browsed_courses extends external_api {
                 'fullname'           => new external_value(PARAM_TEXT, 'Course full name'),
                 'shortname'          => new external_value(PARAM_TEXT, 'Course short name'),
                 'categoryname'       => new external_value(PARAM_TEXT, 'Moodle category name'),
+                'sm_category'        => new external_value(PARAM_TEXT, 'SmartMind category name'),
                 'image'              => new external_value(PARAM_RAW, 'Course image URL'),
                 'progress'           => new external_value(PARAM_INT, 'Progress 0-100 (always 0 for browsed)'),
                 'lastcmid'           => new external_value(PARAM_INT, 'Last viewed activity cmid (0 for browsed)'),

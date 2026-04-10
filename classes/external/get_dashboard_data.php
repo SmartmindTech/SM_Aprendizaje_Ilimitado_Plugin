@@ -65,7 +65,13 @@ class get_dashboard_data extends external_api {
             $completion = new \completion_info($course);
             $iscompleted = $completion->is_enabled() && $completion->is_course_complete($USER->id);
 
-            if ($iscompleted) {
+            // Also treat courses with 100% trackable progress as finished,
+            // even if Moodle's course-level completion hasn't triggered.
+            $trackprogress = \local_sm_graphics_plugin\gamification\completion_filter::course_progress_percentage(
+                (int) $course->id, (int) $USER->id
+            );
+
+            if ($iscompleted || $trackprogress >= 100) {
                 $completedids[] = (int) $course->id;
                 $finished[] = self::format_finished_course($course);
             } else {
@@ -294,6 +300,7 @@ class get_dashboard_data extends external_api {
     }
 
     private static function build_base(\stdClass $course): array {
+        global $DB;
         $courseobj = new \core_course_list_element($course);
 
         $imageurl = '';
@@ -313,11 +320,30 @@ class get_dashboard_data extends external_api {
             $categoryname = $cat ? format_string($cat->name) : '';
         }
 
+        // SmartMind category (from our own tables).
+        $smcategory = '';
+        if ($DB->get_manager()->table_exists('local_smgp_course_category')
+                && $DB->get_manager()->table_exists('local_smgp_categories')) {
+            $smcat = $DB->get_record_sql(
+                "SELECT c.name
+                   FROM {local_smgp_course_category} cc
+                   JOIN {local_smgp_categories} c ON c.id = cc.categoryid
+                  WHERE cc.courseid = :cid
+                  ORDER BY c.sortorder ASC
+                  LIMIT 1",
+                ['cid' => $course->id]
+            );
+            if ($smcat) {
+                $smcategory = format_string($smcat->name);
+            }
+        }
+
         return [
             'id'           => (int) $course->id,
             'fullname'     => format_string($course->fullname),
             'shortname'    => format_string($course->shortname),
             'categoryname' => $categoryname,
+            'sm_category'  => $smcategory,
             'image'        => $imageurl,
             'progress'     => 0,
             'lastcmid'     => 0,
@@ -566,6 +592,7 @@ class get_dashboard_data extends external_api {
             'fullname'           => new external_value(PARAM_TEXT, 'Course full name'),
             'shortname'          => new external_value(PARAM_TEXT, 'Course short name'),
             'categoryname'       => new external_value(PARAM_TEXT, 'Moodle category name'),
+            'sm_category'        => new external_value(PARAM_TEXT, 'SmartMind category name'),
             'image'              => new external_value(PARAM_RAW, 'Course image URL'),
             'progress'           => new external_value(PARAM_INT, 'Progress 0-100'),
             'lastcmid'           => new external_value(PARAM_INT, 'Last viewed activity cmid'),

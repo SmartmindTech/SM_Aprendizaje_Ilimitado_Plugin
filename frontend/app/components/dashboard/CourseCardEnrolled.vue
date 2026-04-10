@@ -17,7 +17,7 @@
         <h3 class="course-card__title">
           <NuxtLink :to="`/courses/${course.id}/landing`">{{ course.fullname }}</NuxtLink>
         </h3>
-        <span v-if="course.shortname" class="course-card__subtitle">{{ course.shortname }}</span>
+        <span v-if="course.sm_category" class="course-card__subtitle">{{ course.sm_category }}</span>
       </div>
       <div class="course-card__ring" :data-progress="course.progress || 0">
         <svg viewBox="0 0 36 36" class="course-card__ring-svg">

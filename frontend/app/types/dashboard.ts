@@ -10,6 +10,7 @@ export interface DashboardCourse {
   fullname: string
   shortname: string
   categoryname: string
+  sm_category: string
   image: string
   progress: number
   lastcmid: number
