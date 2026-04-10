@@ -490,28 +490,27 @@ const fetchData = async (force = false) => {
   }
 }
 
-fetchData()
-
-// Instant locale switching: the backend returns summaries_i18n and
-// objectives_i18n with all three languages pre-loaded. When the user
-// switches locale, we just pick the right entry — no round-trip.
 const { locale } = useI18n()
-watch(locale, (newLang) => {
-  if (!data.value) return
-  const lang = String(newLang)
 
-  // Swap summary.
+/** Pick the summary + objectives for the current vue-i18n locale from
+ *  the pre-loaded i18n arrays. Called on initial fetch AND on locale switch. */
+function applyLocaleContent() {
+  if (!data.value) return
+  const lang = String(locale.value)
+
   const si = (data.value.summaries_i18n ?? []).find((s: { lang: string }) => s.lang === lang)
   if (si) {
     data.value.coursesummary = si.summary
     data.value.hassummary = !!si.summary?.trim()
   }
 
-  // Swap objectives.
   const oi = (data.value.objectives_i18n ?? []).find((o: { lang: string }) => o.lang === lang)
   if (oi) {
     data.value.objectives = oi.objectives
     data.value.has_objectives = oi.objectives.length > 0
   }
-})
+}
+
+fetchData().then(() => applyLocaleContent())
+watch(locale, () => applyLocaleContent())
 </script>

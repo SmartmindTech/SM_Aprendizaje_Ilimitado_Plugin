@@ -6,7 +6,13 @@
          soon as a backup is prepared (manual upload OR sharepoint
          handoff), step advances to 1 (Confirm).
          ════════════════════════════════════════════════════════════ -->
-    <section v-if="step === 0" class="smgp-restore__landing">
+    <!-- Loading state while SharePoint handoff prepares the backup -->
+    <div v-if="step === -1" class="text-center py-5">
+      <div class="spinner-border text-success" role="status" />
+      <p class="text-muted small mt-2">{{ $t('restore.uploading') }}</p>
+    </div>
+
+    <section v-else-if="step === 0" class="smgp-restore__landing">
       <header class="smgp-restore__landing-header">
         <i class="bi bi-arrow-counterclockwise smgp-restore__landing-icon" />
         <div>
@@ -622,8 +628,35 @@
         <ObjectivesEditor v-model="smgpObjectives" />
       </div>
 
-      <!-- Course structure -->
-      <div class="smgp-restore__confirm-card">
+      <!-- SharePoint extras + Course structure side by side -->
+      <div class="smgp-restore__schema-row">
+
+      <!-- SharePoint extras palette (left — only when restoring from SP) -->
+      <div v-if="sharepointScan && availableSpExtras.length" class="smgp-restore__confirm-card smgp-restore__schema-sidebar">
+        <h3><i class="bi bi-cloud-download smgp-restore__card-icon smgp-restore__card-icon--blue" /> {{ $t('restore.sharepoint_extras_title') }}</h3>
+        <p class="text-muted small mb-3">{{ $t('restore.sharepoint_extras_drag_hint') }}</p>
+        <div class="smgp-restore__sp-palette">
+          <div
+            v-for="f in availableSpExtras"
+            :key="f.id"
+            class="smgp-restore__sp-chip"
+            draggable="true"
+            @dragstart="onSpExtraDragStart($event, f)"
+          >
+            <span class="smgp-restore__struct-icon-wrap" :style="{ background: f.badgeBg, color: f.colorHex }">
+              <i :class="['bi', f.icon]" />
+            </span>
+            <div class="smgp-restore__sp-chip-info">
+              <strong>{{ f.name }}</strong>
+              <span>{{ f.label }} · {{ formatBytes(f.size) }}</span>
+            </div>
+            <i class="bi bi-grip-vertical smgp-restore__struct-handle" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Course structure (right) -->
+      <div class="smgp-restore__confirm-card smgp-restore__schema-main">
         <h3><i class="bi bi-stack smgp-restore__card-icon smgp-restore__card-icon--purple" /> {{ $t('restore.course_structure') }}</h3>
 
         <div v-if="loadingSchema" class="text-center py-4">
@@ -755,29 +788,7 @@
         @save="onAddModalSave"
       />
 
-      <!-- SharePoint extras palette (only when restoring from a SP scan) -->
-      <div v-if="sharepointScan && availableSpExtras.length" class="smgp-restore__confirm-card">
-        <h3><i class="bi bi-cloud-download smgp-restore__card-icon smgp-restore__card-icon--blue" /> {{ $t('restore.sharepoint_extras_title') }}</h3>
-        <p class="text-muted small mb-3">{{ $t('restore.sharepoint_extras_drag_hint') }}</p>
-        <div class="smgp-restore__sp-palette">
-          <div
-            v-for="f in availableSpExtras"
-            :key="f.id"
-            class="smgp-restore__sp-chip"
-            draggable="true"
-            @dragstart="onSpExtraDragStart($event, f)"
-          >
-            <span class="smgp-restore__struct-icon-wrap" :style="{ background: f.badgeBg, color: f.colorHex }">
-              <i :class="['bi', f.icon]" />
-            </span>
-            <div class="smgp-restore__sp-chip-info">
-              <strong>{{ f.name }}</strong>
-              <span>{{ f.label }} · {{ formatBytes(f.size) }}</span>
-            </div>
-            <i class="bi bi-grip-vertical smgp-restore__struct-handle" />
-          </div>
-        </div>
-      </div>
+      </div> <!-- /smgp-restore__schema-row -->
 
       <div class="smgp-restore__confirm-actions">
         <button class="btn smgp-restore__back-btn" @click="step = 3">← {{ $t('restore.back') }}</button>
@@ -1030,7 +1041,10 @@ const stepNames = [
 ]
 
 // step 0 = landing page (file picker), 1..7 = the actual wizard.
-const step = ref(0)
+// If coming from SharePoint courseloader, skip step 0 immediately
+// (detect synchronously so the landing page never flashes).
+const hasSpHandoff = typeof window !== 'undefined' && !!window.sessionStorage.getItem('smgp_restore_sp_filename')
+const step = ref(hasSpHandoff ? -1 : 0) // -1 = loading (SP handoff in progress)
 const auth = useAuthStore()
 
 // ────────────────────────────────────────────────────────────
@@ -1229,6 +1243,8 @@ const sharepointScanFiles = computed(() => {
   if (!r) return []
   const out: Array<{ type: string; name: string; size: number; icon: string; colorHex: string; badgeBg: string; label: string }> = []
   for (const type of Object.keys(SP_TYPE_META)) {
+    // MBZ files are the backup being restored, not extra resources.
+    if (type === 'mbz') continue
     const arr = (r as any)[type] as SharepointScanFile[] | undefined
     if (!Array.isArray(arr)) continue
     const meta = SP_TYPE_META[type]!
@@ -2809,6 +2825,37 @@ consumeSharepointHandoff()
     &:hover { color: #ef4444; }
   }
 
+  // ── Step 4 side-by-side layout: structure + SP extras ──
+  &__schema-row {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    margin-left: -20rem;
+    margin-right: -64rem;
+    @media (max-width: 1200px) { margin-left: -2rem; margin-right: -2rem; }
+    @media (max-width: 900px) { flex-direction: column; margin: 0; }
+    background-color: transparent !important;
+  }
+  &__schema-main {
+    flex: 2;
+    min-width: 0;
+    max-width: 40%;
+  }
+  &__schema-sidebar {
+    flex: 1;
+    min-width: 280px;
+    max-width: 30%;
+    position: sticky;
+    top: 70px; // Below the navbar (~60px) + small gap
+    align-self: flex-start;
+    max-height: calc(100vh - 80px);
+    overflow-y: auto;
+    @media (max-width: 900px) {
+      max-width: 100%;
+      position: static;
+    }
+  }
+
   // ── SharePoint extras palette ──
   &__sp-palette {
     display: flex;
@@ -2920,6 +2967,9 @@ consumeSharepointHandoff()
     border: 1px solid #e2e8f0;
     border-radius: 8px;
     overflow: hidden;
+    background: #fff;
+    --bs-table-bg: #fff;
+    --bs-table-striped-bg: #fff;
     table {
       margin: 0;
       width: 100%;
@@ -2927,7 +2977,7 @@ consumeSharepointHandoff()
       border-spacing: 0;
     }
     thead th {
-      background: #f8fafc;
+      background: #fff;
       font-size: 0.72rem;
       font-weight: 600;
       text-transform: uppercase;
@@ -2942,6 +2992,7 @@ consumeSharepointHandoff()
       vertical-align: middle;
       color: #1e293b;
       font-size: 0.9rem;
+      background: #fff;
     }
     tbody tr:hover td { background: #f0fdf4; }
   }
