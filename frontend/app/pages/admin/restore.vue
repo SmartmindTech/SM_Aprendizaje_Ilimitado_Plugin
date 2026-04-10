@@ -1347,7 +1347,7 @@ const targetCourseSummary = computed(() => {
   const c = restoreCourses.value.find(rc => rc.id === destination.targetCourseId)
   return c ? `${c.fullname} (${c.shortname})` : '—'
 })
-void targetCourseSummary // retained for possible future use in review card
+void targetCourseSummary
 
 
 // Companies picker state (same pattern as the courseloader page).
@@ -1851,6 +1851,7 @@ const smgpMeta = reactive({
   duration_hours: 0,
   level: 'beginner',
   completion_percentage: 100,
+  is_pill: 0,
   smartmind_code: '',
   sepe_code: '',
   description: '',

@@ -890,13 +890,19 @@ class get_activity_content extends external_api {
             }
 
             // 2. Record the view for Moodle's completion system.
-            $modinfo = get_fast_modinfo($course);
-            $cminfo = $modinfo->get_cm($cm->id);
-            $completion = new \completion_info($course);
-            if ($completion->is_enabled($cminfo)) {
-                $completion->set_module_viewed($cminfo);
-                if ($modname === 'page' || $modname === 'label') {
-                    $completion->update_state($cminfo, COMPLETION_COMPLETE);
+            // Skip SCORM — it manages its own completion via the SCORM API
+            // (cmi.core.lesson_status). Calling set_module_viewed here would
+            // mark the activity as complete on first load, defeating granular
+            // progress tracking.
+            if ($modname !== 'scorm') {
+                $modinfo = get_fast_modinfo($course);
+                $cminfo = $modinfo->get_cm($cm->id);
+                $completion = new \completion_info($course);
+                if ($completion->is_enabled($cminfo)) {
+                    $completion->set_module_viewed($cminfo);
+                    if ($modname === 'page' || $modname === 'label') {
+                        $completion->update_state($cminfo, COMPLETION_COMPLETE);
+                    }
                 }
             }
 

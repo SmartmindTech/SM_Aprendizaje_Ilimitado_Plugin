@@ -395,6 +395,7 @@ function local_sm_graphics_plugin_before_standard_top_of_body_html(): string {
     }
 
     if ($isembed) {
+        // Body class + embed styles injected via before_footer hook.
         return '<script>document.body.classList.add("smgp-embedded");</script>';
     }
 
@@ -499,9 +500,11 @@ function local_sm_graphics_plugin_before_footer(): string {
 
     $output = '';
 
-    // Embed mode: inject tracking JS for real-time position updates via postMessage.
-    if (!empty($_GET['smgp_embed'])) {
+    // Embed mode: inject tracking JS + inline styles for real-time position
+    // updates via postMessage + hide SCORM chrome + fill iframe.
+    if (!empty($_GET['smgp_embed']) || !empty($_COOKIE['smgp_embed'])) {
         $output .= local_sm_graphics_plugin_inject_embed_tracking();
+        $output .= local_sm_graphics_plugin_inject_embed_styles();
     }
 
     $pagetype = $PAGE->pagetype ?? '';
@@ -1072,3 +1075,38 @@ function local_sm_graphics_plugin_inject_embed_tracking(): string {
     return $output;
 }
 
+
+/**
+ * Inject inline CSS for embed mode — hides SCORM chrome, fills viewport.
+ * Called from before_footer() alongside tracking JS injection.
+ * @return string
+ */
+function local_sm_graphics_plugin_inject_embed_styles(): string {
+    return '<style id="smgp-embed-styles">
+#scorm_navpanel, #scorm_toc, #scorm_toc_title, #scorm_toc_toggle,
+.scorm_toc_title, #toc, #page-header, #page-footer, footer,
+.navbar, .smgp-topnav, #nav-drawer, .drawer-toggles,
+.breadcrumb, .breadcrumb-nav, #page-navbar,
+.secondary-navigation, .activity-navigation, .activity-header,
+nav[aria-label="Navigation bar"],
+.smgp-custom-header, .smgp-sidebar, .smgp-sidebar__overlay,
+#scorm_layout > select,
+#scormtop,
+.scormnav.scorm-right,
+.scormnav {
+  display: none !important;
+}
+/* Transparent background so parent iframe rounded corners show through */
+body#page-mod-scorm-player,
+body#page-mod-scorm-player #page-wrapper,
+body#page-mod-scorm-player #page {
+  background: transparent !important;
+}
+</style>
+<script>
+// After hiding #scormtop, trigger a window resize so Moodle SCORM JS
+// recalculates the content iframe height to fill the freed space.
+setTimeout(function(){ window.dispatchEvent(new Event("resize")); }, 800);
+setTimeout(function(){ window.dispatchEvent(new Event("resize")); }, 2000);
+</script>';
+}

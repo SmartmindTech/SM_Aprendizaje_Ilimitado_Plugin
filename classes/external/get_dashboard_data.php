@@ -113,24 +113,11 @@ class get_dashboard_data extends external_api {
         $recentlyviewed = \local_sm_graphics_plugin\external\get_browsed_courses::execute(4);
 
         // ── Gamification banner data ──
-        // Award the daily-visit XP bonus *before* anything else. The
-        // award_xp call is idempotent on (userid, source, sourceid) so the
-        // user can only earn it once per calendar day, regardless of how
-        // many times they refresh. This makes "any visit to the platform"
-        // count, not only freshly-fired user_loggedin events (which never
-        // fire on long-lived sessions or SSO/cookie reauths).
+        // Daily-login XP is awarded by the user_loggedin event observer
+        // (classes/observer.php). Achievement unlocks happen on the profile
+        // page. Neither should run inside a data-fetching GET endpoint —
+        // they add write queries that slow down every dashboard refresh.
         $todayepoch = self::today_local_epoch();
-        \local_sm_graphics_plugin\gamification\xp_service::award_xp(
-            $USER->id,
-            \local_sm_graphics_plugin\gamification\xp_service::SOURCE_LOGIN_DAILY,
-            $todayepoch,
-            \local_sm_graphics_plugin\gamification\xp_service::XP_PER_LOGIN_DAILY,
-            'Daily visit bonus'
-        );
-
-        // Trigger any pending unlocks so first-time visitors get a coherent
-        // banner on their very first dashboard load.
-        \local_sm_graphics_plugin\gamification\achievement_service::check_and_unlock($USER->id);
         $xprow = \local_sm_graphics_plugin\gamification\xp_service::get_user_xp($USER->id);
         $userlevel = (int) $xprow->level;
 
