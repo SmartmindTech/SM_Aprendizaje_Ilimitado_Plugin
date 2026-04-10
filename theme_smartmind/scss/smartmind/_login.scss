@@ -12,7 +12,10 @@
     #page-footer,
     footer,
     .btn-footer-popover,
-    .footer-popover {
+    .footer-popover,
+    // Hide IOMAD "select company" notifications on the login page.
+    .alert-info,
+    .alert-warning {
         display: none !important;
     }
 

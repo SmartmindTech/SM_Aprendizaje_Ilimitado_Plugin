@@ -166,9 +166,13 @@ function local_sm_graphics_plugin_extend_navigation(global_navigation $navigatio
         }
     }
 
-    // Personal Space (/my/) → SPA dashboard.
+    // Personal Space (/my/) → SPA dashboard (students/managers) or
+    // admin settings (site admins).
     if (substr($scriptpath, -13) === '/my/index.php' || $scriptpath === '/my/') {
         if (isloggedin() && !isguestuser()) {
+            if (is_siteadmin()) {
+                redirect(new moodle_url($spapage, [], 'admin/settings'));
+            }
             redirect(new moodle_url($spapage, [], 'dashboard'));
         }
     }
@@ -185,11 +189,8 @@ function local_sm_graphics_plugin_extend_navigation(global_navigation $navigatio
     // admin pages — without this exception, clicking "Site administration"
     // (or our plugin's own settings link) bounces back into the SPA in a
     // loop and the admin can never reach /admin/settings.php.
-    if (strpos($scriptpath, 'iomad_company_admin/index.php') !== false && !is_siteadmin()) {
-        $managerrec = local_sm_graphics_plugin_get_manager_record($USER->id);
-        if ($managerrec) {
-            redirect(new moodle_url($spapage, [], 'admin/iomad-dashboard'));
-        }
+    if (strpos($scriptpath, 'iomad_company_admin/index.php') !== false && isloggedin() && !isguestuser()) {
+        redirect(new moodle_url($spapage, [], 'admin/iomad-dashboard'));
     }
 
     // IOMAD company edit → SPA company editor (managers only).

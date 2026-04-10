@@ -36,12 +36,18 @@ use external_value;
 class get_iomad_dashboard_data extends external_api {
 
     public static function execute_parameters(): external_function_parameters {
-        return new external_function_parameters([]);
+        return new external_function_parameters([
+            'companyid' => new external_value(PARAM_INT, 'Company ID to manage (0 = auto-detect)', VALUE_DEFAULT, 0),
+        ]);
     }
 
-    public static function execute(): array {
+    public static function execute(int $companyid = 0): array {
         global $CFG, $DB, $USER;
         require_once($CFG->dirroot . '/local/sm_graphics_plugin/lib.php');
+
+        $params = self::validate_parameters(self::execute_parameters(), [
+            'companyid' => $companyid,
+        ]);
 
         $context = \context_system::instance();
         self::validate_context($context);
@@ -52,29 +58,46 @@ class get_iomad_dashboard_data extends external_api {
             throw new \moodle_exception('accessdenied', 'admin');
         }
 
-        $companyname = '';
-        $companyid   = 0;
+        // Build the list of companies available to this admin.
+        $allcompanies = [];
+        if (is_siteadmin()) {
+            $rows = $DB->get_records('company', null, 'name ASC', 'id, name, shortname');
+            foreach ($rows as $row) {
+                $allcompanies[] = [
+                    'id'        => (int) $row->id,
+                    'name'      => format_string($row->name),
+                    'shortname' => format_string($row->shortname),
+                ];
+            }
+        } else if ($managerrec) {
+            $company = $DB->get_record('company', ['id' => $managerrec->companyid], 'id, name, shortname');
+            if ($company) {
+                $allcompanies[] = [
+                    'id'        => (int) $company->id,
+                    'name'      => format_string($company->name),
+                    'shortname' => format_string($company->shortname),
+                ];
+            }
+        }
 
-        if ($managerrec) {
+        // Resolve the active company.
+        $companyname = '';
+        $companyid   = (int) $params['companyid'];
+
+        if ($companyid > 0) {
+            // Explicit selection from the dropdown.
+            $companyname = $DB->get_field('company', 'name', ['id' => $companyid]) ?: '';
+        } else if ($managerrec) {
             $companyid   = $managerrec->companyid;
             $companyname = $DB->get_field('company', 'name', ['id' => $companyid]);
         } else if (is_siteadmin()) {
-            // Site admins: look up their company_users record (any role).
             $rec = $DB->get_record('company_users', ['userid' => $USER->id], 'companyid', IGNORE_MULTIPLE);
             if ($rec) {
                 $companyid   = $rec->companyid;
                 $companyname = $DB->get_field('company', 'name', ['id' => $companyid]);
-            } else {
-                // Fallback: use the first company in the system.
-                $first = $DB->get_record_sql(
-                    'SELECT id, name FROM {company} ORDER BY name ASC',
-                    [],
-                    IGNORE_MULTIPLE
-                );
-                if ($first) {
-                    $companyid   = $first->id;
-                    $companyname = $first->name;
-                }
+            } else if (!empty($allcompanies)) {
+                $companyid   = $allcompanies[0]['id'];
+                $companyname = $allcompanies[0]['name'];
             }
         }
 
@@ -158,7 +181,9 @@ class get_iomad_dashboard_data extends external_api {
         }
 
         return [
+            'companyid'   => $companyid,
             'companyname' => $companyname ?: '',
+            'companies'   => $allcompanies,
             'cards'       => $cards,
             'categories'  => $resultcategories,
         ];
@@ -166,7 +191,18 @@ class get_iomad_dashboard_data extends external_api {
 
     public static function execute_returns(): external_single_structure {
         return new external_single_structure([
+            'companyid'   => new external_value(PARAM_INT, 'Active company ID'),
             'companyname' => new external_value(PARAM_TEXT, 'Current company name'),
+            'companies'   => new external_multiple_structure(
+                new external_single_structure([
+                    'id'        => new external_value(PARAM_INT, 'Company ID'),
+                    'name'      => new external_value(PARAM_TEXT, 'Company name'),
+                    'shortname' => new external_value(PARAM_TEXT, 'Company shortname'),
+                ]),
+                'Available companies for the selector',
+                VALUE_DEFAULT,
+                []
+            ),
             'cards'       => new external_multiple_structure(
                 new external_single_structure([
                     'key'        => new external_value(PARAM_TEXT, 'Card key'),

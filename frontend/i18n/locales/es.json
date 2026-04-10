@@ -496,7 +496,9 @@
     "no_cards": "No hay opciones disponibles para tu cuenta."
   },
   "iomadDashboard": {
-    "desc": "Panel completo de administración IOMAD: empresas, licencias, usuarios y reporting multi-tenant."
+    "desc": "Panel completo de administración IOMAD: empresas, licencias, usuarios y reporting multi-tenant.",
+    "select_company": "Seleccionar empresa",
+    "select_company_hint": "Elige la empresa que deseas administrar. Los datos del panel cambiarán según la empresa seleccionada."
   },
   "editor": {
     "new_course": "Crear curso",

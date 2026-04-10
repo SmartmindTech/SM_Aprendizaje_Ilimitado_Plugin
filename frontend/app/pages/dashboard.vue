@@ -319,6 +319,13 @@ const authStore = useAuthStore()
 const dashboardStore = useDashboardStore()
 const { t } = useI18n()
 
+// Site admins should land on the admin settings page, not the student dashboard.
+onMounted(() => {
+  if (authStore.canAccessAdmin()) {
+    navigateTo('/admin/settings', { replace: true })
+  }
+})
+
 // ── Store state ──
 const {
   loading, error,

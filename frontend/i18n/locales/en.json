@@ -495,7 +495,9 @@
     "no_cards": "No options available for your account."
   },
   "iomadDashboard": {
-    "desc": "Full IOMAD admin dashboard: companies, licenses, users and multi-tenant reporting."
+    "desc": "Full IOMAD admin dashboard: companies, licenses, users and multi-tenant reporting.",
+    "select_company": "Select a Company",
+    "select_company_hint": "Choose the company you want to manage. The dashboard data will change based on the selected company."
   },
   "editor": {
     "new_course": "New course",
