@@ -403,27 +403,27 @@ async function onSubmit() {
   }
 }
 
-fetchData()
-
-// Instant locale switching for description + objectives using the
-// pre-loaded all-language arrays from the initial fetch.
 const { locale } = useI18n()
-watch(locale, (newLang) => {
-  if (!data.value) return
-  const lang = String(newLang)
 
-  // Swap description.
+/** Pick description + objectives for the current SPA locale from the
+ *  pre-loaded i18n arrays. Called on initial fetch AND on locale switch. */
+function applyLocaleContent() {
+  if (!data.value) return
+  const lang = String(locale.value)
+
   const di = (data.value.descriptions_i18n ?? []).find((d: { lang: string }) => d.lang === lang)
   if (di) {
     metaModel.description = di.description
   }
 
-  // Swap objectives.
   const oi = (data.value.objectives_i18n ?? []).find((o: { lang: string }) => o.lang === lang)
   if (oi) {
     objectivesModel.value = oi.objectives.map((o: { text: string }) => o.text)
   }
-})
+}
+
+fetchData().then(() => applyLocaleContent())
+watch(locale, () => applyLocaleContent())
 </script>
 
 <style scoped lang="scss">

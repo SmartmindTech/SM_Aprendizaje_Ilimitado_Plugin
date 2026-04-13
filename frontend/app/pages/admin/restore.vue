@@ -626,6 +626,26 @@
           @update:model-value="onSmgpMetaUpdate"
         />
         <ObjectivesEditor v-model="smgpObjectives" />
+
+        <!-- Course banner image -->
+        <div class="smgp-restore__image-field">
+          <label><i class="bi bi-image" /> {{ $t('editor.course_image') }} <i class="bi bi-info-circle smgp-restore__tip" :title="$t('editor.tip_course_image')" /></label>
+          <div class="smgp-restore__image-row">
+            <div class="smgp-restore__image-preview">
+              <img v-if="courseImagePreview" :src="courseImagePreview" alt="">
+              <span v-else class="smgp-restore__image-placeholder"><i class="bi bi-image" /></span>
+            </div>
+            <div class="smgp-restore__image-controls">
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                class="form-control form-control-sm"
+                @change="onCourseImageChange"
+              >
+              <small class="form-text text-muted">{{ $t('editor.course_image_help') }}</small>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- SharePoint extras + Course structure side by side -->
@@ -1875,6 +1895,18 @@ const smgpMeta = reactive({
 })
 const smgpObjectives = ref<string[]>([])
 
+// Course banner image for the restored course.
+const courseImageFile = ref<File | null>(null)
+const courseImagePreview = ref('')
+function onCourseImageChange(e: Event) {
+  const file = (e.target as HTMLInputElement).files?.[0]
+  if (!file) { courseImageFile.value = null; courseImagePreview.value = ''; return }
+  courseImageFile.value = file
+  const reader = new FileReader()
+  reader.onload = () => { courseImagePreview.value = reader.result as string }
+  reader.readAsDataURL(file)
+}
+
 // MetadataFields emits a fresh object on every keystroke (spread of
 // props.modelValue). Binding that with v-model to a `reactive` const
 // silently breaks reactivity — the assignment doesn't replace the
@@ -1988,6 +2020,24 @@ async function executeRestore() {
     executeError.value = result.error || result.data?.error || 'Restore failed.'
   } else {
     executeResult.value = result.data
+
+    // Upload the course banner image if one was selected.
+    if (courseImageFile.value && result.data.courseid) {
+      const reader = new FileReader()
+      reader.onload = async () => {
+        const base64 = (reader.result as string).replace(/^data:[^;]+;base64,/, '')
+        await call('local_sm_graphics_plugin_update_course_full', {
+          courseid: result.data!.courseid,
+          fullname: destination.fullname,
+          shortname: destination.shortname,
+          summary: '',
+          categoryid: destination.categoryid,
+          image_filename: courseImageFile.value!.name,
+          image_base64: base64,
+        })
+      }
+      reader.readAsDataURL(courseImageFile.value)
+    }
     step.value = 7
   }
 }
@@ -2857,6 +2907,45 @@ consumeSharepointHandoff()
   }
 
   // ── SharePoint extras palette ──
+  // ── Course banner image picker ──
+  &__image-field {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #f1f5f9;
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: #1e293b;
+      margin-bottom: 0.4rem;
+    }
+  }
+  &__image-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  &__image-preview {
+    width: 80px;
+    height: 80px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    img { width: 100%; height: 100%; object-fit: cover; }
+  }
+  &__image-placeholder {
+    color: #94a3b8;
+    font-size: 1.5rem;
+  }
+  &__image-controls {
+    flex: 1;
+    .form-control { background-color: #fff !important; }
+  }
+
   &__sp-palette {
     display: flex;
     flex-direction: column;
