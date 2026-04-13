@@ -3,6 +3,14 @@
 // ============================================
 // NOTE: .smgp-course-header section intentionally removed.
 
+// Scrollable without visible scrollbar.
+@mixin hidden-scrollbar {
+  overflow-y: auto;
+  scrollbar-width: none;           // Firefox
+  -ms-overflow-style: none;        // IE/Edge
+  &::-webkit-scrollbar { display: none; } // Chrome/Safari
+}
+
 // ===== Course Page Root =====
 body.smgp-course-player .navbar_right_content {
   background-color: #F5F3EE !important;
@@ -125,13 +133,14 @@ body.smgp-course-player #page-wrapper {
   order: 2;
 
   // Center inline content with a max-width for readability.
-  // flex: 1 + overflow-y: auto = content scrolls inside the fixed-height card.
+  // flex: 1 + hidden-scrollbar = content scrolls inside the fixed-height card
+  // without a visible scrollbar.
   > .smgp-activity-content {
     width: 100%;
     max-width: $course-content-maxwidth;
     flex: 1 1 0;
     min-height: 0;
-    overflow-y: auto;
+    @include hidden-scrollbar;
   }
 
   // Resource (documents/files) — expand to fill the full content area.
@@ -1851,12 +1860,13 @@ html.smgp-focus-active {
 
 // ===== Module Content Sidebar (floating panel) =====
 .smgp-course-sidebar {
-  // Grid placement: column 2, row 2 — top-aligned with the content box.
+  // Grid placement: column 2, row 2 — stretches to fill the row,
+  // capped by max-height so the list scrolls inside.
   grid-column: 3;
   grid-row: 2;
-  align-self: flex-start;
+  align-self: start;
   width: 320px;
-  max-height: calc(100vh - var(--navbar-height, 60px) - 2rem);
+  height: calc(100vh - var(--navbar-height, 60px) - 7rem);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -1906,7 +1916,9 @@ html.smgp-focus-active {
   }
 
   &__sections, &__list {
-    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+    @include hidden-scrollbar;
   }
 
   &__toggle {

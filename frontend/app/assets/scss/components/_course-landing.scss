@@ -524,38 +524,30 @@
         }
     }
 
-    &--green {
-        background: rgba($smgp-success, 0.12);
-        color: darken($smgp-success, 10%);
-    }
-    &--blue {
-        background: rgba(#3b82f6, 0.12);
-        color: #2563eb;
-    }
-    &--yellow {
-        background: rgba($smgp-warning, 0.12);
-        color: darken($smgp-warning, 15%);
-    }
-    &--orange {
-        background: rgba(#f97316, 0.12);
-        color: #ea580c;
-    }
-    &--red {
-        background: rgba($smgp-danger, 0.12);
-        color: darken($smgp-danger, 10%);
-    }
-    &--purple {
-        background: rgba($smgp-accent-violet, 0.12);
-        color: darken($smgp-accent-violet, 10%);
-    }
-    &--pink {
-        background: rgba($smgp-accent-pink, 0.12);
-        color: darken($smgp-accent-pink, 10%);
-    }
-    &--brown {
-        background: rgba(#92400e, 0.12);
-        color: #92400e;
-    }
+    &--blue       { background: rgba(#3b82f6, 0.12); color: #2563eb; }
+    &--amber      { background: rgba(#d97706, 0.12); color: #b45309; }
+    &--slate      { background: rgba(#64748b, 0.12); color: #475569; }
+    &--sky        { background: rgba(#0ea5e9, 0.12); color: #0284c7; }
+    &--indigo     { background: rgba(#6366f1, 0.12); color: #4f46e5; }
+    &--violet     { background: rgba(#7c3aed, 0.12); color: #6d28d9; }
+    &--cyan       { background: rgba(#06b6d4, 0.12); color: #0891b2; }
+    &--emerald    { background: rgba(#10b981, 0.12); color: #059669; }
+    &--rose       { background: rgba(#f43f5e, 0.12); color: #e11d48; }
+    &--purple     { background: rgba(#a855f7, 0.12); color: #7c3aed; }
+    &--teal       { background: rgba(#14b8a6, 0.12); color: #0d9488; }
+    &--fuchsia    { background: rgba(#d946ef, 0.12); color: #c026d3; }
+    &--red        { background: rgba(#ef4444, 0.12); color: #dc2626; }
+    &--yellow     { background: rgba(#eab308, 0.12); color: #a16207; }
+    &--orange     { background: rgba(#f97316, 0.12); color: #ea580c; }
+    &--lime       { background: rgba(#84cc16, 0.12); color: #65a30d; }
+    &--green      { background: rgba(#22c55e, 0.12); color: #16a34a; }
+    &--brown      { background: rgba(#92400e, 0.12); color: #92400e; }
+    &--pink       { background: rgba(#ec4899, 0.12); color: #db2777; }
+    &--green-dark { background: rgba(#16a34a, 0.12); color: #15803d; }
+    &--pink-dark  { background: rgba(#be185d, 0.12); color: #9d174d; }
+    &--stone      { background: rgba(#78716c, 0.12); color: #57534e; }
+    &--blue-dark  { background: rgba(#2563eb, 0.12); color: #1d4ed8; }
+    &--gold       { background: rgba(#ca8a04, 0.12); color: #a16207; }
 }
 
 .smgp-landing__activity-duration {
@@ -771,14 +763,30 @@
     width: 1.25rem;
     text-align: center;
 
-    &--green, &--green::before { color: $smgp-success !important; }
     &--blue, &--blue::before { color: #3b82f6 !important; }
-    &--yellow, &--yellow::before { color: $smgp-warning !important; }
+    &--amber, &--amber::before { color: #d97706 !important; }
+    &--slate, &--slate::before { color: #64748b !important; }
+    &--sky, &--sky::before { color: #0ea5e9 !important; }
+    &--indigo, &--indigo::before { color: #6366f1 !important; }
+    &--violet, &--violet::before { color: #7c3aed !important; }
+    &--cyan, &--cyan::before { color: #06b6d4 !important; }
+    &--emerald, &--emerald::before { color: #10b981 !important; }
+    &--rose, &--rose::before { color: #f43f5e !important; }
+    &--purple, &--purple::before { color: #a855f7 !important; }
+    &--teal, &--teal::before { color: #14b8a6 !important; }
+    &--fuchsia, &--fuchsia::before { color: #d946ef !important; }
+    &--red, &--red::before { color: #ef4444 !important; }
+    &--yellow, &--yellow::before { color: #eab308 !important; }
     &--orange, &--orange::before { color: #f97316 !important; }
-    &--red, &--red::before { color: $smgp-danger !important; }
-    &--purple, &--purple::before { color: $smgp-accent-violet !important; }
-    &--pink, &--pink::before { color: $smgp-accent-pink !important; }
+    &--lime, &--lime::before { color: #84cc16 !important; }
+    &--green, &--green::before { color: #22c55e !important; }
     &--brown, &--brown::before { color: #92400e !important; }
+    &--pink, &--pink::before { color: #ec4899 !important; }
+    &--green-dark, &--green-dark::before { color: #16a34a !important; }
+    &--pink-dark, &--pink-dark::before { color: #be185d !important; }
+    &--stone, &--stone::before { color: #78716c !important; }
+    &--blue-dark, &--blue-dark::before { color: #2563eb !important; }
+    &--gold, &--gold::before { color: #ca8a04 !important; }
 }
 
 .smgp-landing__content-type-label {

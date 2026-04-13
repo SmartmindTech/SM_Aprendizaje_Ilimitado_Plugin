@@ -57,7 +57,7 @@
             }"
             @click="$emit('select', activity)"
           >
-            <i :class="['smgp-course-activity__icon-box', activity.iconclass]" :style="{ color: typeColor(activity.modname), background: typeBg(activity.modname) }" />
+            <i :class="['smgp-course-activity__icon-box', activity.iconclass]" :style="{ color: typeColor(effectiveType(activity)), background: typeBg(effectiveType(activity)) }" />
             <div class="smgp-course-activity__text">
               <p class="smgp-course-activity__name">{{ activity.name }}</p>
             </div>
@@ -105,14 +105,40 @@ defineEmits<{
 const CIRCUMFERENCE = 2 * Math.PI * 7 // ≈ 43.98
 
 const TYPE_COLORS: Record<string, string> = {
-  scorm: '#16a34a', h5pactivity: '#16a34a', choice: '#16a34a',
-  quiz: '#ef4444', survey: '#ef4444',
-  url: '#3b82f6', resource: '#3b82f6', page: '#3b82f6', folder: '#3b82f6',
-  assign: '#eab308', workshop: '#eab308',
-  lesson: '#f97316', forum: '#f97316', chat: '#f97316',
-  feedback: '#8b5cf6', data: '#8b5cf6', glossary: '#8b5cf6', lti: '#8b5cf6',
-  book: '#a16207', wiki: '#a16207',
-  bigbluebuttonbn: '#ec4899', iomadcertificate: '#ec4899',
+  page: '#3b82f6',            // blue
+  book: '#d97706',            // amber
+  label: '#64748b',           // slate
+  resource: '#0ea5e9',        // sky
+  url: '#6366f1',             // indigo
+  glossary: '#7c3aed',        // violet
+  folder: '#06b6d4',          // cyan
+  choice: '#10b981',          // emerald
+  survey: '#f43f5e',          // rose
+  feedback: '#a855f7',        // purple
+  wiki: '#14b8a6',            // teal
+  data: '#d946ef',            // fuchsia
+  quiz: '#ef4444',            // red
+  assign: '#eab308',          // yellow
+  lesson: '#f97316',          // orange
+  workshop: '#84cc16',        // lime
+  scorm: '#22c55e',           // green
+  forum: '#b45309',           // amber-dark
+  chat: '#ec4899',            // pink
+  h5pactivity: '#16a34a',     // green-dark
+  bigbluebuttonbn: '#be185d', // pink-dark
+  lti: '#78716c',             // stone
+  imscp: '#2563eb',           // blue-dark
+  iomadcertificate: '#ca8a04', // gold
+  trainingevent: '#e11d48',   // rose-dark
+  genially: '#c026d3',        // magenta (pseudo-type from URL detection)
+  video: '#f43f5e',           // rose (pseudo-type from URL detection)
+}
+
+function effectiveType(activity: any): string {
+  // Detect pseudo-types from backend icon overrides.
+  if (activity.iconclass === 'icon-film') return 'video'
+  if (activity.iconclass === 'icon-presentation') return 'genially'
+  return activity.modname
 }
 
 function typeColor(modname: string) {

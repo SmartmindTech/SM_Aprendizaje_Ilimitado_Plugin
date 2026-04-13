@@ -33,54 +33,58 @@ class course_landing_renderer {
 
     /** @var array Activity modname to Lucide Icon class mapping. */
     private const ACTIVITY_ICONS = [
-        'assign'     => 'icon-pencil',
-        'quiz'       => 'icon-circle-help',
-        'forum'      => 'icon-message-circle',
-        'resource'   => 'icon-file-up',
-        'url'        => 'icon-link',
         'page'       => 'icon-file-text',
         'book'       => 'icon-book-open',
-        'folder'     => 'icon-folder',
-        'label'      => 'icon-tag',
+        'label'      => 'icon-type',
+        'resource'   => 'icon-file-up',
+        'url'        => 'icon-link',
         'glossary'   => 'icon-notebook-text',
-        'wiki'       => 'icon-globe',
-        'workshop'   => 'icon-users',
-        'feedback'   => 'icon-message-square-text',
+        'folder'     => 'icon-folder',
         'choice'     => 'icon-circle-check',
-        'data'       => 'icon-database',
-        'lesson'     => 'icon-graduation-cap',
-        'scorm'      => 'icon-package',
         'survey'     => 'icon-clipboard-check',
+        'feedback'   => 'icon-message-square-text',
+        'wiki'       => 'icon-globe',
+        'data'       => 'icon-database',
+        'quiz'       => 'icon-circle-help',
+        'assign'     => 'icon-pencil',
+        'lesson'     => 'icon-graduation-cap',
+        'workshop'   => 'icon-users',
+        'scorm'      => 'icon-box',
+        'forum'      => 'icon-message-circle',
         'chat'       => 'icon-send',
-        'lti'        => 'icon-external-link',
-        'h5pactivity' => 'icon-layers',
+        'h5pactivity' => 'icon-circle-play',
         'bigbluebuttonbn' => 'icon-video',
+        'lti'        => 'icon-external-link',
+        'imscp'      => 'icon-archive',
+        'iomadcertificate' => 'icon-award',
     ];
 
     /** @var array Activity modname to badge color class mapping. */
     private const TYPE_COLORS = [
-        'scorm'      => 'green',
-        'h5pactivity' => 'green',
-        'choice'     => 'green',
-        'quiz'       => 'red',
-        'survey'     => 'red',
-        'url'        => 'blue',
-        'resource'   => 'blue',
         'page'       => 'blue',
-        'folder'     => 'blue',
-        'assign'     => 'yellow',
-        'workshop'   => 'yellow',
-        'lesson'     => 'orange',
-        'forum'      => 'orange',
-        'chat'       => 'orange',
+        'book'       => 'amber',
+        'label'      => 'slate',
+        'resource'   => 'sky',
+        'url'        => 'indigo',
+        'glossary'   => 'violet',
+        'folder'     => 'cyan',
+        'choice'     => 'emerald',
+        'survey'     => 'rose',
         'feedback'   => 'purple',
-        'data'       => 'purple',
-        'glossary'   => 'purple',
-        'lti'        => 'purple',
-        'book'       => 'brown',
-        'wiki'       => 'brown',
-        'bigbluebuttonbn' => 'pink',
-        'iomadcertificate' => 'pink',
+        'wiki'       => 'teal',
+        'data'       => 'fuchsia',
+        'quiz'       => 'red',
+        'assign'     => 'yellow',
+        'lesson'     => 'orange',
+        'workshop'   => 'lime',
+        'scorm'      => 'green',
+        'forum'      => 'brown',
+        'chat'       => 'pink',
+        'h5pactivity' => 'green-dark',
+        'bigbluebuttonbn' => 'pink-dark',
+        'lti'        => 'stone',
+        'imscp'      => 'blue-dark',
+        'iomadcertificate' => 'gold',
     ];
 
     /**
@@ -452,14 +456,40 @@ class course_landing_renderer {
                         $modtypelabel = $mod->modname;
                     }
 
-                    // Genially detection.
+                    // Genially / Video detection for URL activities.
                     if ($mod->modname === 'url') {
                         $urlrec = $DB->get_record('url', ['id' => $mod->instance], 'externalurl');
-                        if ($urlrec && (strpos($urlrec->externalurl, 'genial.ly') !== false
-                            || strpos($urlrec->externalurl, 'genially.com') !== false)) {
-                            $iconclass = 'icon-presentation';
-                            $modtypelabel = 'Genially';
-                            $typecolor = 'pink';
+                        if ($urlrec) {
+                            $exturl = $urlrec->externalurl;
+                            if (strpos($exturl, 'genial.ly') !== false
+                                || strpos($exturl, 'genially.com') !== false) {
+                                $iconclass = 'icon-presentation';
+                                $modtypelabel = 'Genially';
+                                $typecolor = 'fuchsia';
+                            } else if (preg_match('/youtube\.com|youtu\.be|vimeo\.com/i', $exturl)
+                                || preg_match('/\.(mp4|webm|ogg|mov)(\?|$)/i', $exturl)) {
+                                $iconclass = 'icon-film';
+                                $modtypelabel = 'Video';
+                                $typecolor = 'rose';
+                            }
+                        }
+                    }
+
+                    // Video detection for resource (uploaded file) activities.
+                    if ($mod->modname === 'resource') {
+                        $ctx = \context_module::instance($mod->id, IGNORE_MISSING);
+                        if ($ctx) {
+                            $fs = get_file_storage();
+                            $files = $fs->get_area_files($ctx->id, 'mod_resource', 'content', 0, 'sortorder DESC, id ASC', false);
+                            $mainfile = reset($files);
+                            if ($mainfile) {
+                                $mime = $mainfile->get_mimetype();
+                                if ($mime && strpos($mime, 'video/') === 0) {
+                                    $iconclass = 'icon-film';
+                                    $modtypelabel = 'Video';
+                                    $typecolor = 'rose';
+                                }
+                            }
                         }
                     }
 
