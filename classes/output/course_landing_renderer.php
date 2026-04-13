@@ -335,7 +335,13 @@ class course_landing_renderer {
             foreach ($section['activities'] as $act) {
                 $label = $act['modtypelabel'];
                 if (!isset($typecounts[$label])) {
-                    $typecounts[$label] = ['type_label' => $label, 'type_count' => 0, 'type_color' => $act['type_color'], 'type_icon' => $act['iconclass']];
+                    $typecounts[$label] = [
+                        'type_label'   => $label,
+                        'type_modname' => $act['modname'],
+                        'type_count'   => 0,
+                        'type_color'   => $act['type_color'],
+                        'type_icon'    => $act['iconclass'],
+                    ];
                 }
                 $typecounts[$label]['type_count']++;
                 $totaldurationmin += $act['duration_minutes'];
@@ -514,6 +520,7 @@ class course_landing_renderer {
                     $activities[] = [
                         'cmid'             => $mod->id,
                         'name'             => format_string($mod->name),
+                        'modname'          => $mod->modname,
                         'iconclass'        => $iconclass,
                         'modtypelabel'     => $modtypelabel,
                         'type_color'       => $typecolor,

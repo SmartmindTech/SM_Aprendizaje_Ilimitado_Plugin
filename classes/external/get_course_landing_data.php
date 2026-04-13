@@ -125,8 +125,9 @@ class get_course_landing_data extends external_api {
                         new external_single_structure([
                             'cmid'             => new external_value(PARAM_INT, 'Course module ID'),
                             'name'             => new external_value(PARAM_TEXT, 'Activity name'),
+                            'modname'          => new external_value(PARAM_TEXT, 'Module type name for i18n lookup'),
                             'iconclass'        => new external_value(PARAM_TEXT, 'Icon CSS class'),
-                            'modtypelabel'     => new external_value(PARAM_TEXT, 'Module type label'),
+                            'modtypelabel'     => new external_value(PARAM_TEXT, 'Module type label (backend fallback)'),
                             'type_color'       => new external_value(PARAM_TEXT, 'Color token for the activity badge'),
                             'iscomplete'       => new external_value(PARAM_BOOL, 'Activity complete'),
                             'iscurrent'        => new external_value(PARAM_BOOL, 'Current activity indicator'),
@@ -166,10 +167,11 @@ class get_course_landing_data extends external_api {
             'ring_offset'        => new external_value(PARAM_FLOAT, 'Progress ring offset'),
             'content_types'      => new external_multiple_structure(
                 new external_single_structure([
-                    'type_label' => new external_value(PARAM_TEXT, 'Content type label'),
-                    'type_icon'  => new external_value(PARAM_TEXT, 'Content type icon class'),
-                    'type_color' => new external_value(PARAM_TEXT, 'Content type color token'),
-                    'type_count' => new external_value(PARAM_INT, 'Count of activities of this type'),
+                    'type_label'   => new external_value(PARAM_TEXT, 'Content type label (fallback)'),
+                    'type_modname' => new external_value(PARAM_TEXT, 'Module name for i18n lookup'),
+                    'type_icon'    => new external_value(PARAM_TEXT, 'Content type icon class'),
+                    'type_color'   => new external_value(PARAM_TEXT, 'Content type color token'),
+                    'type_count'   => new external_value(PARAM_INT, 'Count of activities of this type'),
                 ])
             ),
             'has_content_types'      => new external_value(PARAM_BOOL, 'Has content type breakdown'),

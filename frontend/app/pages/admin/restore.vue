@@ -555,7 +555,7 @@
           >
             <span class="smgp-restore__settings-num">{{ idx + 1 }}</span>
             <label :for="`set-${setting.name}`" class="smgp-restore__settings-label">
-              {{ setting.label || setting.name }}
+              {{ settingLabel(setting) }}
             </label>
             <select
               v-if="setting.type === 'select'"
@@ -1473,6 +1473,13 @@ async function loadSettings() {
 }
 function updateSetting(name: string, value: string) {
   customSettings[name] = value
+}
+function settingLabel(s: SettingRow): string {
+  // Extract the setting key from the UI name (e.g. "root_setting_users" → "users").
+  const rawName = s.name.replace(/^root_setting_/, '')
+  const i18nKey = `restore.setting_${rawName}`
+  // If the key exists in i18n, use it; otherwise fall back to backend label.
+  return te(i18nKey) ? t(i18nKey) : (s.label || s.name)
 }
 function isBinarySetting(s: SettingRow): boolean {
   if (s.type === 'checkbox') return true

@@ -25,10 +25,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_sm_graphics_plugin';
-$plugin->version = 2026041300;  // Vue-native activity rendering: folder, choice, survey, feedback, wiki, data, quiz, assign, lesson, workshop, SCORM.
+$plugin->version = 2026041302;  // i18n: add modname to landing activity + content_types external returns.
 $plugin->requires = 2022112800; // Moodle 4.1+
 $plugin->maturity = MATURITY_ALPHA;
-$plugin->release = '1.1.0-nuxt.41';  // Nuxt branch — Vue-native activities
+$plugin->release = '1.1.0-nuxt.42';  // Nuxt branch — i18n fixes
 
 // GitHub update server — configurable via UPDATE_BRANCH in .env.
 //

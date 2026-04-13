@@ -154,7 +154,7 @@
                         :class="`smgp-landing__activity-badge--${activity.type_color || 'green'}`"
                       >
                         <i :class="activity.iconclass" />
-                        {{ activity.modtypelabel }}
+                        {{ $te('landing.activityType.' + activity.modname) ? $t('landing.activityType.' + activity.modname) : activity.modtypelabel }}
                       </span>
                       <span v-if="activity.has_duration" class="smgp-landing__activity-duration">
                         {{ activity.duration_minutes }} min
@@ -208,7 +208,7 @@
                 <i
                   :class="[ct.type_icon, 'smgp-landing__content-type-icon', `smgp-landing__content-type-icon--${ct.type_color || 'green'}`]"
                 />
-                <span class="smgp-landing__content-type-label">{{ ct.type_label }}</span>
+                <span class="smgp-landing__content-type-label">{{ $te('landing.activityType.' + ct.type_modname) ? $t('landing.activityType.' + ct.type_modname) : ct.type_label }}</span>
                 <span class="smgp-landing__content-type-count">{{ ct.type_count }}</span>
               </li>
             </ul>
