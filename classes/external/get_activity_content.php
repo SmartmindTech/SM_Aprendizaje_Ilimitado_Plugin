@@ -44,7 +44,11 @@ use external_value;
 class get_activity_content extends external_api {
 
     /** @var string[] Activity types rendered inline (AJAX HTML). */
-    private static $inline_types = ['page', 'book', 'label', 'resource', 'url', 'glossary'];
+    private static $inline_types = [
+        'page', 'book', 'label', 'resource', 'url', 'glossary',
+        'folder', 'choice', 'survey', 'feedback', 'wiki', 'data',
+        'quiz', 'assign', 'lesson', 'workshop', 'scorm',
+    ];
 
     /** @var string[] Activity types that redirect to the real Moodle page. */
     private static $redirect_types = ['forum', 'chat', 'bigbluebuttonbn', 'lti'];
@@ -984,6 +988,39 @@ class get_activity_content extends external_api {
             case 'glossary':
                 return self::build_glossary_data($cm, $context);
 
+            case 'folder':
+                return self::build_folder_data($cm, $context);
+
+            case 'choice':
+                return self::build_choice_data($cm, $course, $context);
+
+            case 'survey':
+                return self::build_survey_data($cm, $course, $context);
+
+            case 'feedback':
+                return self::build_feedback_data($cm, $course, $context);
+
+            case 'wiki':
+                return self::build_wiki_data($cm, $context, $itemnum);
+
+            case 'data':
+                return self::build_data_data($cm, $context);
+
+            case 'quiz':
+                return self::build_quiz_data($cm, $course, $context);
+
+            case 'assign':
+                return self::build_assign_data($cm, $course, $context);
+
+            case 'lesson':
+                return self::build_lesson_data($cm, $course, $context, $itemnum);
+
+            case 'workshop':
+                return self::build_workshop_data($cm, $course, $context);
+
+            case 'scorm':
+                return self::build_scorm_data($cm, $context);
+
             default:
                 return ['kind' => 'unsupported'];
         }
@@ -1011,7 +1048,7 @@ class get_activity_content extends external_api {
      * it for completion tracking instead of course_module_viewed).
      */
     private static function build_book_data($cm, $context, int $chapternum = 0): array {
-        global $DB;
+        global $DB, $USER, $CFG;
         $book = $DB->get_record('book', ['id' => $cm->instance], '*', MUST_EXIST);
         $chapters = array_values($DB->get_records('book_chapters', ['bookid' => $book->id, 'hidden' => 0], 'pagenum ASC'));
 
@@ -1021,14 +1058,21 @@ class get_activity_content extends external_api {
 
         // Select requested chapter (1-based) or default to first.
         $idx = ($chapternum > 0 && $chapternum <= count($chapters)) ? $chapternum - 1 : 0;
+
+        // Pre-render ALL chapters so the frontend navigates instantly.
+        $allchapters = [];
+        foreach ($chapters as $i => $ch) {
+            $chcontent = file_rewrite_pluginfile_urls(
+                $ch->content, 'pluginfile.php', $context->id, 'mod_book', 'chapter', $ch->id
+            );
+            $allchapters[] = [
+                'title'   => format_string($ch->title),
+                'content' => format_text($chcontent, $ch->contentformat, ['context' => $context]),
+            ];
+        }
+
+        // Trigger chapter_viewed event for the current chapter.
         $chapter = $chapters[$idx];
-
-        $content = file_rewrite_pluginfile_urls(
-            $chapter->content, 'pluginfile.php', $context->id, 'mod_book', 'chapter', $chapter->id
-        );
-        $content = format_text($content, $chapter->contentformat, ['context' => $context]);
-
-        // Trigger chapter_viewed event (books use this instead of course_module_viewed).
         try {
             $event = \mod_book\event\chapter_viewed::create([
                 'objectid' => $chapter->id,
@@ -1041,14 +1085,41 @@ class get_activity_content extends external_api {
             debugging('Could not trigger chapter_viewed: ' . $e->getMessage(), DEBUG_DEVELOPER);
         }
 
+        // Check if all chapters have now been viewed → mark complete.
+        $totalchapters = count($chapters);
+        $viewedcount = (int) $DB->count_records_sql(
+            "SELECT COUNT(DISTINCT objectid) FROM {logstore_standard_log}
+             WHERE component = 'mod_book' AND eventname = :eventname
+             AND userid = :userid AND contextinstanceid = :cmid",
+            ['eventname' => '\\mod_book\\event\\chapter_viewed',
+             'userid' => $USER->id, 'cmid' => $cm->id]
+        );
+
+        if ($viewedcount >= $totalchapters) {
+            try {
+                require_once($CFG->libdir . '/completionlib.php');
+                $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
+                $modinfo = get_fast_modinfo($course);
+                $cminfo = $modinfo->get_cm($cm->id);
+                $completion = new \completion_info($course);
+                if ($completion->is_enabled($cminfo)) {
+                    $completion->update_state($cminfo, COMPLETION_COMPLETE);
+                }
+            } catch (\Exception $e) {
+                debugging('Book completion error: ' . $e->getMessage(), DEBUG_DEVELOPER);
+            }
+        }
+
         return [
             'kind'    => 'book',
-            'content' => $content,
+            'content' => $allchapters[$idx]['content'],
             'chapter' => [
-                'title'   => format_string($chapter->title),
+                'title'   => $allchapters[$idx]['title'],
                 'current' => $idx + 1,
-                'total'   => count($chapters),
+                'total'   => $totalchapters,
             ],
+            'allchapters' => $allchapters,
+            'viewedcount' => $viewedcount,
         ];
     }
 
@@ -1214,6 +1285,932 @@ class get_activity_content extends external_api {
     }
 
     /**
+     * Build mod_scorm payload: minimal — tells the Vue player to use
+     * CoursePlayerScorm component. Full CMI data loaded via get_scorm_cmi_data.
+     */
+    private static function build_scorm_data($cm, $context): array {
+        global $DB;
+        $scorm = $DB->get_record('scorm', ['id' => $cm->instance], '*', MUST_EXIST);
+        $intro = self::format_intro_text($scorm, $context, 'scorm');
+
+        $data = [
+            'kind'     => 'scorm',
+            'scormid'  => (int) $scorm->id,
+            'name'     => format_string($scorm->name),
+        ];
+        if ($intro !== '') {
+            $data['intro'] = $intro;
+        }
+        return $data;
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    // Phase 1+: New inline data builders (folder, choice, survey, etc.)
+    // ─────────────────────────────────────────────────────────────────────
+
+    /**
+     * Build mod_folder payload: list of files in the folder.
+     */
+    private static function build_folder_data($cm, $context): array {
+        global $DB;
+        $folder = $DB->get_record('folder', ['id' => $cm->instance], '*', MUST_EXIST);
+        $intro = self::format_intro_text($folder, $context, 'folder');
+
+        $fs = get_file_storage();
+        $files = $fs->get_area_files($context->id, 'mod_folder', 'content', 0, 'filepath, filename', false);
+
+        $items = [];
+        foreach ($files as $file) {
+            if ($file->is_directory()) {
+                continue;
+            }
+            $mimetype = $file->get_mimetype();
+            $filename = $file->get_filename();
+            $items[] = [
+                'url'      => \moodle_url::make_pluginfile_url(
+                    $file->get_contextid(), $file->get_component(), $file->get_filearea(),
+                    $file->get_itemid(), $file->get_filepath(), $filename
+                )->out(false),
+                'name'     => $filename,
+                'path'     => trim($file->get_filepath(), '/'),
+                'size'     => display_size($file->get_filesize()),
+                'mimetype' => $mimetype,
+                'icon'     => self::get_file_icon($mimetype, $filename),
+            ];
+        }
+
+        $data = [
+            'kind'  => 'folder',
+            'files' => $items,
+        ];
+        if ($intro !== '') {
+            $data['intro'] = $intro;
+        }
+        return $data;
+    }
+
+    /**
+     * Map MIME type to a Bootstrap icon class.
+     */
+    private static function get_file_icon(string $mimetype, string $filename): string {
+        $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        if (strpos($mimetype, 'image/') === 0) return 'bi-file-image';
+        if ($mimetype === 'application/pdf') return 'bi-file-pdf';
+        if (strpos($mimetype, 'video/') === 0) return 'bi-file-play';
+        if (strpos($mimetype, 'audio/') === 0) return 'bi-file-music';
+        if (in_array($ext, ['doc', 'docx', 'odt'])) return 'bi-file-word';
+        if (in_array($ext, ['xls', 'xlsx', 'ods'])) return 'bi-file-excel';
+        if (in_array($ext, ['ppt', 'pptx', 'odp'])) return 'bi-file-ppt';
+        if (in_array($ext, ['zip', 'rar', '7z', 'tar', 'gz'])) return 'bi-file-zip';
+        return 'bi-file-earmark';
+    }
+
+    /**
+     * Build mod_choice payload: question + options + current response + results.
+     */
+    private static function build_choice_data($cm, $course, $context): array {
+        global $DB, $USER;
+        $choice = $DB->get_record('choice', ['id' => $cm->instance], '*', MUST_EXIST);
+        $intro = self::format_intro_text($choice, $context, 'choice');
+
+        $options = $DB->get_records('choice_options', ['choiceid' => $choice->id], 'id ASC');
+        $answers = $DB->get_records('choice_answers', [
+            'choiceid' => $choice->id,
+            'userid'   => $USER->id,
+        ]);
+        $myselected = array_map(fn($a) => (int)$a->optionid, $answers);
+
+        // Build options list.
+        $optionslist = [];
+        foreach ($options as $opt) {
+            $optionslist[] = [
+                'id'       => (int) $opt->id,
+                'text'     => format_string($opt->text),
+                'selected' => in_array((int)$opt->id, $myselected),
+            ];
+        }
+
+        // Build results (if visible to user).
+        $results = null;
+        $showresults = (int)$choice->showresults;
+        $hasanswered = !empty($answers);
+        // CHOICE_SHOWRESULTS_ALWAYS=1, AFTER_ANSWER=2, AFTER_CLOSE=3, NOT=0.
+        $showresultnow = ($showresults === 1)
+            || ($showresults === 2 && $hasanswered)
+            || ($showresults === 3 && $choice->timeclose > 0 && time() > $choice->timeclose);
+
+        if ($showresultnow) {
+            $allanswers = $DB->get_records('choice_answers', ['choiceid' => $choice->id]);
+            $counts = [];
+            foreach ($allanswers as $a) {
+                $counts[(int)$a->optionid] = ($counts[(int)$a->optionid] ?? 0) + 1;
+            }
+            $results = [];
+            foreach ($options as $opt) {
+                $results[] = [
+                    'optionid' => (int) $opt->id,
+                    'text'     => format_string($opt->text),
+                    'count'    => $counts[(int)$opt->id] ?? 0,
+                ];
+            }
+        }
+
+        $data = [
+            'kind'         => 'choice',
+            'choiceid'     => (int) $choice->id,
+            'text'         => format_string($choice->name),
+            'allowupdate'  => (bool) $choice->allowupdate,
+            'allowmultiple' => (bool) $choice->allowmultiple,
+            'hasanswered'  => $hasanswered,
+            'options'      => $optionslist,
+            'isclosed'     => ($choice->timeclose > 0 && time() > $choice->timeclose),
+        ];
+        if ($intro !== '') {
+            $data['intro'] = $intro;
+        }
+        if ($results !== null) {
+            $data['results'] = $results;
+        }
+        return $data;
+    }
+
+    /**
+     * Build mod_survey payload: predefined Moodle survey (ATTLS / COLLES).
+     */
+    private static function build_survey_data($cm, $course, $context): array {
+        global $DB, $USER;
+        $survey = $DB->get_record('survey', ['id' => $cm->instance], '*', MUST_EXIST);
+        $intro = self::format_intro_text($survey, $context, 'survey');
+
+        // Get the template questions.
+        $questions = $DB->get_records_list('survey_questions', 'id',
+            explode(',', $survey->questions), 'id ASC');
+
+        $questionlist = [];
+        foreach ($questions as $q) {
+            if (empty(trim($q->text))) continue;
+            $questionlist[] = [
+                'id'       => (int) $q->id,
+                'text'     => get_string($q->text, 'survey'),
+                'shorttext' => $q->shorttext ? get_string($q->shorttext, 'survey') : '',
+                'type'     => (int) $q->type,
+                'options'  => $q->options ? get_string($q->options, 'survey') : '',
+            ];
+        }
+
+        // Check if already answered.
+        $done = $DB->record_exists('survey_answers', [
+            'survey' => $survey->id,
+            'userid' => $USER->id,
+        ]);
+
+        $data = [
+            'kind'       => 'survey',
+            'surveyid'   => (int) $survey->id,
+            'name'       => format_string($survey->name),
+            'questions'  => $questionlist,
+            'done'       => $done,
+        ];
+        if ($intro !== '') {
+            $data['intro'] = $intro;
+        }
+        return $data;
+    }
+
+    /**
+     * Build mod_feedback payload: multi-page feedback form.
+     */
+    private static function build_feedback_data($cm, $course, $context): array {
+        global $DB, $USER, $CFG;
+        require_once($CFG->dirroot . '/mod/feedback/lib.php');
+        $feedback = $DB->get_record('feedback', ['id' => $cm->instance], '*', MUST_EXIST);
+        $intro = self::format_intro_text($feedback, $context, 'feedback');
+
+        // Check completion.
+        $iscomplete = $DB->record_exists('feedback_completed', [
+            'feedback' => $feedback->id,
+            'userid'   => $USER->id,
+        ]);
+
+        // Get items for page-based rendering.
+        $items = $DB->get_records('feedback_item', ['feedback' => $feedback->id], 'position ASC');
+        $pages = []; // Group items by pagebreak.
+        $currentpage = [];
+        $pagenum = 0;
+        foreach ($items as $item) {
+            if ($item->typ === 'pagebreak') {
+                if (!empty($currentpage)) {
+                    $pages[] = $currentpage;
+                }
+                $currentpage = [];
+                $pagenum++;
+                continue;
+            }
+            $currentpage[] = [
+                'id'        => (int) $item->id,
+                'typ'       => $item->typ,
+                'name'      => format_string($item->name),
+                'label'     => format_string($item->label),
+                'required'  => (bool) $item->required,
+                'options'   => $item->presentation,
+                'dependitem' => (int) $item->dependitem,
+                'dependvalue' => $item->dependvalue,
+                'position'  => (int) $item->position,
+            ];
+        }
+        if (!empty($currentpage)) {
+            $pages[] = $currentpage;
+        }
+
+        // Get saved tmp values if user has an in-progress submission.
+        $savedvalues = [];
+        $tmpcompletion = $DB->get_record('feedback_completedtmp', [
+            'feedback' => $feedback->id,
+            'userid'   => $USER->id,
+        ]);
+        if ($tmpcompletion) {
+            $tmpvalues = $DB->get_records('feedback_valuetmp', ['completed' => $tmpcompletion->id]);
+            foreach ($tmpvalues as $v) {
+                $savedvalues[(int)$v->item] = $v->value;
+            }
+        }
+
+        $data = [
+            'kind'          => 'feedback',
+            'feedbackid'    => (int) $feedback->id,
+            'name'          => format_string($feedback->name),
+            'anonymous'     => (bool) $feedback->anonymous,
+            'iscomplete'    => $iscomplete,
+            'pages'         => $pages,
+            'totalpages'    => count($pages),
+            'savedvalues'   => $savedvalues,
+        ];
+        if ($intro !== '') {
+            $data['intro'] = $intro;
+        }
+        return $data;
+    }
+
+    /**
+     * Build mod_wiki payload: wiki page content + metadata.
+     */
+    private static function build_wiki_data($cm, $context, int $pageid = 0): array {
+        global $DB, $USER;
+        $wiki = $DB->get_record('wiki', ['id' => $cm->instance], '*', MUST_EXIST);
+        $intro = self::format_intro_text($wiki, $context, 'wiki');
+
+        // Get or create subwiki.
+        $subwiki = $DB->get_record('wiki_subwikis', [
+            'wikiid' => $wiki->id,
+            'groupid' => 0,
+            'userid' => ($wiki->wikimode === 'individual') ? $USER->id : 0,
+        ]);
+
+        $pagedata = null;
+        $pagelist = [];
+
+        if ($subwiki) {
+            // If a specific page is requested.
+            if ($pageid > 0) {
+                $page = $DB->get_record('wiki_pages', ['id' => $pageid, 'subwikiid' => $subwiki->id]);
+            } else {
+                // Get first page (usually the wiki's first page).
+                $page = $DB->get_record('wiki_pages', [
+                    'subwikiid' => $subwiki->id,
+                    'title'     => $wiki->firstpagetitle,
+                ]);
+                if (!$page) {
+                    // Fallback to any page.
+                    $page = $DB->get_record_sql(
+                        "SELECT * FROM {wiki_pages} WHERE subwikiid = :swid ORDER BY id ASC LIMIT 1",
+                        ['swid' => $subwiki->id]
+                    );
+                }
+            }
+
+            if ($page) {
+                $content = file_rewrite_pluginfile_urls(
+                    $page->cachedcontent, 'pluginfile.php', $context->id,
+                    'mod_wiki', 'attachments', $subwiki->id
+                );
+                $pagedata = [
+                    'id'       => (int) $page->id,
+                    'title'    => format_string($page->title),
+                    'content'  => format_text($content, FORMAT_HTML, ['context' => $context]),
+                    'timemodified' => (int) $page->timemodified,
+                    'userid'   => (int) $page->userid,
+                ];
+            }
+
+            // Get page list for navigation.
+            $pages = $DB->get_records('wiki_pages', ['subwikiid' => $subwiki->id], 'title ASC', 'id, title');
+            foreach ($pages as $p) {
+                $pagelist[] = [
+                    'id'    => (int) $p->id,
+                    'title' => format_string($p->title),
+                ];
+            }
+        }
+
+        $data = [
+            'kind'       => 'wiki',
+            'wikiid'     => (int) $wiki->id,
+            'wikimode'   => $wiki->wikimode,
+            'firstpage'  => format_string($wiki->firstpagetitle),
+            'pages'      => $pagelist,
+        ];
+        if ($intro !== '') {
+            $data['intro'] = $intro;
+        }
+        if ($pagedata !== null) {
+            $data['page'] = $pagedata;
+        }
+        return $data;
+    }
+
+    /**
+     * Build mod_data (database) payload: entries table + field definitions.
+     */
+    private static function build_data_data($cm, $context): array {
+        global $DB, $USER;
+        $database = $DB->get_record('data', ['id' => $cm->instance], '*', MUST_EXIST);
+        $intro = self::format_intro_text($database, $context, 'data');
+
+        // Get field definitions.
+        $fields = $DB->get_records('data_fields', ['dataid' => $database->id], 'id ASC');
+        $fieldlist = [];
+        foreach ($fields as $f) {
+            $fieldlist[] = [
+                'id'          => (int) $f->id,
+                'name'        => format_string($f->name),
+                'description' => format_string($f->description),
+                'type'        => $f->type,
+                'required'    => (bool) $f->required,
+                'param1'      => $f->param1 ?? '',
+                'param2'      => $f->param2 ?? '',
+                'param3'      => $f->param3 ?? '',
+            ];
+        }
+
+        // Get approved entries (latest 50).
+        $entries = $DB->get_records_sql(
+            "SELECT e.id, e.userid, e.timecreated, e.timemodified, e.approved
+             FROM {data_records} e
+             WHERE e.dataid = :dataid AND e.approved = 1
+             ORDER BY e.timecreated DESC
+             LIMIT 50",
+            ['dataid' => $database->id]
+        );
+
+        $entrylist = [];
+        foreach ($entries as $entry) {
+            // Get content for each field.
+            $contents = $DB->get_records('data_content', ['recordid' => $entry->id]);
+            $fieldvalues = [];
+            foreach ($contents as $c) {
+                $fieldvalues[(int)$c->fieldid] = [
+                    'content'  => $c->content ?? '',
+                    'content1' => $c->content1 ?? '',
+                    'content2' => $c->content2 ?? '',
+                    'content3' => $c->content3 ?? '',
+                    'content4' => $c->content4 ?? '',
+                ];
+            }
+            $user = $DB->get_record('user', ['id' => $entry->userid], 'id, firstname, lastname');
+            $entrylist[] = [
+                'id'          => (int) $entry->id,
+                'userid'      => (int) $entry->userid,
+                'userfullname' => $user ? fullname($user) : '',
+                'timecreated' => (int) $entry->timecreated,
+                'fields'      => $fieldvalues,
+            ];
+        }
+
+        $data = [
+            'kind'         => 'data',
+            'dataid'       => (int) $database->id,
+            'name'         => format_string($database->name),
+            'fields'       => $fieldlist,
+            'entries'      => $entrylist,
+            'totalentries' => (int) $DB->count_records('data_records', [
+                'dataid' => $database->id, 'approved' => 1,
+            ]),
+            'canaddentry'  => has_capability('mod/data:writeentry', $context),
+        ];
+        if ($intro !== '') {
+            $data['intro'] = $intro;
+        }
+        return $data;
+    }
+
+    /**
+     * Build mod_quiz payload: quiz state + questions for Vue rendering.
+     */
+    private static function build_quiz_data($cm, $course, $context): array {
+        global $DB, $USER, $CFG;
+        require_once($CFG->dirroot . '/mod/quiz/locallib.php');
+        $quiz = $DB->get_record('quiz', ['id' => $cm->instance], '*', MUST_EXIST);
+        $intro = self::format_intro_text($quiz, $context, 'quiz');
+
+        // Count attempts.
+        $attemptsused = $DB->count_records('quiz_attempts', [
+            'quiz'   => $quiz->id,
+            'userid' => $USER->id,
+            'preview' => 0,
+        ]);
+
+        // Find in-progress attempt.
+        $inattempt = $DB->get_record_sql(
+            "SELECT id, attempt, currentpage, timestart, uniqueid
+             FROM {quiz_attempts}
+             WHERE quiz = :quizid AND userid = :userid AND state = 'inprogress'
+             ORDER BY attempt DESC LIMIT 1",
+            ['quizid' => $quiz->id, 'userid' => $USER->id]
+        );
+
+        // Find last finished attempt for review.
+        $lastattempt = null;
+        if (!$inattempt) {
+            $lastattempt = $DB->get_record_sql(
+                "SELECT id, attempt, state, sumgrades, timestart, timefinish, uniqueid
+                 FROM {quiz_attempts}
+                 WHERE quiz = :quizid AND userid = :userid AND state = 'finished' AND preview = 0
+                 ORDER BY attempt DESC LIMIT 1",
+                ['quizid' => $quiz->id, 'userid' => $USER->id]
+            );
+        }
+
+        $data = [
+            'kind'            => 'quiz',
+            'quizid'          => (int) $quiz->id,
+            'name'            => format_string($quiz->name),
+            'attemptsallowed' => (int) $quiz->attempts,
+            'attemptsused'    => $attemptsused,
+            'timelimit'       => (int) $quiz->timelimit,
+            'grademethod'     => (int) $quiz->grademethod,
+            'state'           => 'notstarted',
+        ];
+        if ($intro !== '') {
+            $data['intro'] = $intro;
+        }
+
+        if ($inattempt) {
+            $data['state'] = 'inprogress';
+            $data['attemptid'] = (int) $inattempt->id;
+            $data['currentpage'] = (int) $inattempt->currentpage;
+            $data['timestarted'] = (int) $inattempt->timestart;
+
+            // Extract questions for the current page.
+            $data['questions'] = self::extract_quiz_questions(
+                $quiz, $inattempt, (int)$inattempt->currentpage, $context
+            );
+
+            $data['totalpages'] = (int) $DB->get_field_sql(
+                "SELECT MAX(page) FROM {quiz_slots} WHERE quizid = :quizid",
+                ['quizid' => $quiz->id]
+            ) + 1; // pages are 0-based in slots.
+        } else if ($lastattempt) {
+            $data['state'] = 'finished';
+            $data['lastattemptid'] = (int) $lastattempt->id;
+            $data['grade'] = self::calculate_quiz_grade($quiz, $lastattempt);
+            $data['reviewavailable'] = self::is_quiz_review_available($quiz, $lastattempt);
+        }
+
+        // Can start new attempt?
+        $data['canstartnew'] = ($quiz->attempts == 0 || $attemptsused < $quiz->attempts)
+            && !$inattempt;
+
+        return $data;
+    }
+
+    /**
+     * Extract quiz questions for a given page from an in-progress attempt.
+     */
+    private static function extract_quiz_questions($quiz, $attempt, int $page, $context): array {
+        global $DB, $CFG;
+        require_once($CFG->dirroot . '/question/engine/lib.php');
+
+        $questions = [];
+        try {
+            $quba = \question_engine::load_questions_usage_by_activity($attempt->uniqueid);
+            $slots = $DB->get_records('quiz_slots', [
+                'quizid' => $quiz->id,
+                'page'   => $page,
+            ], 'slot ASC');
+
+            foreach ($slots as $slotrecord) {
+                $slot = (int)$slotrecord->slot;
+                try {
+                    $qa = $quba->get_question_attempt($slot);
+                    $question = $qa->get_question();
+                    $qtype = $question->get_type_name();
+
+                    $qdata = [
+                        'slot'          => $slot,
+                        'type'          => $qtype,
+                        'text'          => format_text($question->questiontext, $question->questiontextformat, ['context' => $context]),
+                        'sequencecheck' => $qa->get_sequence_check_count(),
+                        'flagged'       => $qa->is_flagged(),
+                        'hasresponse'   => $qa->get_last_step()->has_qt_var('answer'),
+                    ];
+
+                    // Type-specific fields.
+                    switch ($qtype) {
+                        case 'multichoice':
+                            $order = $qa->get_step(0)->get_qt_var('_order');
+                            $choiceorder = $order ? explode(',', $order) : [];
+                            $choices = [];
+                            foreach ($choiceorder as $i => $choicenum) {
+                                $ans = $question->answers[$choicenum] ?? null;
+                                if ($ans) {
+                                    $choices[] = [
+                                        'value'   => (int) $i,
+                                        'label'   => format_text($ans->answer, $ans->answerformat, ['context' => $context]),
+                                        'checked' => false, // Frontend fills from saved response.
+                                    ];
+                                }
+                            }
+                            $qdata['choices'] = $choices;
+                            $qdata['single'] = ((int)$question->single === 1);
+                            break;
+
+                        case 'truefalse':
+                            $qdata['choices'] = [
+                                ['value' => 1, 'label' => get_string('true', 'qtype_truefalse'), 'checked' => false],
+                                ['value' => 0, 'label' => get_string('false', 'qtype_truefalse'), 'checked' => false],
+                            ];
+                            break;
+
+                        case 'shortanswer':
+                        case 'numerical':
+                            $qdata['inputtype'] = ($qtype === 'numerical') ? 'number' : 'text';
+                            break;
+
+                        case 'essay':
+                            $qdata['responseformat'] = $question->responseformat ?? 'editor';
+                            $qdata['attachments'] = $question->attachments ?? 0;
+                            break;
+
+                        case 'match':
+                        case 'matching':
+                            $stems = [];
+                            $choices = [];
+                            if (isset($question->stems)) {
+                                foreach ($question->stems as $key => $stem) {
+                                    $stems[] = [
+                                        'key'  => $key,
+                                        'text' => format_string($stem),
+                                    ];
+                                }
+                            }
+                            if (isset($question->choices)) {
+                                foreach ($question->choices as $key => $choice) {
+                                    $choices[] = [
+                                        'key'  => $key,
+                                        'text' => format_string($choice),
+                                    ];
+                                }
+                            }
+                            $qdata['stems'] = $stems;
+                            $qdata['matchoptions'] = $choices;
+                            break;
+
+                        case 'description':
+                            // Description questions are just text, no answer needed.
+                            $qdata['isinfo'] = true;
+                            break;
+                    }
+
+                    // Restore saved answer if any.
+                    $laststep = $qa->get_last_step();
+                    $savedresponse = [];
+                    foreach ($laststep->get_all_data() as $name => $value) {
+                        if (strpos($name, '-') === false && strpos($name, '_') !== 0) {
+                            $savedresponse[$name] = $value;
+                        }
+                    }
+                    $qdata['savedresponse'] = $savedresponse;
+
+                    $questions[] = $qdata;
+                } catch (\Exception $e) {
+                    debugging('Quiz question extract error slot ' . $slot . ': ' . $e->getMessage(), DEBUG_DEVELOPER);
+                }
+            }
+        } catch (\Exception $e) {
+            debugging('Quiz question usage load error: ' . $e->getMessage(), DEBUG_DEVELOPER);
+        }
+
+        return $questions;
+    }
+
+    /**
+     * Calculate the final grade for a quiz attempt.
+     */
+    private static function calculate_quiz_grade($quiz, $attempt): ?float {
+        if ($attempt->sumgrades === null) return null;
+        $grade = $quiz->grade * ($attempt->sumgrades / $quiz->sumgrades);
+        return round($grade, 2);
+    }
+
+    /**
+     * Check if quiz review is available based on quiz settings.
+     */
+    private static function is_quiz_review_available($quiz, $attempt): bool {
+        // Simplified: check if review after close is enabled.
+        return (bool)($quiz->reviewattempt & 0x10000);
+    }
+
+    /**
+     * Build mod_assign payload: assignment description + submission status.
+     */
+    private static function build_assign_data($cm, $course, $context): array {
+        global $DB, $USER, $CFG;
+        require_once($CFG->dirroot . '/mod/assign/locallib.php');
+        $assign = $DB->get_record('assign', ['id' => $cm->instance], '*', MUST_EXIST);
+        $intro = self::format_intro_text($assign, $context, 'assign');
+
+        // Get submission status.
+        $submission = $DB->get_record_sql(
+            "SELECT id, status, timecreated, timemodified, attemptnumber
+             FROM {assign_submission}
+             WHERE assignment = :assignid AND userid = :userid AND latest = 1",
+            ['assignid' => $assign->id, 'userid' => $USER->id]
+        );
+
+        // Get grade/feedback.
+        $grade = $DB->get_record_sql(
+            "SELECT id, grade, grader, timemodified AS timegraded
+             FROM {assign_grades}
+             WHERE assignment = :assignid AND userid = :userid AND attemptnumber = :attempt",
+            ['assignid' => $assign->id, 'userid' => $USER->id,
+             'attempt' => $submission ? $submission->attemptnumber : 0]
+        );
+
+        // Determine submission types enabled.
+        $plugins = $DB->get_records('assign_plugin_config', [
+            'assignment' => $assign->id,
+            'subtype'    => 'assignsubmission',
+            'name'       => 'enabled',
+        ]);
+        $submissiontypes = [];
+        foreach ($plugins as $p) {
+            if ($p->value === '1') {
+                $submissiontypes[] = $p->plugin;
+            }
+        }
+
+        // Get existing online text submission.
+        $onlinetext = '';
+        if ($submission && in_array('onlinetext', $submissiontypes)) {
+            $textrecord = $DB->get_record('assignsubmission_onlinetext', [
+                'assignment' => $assign->id,
+                'submission' => $submission->id,
+            ]);
+            if ($textrecord) {
+                $onlinetext = format_text($textrecord->onlinetext, $textrecord->onlineformat, ['context' => $context]);
+            }
+        }
+
+        // Get existing file submissions.
+        $filesubmissions = [];
+        if ($submission && in_array('file', $submissiontypes)) {
+            $fs = get_file_storage();
+            $files = $fs->get_area_files($context->id, 'assignsubmission_file',
+                'submission_files', $submission->id, 'sortorder', false);
+            foreach ($files as $file) {
+                $filesubmissions[] = [
+                    'name'     => $file->get_filename(),
+                    'size'     => display_size($file->get_filesize()),
+                    'url'      => \moodle_url::make_pluginfile_url(
+                        $file->get_contextid(), $file->get_component(), $file->get_filearea(),
+                        $file->get_itemid(), $file->get_filepath(), $file->get_filename()
+                    )->out(false),
+                ];
+            }
+        }
+
+        // Feedback comments.
+        $feedbackcomments = '';
+        if ($grade) {
+            $feedbackrecord = $DB->get_record('assignfeedback_comments', [
+                'assignment' => $assign->id,
+                'grade'      => $grade->id,
+            ]);
+            if ($feedbackrecord) {
+                $feedbackcomments = format_text($feedbackrecord->commenttext,
+                    $feedbackrecord->commentformat, ['context' => $context]);
+            }
+        }
+
+        $data = [
+            'kind'             => 'assign',
+            'assignid'         => (int) $assign->id,
+            'name'             => format_string($assign->name),
+            'duedate'          => (int) $assign->duedate,
+            'cutoffdate'       => (int) $assign->cutoffdate,
+            'submissiontypes'  => $submissiontypes,
+            'maxfilesubmissions' => (int) ($assign->maxfilesubmissions ?? 0),
+            'maxsubmissionsizebytes' => (int) ($assign->maxsubmissionsizebytes ?? 0),
+            'attemptreopenmethod' => $assign->attemptreopenmethod ?? 'none',
+            'maxattempts'      => (int) ($assign->maxattempts ?? -1),
+            'submissionstatus' => $submission ? $submission->status : 'nosubmission',
+            'submissionid'     => $submission ? (int) $submission->id : null,
+            'onlinetext'       => $onlinetext,
+            'filesubmissions'  => $filesubmissions,
+            'gradevalue'       => $grade ? (float) $grade->grade : null,
+            'grademax'         => (float) $assign->grade,
+            'feedbackcomments'  => $feedbackcomments,
+            'isgraded'         => ($grade && $grade->grade !== null && (float)$grade->grade >= 0),
+        ];
+        if ($intro !== '') {
+            $data['intro'] = $intro;
+        }
+        return $data;
+    }
+
+    /**
+     * Build mod_lesson payload: current page content + navigation.
+     */
+    private static function build_lesson_data($cm, $course, $context, int $pageid = 0): array {
+        global $DB, $USER, $CFG;
+        require_once($CFG->dirroot . '/mod/lesson/locallib.php');
+        $lesson = $DB->get_record('lesson', ['id' => $cm->instance], '*', MUST_EXIST);
+        $intro = self::format_intro_text($lesson, $context, 'lesson');
+
+        $pages = $DB->get_records('lesson_pages', ['lessonid' => $lesson->id], 'ordering ASC');
+        $totalcontentpages = count($pages);
+
+        // Determine current page.
+        $currentpage = null;
+        if ($pageid > 0) {
+            $currentpage = $DB->get_record('lesson_pages', ['id' => $pageid, 'lessonid' => $lesson->id]);
+        }
+        if (!$currentpage && !empty($pages)) {
+            // Check for in-progress attempt: last visited page.
+            $lastbranch = $DB->get_record_sql(
+                "SELECT pageid FROM {lesson_branch}
+                 WHERE lessonid = :lessonid AND userid = :userid
+                 ORDER BY timeseen DESC LIMIT 1",
+                ['lessonid' => $lesson->id, 'userid' => $USER->id]
+            );
+            if ($lastbranch) {
+                $currentpage = $pages[$lastbranch->pageid] ?? reset($pages);
+            } else {
+                $currentpage = reset($pages);
+            }
+        }
+
+        $pagedata = null;
+        $answers = [];
+        if ($currentpage) {
+            $content = file_rewrite_pluginfile_urls(
+                $currentpage->contents, 'pluginfile.php', $context->id,
+                'mod_lesson', 'page_contents', $currentpage->id
+            );
+            $pagedata = [
+                'id'       => (int) $currentpage->id,
+                'title'    => format_string($currentpage->title),
+                'content'  => format_text($content, $currentpage->contentsformat, ['context' => $context]),
+                'type'     => (int) $currentpage->qtype,
+                'typelabel' => self::get_lesson_page_type_label($currentpage->qtype),
+            ];
+
+            // Get answer options for question pages.
+            $answerrecords = $DB->get_records('lesson_answers', [
+                'pageid'   => $currentpage->id,
+                'lessonid' => $lesson->id,
+            ], 'id ASC');
+            foreach ($answerrecords as $ans) {
+                $answers[] = [
+                    'id'      => (int) $ans->id,
+                    'text'    => format_text($ans->answer, $ans->answerformat, ['context' => $context]),
+                    'jumpto'  => (int) $ans->jumpto,
+                ];
+            }
+        }
+
+        // Check completion.
+        $iscomplete = $DB->record_exists('lesson_grades', [
+            'lessonid' => $lesson->id,
+            'userid'   => $USER->id,
+        ]);
+
+        $data = [
+            'kind'       => 'lesson',
+            'lessonid'   => (int) $lesson->id,
+            'name'       => format_string($lesson->name),
+            'totalpages' => $totalcontentpages,
+            'iscomplete' => $iscomplete,
+        ];
+        if ($intro !== '') {
+            $data['intro'] = $intro;
+        }
+        if ($pagedata !== null) {
+            $data['page'] = $pagedata;
+            $data['answers'] = $answers;
+        }
+        return $data;
+    }
+
+    /**
+     * Get a human-readable label for a lesson page type.
+     */
+    private static function get_lesson_page_type_label(int $qtype): string {
+        switch ($qtype) {
+            case 20: return 'content'; // LESSON_PAGE_BRANCHTABLE
+            case 1:  return 'truefalse';
+            case 2:  return 'multichoice';
+            case 3:  return 'shortanswer';
+            case 5:  return 'matching';
+            case 8:  return 'numerical';
+            case 10: return 'essay';
+            default: return 'unknown';
+        }
+    }
+
+    /**
+     * Build mod_workshop payload: multi-phase workshop with submissions + assessments.
+     */
+    private static function build_workshop_data($cm, $course, $context): array {
+        global $DB, $USER, $CFG;
+        require_once($CFG->dirroot . '/mod/workshop/locallib.php');
+        $workshop = $DB->get_record('workshop', ['id' => $cm->instance], '*', MUST_EXIST);
+        $intro = self::format_intro_text($workshop, $context, 'workshop');
+
+        // Determine current phase.
+        $phases = [
+            10 => 'setup',
+            20 => 'submission',
+            30 => 'assessment',
+            40 => 'grading',
+            50 => 'closed',
+        ];
+        $currentphase = $phases[$workshop->phase] ?? 'unknown';
+
+        // Get user's submission.
+        $submission = $DB->get_record('workshop_submissions', [
+            'workshopid' => $workshop->id,
+            'authorid'   => $USER->id,
+        ]);
+
+        $submissiondata = null;
+        if ($submission) {
+            $content = file_rewrite_pluginfile_urls(
+                $submission->content, 'pluginfile.php', $context->id,
+                'mod_workshop', 'submission_content', $submission->id
+            );
+            $submissiondata = [
+                'id'        => (int) $submission->id,
+                'title'     => format_string($submission->title),
+                'content'   => format_text($content, $submission->contentformat, ['context' => $context]),
+                'grade'     => $submission->grade !== null ? (float) $submission->grade : null,
+                'timecreated' => (int) $submission->timecreated,
+            ];
+        }
+
+        // Get assessments assigned to this user.
+        $assessments = [];
+        $myassessments = $DB->get_records_sql(
+            "SELECT a.id, a.submissionid, a.grade, a.feedbackauthor,
+                    s.title AS submissiontitle
+             FROM {workshop_assessments} a
+             JOIN {workshop_submissions} s ON s.id = a.submissionid
+             WHERE a.reviewerid = :userid AND s.workshopid = :workshopid
+             ORDER BY a.id ASC",
+            ['userid' => $USER->id, 'workshopid' => $workshop->id]
+        );
+        foreach ($myassessments as $a) {
+            $assessments[] = [
+                'id'              => (int) $a->id,
+                'submissionid'    => (int) $a->submissionid,
+                'submissiontitle' => format_string($a->submissiontitle),
+                'grade'           => $a->grade !== null ? (float) $a->grade : null,
+                'feedbackauthor'  => $a->feedbackauthor ? format_text($a->feedbackauthor, FORMAT_HTML, ['context' => $context]) : '',
+            ];
+        }
+
+        $data = [
+            'kind'         => 'workshop',
+            'workshopid'   => (int) $workshop->id,
+            'name'         => format_string($workshop->name),
+            'phase'        => $currentphase,
+            'phasecode'    => (int) $workshop->phase,
+            'submissiontypes' => [
+                'text' => (bool) ($workshop->submissiontypetext ?? 1),
+                'file' => (bool) ($workshop->submissiontypefile ?? 1),
+            ],
+            'cansubmit'    => has_capability('mod/workshop:submit', $context),
+            'canassess'    => has_capability('mod/workshop:peerassess', $context),
+            'submission'   => $submissiondata,
+            'assessments'  => $assessments,
+        ];
+        if ($intro !== '') {
+            $data['intro'] = $intro;
+        }
+        return $data;
+    }
+
+    /**
      * Format an activity's intro text (returns RAW formatted HTML, no wrapper).
      */
     private static function format_intro_text($record, $context, string $component): string {
@@ -1343,15 +2340,24 @@ class get_activity_content extends external_api {
             // `url`, `name`, `entries` were all stripped before reaching the
             // SPA.
             'inline'       => new external_single_structure([
-                'kind'    => new external_value(PARAM_ALPHA, 'page | book | resource | label | url | glossary | unsupported'),
-                'content' => new external_value(PARAM_RAW, 'Moodle-formatted user content (page/book/label only)', VALUE_OPTIONAL),
-                'intro'   => new external_value(PARAM_RAW, 'Activity intro text (resource/url/glossary)', VALUE_OPTIONAL),
-                'empty'   => new external_value(PARAM_BOOL, 'True if the activity has no content (book with no chapters)', VALUE_OPTIONAL),
+                'kind'    => new external_value(PARAM_RAW, 'Activity kind identifier'),
+                'content' => new external_value(PARAM_RAW, 'Moodle-formatted user content', VALUE_OPTIONAL),
+                'intro'   => new external_value(PARAM_RAW, 'Activity intro text', VALUE_OPTIONAL),
+                'empty'   => new external_value(PARAM_BOOL, 'True if no content', VALUE_OPTIONAL),
                 'chapter' => new external_single_structure([
                     'title'   => new external_value(PARAM_TEXT, 'Chapter title'),
                     'current' => new external_value(PARAM_INT, '1-based chapter index'),
                     'total'   => new external_value(PARAM_INT, 'Total chapters'),
                 ], 'Book chapter info', VALUE_OPTIONAL),
+                'allchapters' => new external_multiple_structure(
+                    new external_single_structure([
+                        'title'   => new external_value(PARAM_TEXT, 'Chapter title'),
+                        'content' => new external_value(PARAM_RAW, 'Chapter content HTML'),
+                    ]),
+                    'All book chapters pre-rendered for instant client-side navigation',
+                    VALUE_OPTIONAL
+                ),
+                'viewedcount' => new external_value(PARAM_INT, 'Number of unique chapters viewed', VALUE_OPTIONAL),
                 'file'    => new external_single_structure([
                     'url'      => new external_value(PARAM_URL, 'Pluginfile URL'),
                     'name'     => new external_value(PARAM_TEXT, 'File name'),
@@ -1359,19 +2365,203 @@ class get_activity_content extends external_api {
                     'mimetype' => new external_value(PARAM_RAW, 'MIME type'),
                     'kind'     => new external_value(PARAM_ALPHA, 'image | pdf | document | video | audio | other'),
                 ], 'Resource file metadata', VALUE_OPTIONAL),
-                // mod_url fields: shown for kind === 'url'.
-                'url'      => new external_value(PARAM_RAW, 'External URL (mod_url only)', VALUE_OPTIONAL),
-                'embedurl' => new external_value(PARAM_RAW, 'Normalized embeddable URL for iframe (mod_url, when urlkind=embed)', VALUE_OPTIONAL),
-                'urlkind'  => new external_value(PARAM_ALPHA, 'embed | link (mod_url only)', VALUE_OPTIONAL),
-                'name'     => new external_value(PARAM_TEXT, 'Display name (mod_url only)', VALUE_OPTIONAL),
-                // mod_glossary entries: shown for kind === 'glossary'.
+                // mod_url fields.
+                'url'      => new external_value(PARAM_RAW, 'External URL', VALUE_OPTIONAL),
+                'embedurl' => new external_value(PARAM_RAW, 'Embeddable URL', VALUE_OPTIONAL),
+                'urlkind'  => new external_value(PARAM_ALPHA, 'embed | link', VALUE_OPTIONAL),
+                'name'     => new external_value(PARAM_TEXT, 'Display name', VALUE_OPTIONAL),
+                // mod_glossary entries.
                 'entries'  => new external_multiple_structure(
                     new external_single_structure([
                         'id'         => new external_value(PARAM_INT, 'Entry id'),
                         'concept'    => new external_value(PARAM_TEXT, 'Term'),
                         'definition' => new external_value(PARAM_RAW, 'HTML-formatted definition'),
                     ]),
-                    'Glossary entries (mod_glossary only)',
+                    'Glossary entries',
+                    VALUE_OPTIONAL
+                ),
+                // mod_folder files.
+                'files' => new external_multiple_structure(
+                    new external_single_structure([
+                        'url'      => new external_value(PARAM_RAW, 'Download URL'),
+                        'name'     => new external_value(PARAM_TEXT, 'File name'),
+                        'path'     => new external_value(PARAM_TEXT, 'Folder path'),
+                        'size'     => new external_value(PARAM_TEXT, 'Human-readable size'),
+                        'mimetype' => new external_value(PARAM_RAW, 'MIME type'),
+                        'icon'     => new external_value(PARAM_TEXT, 'Bootstrap icon class'),
+                    ]),
+                    'Folder files',
+                    VALUE_OPTIONAL
+                ),
+                // mod_choice.
+                'choiceid'      => new external_value(PARAM_INT, 'Choice instance ID', VALUE_OPTIONAL),
+                'text'          => new external_value(PARAM_RAW, 'Choice question text', VALUE_OPTIONAL),
+                'allowupdate'   => new external_value(PARAM_BOOL, 'Can update response', VALUE_OPTIONAL),
+                'allowmultiple' => new external_value(PARAM_BOOL, 'Multiple answers allowed', VALUE_OPTIONAL),
+                'hasanswered'   => new external_value(PARAM_BOOL, 'User has answered', VALUE_OPTIONAL),
+                'isclosed'      => new external_value(PARAM_BOOL, 'Choice is closed', VALUE_OPTIONAL),
+                'options' => new external_multiple_structure(
+                    new external_single_structure([
+                        'id'       => new external_value(PARAM_INT, 'Option ID'),
+                        'text'     => new external_value(PARAM_RAW, 'Option text'),
+                        'selected' => new external_value(PARAM_BOOL, 'Currently selected'),
+                    ]),
+                    'Choice options',
+                    VALUE_OPTIONAL
+                ),
+                'results' => new external_multiple_structure(
+                    new external_single_structure([
+                        'optionid' => new external_value(PARAM_INT, 'Option ID'),
+                        'text'     => new external_value(PARAM_RAW, 'Option text'),
+                        'count'    => new external_value(PARAM_INT, 'Vote count'),
+                    ]),
+                    'Choice results',
+                    VALUE_OPTIONAL
+                ),
+                // mod_survey.
+                'surveyid' => new external_value(PARAM_INT, 'Survey instance ID', VALUE_OPTIONAL),
+                'questions' => new external_multiple_structure(
+                    new external_single_structure([
+                        'id'        => new external_value(PARAM_INT, 'Question ID'),
+                        'text'      => new external_value(PARAM_RAW, 'Question text'),
+                        'shorttext' => new external_value(PARAM_TEXT, 'Short text', VALUE_OPTIONAL),
+                        'type'      => new external_value(PARAM_INT, 'Question type'),
+                        'options'   => new external_value(PARAM_RAW, 'Answer options', VALUE_OPTIONAL),
+                    ]),
+                    'Survey questions',
+                    VALUE_OPTIONAL
+                ),
+                'done' => new external_value(PARAM_BOOL, 'Survey completed', VALUE_OPTIONAL),
+                // mod_feedback.
+                'feedbackid'  => new external_value(PARAM_INT, 'Feedback instance ID', VALUE_OPTIONAL),
+                'anonymous'   => new external_value(PARAM_BOOL, 'Anonymous feedback', VALUE_OPTIONAL),
+                'iscomplete'  => new external_value(PARAM_BOOL, 'Feedback completed', VALUE_OPTIONAL),
+                'pages' => new external_multiple_structure(
+                    new external_multiple_structure(
+                        new external_single_structure([
+                            'id'          => new external_value(PARAM_INT, 'Item ID'),
+                            'typ'         => new external_value(PARAM_TEXT, 'Item type'),
+                            'name'        => new external_value(PARAM_RAW, 'Item name/question'),
+                            'label'       => new external_value(PARAM_RAW, 'Item label'),
+                            'required'    => new external_value(PARAM_BOOL, 'Required'),
+                            'options'     => new external_value(PARAM_RAW, 'Presentation/options data'),
+                            'dependitem'  => new external_value(PARAM_INT, 'Dependent item ID'),
+                            'dependvalue' => new external_value(PARAM_RAW, 'Dependent value'),
+                            'position'    => new external_value(PARAM_INT, 'Position'),
+                        ])
+                    ),
+                    'Feedback pages (arrays of items)',
+                    VALUE_OPTIONAL
+                ),
+                'totalpages'  => new external_value(PARAM_INT, 'Total pages', VALUE_OPTIONAL),
+                'savedvalues' => new external_single_structure([], 'Saved tmp values', VALUE_OPTIONAL),
+                // mod_wiki.
+                'wikiid'    => new external_value(PARAM_INT, 'Wiki instance ID', VALUE_OPTIONAL),
+                'wikimode'  => new external_value(PARAM_ALPHA, 'collaborative | individual', VALUE_OPTIONAL),
+                'firstpage' => new external_value(PARAM_TEXT, 'First page title', VALUE_OPTIONAL),
+                'page' => new external_single_structure([
+                    'id'           => new external_value(PARAM_INT, 'Page ID'),
+                    'title'        => new external_value(PARAM_TEXT, 'Page title'),
+                    'content'      => new external_value(PARAM_RAW, 'Page content HTML'),
+                    'timemodified' => new external_value(PARAM_INT, 'Last modified timestamp'),
+                    'userid'       => new external_value(PARAM_INT, 'Author user ID'),
+                ], 'Wiki page data', VALUE_OPTIONAL),
+                // mod_data (database).
+                'dataid'       => new external_value(PARAM_INT, 'Database instance ID', VALUE_OPTIONAL),
+                'fields' => new external_multiple_structure(
+                    new external_single_structure([
+                        'id'          => new external_value(PARAM_INT, 'Field ID'),
+                        'name'        => new external_value(PARAM_TEXT, 'Field name'),
+                        'description' => new external_value(PARAM_TEXT, 'Field description'),
+                        'type'        => new external_value(PARAM_TEXT, 'Field type'),
+                        'required'    => new external_value(PARAM_BOOL, 'Required'),
+                        'param1'      => new external_value(PARAM_RAW, 'Param 1'),
+                        'param2'      => new external_value(PARAM_RAW, 'Param 2'),
+                        'param3'      => new external_value(PARAM_RAW, 'Param 3'),
+                    ]),
+                    'Database fields',
+                    VALUE_OPTIONAL
+                ),
+                'totalentries' => new external_value(PARAM_INT, 'Total entries', VALUE_OPTIONAL),
+                'canaddentry'  => new external_value(PARAM_BOOL, 'Can add entry', VALUE_OPTIONAL),
+                // mod_quiz.
+                'quizid'          => new external_value(PARAM_INT, 'Quiz instance ID', VALUE_OPTIONAL),
+                'attemptsallowed' => new external_value(PARAM_INT, 'Max attempts (0=unlimited)', VALUE_OPTIONAL),
+                'attemptsused'    => new external_value(PARAM_INT, 'Attempts used', VALUE_OPTIONAL),
+                'timelimit'       => new external_value(PARAM_INT, 'Time limit in seconds', VALUE_OPTIONAL),
+                'grademethod'     => new external_value(PARAM_INT, 'Grade method', VALUE_OPTIONAL),
+                'state'           => new external_value(PARAM_ALPHA, 'notstarted | inprogress | finished', VALUE_OPTIONAL),
+                'attemptid'       => new external_value(PARAM_INT, 'Current attempt ID', VALUE_OPTIONAL),
+                'currentpage'     => new external_value(PARAM_INT, 'Current quiz page', VALUE_OPTIONAL),
+                'timestarted'     => new external_value(PARAM_INT, 'Attempt start time', VALUE_OPTIONAL),
+                'canstartnew'     => new external_value(PARAM_BOOL, 'Can start new attempt', VALUE_OPTIONAL),
+                'lastattemptid'   => new external_value(PARAM_INT, 'Last finished attempt ID', VALUE_OPTIONAL),
+                'grade'           => new external_value(PARAM_FLOAT, 'Final grade', VALUE_OPTIONAL),
+                'reviewavailable' => new external_value(PARAM_BOOL, 'Review available', VALUE_OPTIONAL),
+                // mod_assign.
+                'assignid'         => new external_value(PARAM_INT, 'Assignment instance ID', VALUE_OPTIONAL),
+                'duedate'          => new external_value(PARAM_INT, 'Due date timestamp', VALUE_OPTIONAL),
+                'cutoffdate'       => new external_value(PARAM_INT, 'Cutoff date', VALUE_OPTIONAL),
+                'submissiontypes'  => new external_multiple_structure(
+                    new external_value(PARAM_TEXT, 'Submission type'),
+                    'Enabled submission types',
+                    VALUE_OPTIONAL
+                ),
+                'maxfilesubmissions'     => new external_value(PARAM_INT, 'Max file submissions', VALUE_OPTIONAL),
+                'maxsubmissionsizebytes' => new external_value(PARAM_INT, 'Max file size', VALUE_OPTIONAL),
+                'attemptreopenmethod'    => new external_value(PARAM_TEXT, 'Reopen method', VALUE_OPTIONAL),
+                'maxattempts'            => new external_value(PARAM_INT, 'Max attempts', VALUE_OPTIONAL),
+                'submissionstatus'       => new external_value(PARAM_TEXT, 'Submission status', VALUE_OPTIONAL),
+                'submissionid'           => new external_value(PARAM_INT, 'Submission ID', VALUE_OPTIONAL),
+                'onlinetext'             => new external_value(PARAM_RAW, 'Online text content', VALUE_OPTIONAL),
+                'filesubmissions' => new external_multiple_structure(
+                    new external_single_structure([
+                        'name' => new external_value(PARAM_TEXT, 'File name'),
+                        'size' => new external_value(PARAM_TEXT, 'File size'),
+                        'url'  => new external_value(PARAM_RAW, 'File URL'),
+                    ]),
+                    'Submitted files',
+                    VALUE_OPTIONAL
+                ),
+                'gradevalue'       => new external_value(PARAM_FLOAT, 'Grade value', VALUE_OPTIONAL),
+                'grademax'         => new external_value(PARAM_FLOAT, 'Grade maximum', VALUE_OPTIONAL),
+                'feedbackcomments'  => new external_value(PARAM_RAW, 'Feedback comments HTML', VALUE_OPTIONAL),
+                'isgraded'         => new external_value(PARAM_BOOL, 'Is graded', VALUE_OPTIONAL),
+                // mod_lesson.
+                'lessonid' => new external_value(PARAM_INT, 'Lesson instance ID', VALUE_OPTIONAL),
+                'answers' => new external_multiple_structure(
+                    new external_single_structure([
+                        'id'     => new external_value(PARAM_INT, 'Answer ID'),
+                        'text'   => new external_value(PARAM_RAW, 'Answer text'),
+                        'jumpto' => new external_value(PARAM_INT, 'Jump to page'),
+                    ]),
+                    'Lesson page answers',
+                    VALUE_OPTIONAL
+                ),
+                // mod_scorm.
+                'scormid' => new external_value(PARAM_INT, 'SCORM instance ID', VALUE_OPTIONAL),
+                // mod_workshop.
+                'workshopid' => new external_value(PARAM_INT, 'Workshop instance ID', VALUE_OPTIONAL),
+                'phase'      => new external_value(PARAM_TEXT, 'Current phase', VALUE_OPTIONAL),
+                'phasecode'  => new external_value(PARAM_INT, 'Phase code', VALUE_OPTIONAL),
+                'cansubmit'  => new external_value(PARAM_BOOL, 'Can submit', VALUE_OPTIONAL),
+                'canassess'  => new external_value(PARAM_BOOL, 'Can peer assess', VALUE_OPTIONAL),
+                'submission' => new external_single_structure([
+                    'id'          => new external_value(PARAM_INT, 'Submission ID'),
+                    'title'       => new external_value(PARAM_TEXT, 'Submission title'),
+                    'content'     => new external_value(PARAM_RAW, 'Submission content HTML'),
+                    'grade'       => new external_value(PARAM_FLOAT, 'Submission grade', VALUE_OPTIONAL),
+                    'timecreated' => new external_value(PARAM_INT, 'Created timestamp'),
+                ], 'User submission', VALUE_OPTIONAL),
+                'assessments' => new external_multiple_structure(
+                    new external_single_structure([
+                        'id'              => new external_value(PARAM_INT, 'Assessment ID'),
+                        'submissionid'    => new external_value(PARAM_INT, 'Submission ID'),
+                        'submissiontitle' => new external_value(PARAM_TEXT, 'Submission title'),
+                        'grade'           => new external_value(PARAM_FLOAT, 'Assessment grade', VALUE_OPTIONAL),
+                        'feedbackauthor'  => new external_value(PARAM_RAW, 'Feedback text'),
+                    ]),
+                    'Assigned assessments',
                     VALUE_OPTIONAL
                 ),
             ], 'Structured inline content for Vue frontend', VALUE_OPTIONAL),

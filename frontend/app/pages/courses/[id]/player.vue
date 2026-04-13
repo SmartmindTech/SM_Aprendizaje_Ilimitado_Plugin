@@ -47,6 +47,8 @@
             :inline="activityInline"
             :iframe-url="activityIframeUrl"
             :redirect-url="currentActivity?.url"
+            @book-navigate="onBookNavigate"
+            @activity-updated="onActivityUpdated"
           />
         </div>
 
@@ -117,6 +119,7 @@ const loading = ref(true)
 const error = ref<string | null>(null)
 const data = ref<any>(null)
 const selectedCmid = ref(0)
+provide('selectedCmid', selectedCmid)
 const activityInline = ref<InlineData | null>(null)
 const activityIframeUrl = ref<string | null>(null)
 const activityRender = ref<ActivityRender>(null)
@@ -200,6 +203,66 @@ function stopProgressPoll() {
   if (progressPollTimer) {
     clearInterval(progressPollTimer)
     progressPollTimer = null
+  }
+}
+
+// ── Book chapter navigation ──────────────────────────────────────────
+// Content is pre-loaded (allchapters) so the component navigates instantly.
+// This handler only fires the backend event (progress tracking + completion)
+// in the background — no await, no spinner, no re-render.
+function onBookNavigate(chapterNum: number) {
+  if (!selectedCmid.value) return
+
+  // Optimistic progress update — instant ring fill.
+  if (chapterNum > activityCompletedItems.value) {
+    activityCompletedItems.value = chapterNum
+  }
+  if (activityTotalItems.value > 0) {
+    activityProgressMap.value.set(selectedCmid.value, {
+      completed: activityCompletedItems.value,
+      total: activityTotalItems.value,
+    })
+  }
+
+  // Mark complete if all chapters viewed.
+  if (activityTotalItems.value > 0 && activityCompletedItems.value >= activityTotalItems.value) {
+    markActivityComplete(selectedCmid.value)
+  }
+
+  // Fire backend call in background (records chapter_viewed event + checks completion).
+  const cmid = selectedCmid.value
+  call('local_sm_graphics_plugin_get_activity_content', {
+    cmid,
+    itemnum: chapterNum,
+  }).then((result) => {
+    if (!result.error && result.data) {
+      const payload = result.data as any
+      // Update progress from backend (may confirm our optimistic value).
+      const backendCompleted = (payload?.completeditems as number) ?? activityCompletedItems.value
+      if (backendCompleted > activityCompletedItems.value) {
+        activityCompletedItems.value = backendCompleted
+      }
+      activityTotalItems.value = (payload?.totalpages as number) ?? activityTotalItems.value
+      if (activityTotalItems.value > 0 && selectedCmid.value === cmid) {
+        activityProgressMap.value.set(cmid, {
+          completed: activityCompletedItems.value,
+          total: activityTotalItems.value,
+        })
+      }
+    }
+  })
+}
+
+// ── Activity updated (choice submitted, survey done, etc.) ──────────
+async function onActivityUpdated() {
+  if (!selectedCmid.value) return
+  // Re-fetch the activity content to reflect the new state.
+  const result = await call('local_sm_graphics_plugin_get_activity_content', {
+    cmid: selectedCmid.value,
+  })
+  if (!result.error) {
+    const payload = result.data as any
+    activityInline.value = (payload?.inline as InlineData | undefined) ?? null
   }
 }
 
@@ -301,6 +364,14 @@ const selectActivity = async (activity: any) => {
   // Capture initial intra-activity progress.
   activityCompletedItems.value = (payload?.completeditems as number) ?? 0
   activityTotalItems.value = (payload?.totalpages as number) ?? 0
+
+  // Persist so the sidebar ring survives activity switches + refreshes.
+  if (activityTotalItems.value > 0) {
+    activityProgressMap.value.set(activity.cmid, {
+      completed: activityCompletedItems.value,
+      total: activityTotalItems.value,
+    })
+  }
 
   // Start polling for progress updates while the activity is open.
   startProgressPoll(activity.cmid)

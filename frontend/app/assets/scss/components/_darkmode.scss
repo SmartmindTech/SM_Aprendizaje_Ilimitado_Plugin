@@ -477,8 +477,138 @@ html.smgp-dark {
     }
 
     .smgp-course-body { background: #0b1120; }
-    .smgp-course-content { background: #111c30; color: #e2e8f0; }
+    .smgp-course-content {
+        background: #111c30;
+        color: #e2e8f0;
+        // Force light text on ALL nested content (labels, pages, books, etc.)
+        .smgp-activity-content,
+        .smgp-activity-content *,
+        .smgp-activity-content__chapter-body,
+        .smgp-activity-content__chapter-body * {
+            color: #e2e8f0 !important;
+        }
+        a { color: #93c5fd !important; }
+    }
     .smgp-course-content__iframe-wrap { border-color: #1a2d4a; }
+    .smgp-book-nav__btn {
+        background: #1a2d4a;
+        border-color: #2d4a6a;
+        color: #93c5fd;
+        &:hover:not(:disabled) { background: #2d4a6a; border-color: #93c5fd; }
+    }
+    .smgp-activity-content__chapter-info { background: #1a2d4a; }
+    .smgp-activity-content__embed-frame { box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); }
+
+    // Folder dark mode
+    .smgp-folder__file {
+        color: #e2e8f0;
+        &:hover { background: #1a2d4a; color: #e2e8f0; }
+    }
+    .smgp-folder__icon { color: #94a3b8; }
+    .smgp-folder__path, .smgp-folder__size { color: #64748b; }
+    .smgp-folder__download { color: #64748b; }
+
+    // Choice dark mode
+    .smgp-choice__option {
+        border-color: #1a2d4a;
+        color: #e2e8f0;
+        &:hover { border-color: #10b981; background: rgba(16, 185, 129, 0.1); }
+        &--selected { border-color: #10b981; background: rgba(16, 185, 129, 0.1); }
+    }
+    .smgp-choice__results h4 { color: #e2e8f0; }
+    .smgp-choice__result-label { color: #cbd5e1; }
+    .smgp-choice__result-bar-wrap { background: #1a2d4a; }
+    .smgp-choice__result-count { color: #94a3b8; }
+
+    // Survey dark mode
+    .smgp-survey__label { color: #e2e8f0; }
+    .smgp-survey__question { border-bottom-color: #1a2d4a; }
+    .smgp-survey__option { color: #cbd5e1; }
+
+    // Feedback dark mode
+    .smgp-feedback__label { color: #e2e8f0; }
+    .smgp-feedback__item { border-bottom-color: #1a2d4a; }
+    .smgp-feedback__option { color: #cbd5e1; &:hover { background: #1a2d4a; } }
+    .smgp-feedback__textarea, .smgp-feedback__input {
+        background: #0b1120; border-color: #1a2d4a; color: #e2e8f0;
+        &:focus { border-color: #10b981; }
+    }
+    .smgp-feedback__nav { border-top-color: #1a2d4a; }
+
+    // Wiki dark mode
+    .smgp-wiki__page-list { border-bottom-color: #1a2d4a; }
+    .smgp-wiki__page-btn {
+        border-color: #1a2d4a; color: #94a3b8;
+        &:hover { border-color: #10b981; color: #10b981; }
+        &--active { background: #10b981; border-color: #10b981; color: #fff; }
+    }
+    .smgp-wiki__title { color: #f1f5f9; }
+    .smgp-wiki__content { color: #e2e8f0; a { color: #93c5fd; } }
+    .smgp-wiki__editor {
+        background: #0b1120; border-color: #1a2d4a; color: #e2e8f0;
+        &:focus { border-color: #10b981; }
+    }
+
+    // Data dark mode
+    .smgp-data__add-form { background: #0b1120; border-color: #1a2d4a; }
+    .smgp-data__field label { color: #e2e8f0; }
+    .smgp-data__input, .smgp-data__textarea, .smgp-data__select {
+        background: #111c30; border-color: #1a2d4a; color: #e2e8f0;
+        &:focus { border-color: #10b981; }
+    }
+    .smgp-data__table-wrap { border-color: #1a2d4a; }
+    .smgp-data__table {
+        th { background: #0b1120; color: #e2e8f0; border-bottom-color: #1a2d4a; }
+        td { color: #cbd5e1; border-bottom-color: #1a2d4a; }
+        tr:hover td { background: #1a2d4a; }
+    }
+
+    // Quiz dark mode
+    .smgp-quiz__start-card h3 { color: #f1f5f9; }
+    .smgp-quiz__question { border-bottom-color: #1a2d4a; }
+    .smgp-quiz__question-text { color: #e2e8f0; }
+    .smgp-quiz__choice {
+        border-color: #1a2d4a; color: #e2e8f0;
+        &:hover { border-color: #10b981; }
+    }
+    .smgp-quiz__text-input, .smgp-quiz__essay {
+        background: #0b1120; border-color: #1a2d4a; color: #e2e8f0;
+    }
+    .smgp-quiz__nav { border-top-color: #1a2d4a; }
+    .smgp-quiz__review-question {
+        &--correct { background: rgba(16, 185, 129, 0.1); }
+        &--incorrect { background: rgba(239, 68, 68, 0.1); }
+        &--partial { background: rgba(245, 158, 11, 0.1); }
+    }
+
+    // Assignment dark mode
+    .smgp-assign__feedback { background: rgba(16, 185, 129, 0.08); border-color: #1a2d4a; }
+    .smgp-assign__textarea {
+        background: #0b1120; border-color: #1a2d4a; color: #e2e8f0;
+    }
+
+    // Lesson dark mode
+    .smgp-lesson__title { color: #f1f5f9; }
+    .smgp-lesson__content { color: #e2e8f0; }
+    .smgp-lesson__answer-option {
+        border-color: #1a2d4a;
+        &:hover { border-color: #10b981; }
+        span { color: #e2e8f0; }
+    }
+    .smgp-lesson__feedback {
+        &--correct { background: rgba(16, 185, 129, 0.1); border-color: #1a4a2d; }
+        &--incorrect { background: rgba(239, 68, 68, 0.1); border-color: #4a1a1a; }
+    }
+
+    // Workshop dark mode
+    .smgp-workshop__phase { border-bottom-color: #1a2d4a; }
+    .smgp-workshop__phase-step { background: #1a2d4a; color: #64748b; }
+    .smgp-workshop__existing { background: #0b1120; border-color: #1a2d4a; }
+    .smgp-workshop__input, .smgp-workshop__textarea {
+        background: #0b1120; border-color: #1a2d4a; color: #e2e8f0;
+    }
+    .smgp-workshop__assessment-card { border-color: #1a2d4a; color: #e2e8f0; }
+
     .smgp-course-nav { background: #0b1120; }
     .smgp-course-nav__btn {
         border-color: #1a2d4a;

@@ -96,15 +96,13 @@ body.smgp-course-player #page-wrapper {
   grid-column: 1;
   grid-row: 2;
   min-width: 0;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden;
   margin-bottom: 0;
   padding: 0 clamp(1.5rem, 3vw, 3rem) 1rem;
-  border-radius: 15px;
-
 }
 
 // ===== Content Area (single activity loaded via AJAX) =====
@@ -112,9 +110,11 @@ body.smgp-course-player #page-wrapper {
   padding: 0;
   background: #FFFFFF;
   color: #1A1814;
-  overflow: auto;
-  flex: 0 1 auto;
-  min-height: 70vh;
+  overflow: hidden;
+  // Fill the available height inside .smgp-course-main so the card is
+  // always the same size regardless of activity type.
+  flex: 1 1 0;
+  min-height: 0;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -125,9 +125,13 @@ body.smgp-course-player #page-wrapper {
   order: 2;
 
   // Center inline content with a max-width for readability.
+  // flex: 1 + overflow-y: auto = content scrolls inside the fixed-height card.
   > .smgp-activity-content {
     width: 100%;
     max-width: $course-content-maxwidth;
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-y: auto;
   }
 
   // Resource (documents/files) — expand to fill the full content area.
@@ -137,18 +141,34 @@ body.smgp-course-player #page-wrapper {
     display: flex;
     flex-direction: column;
     min-height: 0;
+    padding: 0;
   }
 
-  // URL activities (Genially / YouTube / Vimeo embeds, plain external
-  // links) — expand to fill the full content area too. Without this the
-  // embedded iframe was capped to the column's text-readable max-width
-  // and rendered in a tiny corner.
+  // Book — expand to fill. Parent handles the rounded container.
+  > .smgp-activity-content--book {
+    flex: 1;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    padding: 0;
+    background: transparent;
+    .smgp-activity-content__chapter-body {
+      flex: 1;
+      overflow-y: auto;
+    }
+  }
+
+  // URL activities — expand to fill. No own border/radius — the parent
+  // .smgp-course-content handles the rounded card container.
   > .smgp-activity-content--url {
     flex: 1;
     max-width: 100%;
     display: flex;
     flex-direction: column;
     min-height: 0;
+    padding: 0;
+    background: transparent;
   }
 
   &__placeholder,
@@ -201,19 +221,11 @@ body.smgp-course-player #page-wrapper {
     }
   }
 
-  // Resource content (PDFs, files): stretch the box to fill, drop chrome.
-  // (Iframe-mode rules live further down — see "IFRAME MODE" section.)
+  // Resource & URL children: full-width, no max-width cap, edge-to-edge
+  // for media content (embeds, PDFs, videos).
   &:has(.smgp-activity-content--resource),
   &:has(.smgp-activity-content--url) {
-    flex: 1 1 0;
-    min-height: 0;
-    padding: 0;
     align-items: stretch;
-    overflow: hidden;
-    max-height: none;
-    border: none;
-    box-shadow: none;
-    border-radius: 0;
   }
 }
 
@@ -240,6 +252,7 @@ body.smgp-course-player #page-wrapper {
   line-height: 1.7;
   color: var(--smgp-text, $smgp-text);
   font-size: 1.1rem;
+  padding: 1.5rem 2rem;
 
   img {
     max-width: 100%;
@@ -272,17 +285,66 @@ body.smgp-course-player #page-wrapper {
     margin-top: $smgp-space-lg;
   }
 
-  &__chapter-info {
-    padding: $smgp-space-sm $smgp-space-md;
-    background: var(--smgp-gray-50, $smgp-gray-50);
-    border-radius: $smgp-radius-md;
-    margin-bottom: $smgp-space-md;
-    font-size: $smgp-font-sm;
+  &__chapter-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.25rem;
+    border-bottom: 1px solid #f1f5f9;
+    background: #fafbfc;
+    border-radius: 14px 14px 0 0;
   }
+  &__chapter-info {
+    flex: 1;
+    text-align: center;
+    strong {
+      display: block;
+      font-size: 0.92rem;
+      color: #1e293b;
+    }
+    .text-muted {
+      display: block;
+      margin-top: 0.2rem;
+      font-size: 0.75rem;
+      letter-spacing: 0.04em;
+    }
+  }
+  &__chapter-body {
+    padding: 1.5rem 2rem;
+    line-height: 1.75;
+    font-size: 0.95rem;
+    color: #334155;
+    img { max-width: 100%; height: auto; border-radius: 8px; margin: 0.75rem 0; }
+    ul, ol { padding-left: 1.5rem; }
+    p { margin-bottom: 0.75rem; }
+  }
+
+// Book chapter navigation arrows
+.smgp-book-nav__btn {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  color: #10b981;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.15s ease;
+  &:hover:not(:disabled) { background: #f0fdf4; border-color: #10b981; }
+  &:disabled { opacity: 0.3; cursor: not-allowed; }
+}
 
   // Image preview — applied directly to <img>.
   &__image {
-    margin: $smgp-space-md 0;
+    width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+    border-radius: 0;
   }
 
   // Document viewer (PDF, PPT, DOC, etc.) — applied directly to <iframe>,
@@ -292,7 +354,7 @@ body.smgp-course-player #page-wrapper {
     width: 100%;
     min-height: 400px;
     border: none;
-    border-radius: 8px;
+    border-radius: 0;
     background: #fff;
     display: block;
   }
@@ -325,14 +387,66 @@ body.smgp-course-player #page-wrapper {
   // the full activity column instead of being capped to a 16:9 aspect ratio
   // against a narrow text-readable max-width. min-height keeps it usable on
   // very short viewports.
+  &__url-intro {
+    padding: 1rem 1.5rem;
+    font-size: 0.95rem;
+    color: #334155;
+    line-height: 1.6;
+  }
+  &__url-card {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 2.5rem 3rem;
+    margin: 1rem 1.5rem;
+    justify-content: center;
+    background: #fafbfc;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    flex: 1;
+  }
+  &__url-card-icon {
+    flex-shrink: 0;
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    background: #f0fdf4;
+    color: #10b981;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+  }
+  &__url-card-body {
+    min-width: 0;
+    h4 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 0 0 0.35rem;
+    }
+    p {
+      word-break: break-all;
+      color: #94a3b8;
+      font-size: 0.8rem;
+      margin: 0 0 0.75rem;
+    }
+    .btn-success {
+      border-radius: 8px;
+      font-weight: 600;
+      padding: 0.5rem 1.25rem;
+    }
+  }
+
   &__embed-frame {
     flex: 1;
     width: 100%;
     height: 100%;
-    min-height: 70vh;
+    min-height: 60vh;
     border: none;
-    border-radius: 8px;
+    border-radius: 0;
     display: block;
+    overflow: hidden;
   }
 
   // Plain link for non-embeddable URLs.
@@ -389,6 +503,868 @@ body.smgp-course-player #page-wrapper {
     color: #94a3b8;
     text-align: center;
     padding: 2rem 0;
+  }
+}
+
+// ===== Folder Activity =====
+.smgp-folder {
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  &__file {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #1A1814;
+    transition: background 0.15s;
+
+    &:hover {
+      background: #f5f3ee;
+      text-decoration: none;
+      color: #1A1814;
+    }
+  }
+
+  &__icon {
+    font-size: 1.3rem;
+    color: #64748b;
+    flex-shrink: 0;
+    width: 28px;
+    text-align: center;
+  }
+
+  &__info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__name {
+    font-weight: 500;
+    font-size: 0.95rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__path {
+    font-size: 0.8rem;
+    color: #94a3b8;
+  }
+
+  &__size {
+    font-size: 0.82rem;
+    color: #94a3b8;
+    white-space: nowrap;
+  }
+
+  &__download {
+    color: #94a3b8;
+    font-size: 1rem;
+    transition: color 0.15s;
+
+    .smgp-folder__file:hover & { color: #10b981; }
+  }
+
+  &__empty {
+    color: #94a3b8;
+    text-align: center;
+    padding: 2rem 0;
+  }
+}
+
+// ===== Choice Activity =====
+.smgp-choice {
+  &__options {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  &__option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border: 1px solid #E2DDD6;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+
+    &:hover { border-color: #10b981; background: #f0fdf4; }
+
+    &--selected {
+      border-color: #10b981;
+      background: #f0fdf4;
+    }
+
+    input { accent-color: #10b981; }
+    span { font-size: 0.95rem; }
+  }
+
+  &__closed, &__answered {
+    color: #94a3b8;
+    font-style: italic;
+    padding: 0.5rem 0;
+  }
+
+  &__results {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #f1f0ed;
+
+    h4 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #1A1814;
+      margin-bottom: 0.75rem;
+    }
+  }
+
+  &__result-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  &__result-label {
+    flex: 0 0 120px;
+    font-size: 0.88rem;
+    color: #4a4540;
+    text-align: right;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__result-bar-wrap {
+    flex: 1;
+    height: 22px;
+    background: #f1f0ed;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  &__result-bar {
+    height: 100%;
+    background: #10b981;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+    min-width: 2px;
+  }
+
+  &__result-count {
+    flex: 0 0 30px;
+    font-size: 0.82rem;
+    color: #64748b;
+    font-weight: 600;
+  }
+}
+
+// ===== Survey Activity =====
+.smgp-survey {
+  &__question {
+    padding: 1rem 0;
+    border-bottom: 1px solid #f1f0ed;
+
+    &:last-child { border-bottom: none; }
+  }
+
+  &__label {
+    display: block;
+    font-weight: 500;
+    font-size: 0.95rem;
+    color: #1A1814;
+    margin-bottom: 0.5rem;
+  }
+
+  &__options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+  }
+
+  &__option {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #4a4540;
+
+    input { accent-color: #10b981; }
+  }
+
+  &__completed {
+    color: #10b981;
+    font-weight: 500;
+    text-align: center;
+    padding: 2rem 0;
+  }
+}
+
+// ===== Feedback Activity =====
+.smgp-feedback {
+  &__progress {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-bottom: 1rem;
+    font-weight: 500;
+  }
+
+  &__items {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  &__item {
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #f1f0ed;
+    &:last-child { border-bottom: none; }
+  }
+
+  &__label {
+    display: block;
+    font-weight: 500;
+    font-size: 0.95rem;
+    color: #1A1814;
+    margin-bottom: 0.5rem;
+  }
+
+  &__required {
+    color: #ef4444;
+    margin-left: 2px;
+  }
+
+  &__options {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  &__option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #4a4540;
+    transition: background 0.15s;
+
+    &:hover { background: #f5f3ee; }
+    input { accent-color: #10b981; }
+  }
+
+  &__textarea, &__input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #E2DDD6;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+    &:focus { border-color: #10b981; }
+  }
+
+  &__info {
+    font-size: 0.9rem;
+    color: #64748b;
+    font-style: italic;
+  }
+
+  &__nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid #f1f0ed;
+  }
+
+  &__completed {
+    color: #10b981;
+    font-weight: 500;
+    text-align: center;
+    padding: 2rem 0;
+  }
+}
+
+// ===== Wiki Activity =====
+.smgp-wiki {
+  &__page-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #f1f0ed;
+  }
+
+  &__pages-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #64748b;
+    margin-right: 4px;
+  }
+
+  &__page-btn {
+    padding: 4px 12px;
+    border: 1px solid #E2DDD6;
+    border-radius: 16px;
+    background: transparent;
+    font-size: 0.82rem;
+    color: #4a4540;
+    cursor: pointer;
+    transition: all 0.15s;
+
+    &:hover { border-color: #10b981; color: #10b981; }
+
+    &--active {
+      background: #10b981;
+      border-color: #10b981;
+      color: #fff;
+    }
+  }
+
+  &__title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #1A1814;
+    margin: 0 0 1rem;
+  }
+
+  &__content {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #1A1814;
+
+    img { max-width: 100%; height: auto; }
+    a { color: #10b981; }
+  }
+
+  &__editor {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #E2DDD6;
+    border-radius: 8px;
+    font-family: monospace;
+    font-size: 0.9rem;
+    outline: none;
+    resize: vertical;
+    &:focus { border-color: #10b981; }
+  }
+
+  &__edit-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 0.75rem;
+  }
+
+  &__empty {
+    color: #94a3b8;
+    text-align: center;
+    padding: 2rem 0;
+  }
+}
+
+// ===== Data (Database) Activity =====
+.smgp-data {
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  &__count {
+    font-size: 0.88rem;
+    color: #64748b;
+    font-weight: 500;
+  }
+
+  &__add-form {
+    background: #fafaf8;
+    border: 1px solid #f1f0ed;
+    border-radius: 10px;
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+
+  &__field {
+    margin-bottom: 1rem;
+
+    label {
+      display: block;
+      font-weight: 500;
+      font-size: 0.9rem;
+      color: #1A1814;
+      margin-bottom: 4px;
+    }
+  }
+
+  &__input, &__textarea, &__select {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #E2DDD6;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    outline: none;
+    &:focus { border-color: #10b981; }
+  }
+
+  &__checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+
+    input { accent-color: #10b981; }
+  }
+
+  &__form-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 0.75rem;
+  }
+
+  &__table-wrap {
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid #f1f0ed;
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+
+    th {
+      background: #fafaf8;
+      padding: 10px 14px;
+      font-weight: 600;
+      color: #1A1814;
+      text-align: left;
+      border-bottom: 1px solid #f1f0ed;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 10px 14px;
+      color: #4a4540;
+      border-bottom: 1px solid #f8f7f5;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fafaf8; }
+  }
+
+  &__empty {
+    color: #94a3b8;
+    text-align: center;
+    padding: 2rem 0;
+  }
+}
+
+// ===== Quiz Activity =====
+.smgp-quiz {
+  &__start-card {
+    text-align: center;
+    padding: 2rem 1rem;
+
+    h3 { font-size: 1.3rem; font-weight: 600; color: #1A1814; margin-bottom: 0.75rem; }
+  }
+
+  &__meta {
+    font-size: 0.9rem;
+    color: #64748b;
+    margin-bottom: 0.25rem;
+  }
+
+  &__grade {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #10b981;
+    margin: 0.75rem 0;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 1rem;
+  }
+
+  &__no-attempts { color: #ef4444; font-size: 0.9rem; }
+
+  &__attempt { padding: 0.5rem 0; }
+
+  &__question {
+    padding: 1.25rem 0;
+    border-bottom: 1px solid #f1f0ed;
+    &:last-child { border-bottom: none; }
+  }
+
+  &__question-text {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #1A1814;
+    margin-bottom: 0.75rem;
+    img { max-width: 100%; height: auto; }
+  }
+
+  &__choices {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  &__choice {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 12px;
+    border: 1px solid #E2DDD6;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+
+    &:hover { border-color: #10b981; }
+    input { accent-color: #10b981; margin-top: 3px; }
+    span { font-size: 0.9rem; }
+  }
+
+  &__text-input {
+    width: 100%;
+    max-width: 400px;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #E2DDD6;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    outline: none;
+    &:focus { border-color: #10b981; }
+  }
+
+  &__essay {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #E2DDD6;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    resize: vertical;
+    outline: none;
+    &:focus { border-color: #10b981; }
+  }
+
+  &__nav {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 1rem;
+    margin-top: 1rem;
+    border-top: 1px solid #f1f0ed;
+  }
+
+  &__review-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    h3 { font-size: 1.15rem; margin-bottom: 0.5rem; }
+  }
+
+  &__review-question {
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    border-radius: 10px;
+    border-left: 4px solid #E2DDD6;
+
+    &--correct { border-left-color: #10b981; background: #f0fdf4; }
+    &--incorrect { border-left-color: #ef4444; background: #fef2f2; }
+    &--partial { border-left-color: #f59e0b; background: #fffbeb; }
+  }
+
+  &__review-answer {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-top: 0.5rem;
+  }
+
+  &__review-state { font-weight: 600; }
+
+  &__review-response, &__review-correct {
+    font-size: 0.88rem;
+    margin-top: 0.5rem;
+    color: #4a4540;
+    strong { color: #1A1814; }
+  }
+
+  &__review-feedback {
+    margin-top: 0.5rem;
+    font-size: 0.88rem;
+    color: #64748b;
+    font-style: italic;
+  }
+}
+
+// ===== Assignment Activity =====
+.smgp-assign {
+  &__status {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1rem;
+  }
+
+  &__due { font-size: 0.88rem; color: #64748b; }
+
+  &__badge {
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 12px;
+
+    &--submitted { background: #dbeafe; color: #1d4ed8; }
+    &--graded { background: #dcfce7; color: #15803d; }
+  }
+
+  &__feedback {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+
+    h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.5rem; }
+  }
+
+  &__form { margin-top: 0.5rem; }
+
+  &__section {
+    margin-bottom: 1rem;
+    label { display: block; font-weight: 500; font-size: 0.9rem; margin-bottom: 4px; }
+  }
+
+  &__textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #E2DDD6;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    resize: vertical;
+    outline: none;
+    &:focus { border-color: #10b981; }
+  }
+
+  &__files { margin-top: 0.5rem; }
+
+  &__file-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    font-size: 0.9rem;
+    a { color: #10b981; }
+  }
+
+  &__file-size { color: #94a3b8; font-size: 0.82rem; }
+
+  &__actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 1rem;
+  }
+}
+
+// ===== Lesson Activity =====
+.smgp-lesson {
+  &__title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #1A1814;
+    margin-bottom: 1rem;
+  }
+
+  &__content {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #1A1814;
+    margin-bottom: 1.5rem;
+
+    img { max-width: 100%; height: auto; border-radius: 8px; }
+  }
+
+  &__branches {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__branch-btn {
+    text-align: left;
+    padding: 10px 16px;
+    border-radius: 8px;
+  }
+
+  &__question { margin-top: 1rem; }
+
+  &__answer-options {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  &__answer-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 12px;
+    border: 1px solid #E2DDD6;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+
+    &:hover { border-color: #10b981; }
+    input { accent-color: #10b981; margin-top: 3px; }
+    span { font-size: 0.9rem; }
+  }
+
+  &__feedback {
+    padding: 1rem;
+    border-radius: 10px;
+    margin-top: 1rem;
+
+    &--correct { background: #f0fdf4; border: 1px solid #bbf7d0; }
+    &--incorrect { background: #fef2f2; border: 1px solid #fecaca; }
+
+    p { font-weight: 600; margin-bottom: 0.5rem; }
+  }
+
+  &__complete {
+    text-align: center;
+    padding: 2rem;
+    color: #10b981;
+
+    i { font-size: 3rem; display: block; margin-bottom: 0.75rem; }
+    p { font-size: 1.1rem; font-weight: 600; }
+  }
+}
+
+// ===== Workshop Activity =====
+.smgp-workshop {
+  &__phase {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #f1f0ed;
+  }
+
+  &__phase-step {
+    flex: 1;
+    text-align: center;
+    padding: 6px 8px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    border-radius: 6px;
+    background: #f5f3ee;
+    color: #94a3b8;
+
+    &--active {
+      background: #10b981;
+      color: #fff;
+    }
+  }
+
+  &__existing {
+    background: #fafaf8;
+    border: 1px solid #f1f0ed;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+
+    h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.5rem; }
+  }
+
+  &__submit-form { margin-top: 0.5rem; }
+
+  &__field {
+    margin-bottom: 1rem;
+    label { display: block; font-weight: 500; font-size: 0.9rem; margin-bottom: 4px; }
+  }
+
+  &__input, &__textarea {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #E2DDD6;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    outline: none;
+    &:focus { border-color: #10b981; }
+  }
+
+  &__textarea { resize: vertical; }
+
+  &__assessments { margin-top: 1rem; h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.75rem; } }
+
+  &__assessment-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    border: 1px solid #f1f0ed;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    font-size: 0.9rem;
+  }
+
+  &__assessment-grade {
+    font-weight: 600;
+    color: #10b981;
+  }
+
+  &__grade { font-weight: 600; color: #10b981; }
+
+  &__no-submission { color: #94a3b8; text-align: center; padding: 2rem 0; }
+}
+
+// ===== SCORM Player =====
+.smgp-scorm-player {
+  width: 100%;
+  height: 100%;
+  min-height: 500px;
+  position: relative;
+
+  &__frame {
+    width: 100%;
+    height: 100%;
+    min-height: 500px;
+    border: none;
+    border-radius: 14px;
+  }
+
+  &__loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+  }
+
+  &__error {
+    text-align: center;
+    padding: 2rem;
+    color: #ef4444;
   }
 }
 
@@ -1352,6 +2328,7 @@ html.smgp-focus-active {
   // Force clipping of the absolutely-positioned iframe to the rounded corners.
   isolation: isolate;
   -webkit-mask-image: -webkit-radial-gradient(white, black);
+  mask-image: radial-gradient(white, black);
 
   // 3. The iframe element: fills the box. No class of its own — targeted
   //    via the parent modifier so the template stays minimal.

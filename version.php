@@ -25,10 +25,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_sm_graphics_plugin';
-$plugin->version = 2026040923;  // YYYYMMDDXX format — granular progress rings + SCORM embed styles + dashboard perf fix.
+$plugin->version = 2026041300;  // Vue-native activity rendering: folder, choice, survey, feedback, wiki, data, quiz, assign, lesson, workshop, SCORM.
 $plugin->requires = 2022112800; // Moodle 4.1+
 $plugin->maturity = MATURITY_ALPHA;
-$plugin->release = '1.1.0-nuxt.40';  // Nuxt branch, aligned with dev v1.1.0 backend
+$plugin->release = '1.1.0-nuxt.41';  // Nuxt branch — Vue-native activities
 
 // GitHub update server — configurable via UPDATE_BRANCH in .env.
 //
